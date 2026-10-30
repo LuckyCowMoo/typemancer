@@ -73,60 +73,57 @@ export const MAP_NODE_STYLES: Record<MapNodeType, NodeStyleMeta> = {
   },
 };
 
-const ROW_HEIGHT = 225;
-const MAP_WIDTH = 1380;
+const ROW_HEIGHT = 340;
+const MAP_WIDTH = 1440;
 
 /**
  * Computes organic, staggered x/y coordinates on the full-screen parchment map.
- * Encounters on the same floor are staggered vertically by up to ±46px so they never sit
- * on a robotic horizontal line, and columns are spread generously across 1380px so winding
- * text along the paths never overlaps.
+ * Columns are spread across 1440px and vertical spacing is expanded to 340px
+ * so winding multi-word phrases never collide or overlap.
  */
 function getNodePosition(node: MapNode, rowLength: number): { x: number; y: number } {
   const totalFloors = 24;
   const invertedRow = totalFloors - node.floor;
-  const baseY = 120 + invertedRow * ROW_HEIGHT;
+  const baseY = 140 + invertedRow * ROW_HEIGHT;
 
   const seedX = (node.floor * 53 + node.column * 97) % 41;
   const seedY = (node.floor * 71 + node.column * 31) % 43;
 
-  const jitterX = (seedX - 20) * 3.8;
-  // Stagger vertical height strongly across columns + deterministic jitter so nodes feel hand-drawn
+  const jitterX = (seedX - 20) * 2.2;
+  // Reduced column stagger and jitter so vertical distance between floors is always at least ~310px
   const columnStaggerY =
     rowLength === 3
       ? node.column === 0
-        ? -34
+        ? -18
         : node.column === 1
-        ? 28
-        : -18
+        ? 16
+        : -10
       : rowLength === 2
       ? node.column === 0
-        ? -26
-        : 30
+        ? -14
+        : 14
       : 0;
-  const jitterY = columnStaggerY + (seedY - 21) * 1.6;
+  const jitterY = columnStaggerY + (seedY - 21) * 0.9;
 
   if (rowLength === 1) {
     return { x: MAP_WIDTH * 0.5 + jitterX, y: baseY + jitterY };
   }
   if (rowLength === 2) {
-    const base = node.column === 0 ? MAP_WIDTH * 0.31 : MAP_WIDTH * 0.69;
+    const base = node.column === 0 ? MAP_WIDTH * 0.28 : MAP_WIDTH * 0.72;
     return { x: base + jitterX, y: baseY + jitterY };
   }
   const base =
     node.column === 0
-      ? MAP_WIDTH * 0.21
+      ? MAP_WIDTH * 0.17
       : node.column === 1
       ? MAP_WIDTH * 0.5
-      : MAP_WIDTH * 0.79;
+      : MAP_WIDTH * 0.83;
   return { x: base + jitterX, y: baseY + jitterY };
 }
 
 /**
- * Builds two cubic Bezier curves between (x1,y1) and (x2,y2):
- * 1. `linePath`: the visible inky line connecting the two encounters.
- * 2. `textGuidePath`: always oriented Left-to-Right (so SVG `<textPath>` is never upside-down!)
- *    and offset slightly perpendicular to the curve so the phrase winds cleanly parallel to the path.
+ * Builds the visual inky line connecting two encounters plus two unclipped Left-to-Right guide paths
+ * (above and below the road) for rendering wrapped 2-row winding text without browser clipping.
  */
 function buildInkyAndTextPaths(
   x1: number,
@@ -135,59 +132,136 @@ function buildInkyAndTextPaths(
   y2: number,
   seed: number,
   colDiff: number
-): { linePath: string; textGuidePath: string; guideLen: number } {
+): {
+  linePath: string;
+  aboveGuidePath: string;
+  belowGuidePath: string;
+  startOffsetPct: string;
+  segmentLen: number;
+} {
   const dx = x2 - x1;
   const dy = y2 - y1;
-  const midY = (y1 + y2) / 2;
+  const segmentLen = Math.max(120, Math.hypot(dx, dy));
 
-  const sway = ((seed % 19) - 9) * 4.5 + colDiff * 18;
+  const sway = colDiff !== 0 ? colDiff * 36 : ((seed % 11) - 5) * 3;
   const cx1 = x1 + dx * 0.28 + sway;
   const cy1 = y1 + dy * 0.32;
-  const cx2 = x1 + dx * 0.72 - sway * 0.6;
-  const cy2 = midY - 14;
-
+  const cx2 = x1 + dx * 0.72 + sway * 0.5;
+  const cy2 = y1 + dy * 0.68;
   const linePath = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
 
-  // Inset the text guide endpoints by 14% from each node center so road text stays between symbols
-  const tx1 = x1 + dx * 0.14;
-  const ty1 = y1 + dy * 0.14;
-  const tx2 = x1 + dx * 0.86;
-  const ty2 = y1 + dy * 0.86;
+  // Extend guide path endpoints 15% beyond (x1, y1) and (x2, y2) so <textPath> never clips
+  const ex1 = x1 - dx * 0.15;
+  const ey1 = y1 - dy * 0.15;
+  const ex2 = x2 + dx * 0.15;
+  const ey2 = y2 + dy * 0.15;
 
-  const fullLen = Math.max(1, Math.hypot(dx, dy));
-  const guideLen = Math.max(80, Math.hypot(tx2 - tx1, ty2 - ty1));
+  const isLeftToRight = x1 <= x2 + 65;
 
-  // Perpendicular normal offset so text floats parallel beside the inky line
-  const nx = (-dy / fullLen) * 14;
-  const ny = (dx / fullLen) * 14 - 5;
+  let gx1: number,
+    gy1: number,
+    gcx1: number,
+    gcy1: number,
+    gcx2: number,
+    gcy2: number,
+    gx2: number,
+    gy2: number;
+  let gdx: number, gdy: number;
+  let startOffsetPct: string;
 
-  // Ensure text guide runs Left -> Right (or bottom-to-top if nearly vertical) so letters read right-side up
-  if (x1 <= x2 + 12) {
-    const textGuidePath = `M ${tx1 + nx} ${ty1 + ny} C ${cx1 + nx} ${cy1 + ny}, ${cx2 + nx} ${
-      cy2 + ny
-    }, ${tx2 + nx} ${ty2 + ny}`;
-    return { linePath, textGuidePath, guideLen };
+  if (isLeftToRight) {
+    gx1 = ex1;
+    gy1 = ey1;
+    gcx1 = cx1;
+    gcy1 = cy1;
+    gcx2 = cx2;
+    gcy2 = cy2;
+    gx2 = ex2;
+    gy2 = ey2;
+    gdx = ex2 - ex1;
+    gdy = ey2 - ey1;
+    startOffsetPct = '54%';
   } else {
-    const textGuidePath = `M ${tx2 + nx} ${ty2 + ny} C ${cx2 + nx} ${cy2 + ny}, ${cx1 + nx} ${
-      cy1 + ny
-    }, ${tx1 + nx} ${ty1 + ny}`;
-    return { linePath, textGuidePath, guideLen };
+    gx1 = ex2;
+    gy1 = ey2;
+    gcx1 = cx2;
+    gcy1 = cy2;
+    gcx2 = cx1;
+    gcy2 = cy1;
+    gx2 = ex1;
+    gy2 = ey1;
+    gdx = ex1 - ex2;
+    gdy = ey1 - ey2;
+    startOffsetPct = '46%';
   }
+
+  const glen = Math.max(1, Math.hypot(gdx, gdy));
+  const ux = gdx / glen;
+  const uy = gdy / glen;
+
+  const aboveDx = uy * 13;
+  const aboveDy = -ux * 13;
+  const belowDx = -uy * 16;
+  const belowDy = ux * 16;
+
+  const aboveGuidePath = `M ${gx1 + aboveDx} ${gy1 + aboveDy} C ${gcx1 + aboveDx} ${
+    gcy1 + aboveDy
+  }, ${gcx2 + aboveDx} ${gcy2 + aboveDy}, ${gx2 + aboveDx} ${gy2 + aboveDy}`;
+  const belowGuidePath = `M ${gx1 + belowDx} ${gy1 + belowDy} C ${gcx1 + belowDx} ${
+    gcy1 + belowDy
+  }, ${gcx2 + belowDx} ${gcy2 + belowDy}, ${gx2 + belowDx} ${gy2 + belowDy}`;
+
+  return {
+    linePath,
+    aboveGuidePath,
+    belowGuidePath,
+    startOffsetPct,
+    segmentLen,
+  };
 }
 
-function getFittedRoadTextProps(phrase: string, guideLen: number, isEnterReady: boolean) {
-  const charCount = Math.max(6, phrase.length);
-  const maxAllowedWidth = Math.max(75, guideLen * 0.9);
-  const rawFontSize = maxAllowedWidth / (charCount * 0.58);
-  const baseFontSize = Math.max(8.5, Math.min(13.5, rawFontSize));
-  const fontSize = isEnterReady ? Math.min(14.2, baseFontSize * 1.05) : baseFontSize;
-  const estimatedWidth = charCount * fontSize * 0.57;
-  const needsCompression = estimatedWidth > maxAllowedWidth;
+/**
+ * Splits a longer phrase evenly across two rows so each line remains readable without clipping.
+ */
+function splitPhraseForRoad(phrase: string): { topLine: string; bottomLine: string | null } {
+  const trimmed = phrase.trim();
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  if (words.length <= 1) {
+    return { topLine: trimmed, bottomLine: null };
+  }
+  if (words.length <= 2 && trimmed.length <= 16) {
+    return { topLine: trimmed, bottomLine: null };
+  }
+  let bestIdx = 1;
+  let minDiff = Infinity;
+  for (let i = 1; i < words.length; i++) {
+    const left = words.slice(0, i).join(' ');
+    const right = words.slice(i).join(' ');
+    const diff = Math.abs(left.length - right.length);
+    if (diff < minDiff) {
+      minDiff = diff;
+      bestIdx = i;
+    }
+  }
+  return {
+    topLine: words.slice(0, bestIdx).join(' '),
+    bottomLine: words.slice(bestIdx).join(' '),
+  };
+}
+
+function getFittedRoadTextProps(
+  lineText: string,
+  segmentLen: number,
+  isEnterReady: boolean
+): { fontSize: string } {
+  const usableLen = segmentLen * 0.72;
+  const charCount = Math.max(5, lineText.length);
+  const naturalSize = usableLen / (charCount * 0.56);
+  const baseFontSize = Math.max(11, Math.min(14.5, naturalSize));
+  const fontSize = isEnterReady ? Math.min(16, baseFontSize * 1.1) : baseFontSize;
 
   return {
     fontSize: `${fontSize.toFixed(1)}px`,
-    textLength: needsCompression ? Math.round(maxAllowedWidth) : undefined,
-    lengthAdjust: needsCompression ? ('spacingAndGlyphs' as const) : undefined,
   };
 }
 
@@ -203,11 +277,11 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
   setScrollOffset,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const totalHeight = 24 * ROW_HEIGHT + 300;
+  const totalHeight = 24 * ROW_HEIGHT + 360;
 
   useEffect(() => {
     const invertedRow = 24 - currentFloor;
-    const targetY = 120 + invertedRow * ROW_HEIGHT;
+    const targetY = 140 + invertedRow * ROW_HEIGHT;
     const viewHeight = containerRef.current?.clientHeight || window.innerHeight;
     const idealScroll = Math.max(
       0,
@@ -258,7 +332,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
   }, [availableNodes, difficulty, phraseDiff, typedInput]);
 
   // Precompute synthetic starting point below Floor 1 when on Floor 1
-  const startOrigin = { x: MAP_WIDTH * 0.5, y: 120 + 24 * ROW_HEIGHT };
+  const startOrigin = { x: MAP_WIDTH * 0.5, y: 140 + 24 * ROW_HEIGHT };
 
   return (
     <div className="fullscreen-map-container" ref={containerRef}>
@@ -314,7 +388,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
             {(mapFloors[0] || []).map((targetNode, idx) => {
               const toPos = nodePositions.get(targetNode.id);
               if (!toPos) return null;
-              const { textGuidePath } = buildInkyAndTextPaths(
+              const { aboveGuidePath, belowGuidePath } = buildInkyAndTextPaths(
                 startOrigin.x,
                 startOrigin.y,
                 toPos.x,
@@ -323,12 +397,20 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                 idx - 1
               );
               return (
-                <path
-                  key={`guide_start_${targetNode.id}`}
-                  id={`guide_${targetNode.id}`}
-                  d={textGuidePath}
-                  fill="none"
-                />
+                <React.Fragment key={`guide_group_${targetNode.id}`}>
+                  <path
+                    key={`guide_above_${targetNode.id}`}
+                    id={`guide_above_${targetNode.id}`}
+                    d={aboveGuidePath}
+                    fill="none"
+                  />
+                  <path
+                    key={`guide_below_${targetNode.id}`}
+                    id={`guide_below_${targetNode.id}`}
+                    d={belowGuidePath}
+                    fill="none"
+                  />
+                </React.Fragment>
               );
             })}
 
@@ -342,7 +424,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                   const isActiveChoiceEdge =
                     node.id === currentNodeId && availableIdSet.has(nextId);
                   if (!isActiveChoiceEdge) return null;
-                  const { textGuidePath } = buildInkyAndTextPaths(
+                  const { aboveGuidePath, belowGuidePath } = buildInkyAndTextPaths(
                     fromPos.x,
                     fromPos.y,
                     toPos.x,
@@ -351,12 +433,20 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                     toPos.node.column - node.column
                   );
                   return (
-                    <path
-                      key={`guide_${nextId}`}
-                      id={`guide_${nextId}`}
-                      d={textGuidePath}
-                      fill="none"
-                    />
+                    <React.Fragment key={`guide_group_${nextId}`}>
+                      <path
+                        key={`guide_above_${nextId}`}
+                        id={`guide_above_${nextId}`}
+                        d={aboveGuidePath}
+                        fill="none"
+                      />
+                      <path
+                        key={`guide_below_${nextId}`}
+                        id={`guide_below_${nextId}`}
+                        d={belowGuidePath}
+                        fill="none"
+                      />
+                    </React.Fragment>
                   );
                 });
               })
@@ -371,7 +461,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
             const isTakenStartEdge = targetNode.completed;
             const isHighlighted = isStartChoiceEdge && highlightedIds.has(targetNode.id);
             const isEnterReady = isStartChoiceEdge && enterReadyId === targetNode.id;
-            const { linePath, guideLen } = buildInkyAndTextPaths(
+            const { linePath, startOffsetPct, segmentLen } = buildInkyAndTextPaths(
               startOrigin.x,
               startOrigin.y,
               toPos.x,
@@ -380,7 +470,12 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
               idx - 1
             );
             const phrase = targetNode.phrases[phraseDiff];
-            const fitted = getFittedRoadTextProps(phrase, guideLen, isEnterReady);
+            const { topLine, bottomLine } = splitPhraseForRoad(phrase);
+            const fitted = getFittedRoadTextProps(
+              topLine.length >= (bottomLine?.length || 0) ? topLine : (bottomLine || topLine),
+              segmentLen,
+              isEnterReady
+            );
 
             return (
               <g key={`start_edge_${targetNode.id}`}>
@@ -414,26 +509,46 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                   filter="url(#ink-roughness)"
                 />
                 {isStartChoiceEdge && (
-                  <text
-                    style={{ fontSize: fitted.fontSize }}
-                    className={`map-winding-path-text ${
-                      isEnterReady
-                        ? 'map-text-enter-ready'
-                        : isHighlighted
-                        ? 'map-text-highlighted'
-                        : ''
-                    }`}
-                  >
-                    <textPath
-                      href={`#guide_${targetNode.id}`}
-                      startOffset="50%"
-                      textAnchor="middle"
-                      textLength={fitted.textLength}
-                      lengthAdjust={fitted.lengthAdjust}
+                  <>
+                    <text
+                      style={{ fontSize: fitted.fontSize }}
+                      className={`map-winding-path-text ${
+                        isEnterReady
+                          ? 'map-text-enter-ready'
+                          : isHighlighted
+                          ? 'map-text-highlighted'
+                          : ''
+                      }`}
                     >
-                      {phrase}
-                    </textPath>
-                  </text>
+                      <textPath
+                        href={`#guide_above_${targetNode.id}`}
+                        startOffset={startOffsetPct}
+                        textAnchor="middle"
+                      >
+                        {topLine}
+                      </textPath>
+                    </text>
+                    {bottomLine && (
+                      <text
+                        style={{ fontSize: fitted.fontSize }}
+                        className={`map-winding-path-text ${
+                          isEnterReady
+                            ? 'map-text-enter-ready'
+                            : isHighlighted
+                            ? 'map-text-highlighted'
+                            : ''
+                        }`}
+                      >
+                        <textPath
+                          href={`#guide_below_${targetNode.id}`}
+                          startOffset={startOffsetPct}
+                          textAnchor="middle"
+                        >
+                          {bottomLine}
+                        </textPath>
+                      </text>
+                    )}
+                  </>
                 )}
               </g>
             );
@@ -455,7 +570,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                 const isHighlighted = isActiveChoiceEdge && highlightedIds.has(nextId);
                 const isEnterReady = isActiveChoiceEdge && enterReadyId === nextId;
 
-                const { linePath, guideLen } = buildInkyAndTextPaths(
+                const { linePath, startOffsetPct, segmentLen } = buildInkyAndTextPaths(
                   fromPos.x,
                   fromPos.y,
                   toPos.x,
@@ -464,7 +579,12 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                   toPos.node.column - node.column
                 );
                 const phrase = toPos.node.phrases[phraseDiff];
-                const fitted = getFittedRoadTextProps(phrase, guideLen, isEnterReady);
+                const { topLine, bottomLine } = splitPhraseForRoad(phrase);
+                const fitted = getFittedRoadTextProps(
+                  topLine.length >= (bottomLine?.length || 0) ? topLine : (bottomLine || topLine),
+                  segmentLen,
+                  isEnterReady
+                );
 
                 return (
                   <g key={`${node.id}->${nextId}`}>
@@ -501,26 +621,46 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                     />
 
                     {isActiveChoiceEdge && (
-                      <text
-                        style={{ fontSize: fitted.fontSize }}
-                        className={`map-winding-path-text ${
-                          isEnterReady
-                            ? 'map-text-enter-ready'
-                            : isHighlighted
-                            ? 'map-text-highlighted'
-                            : ''
-                        }`}
-                      >
-                        <textPath
-                          href={`#guide_${nextId}`}
-                          startOffset="50%"
-                          textAnchor="middle"
-                          textLength={fitted.textLength}
-                          lengthAdjust={fitted.lengthAdjust}
+                      <>
+                        <text
+                          style={{ fontSize: fitted.fontSize }}
+                          className={`map-winding-path-text ${
+                            isEnterReady
+                              ? 'map-text-enter-ready'
+                              : isHighlighted
+                              ? 'map-text-highlighted'
+                              : ''
+                          }`}
                         >
-                          {phrase}
-                        </textPath>
-                      </text>
+                          <textPath
+                            href={`#guide_above_${nextId}`}
+                            startOffset={startOffsetPct}
+                            textAnchor="middle"
+                          >
+                            {topLine}
+                          </textPath>
+                        </text>
+                        {bottomLine && (
+                          <text
+                            style={{ fontSize: fitted.fontSize }}
+                            className={`map-winding-path-text ${
+                              isEnterReady
+                                ? 'map-text-enter-ready'
+                                : isHighlighted
+                                ? 'map-text-highlighted'
+                                : ''
+                            }`}
+                          >
+                            <textPath
+                              href={`#guide_below_${nextId}`}
+                              startOffset={startOffsetPct}
+                              textAnchor="middle"
+                            >
+                              {bottomLine}
+                            </textPath>
+                          </text>
+                        )}
+                      </>
                     )}
                   </g>
                 );

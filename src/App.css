@@ -1025,14 +1025,12 @@ body,
 .map-text-highlighted {
   fill: #b45309;
   stroke: #fef3c7;
-  font-size: 14.5px;
 }
 
 .map-text-enter-ready {
   fill: #065f46 !important;
   stroke: #a7f3d0 !important;
   stroke-width: 5px;
-  font-size: 16px !important;
 }
 
 /* Pure Colored Symbol Nodes — Centered strictly on (pos.x, pos.y) via translate(-50%, -50%)! */

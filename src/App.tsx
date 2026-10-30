@@ -177,7 +177,7 @@ export function App() {
   const [currentFloor, setCurrentFloor] = useState<number>(1);
   const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
   const [activeNodeType, setActiveNodeType] = useState<'battle' | 'elite' | 'boss'>('battle');
-  const [mapScrollOffset, setMapScrollOffset] = useState<number>(3600);
+  const [mapScrollOffset, setMapScrollOffset] = useState<number>(6800);
 
   const [energy, setEnergy] = useState<number>(3);
   const [maxEnergy, setMaxEnergy] = useState<number>(3);
@@ -2381,7 +2381,7 @@ export function App() {
         }
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.min(4800, prev + 160));
+          setMapScrollOffset((prev) => Math.min(8600, prev + 160));
           return;
         }
         if (e.key === 'PageUp') {
@@ -2391,7 +2391,7 @@ export function App() {
         }
         if (e.key === 'PageDown') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.min(4800, prev + 420));
+          setMapScrollOffset((prev) => Math.min(8600, prev + 420));
           return;
         }
       }
