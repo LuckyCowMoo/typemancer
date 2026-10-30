@@ -135,7 +135,7 @@ function buildInkyAndTextPaths(
   y2: number,
   seed: number,
   colDiff: number
-): { linePath: string; textGuidePath: string } {
+): { linePath: string; textGuidePath: string; guideLen: number } {
   const dx = x2 - x1;
   const dy = y2 - y1;
   const midY = (y1 + y2) / 2;
@@ -148,29 +148,47 @@ function buildInkyAndTextPaths(
 
   const linePath = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
 
-  // Inset the text guide endpoints by 16% from each node center so road text stays between symbols
-  const tx1 = x1 + dx * 0.16;
-  const ty1 = y1 + dy * 0.16;
-  const tx2 = x1 + dx * 0.84;
-  const ty2 = y1 + dy * 0.84;
+  // Inset the text guide endpoints by 14% from each node center so road text stays between symbols
+  const tx1 = x1 + dx * 0.14;
+  const ty1 = y1 + dy * 0.14;
+  const tx2 = x1 + dx * 0.86;
+  const ty2 = y1 + dy * 0.86;
+
+  const fullLen = Math.max(1, Math.hypot(dx, dy));
+  const guideLen = Math.max(80, Math.hypot(tx2 - tx1, ty2 - ty1));
 
   // Perpendicular normal offset so text floats parallel beside the inky line
-  const len = Math.max(1, Math.hypot(dx, dy));
-  const nx = (-dy / len) * 14;
-  const ny = (dx / len) * 14 - 5;
+  const nx = (-dy / fullLen) * 14;
+  const ny = (dx / fullLen) * 14 - 5;
 
   // Ensure text guide runs Left -> Right (or bottom-to-top if nearly vertical) so letters read right-side up
   if (x1 <= x2 + 12) {
     const textGuidePath = `M ${tx1 + nx} ${ty1 + ny} C ${cx1 + nx} ${cy1 + ny}, ${cx2 + nx} ${
       cy2 + ny
     }, ${tx2 + nx} ${ty2 + ny}`;
-    return { linePath, textGuidePath };
+    return { linePath, textGuidePath, guideLen };
   } else {
     const textGuidePath = `M ${tx2 + nx} ${ty2 + ny} C ${cx2 + nx} ${cy2 + ny}, ${cx1 + nx} ${
       cy1 + ny
     }, ${tx1 + nx} ${ty1 + ny}`;
-    return { linePath, textGuidePath };
+    return { linePath, textGuidePath, guideLen };
   }
+}
+
+function getFittedRoadTextProps(phrase: string, guideLen: number, isEnterReady: boolean) {
+  const charCount = Math.max(6, phrase.length);
+  const maxAllowedWidth = Math.max(75, guideLen * 0.9);
+  const rawFontSize = maxAllowedWidth / (charCount * 0.58);
+  const baseFontSize = Math.max(8.5, Math.min(13.5, rawFontSize));
+  const fontSize = isEnterReady ? Math.min(14.2, baseFontSize * 1.05) : baseFontSize;
+  const estimatedWidth = charCount * fontSize * 0.57;
+  const needsCompression = estimatedWidth > maxAllowedWidth;
+
+  return {
+    fontSize: `${fontSize.toFixed(1)}px`,
+    textLength: needsCompression ? Math.round(maxAllowedWidth) : undefined,
+    lengthAdjust: needsCompression ? ('spacingAndGlyphs' as const) : undefined,
+  };
 }
 
 export const ScrollableMap: React.FC<ScrollableMapProps> = ({
@@ -293,20 +311,26 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
             </filter>
 
             {/* Define `<path>` guides for every available path so text winds parallel to the line */}
-            {currentFloor === 1 &&
-              availableNodes.map((targetNode, idx) => {
-                const toPos = nodePositions.get(targetNode.id);
-                if (!toPos) return null;
-                const { textGuidePath } = buildInkyAndTextPaths(
-                  startOrigin.x,
-                  startOrigin.y,
-                  toPos.x,
-                  toPos.y,
-                  idx + 11,
-                  idx - 1
-                );
-                return <path key={`guide_start_${targetNode.id}`} id={`guide_${targetNode.id}`} d={textGuidePath} fill="none" />;
-              })}
+            {(mapFloors[0] || []).map((targetNode, idx) => {
+              const toPos = nodePositions.get(targetNode.id);
+              if (!toPos) return null;
+              const { textGuidePath } = buildInkyAndTextPaths(
+                startOrigin.x,
+                startOrigin.y,
+                toPos.x,
+                toPos.y,
+                idx + 11,
+                idx - 1
+              );
+              return (
+                <path
+                  key={`guide_start_${targetNode.id}`}
+                  id={`guide_${targetNode.id}`}
+                  d={textGuidePath}
+                  fill="none"
+                />
+              );
+            })}
 
             {mapFloors.map((row) =>
               row.map((node) => {
@@ -326,45 +350,72 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                     node.floor * 13 + idx * 7,
                     toPos.node.column - node.column
                   );
-                  return <path key={`guide_${nextId}`} id={`guide_${nextId}`} d={textGuidePath} fill="none" />;
+                  return (
+                    <path
+                      key={`guide_${nextId}`}
+                      id={`guide_${nextId}`}
+                      d={textGuidePath}
+                      fill="none"
+                    />
+                  );
                 });
               })
             )}
           </defs>
 
-          {/* Starting Floor 1 Inky Entry Paths */}
-          {currentFloor === 1 &&
-            availableNodes.map((targetNode, idx) => {
-              const toPos = nodePositions.get(targetNode.id);
-              if (!toPos) return null;
-              const isHighlighted = highlightedIds.has(targetNode.id);
-              const isEnterReady = enterReadyId === targetNode.id;
-              const { linePath } = buildInkyAndTextPaths(
-                startOrigin.x,
-                startOrigin.y,
-                toPos.x,
-                toPos.y,
-                idx + 11,
-                idx - 1
-              );
+          {/* Persistent Forest Entrance -> Floor 1 Inky Paths (Always visible when scrolling down!) */}
+          {(mapFloors[0] || []).map((targetNode, idx) => {
+            const toPos = nodePositions.get(targetNode.id);
+            if (!toPos) return null;
+            const isStartChoiceEdge = currentFloor === 1 && availableIdSet.has(targetNode.id);
+            const isTakenStartEdge = targetNode.completed;
+            const isHighlighted = isStartChoiceEdge && highlightedIds.has(targetNode.id);
+            const isEnterReady = isStartChoiceEdge && enterReadyId === targetNode.id;
+            const { linePath, guideLen } = buildInkyAndTextPaths(
+              startOrigin.x,
+              startOrigin.y,
+              toPos.x,
+              toPos.y,
+              idx + 11,
+              idx - 1
+            );
+            const phrase = targetNode.phrases[phraseDiff];
+            const fitted = getFittedRoadTextProps(phrase, guideLen, isEnterReady);
 
-              return (
-                <g key={`start_edge_${targetNode.id}`}>
-                  <path
-                    d={linePath}
-                    fill="none"
-                    stroke={
-                      isEnterReady
-                        ? '#137547'
-                        : isHighlighted
-                        ? '#d97706'
-                        : '#8c3b14'
-                    }
-                    strokeWidth={isEnterReady ? 5.2 : isHighlighted ? 4.4 : 3.2}
-                    strokeLinecap="round"
-                    filter="url(#ink-roughness)"
-                  />
+            return (
+              <g key={`start_edge_${targetNode.id}`}>
+                <path
+                  d={linePath}
+                  fill="none"
+                  stroke={
+                    isEnterReady
+                      ? '#137547'
+                      : isHighlighted
+                      ? '#d97706'
+                      : isStartChoiceEdge
+                      ? '#8c3b14'
+                      : isTakenStartEdge
+                      ? '#102a3a'
+                      : 'rgba(16, 42, 58, 0.25)'
+                  }
+                  strokeWidth={
+                    isEnterReady
+                      ? 5.2
+                      : isHighlighted
+                      ? 4.4
+                      : isStartChoiceEdge || isTakenStartEdge
+                      ? 3.4
+                      : 2.1
+                  }
+                  strokeDasharray={
+                    isTakenStartEdge || isStartChoiceEdge ? 'none' : '7 8'
+                  }
+                  strokeLinecap="round"
+                  filter="url(#ink-roughness)"
+                />
+                {isStartChoiceEdge && (
                   <text
+                    style={{ fontSize: fitted.fontSize }}
                     className={`map-winding-path-text ${
                       isEnterReady
                         ? 'map-text-enter-ready'
@@ -377,13 +428,16 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                       href={`#guide_${targetNode.id}`}
                       startOffset="50%"
                       textAnchor="middle"
+                      textLength={fitted.textLength}
+                      lengthAdjust={fitted.lengthAdjust}
                     >
-                      {targetNode.phrases[phraseDiff]}
+                      {phrase}
                     </textPath>
                   </text>
-                </g>
-              );
-            })}
+                )}
+              </g>
+            );
+          })}
 
           {/* All Floor-to-Floor Inky Edges + Winding Parallel Text on Active Edges */}
           {mapFloors.map((row) =>
@@ -401,7 +455,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                 const isHighlighted = isActiveChoiceEdge && highlightedIds.has(nextId);
                 const isEnterReady = isActiveChoiceEdge && enterReadyId === nextId;
 
-                const { linePath } = buildInkyAndTextPaths(
+                const { linePath, guideLen } = buildInkyAndTextPaths(
                   fromPos.x,
                   fromPos.y,
                   toPos.x,
@@ -409,6 +463,8 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                   node.floor * 13 + idx * 7,
                   toPos.node.column - node.column
                 );
+                const phrase = toPos.node.phrases[phraseDiff];
+                const fitted = getFittedRoadTextProps(phrase, guideLen, isEnterReady);
 
                 return (
                   <g key={`${node.id}->${nextId}`}>
@@ -446,6 +502,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
 
                     {isActiveChoiceEdge && (
                       <text
+                        style={{ fontSize: fitted.fontSize }}
                         className={`map-winding-path-text ${
                           isEnterReady
                             ? 'map-text-enter-ready'
@@ -458,8 +515,10 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                           href={`#guide_${nextId}`}
                           startOffset="50%"
                           textAnchor="middle"
+                          textLength={fitted.textLength}
+                          lengthAdjust={fitted.lengthAdjust}
                         >
-                          {toPos.node.phrases[phraseDiff]}
+                          {phrase}
                         </textPath>
                       </text>
                     )}
@@ -469,6 +528,33 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
             })
           )}
         </svg>
+
+        {/* Forest Entrance Landmark at Bottom of Map */}
+        <div
+          className="map-forest-entrance"
+          style={{
+            left: `${startOrigin.x}px`,
+            top: `${startOrigin.y}px`,
+          }}
+        >
+          <svg
+            width="56"
+            height="48"
+            viewBox="0 0 64 52"
+            className="map-entrance-arch-svg"
+          >
+            {/* Left & Right Pine Trees + Stone Archway */}
+            <path
+              fill="#2d5a27"
+              d="M12 6 L3 24 H8 L2 38 H22 L16 24 H21 Z M52 6 L43 24 H48 L42 38 H62 L56 24 H61 Z"
+            />
+            <path
+              fill="#102a3a"
+              d="M20 44 V24 C20 14, 44 14, 44 24 V44 H39 V25 C39 19, 25 19, 25 25 V44 Z"
+            />
+          </svg>
+          <div className="map-entrance-label">FOREST ENTRANCE</div>
+        </div>
 
         {/* Pure Colored Encounter Symbols (No circle border, no floor numbers!) */}
         {mapFloors.map((row) =>

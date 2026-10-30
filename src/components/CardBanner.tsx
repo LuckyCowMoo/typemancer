@@ -67,7 +67,26 @@ export const CardBanner: React.FC<CardBannerProps> = ({
               {resolved.name}
               {instance.upgraded && <span className="card-upgraded-tag"> +</span>}
             </span>
-            <span className="card-cost-pill">{priceBadge ?? resolved.cost}</span>
+            <span className="card-badges-right">
+              {resolved.type === 'power' && (
+                <span className="card-trait-chip trait-power" title="Effect lasts for the rest of combat">
+                  PWR
+                </span>
+              )}
+              {resolved.burnDraft && resolved.type !== 'power' && (
+                <span className="card-trait-chip trait-once" title="Usable once per combat">
+                  1x
+                </span>
+              )}
+              <span className="card-cost-pill" title="Energy Cost">
+                {resolved.cost}⚡
+              </span>
+              {priceBadge && (
+                <span className="card-price-pill" title="Gold Price">
+                  {priceBadge}
+                </span>
+              )}
+            </span>
           </div>
           <div className="card-tab-sub">{subtitleOverride ?? resolved.description}</div>
         </div>

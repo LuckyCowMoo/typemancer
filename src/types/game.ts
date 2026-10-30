@@ -31,7 +31,27 @@ export type EffectType =
   | 'damage_per_ward'
   | 'double_ward'
   | 'double_ink_burn'
-  | 'gain_ward_per_card_in_hand';
+  | 'gain_ward_per_card_in_hand'
+  // ---- Persistent "rest of this combat" powers (stack if played more than once) ----
+  | 'power_ward_each_turn' // Gain X Ward at the start of each of your turns
+  | 'power_bold_each_turn' // Gain X Bold at the start of each of your turns
+  | 'power_draw_each_turn' // Draw X extra cards at the start of each of your turns
+  | 'power_energy_each_turn' // Gain X extra Energy at the start of each of your turns
+  | 'power_heal_each_turn' // Heal X HP at the start of each of your turns
+  | 'power_ink_burn_all_each_turn' // Apply X Ink Burn to ALL enemies at the end of each of your turns
+  | 'power_damage_all_each_turn' // Deal X damage to ALL enemies at the end of each of your turns
+  | 'power_ward_on_card_play' // Gain X Ward whenever you play a card
+  | 'power_damage_all_on_attack'; // Deal X damage to ALL enemies whenever you play an Attack
+
+export type PowerEffectType = Extract<EffectType, `power_${string}`>;
+
+export interface ActivePower {
+  id: string;
+  name: string;
+  type: PowerEffectType;
+  amount: number;
+  label: string;
+}
 
 export interface CardEffect {
   type: EffectType;
@@ -180,19 +200,30 @@ export interface MapNode {
   phrases: DifficultyStrings; // Assigned from map_phrases.json so player types e.g. "take the left path towards the warm campsite"
 }
 
+export interface MysteryEffects {
+  hpChange?: number;
+  maxHpChange?: number;
+  goldChange?: number;
+  gainRandomCard?: boolean;
+  gainRareCard?: boolean;
+  upgradeRandomCard?: boolean;
+  gainRandomRelic?: boolean;
+  removeRandomCard?: boolean;
+  /** Start a battle against an ordinary encounter for the current floor after the event. */
+  startBattle?: boolean;
+}
+
 export interface MysteryChoice {
   id: string;
   phrases: DifficultyStrings;
+  /** Text shown when the choice is guaranteed, or when a chance roll SUCCEEDS. */
   outcomeText: string;
-  effects: {
-    hpChange?: number;
-    maxHpChange?: number;
-    goldChange?: number;
-    gainRandomCard?: boolean;
-    upgradeRandomCard?: boolean;
-    gainRandomRelic?: boolean;
-    removeRandomCard?: boolean;
-  };
+  /** Guaranteed effects (or the SUCCESS effects when `chance` is set). */
+  effects: MysteryEffects;
+  /** Optional 1-99 percent chance of success. When set, failure applies `failEffects`. */
+  chance?: number;
+  failText?: string;
+  failEffects?: MysteryEffects;
 }
 
 export interface MysteryEventDefinition {

@@ -42,6 +42,32 @@ export function getRelicDefinition(relicId: string): RelicDefinition | undefined
   return RELICS_CATALOG.find((r) => r.id === relicId);
 }
 
+/** Effects that must land on an enemy (never on the player). */
+const ENEMY_DIRECTED_EFFECTS: CardEffect['type'][] = [
+  'damage',
+  'faded',
+  'exposed',
+  'ink_burn',
+  'double_ink_burn',
+  'damage_per_ward',
+];
+
+/**
+ * Safety net so a card can never be un-targetable: if a card is marked `self` but carries
+ * single-target enemy effects (e.g. Ink Burn), the student targets an enemy instead.
+ */
+export function deriveEffectiveTarget(
+  declared: CardDefinition['target'],
+  effects: CardEffect[]
+): CardDefinition['target'] {
+  if (declared !== 'self') return declared;
+  const enemyEffects = effects.filter(
+    (e) => ENEMY_DIRECTED_EFFECTS.includes(e.type) && e.target !== 'self'
+  );
+  if (enemyEffects.length === 0) return 'self';
+  return enemyEffects.every((e) => e.target === 'all_enemies') ? 'all_enemies' : 'enemy';
+}
+
 /**
  * Resolves a CardInstance into its active stats (accounting for whether it is upgraded).
  */
@@ -65,6 +91,7 @@ export function resolveCardInstance(
 } {
   const def = getCardDefinition(instance.cardId);
   if (instance.upgraded && def.upgrade) {
+    const upEffects = def.upgrade.effects || def.effects;
     return {
       instanceId: instance.instanceId,
       cardId: def.id,
@@ -76,9 +103,9 @@ export function resolveCardInstance(
       cost: def.upgrade.cost !== undefined ? def.upgrade.cost : def.cost,
       type: def.type,
       rarity: def.rarity,
-      target: def.target,
+      target: deriveEffectiveTarget(def.target, upEffects),
       description: def.upgrade.description || def.description,
-      effects: def.upgrade.effects || def.effects,
+      effects: upEffects,
       burnDraft:
         def.upgrade.burnDraft !== undefined
           ? def.upgrade.burnDraft
@@ -96,7 +123,7 @@ export function resolveCardInstance(
     cost: def.cost,
     type: def.type,
     rarity: def.rarity,
-    target: def.target,
+    target: deriveEffectiveTarget(def.target, def.effects),
     description: def.description,
     effects: def.effects,
     burnDraft: Boolean(def.burnDraft),

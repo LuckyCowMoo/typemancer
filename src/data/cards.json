@@ -8,7 +8,7 @@
     "names": {
       "easy": "strike",
       "medium": "ink strike",
-      "hard": "strike with an iron nib"
+      "hard": "slash with a fountain nib"
     },
     "connectors": {
       "easy": "at",
@@ -23,15 +23,15 @@
       }
     ],
     "art": {
-      "primaryColor": "#c85a32",
-      "secondaryColor": "#f4a261",
-      "shape": "capsule"
+      "primaryColor": "#b84a14",
+      "secondaryColor": "#f3a871",
+      "shape": "diamond"
     },
     "upgrade": {
       "names": {
-        "easy": "sharp strike",
+        "easy": "keen strike",
         "medium": "sharpened ink strike",
-        "hard": "strike with a razor sharp iron nib"
+        "hard": "carve deeply with a razor fountain nib"
       },
       "description": "Deal 9 damage.",
       "effects": [
@@ -56,7 +56,7 @@
     "connectors": {
       "easy": "on self",
       "medium": "around myself",
-      "hard": "to shield my body from harm"
+      "hard": "to fortify my stance"
     },
     "description": "Gain 5 Ward.",
     "effects": [
@@ -66,15 +66,15 @@
       }
     ],
     "art": {
-      "primaryColor": "#1d5c78",
-      "secondaryColor": "#4ea8de",
+      "primaryColor": "#155a7a",
+      "secondaryColor": "#72b5d4",
       "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "strong ward",
-        "medium": "reinforced page ward",
-        "hard": "raise a thick barrier of vellum"
+        "easy": "hardcover ward",
+        "medium": "hardcover page ward",
+        "hard": "raise a leatherbound hardcover shield"
       },
       "description": "Gain 8 Ward.",
       "effects": [
@@ -94,18 +94,18 @@
     "names": {
       "easy": "rock",
       "medium": "boulder barrage",
-      "hard": "launch a devastating boulder barrage"
+      "hard": "hurl a crushing paperweight boulder"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "crushing down towards"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 8 damage and apply 2 Exposed.",
+    "description": "Deal 9 damage and apply 2 Exposed.",
     "effects": [
       {
         "type": "damage",
-        "amount": 8
+        "amount": 9
       },
       {
         "type": "exposed",
@@ -113,21 +113,21 @@
       }
     ],
     "art": {
-      "primaryColor": "#b54823",
-      "secondaryColor": "#e76f51",
+      "primaryColor": "#8d5524",
+      "secondaryColor": "#c68642",
       "shape": "hexagon"
     },
     "upgrade": {
       "names": {
         "easy": "polished rock",
-        "medium": "heavy boulder barrage",
-        "hard": "launch a cataclysmic granite barrage"
+        "medium": "polished monolith barrage",
+        "hard": "hurl a gleaming carved monolith of granite"
       },
-      "description": "Deal 11 damage and apply 3 Exposed.",
+      "description": "Deal 12 damage and apply 3 Exposed.",
       "effects": [
         {
           "type": "damage",
-          "amount": 11
+          "amount": 12
         },
         {
           "type": "exposed",
@@ -145,12 +145,12 @@
     "names": {
       "easy": "blot",
       "medium": "blotting cloud",
-      "hard": "splatter a blinding cloud of ink"
+      "hard": "conjure a blinding cloud of blotting ink"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "across",
-      "hard": "directly into the eyes of"
+      "easy": "at",
+      "medium": "towards",
+      "hard": "aiming squarely at"
     },
     "description": "Apply 2 Faded and 3 Ink Burn.",
     "effects": [
@@ -164,15 +164,15 @@
       }
     ],
     "art": {
-      "primaryColor": "#5e35b1",
-      "secondaryColor": "#9575cd",
+      "primaryColor": "#5c2a6a",
+      "secondaryColor": "#b97fc9",
       "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "dark blot",
-        "medium": "dense blotting cloud",
-        "hard": "splatter a suffocating cloud of dark ink"
+        "easy": "storm blot",
+        "medium": "tempestuous blotting cloud",
+        "hard": "unleash a choking tempest of black blotting ink"
       },
       "description": "Apply 3 Faded and 5 Ink Burn.",
       "effects": [
@@ -189,44 +189,928 @@
   },
   {
     "id": "fire_breathing",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "fire breath",
+      "medium": "fire breathing",
+      "hard": "exhale a roaring torrent of liquid fire"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: apply 2 Ink Burn and deal 2 damage to ALL enemies at the end of your turn.",
+    "effects": [
+      {
+        "type": "power_ink_burn_all_each_turn",
+        "amount": 2
+      },
+      {
+        "type": "power_damage_all_each_turn",
+        "amount": 2
+      }
+    ],
+    "art": {
+      "primaryColor": "#c2410c",
+      "secondaryColor": "#fdba74",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "dragon breath",
+        "medium": "dragonfire breathing",
+        "hard": "breathe the white-hot furnace of an elder dragon"
+      },
+      "description": "Rest of combat: apply 3 Ink Burn and deal 3 damage to ALL enemies at the end of your turn.",
+      "effects": [
+        {
+          "type": "power_ink_burn_all_each_turn",
+          "amount": 3
+        },
+        {
+          "type": "power_damage_all_each_turn",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "metallicize",
     "rarity": "common",
     "type": "power",
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "breathing",
-      "medium": "fire breathing",
-      "hard": "execute a fire breathing"
+      "easy": "iron type",
+      "medium": "iron typesetting",
+      "hard": "cast your armour in molten lead type"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Apply 1 Ink Burn.",
+    "description": "Rest of combat: gain 4 Ward at the start of each turn.",
     "effects": [
       {
-        "type": "ink_burn",
+        "type": "power_ward_each_turn",
+        "amount": 4
+      }
+    ],
+    "art": {
+      "primaryColor": "#475569",
+      "secondaryColor": "#cbd5e1",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "steel type",
+        "medium": "tempered steel typesetting",
+        "hard": "forging unbreakable plates of tempered steel type"
+      },
+      "description": "Rest of combat: gain 6 Ward at the start of each turn.",
+      "effects": [
+        {
+          "type": "power_ward_each_turn",
+          "amount": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "well_laid_plans",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "outline",
+      "medium": "careful outline",
+      "hard": "draft a meticulous chapter outline in advance"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Gain 3 Ward now. Rest of combat: draw 1 extra card at the start of each turn.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 3
+      },
+      {
+        "type": "power_draw_each_turn",
         "amount": 1
       }
     ],
-    "burnDraft": true,
     "art": {
-      "primaryColor": "#820eb4",
-      "secondaryColor": "#b8fb2a",
+      "primaryColor": "#0f766e",
+      "secondaryColor": "#99f6e4",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "blueprint",
+        "medium": "master blueprint",
+        "hard": "unroll the grand architect master blueprint"
+      },
+      "description": "Gain 6 Ward now. Rest of combat: draw 1 extra card at the start of each turn.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 6
+        },
+        {
+          "type": "power_draw_each_turn",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "noxious_fumes",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "fumes",
+      "medium": "acrid ink fumes",
+      "hard": "uncork a steaming vat of acrid ink fumes"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: apply 3 Ink Burn to ALL enemies at the end of your turn.",
+    "effects": [
+      {
+        "type": "power_ink_burn_all_each_turn",
+        "amount": 3
+      }
+    ],
+    "art": {
+      "primaryColor": "#6d28d9",
+      "secondaryColor": "#c4b5fd",
       "shape": "crown"
     },
     "upgrade": {
       "names": {
-        "easy": "better breathing",
-        "medium": "upgraded fire breathing",
-        "hard": "execute a powerful fire breathing"
+        "easy": "miasma",
+        "medium": "choking solvent miasma",
+        "hard": "fill the chamber with a choking solvent miasma"
       },
-      "description": "Apply 2 Ink Burn.",
+      "description": "Rest of combat: apply 5 Ink Burn to ALL enemies at the end of your turn.",
       "effects": [
         {
-          "type": "ink_burn",
+          "type": "power_ink_burn_all_each_turn",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "demon_form",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 3,
+    "target": "self",
+    "names": {
+      "easy": "archfiend",
+      "medium": "inkfiend ascension",
+      "hard": "ascend into a towering avatar of living ink"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: gain 2 Bold at the start of each turn.",
+    "effects": [
+      {
+        "type": "power_bold_each_turn",
+        "amount": 2
+      }
+    ],
+    "art": {
+      "primaryColor": "#991b1b",
+      "secondaryColor": "#fca5a5",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "overlord",
+        "medium": "sovereign inkfiend ascension",
+        "hard": "transform into the unstoppable sovereign of dark ink"
+      },
+      "description": "Rest of combat: gain 3 Bold at the start of each turn.",
+      "effects": [
+        {
+          "type": "power_bold_each_turn",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "evolve",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "adapt",
+      "medium": "evolving lexicon",
+      "hard": "expand your mind with an evolving lexicon"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Draw 1 card now. Rest of combat: gain 2 Ward at the start of each turn.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "power_ward_each_turn",
+        "amount": 2
+      }
+    ],
+    "art": {
+      "primaryColor": "#1d4ed8",
+      "secondaryColor": "#93c5fd",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "transcend",
+        "medium": "transcendent lexicon",
+        "hard": "unlock the secrets of a transcendent lexicon"
+      },
+      "description": "Draw 2 cards now. Rest of combat: gain 3 Ward at the start of each turn.",
+      "effects": [
+        {
+          "type": "draw",
           "amount": 2
+        },
+        {
+          "type": "power_ward_each_turn",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "tools_of_the_trade",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "toolkit",
+      "medium": "scribe toolkit",
+      "hard": "lay out the complete master scribe toolkit"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: draw 1 extra card and gain 1 Bold at the start of each turn.",
+    "effects": [
+      {
+        "type": "power_draw_each_turn",
+        "amount": 1
+      },
+      {
+        "type": "power_bold_each_turn",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#b45309",
+      "secondaryColor": "#fde68a",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "workshop",
+        "medium": "grand printing workshop",
+        "hard": "command the machinery of a grand printing workshop"
+      },
+      "cost": 0,
+      "description": "Rest of combat: draw 1 extra card and gain 1 Bold at the start of each turn.",
+      "effects": [
+        {
+          "type": "power_draw_each_turn",
+          "amount": 1
+        },
+        {
+          "type": "power_bold_each_turn",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "caltrops",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "nibs",
+      "medium": "scattered steel nibs",
+      "hard": "scatter a carpet of razor-sharp steel pen nibs"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: deal 3 damage to ALL enemies at the end of your turn.",
+    "effects": [
+      {
+        "type": "power_damage_all_each_turn",
+        "amount": 3
+      }
+    ],
+    "art": {
+      "primaryColor": "#4b5563",
+      "secondaryColor": "#e5e7eb",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "barbed nibs",
+        "medium": "barbed calligraphy nibs",
+        "hard": "sow the ground with wickedly barbed calligraphy nibs"
+      },
+      "description": "Rest of combat: deal 5 damage to ALL enemies at the end of your turn.",
+      "effects": [
+        {
+          "type": "power_damage_all_each_turn",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "berserk",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "frenzy",
+      "medium": "feverish deadline",
+      "hard": "surrender to the madness of a feverish deadline"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Take 4 damage now. Rest of combat: gain 1 extra Energy at the start of each turn.",
+    "effects": [
+      {
+        "type": "self_damage",
+        "amount": 4
+      },
+      {
+        "type": "power_energy_each_turn",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#dc2626",
+      "secondaryColor": "#fecaca",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "mania",
+        "medium": "unhinged midnight deadline",
+        "hard": "harness the raw mania of an unhinged midnight deadline"
+      },
+      "description": "Take 1 damage now. Rest of combat: gain 1 extra Energy at the start of each turn.",
+      "effects": [
+        {
+          "type": "self_damage",
+          "amount": 1
+        },
+        {
+          "type": "power_energy_each_turn",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "echo_form",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 3,
+    "target": "self",
+    "names": {
+      "easy": "carbon copy",
+      "medium": "arcane carbon paper",
+      "hard": "interleave sheets of shimmering arcane carbon paper"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: gain 1 extra Energy and draw 1 extra card at the start of each turn.",
+    "effects": [
+      {
+        "type": "power_energy_each_turn",
+        "amount": 1
+      },
+      {
+        "type": "power_draw_each_turn",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#2563eb",
+      "secondaryColor": "#bfdbfe",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "twin press",
+        "medium": "mirrored printing press",
+        "hard": "awaken the twin rollers of a mirrored printing press"
+      },
+      "cost": 2,
+      "description": "Rest of combat: gain 1 extra Energy and draw 1 extra card at the start of each turn.",
+      "effects": [
+        {
+          "type": "power_energy_each_turn",
+          "amount": 1
+        },
+        {
+          "type": "power_draw_each_turn",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "accuracy",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "typeset",
+      "medium": "precision kerning",
+      "hard": "align every letter with surgical precision kerning"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Gain 2 Bold now. Rest of combat: whenever you play an Attack, deal 2 damage to ALL enemies.",
+    "effects": [
+      {
+        "type": "bold",
+        "amount": 2
+      },
+      {
+        "type": "power_damage_all_on_attack",
+        "amount": 2
+      }
+    ],
+    "art": {
+      "primaryColor": "#d97706",
+      "secondaryColor": "#fef08a",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "true typeset",
+        "medium": "flawless diamond kerning",
+        "hard": "lock the press with flawless diamond-edge kerning"
+      },
+      "description": "Gain 3 Bold now. Rest of combat: whenever you play an Attack, deal 3 damage to ALL enemies.",
+      "effects": [
+        {
+          "type": "bold",
+          "amount": 3
+        },
+        {
+          "type": "power_damage_all_on_attack",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "juggernaut",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "iron press",
+      "medium": "unstoppable colophon",
+      "hard": "set the heavy flywheel of an unstoppable colophon"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Gain 6 Ward now. Rest of combat: whenever you play a card, gain 2 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 6
+      },
+      {
+        "type": "power_ward_on_card_play",
+        "amount": 2
+      }
+    ],
+    "art": {
+      "primaryColor": "#1e3a8a",
+      "secondaryColor": "#93c5fd",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "titan press",
+        "medium": "world-shaking colophon",
+        "hard": "unleash the crushing momentum of a titan colophon"
+      },
+      "description": "Gain 9 Ward now. Rest of combat: whenever you play a card, gain 3 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 9
+        },
+        {
+          "type": "power_ward_on_card_play",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "inflame",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "boldface",
+      "medium": "fiery manifesto",
+      "hard": "proclaim a fiery manifesto in towering boldface"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Gain 2 Bold now. Rest of combat: gain 1 Bold at the start of each turn.",
+    "effects": [
+      {
+        "type": "bold",
+        "amount": 2
+      },
+      {
+        "type": "power_bold_each_turn",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#ea580c",
+      "secondaryColor": "#fed7aa",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "headline",
+        "medium": "blazing front-page headline",
+        "hard": "stamp a blazing headline across the sky in crimson ink"
+      },
+      "description": "Gain 4 Bold now. Rest of combat: gain 1 Bold at the start of each turn.",
+      "effects": [
+        {
+          "type": "bold",
+          "amount": 4
+        },
+        {
+          "type": "power_bold_each_turn",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "feel_no_pain",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "stoic ink",
+      "medium": "stoic parchment",
+      "hard": "wrap your spirit in unfeeling stoic parchment"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: whenever you play a card, gain 2 Ward.",
+    "effects": [
+      {
+        "type": "power_ward_on_card_play",
+        "amount": 2
+      }
+    ],
+    "art": {
+      "primaryColor": "#0284c7",
+      "secondaryColor": "#bae6fd",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "adamant ink",
+        "medium": "adamant vellum",
+        "hard": "sheathe your soul in impenetrable adamant vellum"
+      },
+      "description": "Rest of combat: whenever you play a card, gain 3 Ward.",
+      "effects": [
+        {
+          "type": "power_ward_on_card_play",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "steady_margins",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "margins",
+      "medium": "steady margins",
+      "hard": "rule thick steady margins around every page"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Gain 7 Ward now. Rest of combat: gain 3 Ward at the start of each turn.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 7
+      },
+      {
+        "type": "power_ward_each_turn",
+        "amount": 3
+      }
+    ],
+    "art": {
+      "primaryColor": "#1d6fa5",
+      "secondaryColor": "#93c5fd",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "borders",
+        "medium": "iron borders",
+        "hard": "hammer iron borders around every single page"
+      },
+      "description": "Gain 10 Ward now. Rest of combat: gain 5 Ward at the start of each turn.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 10
+        },
+        {
+          "type": "power_ward_each_turn",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "flowing_quill",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "flow",
+      "medium": "flowing quill",
+      "hard": "let the enchanted quill flow without hesitation"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: heal 2 HP and draw 1 extra card at the start of each turn.",
+    "effects": [
+      {
+        "type": "power_heal_each_turn",
+        "amount": 2
+      },
+      {
+        "type": "power_draw_each_turn",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#0f766e",
+      "secondaryColor": "#5eead4",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "torrent",
+        "medium": "torrential quill",
+        "hard": "unleash a mending torrent from an unstoppable quill"
+      },
+      "description": "Rest of combat: heal 3 HP and draw 1 extra card at the start of each turn.",
+      "effects": [
+        {
+          "type": "power_heal_each_turn",
+          "amount": 3
+        },
+        {
+          "type": "power_draw_each_turn",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "rain_of_full_stops",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "full stops",
+      "medium": "rain of full stops",
+      "hard": "summon a pelting rain of heavy full stops"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: deal 4 damage and apply 1 Ink Burn to ALL enemies at the end of your turn.",
+    "effects": [
+      {
+        "type": "power_damage_all_each_turn",
+        "amount": 4
+      },
+      {
+        "type": "power_ink_burn_all_each_turn",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#334155",
+      "secondaryColor": "#cbd5e1",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "hailstorm",
+        "medium": "punctuation hailstorm",
+        "hard": "call down a ferocious hailstorm of iron punctuation"
+      },
+      "description": "Rest of combat: deal 6 damage and apply 2 Ink Burn to ALL enemies at the end of your turn.",
+      "effects": [
+        {
+          "type": "power_damage_all_each_turn",
+          "amount": 6
+        },
+        {
+          "type": "power_ink_burn_all_each_turn",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "echoing_exclamations",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "echo",
+      "medium": "echoing exclamations",
+      "hard": "fill the air with echoing exclamation marks"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Rest of combat: whenever you play an Attack, deal 3 damage to ALL enemies.",
+    "effects": [
+      {
+        "type": "power_damage_all_on_attack",
+        "amount": 3
+      }
+    ],
+    "art": {
+      "primaryColor": "#b91c1c",
+      "secondaryColor": "#fca5a5",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "thunder",
+        "medium": "thunderous exclamations",
+        "hard": "shake the forest with thunderous exclamation marks"
+      },
+      "description": "Rest of combat: whenever you play an Attack, deal 5 damage to ALL enemies.",
+      "effects": [
+        {
+          "type": "power_damage_all_on_attack",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "wraith_form",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 2,
+    "target": "all_enemies",
+    "names": {
+      "easy": "smudge",
+      "medium": "wraith smudge",
+      "hard": "cast a ghostly smudging veil across all foes"
+    },
+    "connectors": {
+      "easy": "all",
+      "medium": "upon all",
+      "hard": "sweeping across all"
+    },
+    "description": "Apply 3 Faded and 2 Exposed to ALL enemies. Once per combat.",
+    "effects": [
+      {
+        "type": "faded",
+        "amount": 3,
+        "target": "all_enemies"
+      },
+      {
+        "type": "exposed",
+        "amount": 2,
+        "target": "all_enemies"
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#a7f3d0",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "blackout",
+        "medium": "phantom ink blackout",
+        "hard": "drown the entire battlefield in a phantom ink blackout"
+      },
+      "description": "Apply 4 Faded and 3 Exposed to ALL enemies. Once per combat.",
+      "effects": [
+        {
+          "type": "faded",
+          "amount": 4,
+          "target": "all_enemies"
+        },
+        {
+          "type": "exposed",
+          "amount": 3,
+          "target": "all_enemies"
         }
       ]
     }
@@ -238,20 +1122,20 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "bite",
-      "medium": "venomous bite",
-      "hard": "execute a venomous bite"
+      "easy": "viper nib",
+      "medium": "venomous nib",
+      "hard": "pierce with a venom-dipped calligraphy nib"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 6 damage. Apply 4 Ink Burn.",
+    "description": "Deal 5 damage and apply 4 Ink Burn. Once per combat.",
     "effects": [
       {
         "type": "damage",
-        "amount": 6
+        "amount": 5
       },
       {
         "type": "ink_burn",
@@ -260,17 +1144,17 @@
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#4ee75a",
-      "secondaryColor": "#4ad2bc",
-      "shape": "capsule"
+      "primaryColor": "#166534",
+      "secondaryColor": "#86efac",
+      "shape": "thorn"
     },
     "upgrade": {
       "names": {
-        "easy": "better bite",
-        "medium": "upgraded venomous bite",
-        "hard": "execute a powerful venomous bite"
+        "easy": "cobra nib",
+        "medium": "fang of the ink cobra",
+        "hard": "strike with the dripping fang of an ink cobra"
       },
-      "description": "Deal 8 damage. Apply 6 Ink Burn.",
+      "description": "Deal 8 damage and apply 6 Ink Burn. Once per combat.",
       "effects": [
         {
           "type": "damage",
@@ -290,16 +1174,16 @@
     "cost": 2,
     "target": "enemy",
     "names": {
-      "easy": "blows",
-      "medium": "flurry of blows",
-      "hard": "execute a flurry of blows"
+      "easy": "keystrokes",
+      "medium": "flurry of keystrokes",
+      "hard": "unleash a rapid-fire flurry of clattering keystrokes"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 3 damage 4 times.",
+    "description": "Deal 3 damage 4 times (scales 4x with Bold).",
     "effects": [
       {
         "type": "damage",
@@ -307,19 +1191,18 @@
         "hits": 4
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#b3093d",
-      "secondaryColor": "#2e23e6",
+      "primaryColor": "#c2410c",
+      "secondaryColor": "#fed7aa",
       "shape": "spiky"
     },
     "upgrade": {
       "names": {
-        "easy": "better blows",
-        "medium": "upgraded flurry of blows",
-        "hard": "execute a powerful flurry of blows"
+        "easy": "staccato",
+        "medium": "staccato keystroke storm",
+        "hard": "hammer a relentless staccato storm of keystrokes"
       },
-      "description": "Deal 4 damage 4 times.",
+      "description": "Deal 4 damage 4 times (scales 4x with Bold).",
       "effects": [
         {
           "type": "damage",
@@ -336,104 +1219,59 @@
     "cost": 2,
     "target": "enemy",
     "names": {
-      "easy": "blow",
-      "medium": "heavy blow",
-      "hard": "execute a heavy blow"
+      "easy": "carriage slam",
+      "medium": "heavy carriage slam",
+      "hard": "slam the cast-iron typewriter carriage with full force"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 14 damage.",
+    "description": "Deal 15 damage.",
     "effects": [
       {
         "type": "damage",
-        "amount": 14
+        "amount": 15
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#f8a9ed",
-      "secondaryColor": "#e301e0",
-      "shape": "spiky"
+      "primaryColor": "#7c2d12",
+      "secondaryColor": "#fdba74",
+      "shape": "hexagon"
     },
     "upgrade": {
       "names": {
-        "easy": "better blow",
-        "medium": "upgraded heavy blow",
-        "hard": "execute a powerful heavy blow"
+        "easy": "anvil slam",
+        "medium": "crushing anvil carriage",
+        "hard": "bring down the cast-iron carriage like a blacksmith anvil"
       },
-      "description": "Deal 18 damage.",
+      "description": "Deal 20 damage.",
       "effects": [
         {
           "type": "damage",
-          "amount": 18
-        }
-      ]
-    }
-  },
-  {
-    "id": "metallicize",
-    "rarity": "common",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "metallicize",
-      "medium": "metallicize",
-      "hard": "execute a metallicize"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 3 Ward.",
-    "effects": [
-      {
-        "type": "ward",
-        "amount": 3
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#32bc62",
-      "secondaryColor": "#3f80e2",
-      "shape": "thorn"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better metallicize",
-        "medium": "upgraded metallicize",
-        "hard": "execute a powerful metallicize"
-      },
-      "description": "Gain 4 Ward.",
-      "effects": [
-        {
-          "type": "ward",
-          "amount": 4
+          "amount": 20
         }
       ]
     }
   },
   {
     "id": "vampiric_bite",
-    "rarity": "common",
+    "rarity": "uncommon",
     "type": "attack",
     "cost": 2,
     "target": "enemy",
     "names": {
-      "easy": "bite",
-      "medium": "vampiric bite",
-      "hard": "execute a vampiric bite"
+      "easy": "siphon quill",
+      "medium": "siphoning crimson quill",
+      "hard": "draw lifeblood with a siphoning crimson quill"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 10 damage. Heal 5 HP.",
+    "description": "Deal 10 damage and heal 5 HP. Once per combat.",
     "effects": [
       {
         "type": "damage",
@@ -444,19 +1282,19 @@
         "amount": 5
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#531b0a",
-      "secondaryColor": "#7dc064",
-      "shape": "hexagon"
+      "primaryColor": "#881337",
+      "secondaryColor": "#fda4af",
+      "shape": "thorn"
     },
     "upgrade": {
       "names": {
-        "easy": "better bite",
-        "medium": "upgraded vampiric bite",
-        "hard": "execute a powerful vampiric bite"
+        "easy": "leech quill",
+        "medium": "ravenous blood-ink quill",
+        "hard": "feast upon vital essence with a ravenous blood-ink quill"
       },
-      "description": "Deal 14 damage. Heal 7 HP.",
+      "description": "Deal 14 damage and heal 7 HP. Once per combat.",
       "effects": [
         {
           "type": "damage",
@@ -471,44 +1309,44 @@
   },
   {
     "id": "barricade",
-    "rarity": "common",
+    "rarity": "uncommon",
     "type": "skill",
     "cost": 2,
     "target": "self",
     "names": {
-      "easy": "barricade",
-      "medium": "barricade",
-      "hard": "execute a barricade"
+      "easy": "bookwall",
+      "medium": "encyclopedia barricade",
+      "hard": "stack a towering barricade of heavy encyclopedias"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 15 Ward.",
+    "description": "Gain 18 Ward. Once per combat.",
     "effects": [
       {
         "type": "ward",
-        "amount": 15
+        "amount": 18
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#917529",
-      "secondaryColor": "#ccd5a4",
-      "shape": "scroll"
+      "primaryColor": "#1e40af",
+      "secondaryColor": "#93c5fd",
+      "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better barricade",
-        "medium": "upgraded barricade",
-        "hard": "execute a powerful barricade"
+        "easy": "citadel wall",
+        "medium": "great library bastion",
+        "hard": "erect an unbreachable bastion of stone-bound volumes"
       },
-      "description": "Gain 20 Ward.",
+      "description": "Gain 25 Ward. Once per combat.",
       "effects": [
         {
           "type": "ward",
-          "amount": 20
+          "amount": 25
         }
       ]
     }
@@ -520,14 +1358,14 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "strike",
-      "medium": "twin strike",
-      "hard": "deliver a twin strike"
+      "easy": "double tap",
+      "medium": "twin hyphen slash",
+      "hard": "carve a twin hyphen slash across the target"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
     "description": "Deal 4 damage twice.",
     "effects": [
@@ -537,24 +1375,23 @@
         "hits": 2
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#3195fa",
-      "secondaryColor": "#a8776b",
-      "shape": "hexagon"
+      "primaryColor": "#b45309",
+      "secondaryColor": "#fde68a",
+      "shape": "diamond"
     },
     "upgrade": {
       "names": {
-        "easy": "better strike",
-        "medium": "upgraded twin strike",
-        "hard": "deliver a powerful twin strike"
+        "easy": "triple tap",
+        "medium": "triple dash flurry",
+        "hard": "slice three parallel dashes in rapid succession"
       },
-      "description": "Deal 6 damage twice.",
+      "description": "Deal 4 damage 3 times.",
       "effects": [
         {
           "type": "damage",
-          "amount": 6,
-          "hits": 2
+          "amount": 4,
+          "hits": 3
         }
       ]
     }
@@ -566,36 +1403,43 @@
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "prepare",
-      "medium": "prepare",
-      "hard": "execute a prepare"
+      "easy": "index",
+      "medium": "riffle the index",
+      "hard": "riffle swiftly through the marginal index tabs"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Draw 2 cards.",
+    "description": "Gain 3 Ward and draw 2 cards.",
     "effects": [
+      {
+        "type": "ward",
+        "amount": 3
+      },
       {
         "type": "draw",
         "amount": 2
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#935511",
-      "secondaryColor": "#7635da",
-      "shape": "diamond"
+      "primaryColor": "#0f766e",
+      "secondaryColor": "#5eead4",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better prepare",
-        "medium": "upgraded prepare",
-        "hard": "execute a powerful prepare"
+        "easy": "cross-index",
+        "medium": "master cross-reference",
+        "hard": "consult the illuminated master cross-reference"
       },
-      "description": "Draw 3 cards.",
+      "description": "Gain 5 Ward and draw 3 cards.",
       "effects": [
+        {
+          "type": "ward",
+          "amount": 5
+        },
         {
           "type": "draw",
           "amount": 3
@@ -610,90 +1454,45 @@
     "cost": 0,
     "target": "enemy",
     "names": {
-      "easy": "charge",
-      "medium": "reckless charge",
-      "hard": "execute a reckless charge"
+      "easy": "headlong",
+      "medium": "ink-stained lunge",
+      "hard": "hurl yourself forward in an ink-stained lunge"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 8 damage. Take 3 damage.",
+    "description": "Deal 9 damage. Take 3 damage.",
     "effects": [
       {
         "type": "damage",
-        "amount": 8
+        "amount": 9
       },
       {
         "type": "self_damage",
         "amount": 3
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#63465f",
-      "secondaryColor": "#92b022",
-      "shape": "hexagon"
+      "primaryColor": "#b91c1c",
+      "secondaryColor": "#fca5a5",
+      "shape": "spiky"
     },
     "upgrade": {
       "names": {
-        "easy": "better charge",
-        "medium": "upgraded reckless charge",
-        "hard": "execute a powerful reckless charge"
+        "easy": "breakneck",
+        "medium": "breakneck paper charge",
+        "hard": "crash through the lines in a breakneck charge"
       },
-      "description": "Deal 12 damage. Take 3 damage.",
+      "description": "Deal 13 damage. Take 2 damage.",
       "effects": [
         {
           "type": "damage",
-          "amount": 12
+          "amount": 13
         },
         {
           "type": "self_damage",
-          "amount": 3
-        }
-      ]
-    }
-  },
-  {
-    "id": "well_laid_plans",
-    "rarity": "common",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "plans",
-      "medium": "well laid plans",
-      "hard": "execute a well laid plans"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Draw 1 card.",
-    "effects": [
-      {
-        "type": "draw",
-        "amount": 1
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#c3816d",
-      "secondaryColor": "#46e1c3",
-      "shape": "crown"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better plans",
-        "medium": "upgraded well laid plans",
-        "hard": "execute a powerful well laid plans"
-      },
-      "description": "Draw 2 cards.",
-      "effects": [
-        {
-          "type": "draw",
           "amount": 2
         }
       ]
@@ -706,83 +1505,38 @@
     "cost": 2,
     "target": "self",
     "names": {
-      "easy": "fortify",
-      "medium": "fortify",
-      "hard": "execute a fortify"
+      "easy": "binding",
+      "medium": "brass corner binding",
+      "hard": "reinforce your cover with heavy brass corner bindings"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 12 Ward.",
+    "description": "Gain 13 Ward.",
     "effects": [
       {
         "type": "ward",
-        "amount": 12
+        "amount": 13
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#5c15f8",
-      "secondaryColor": "#113bd2",
-      "shape": "scroll"
+      "primaryColor": "#1d4ed8",
+      "secondaryColor": "#bfdbfe",
+      "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better fortify",
-        "medium": "upgraded fortify",
-        "hard": "execute a powerful fortify"
+        "easy": "iron clasp",
+        "medium": "iron-clasped ledger",
+        "hard": "lock your defenses behind an iron-clasped ledger"
       },
-      "description": "Gain 16 Ward.",
+      "description": "Gain 17 Ward.",
       "effects": [
         {
           "type": "ward",
-          "amount": 16
-        }
-      ]
-    }
-  },
-  {
-    "id": "noxious_fumes",
-    "rarity": "common",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "fumes",
-      "medium": "noxious fumes",
-      "hard": "execute a noxious fumes"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Apply 2 Ink Burn.",
-    "effects": [
-      {
-        "type": "ink_burn",
-        "amount": 2
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#c027ac",
-      "secondaryColor": "#458fcd",
-      "shape": "crown"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better fumes",
-        "medium": "upgraded noxious fumes",
-        "hard": "execute a powerful noxious fumes"
-      },
-      "description": "Apply 3 Ink Burn.",
-      "effects": [
-        {
-          "type": "ink_burn",
-          "amount": 3
+          "amount": 17
         }
       ]
     }
@@ -794,83 +1548,46 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "weakness",
-      "medium": "expose weakness",
-      "hard": "execute a expose weakness"
+      "easy": "red pen",
+      "medium": "red-ink critique",
+      "hard": "circle every flaw with a ruthless red-ink critique"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Apply 2 Exposed.",
+    "description": "Apply 3 Exposed and draw 1 card.",
     "effects": [
       {
         "type": "exposed",
-        "amount": 2
+        "amount": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#54e761",
-      "secondaryColor": "#269323",
-      "shape": "shield"
+      "primaryColor": "#be123c",
+      "secondaryColor": "#fda4af",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better weakness",
-        "medium": "upgraded expose weakness",
-        "hard": "execute a powerful expose weakness"
+        "easy": "scathing note",
+        "medium": "scathing editorial margin",
+        "hard": "shred their confidence with a scathing editorial note"
       },
-      "description": "Apply 3 Exposed.",
+      "description": "Apply 4 Exposed and draw 2 cards.",
       "effects": [
         {
           "type": "exposed",
-          "amount": 3
-        }
-      ]
-    }
-  },
-  {
-    "id": "demon_form",
-    "rarity": "common",
-    "type": "power",
-    "cost": 3,
-    "target": "self",
-    "names": {
-      "easy": "form",
-      "medium": "demon form",
-      "hard": "assume a demon form"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 2 Bold.",
-    "effects": [
-      {
-        "type": "bold",
-        "amount": 2
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#da61af",
-      "secondaryColor": "#a5394e",
-      "shape": "crown"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better form",
-        "medium": "upgraded demon form",
-        "hard": "assume a powerful demon form"
-      },
-      "description": "Gain 3 Bold.",
-      "effects": [
+          "amount": 4
+        },
         {
-          "type": "bold",
-          "amount": 3
+          "type": "draw",
+          "amount": 2
         }
       ]
     }
@@ -882,14 +1599,14 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "strike",
-      "medium": "shadow strike",
-      "hard": "deliver a shadow strike"
+      "easy": "shadow slash",
+      "medium": "midnight ink slash",
+      "hard": "slice from the shadows with midnight india ink"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
     "description": "Deal 9 damage.",
     "effects": [
@@ -898,17 +1615,16 @@
         "amount": 9
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#eac6f1",
-      "secondaryColor": "#aba0c9",
-      "shape": "hexagon"
+      "primaryColor": "#312e81",
+      "secondaryColor": "#a5b4fc",
+      "shape": "diamond"
     },
     "upgrade": {
       "names": {
-        "easy": "better strike",
-        "medium": "upgraded shadow strike",
-        "hard": "deliver a powerful shadow strike"
+        "easy": "eclipse slash",
+        "medium": "eclipse pen stroke",
+        "hard": "cleave through armour with an eclipse pen stroke"
       },
       "description": "Deal 13 damage.",
       "effects": [
@@ -920,66 +1636,22 @@
     }
   },
   {
-    "id": "evolve",
-    "rarity": "common",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "evolve",
-      "medium": "evolve",
-      "hard": "execute a evolve"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Draw 1 card.",
-    "effects": [
-      {
-        "type": "draw",
-        "amount": 1
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#28df13",
-      "secondaryColor": "#e0564d",
-      "shape": "thorn"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better evolve",
-        "medium": "upgraded evolve",
-        "hard": "execute a powerful evolve"
-      },
-      "description": "Draw 2 cards.",
-      "effects": [
-        {
-          "type": "draw",
-          "amount": 2
-        }
-      ]
-    }
-  },
-  {
     "id": "adrenaline",
-    "rarity": "common",
+    "rarity": "rare",
     "type": "skill",
     "cost": 0,
     "target": "self",
     "names": {
-      "easy": "adrenaline",
-      "medium": "adrenaline",
-      "hard": "execute a adrenaline"
+      "easy": "espresso",
+      "medium": "writer midnight espresso",
+      "hard": "down a steaming cup of writer midnight espresso"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 1 Energy. Draw 2 cards.",
+    "description": "Gain 1 Energy and draw 2 cards. Once per combat.",
     "effects": [
       {
         "type": "energy",
@@ -990,19 +1662,19 @@
         "amount": 2
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#4ee07c",
-      "secondaryColor": "#4e461a",
-      "shape": "shield"
+      "primaryColor": "#d97706",
+      "secondaryColor": "#fef08a",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better adrenaline",
-        "medium": "upgraded adrenaline",
-        "hard": "execute a powerful adrenaline"
+        "easy": "double shot",
+        "medium": "alchemical double espresso",
+        "hard": "ignite your reflexes with an alchemical double espresso"
       },
-      "description": "Gain 2 Energy. Draw 2 cards.",
+      "description": "Gain 2 Energy and draw 2 cards. Once per combat.",
       "effects": [
         {
           "type": "energy",
@@ -1017,41 +1689,44 @@
   },
   {
     "id": "shield_bash",
-    "rarity": "common",
+    "rarity": "uncommon",
     "type": "attack",
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "bash",
-      "medium": "shield bash",
-      "hard": "execute a shield bash"
+      "easy": "spine slam",
+      "medium": "heavy spine slam",
+      "hard": "slam the reinforced spine of your tome into the foe"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal damage equal to your Ward.",
+    "description": "Deal damage equal to your current Ward.",
     "effects": [
       {
         "type": "damage_per_ward",
         "amount": 1
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#1b3128",
-      "secondaryColor": "#112a7c",
-      "shape": "capsule"
+      "primaryColor": "#1e3a8a",
+      "secondaryColor": "#93c5fd",
+      "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better bash",
-        "medium": "upgraded shield bash",
-        "hard": "execute a powerful shield bash"
+        "easy": "folio crush",
+        "medium": "gilded folio crush",
+        "hard": "crush the target beneath a gilded folio shield"
       },
-      "description": "Deal damage equal to your Ward.",
+      "description": "Gain 4 Ward, then deal damage equal to your Ward.",
       "effects": [
+        {
+          "type": "ward",
+          "amount": 4
+        },
         {
           "type": "damage_per_ward",
           "amount": 1
@@ -1066,16 +1741,16 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "lacerate",
-      "medium": "lacerate",
-      "hard": "execute a lacerate"
+      "easy": "papercut",
+      "medium": "jagged papercut",
+      "hard": "slice a stinging jagged papercut across their guard"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 5 damage. Apply 3 Ink Burn.",
+    "description": "Deal 5 damage and apply 3 Ink Burn.",
     "effects": [
       {
         "type": "damage",
@@ -1086,19 +1761,18 @@
         "amount": 3
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#4b43ae",
-      "secondaryColor": "#2ffe41",
-      "shape": "hexagon"
+      "primaryColor": "#991b1b",
+      "secondaryColor": "#fca5a5",
+      "shape": "thorn"
     },
     "upgrade": {
       "names": {
-        "easy": "better lacerate",
-        "medium": "upgraded lacerate",
-        "hard": "execute a powerful lacerate"
+        "easy": "vellum gash",
+        "medium": "serrated vellum gash",
+        "hard": "open a deep serrated vellum gash soaked in ink"
       },
-      "description": "Deal 7 damage. Apply 5 Ink Burn.",
+      "description": "Deal 7 damage and apply 5 Ink Burn.",
       "effects": [
         {
           "type": "damage",
@@ -1113,44 +1787,52 @@
   },
   {
     "id": "execute",
-    "rarity": "common",
+    "rarity": "uncommon",
     "type": "attack",
     "cost": 2,
     "target": "enemy",
     "names": {
-      "easy": "execute",
-      "medium": "execute",
-      "hard": "execute a execute"
+      "easy": "endnote",
+      "medium": "final endnote",
+      "hard": "stamp a merciless final endnote upon the chapter"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 15 damage. If Fatal, heal 5.",
+    "description": "Deal 16 damage and heal 4 HP. Once per combat.",
     "effects": [
       {
         "type": "damage",
-        "amount": 15
+        "amount": 16
+      },
+      {
+        "type": "heal",
+        "amount": 4
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#fecbc6",
-      "secondaryColor": "#7041e0",
-      "shape": "hexagon"
+      "primaryColor": "#7f1d1d",
+      "secondaryColor": "#f87171",
+      "shape": "diamond"
     },
     "upgrade": {
       "names": {
-        "easy": "better execute",
-        "medium": "upgraded execute",
-        "hard": "execute a powerful execute"
+        "easy": "epilogue",
+        "medium": "crimson epilogue",
+        "hard": "deliver the inescapable verdict of a crimson epilogue"
       },
-      "description": "Deal 20 damage. If Fatal, heal 5.",
+      "description": "Deal 22 damage and heal 6 HP. Once per combat.",
       "effects": [
         {
           "type": "damage",
-          "amount": 20
+          "amount": 22
+        },
+        {
+          "type": "heal",
+          "amount": 6
         }
       ]
     }
@@ -1162,83 +1844,46 @@
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "blur",
-      "medium": "blur",
-      "hard": "execute a blur"
+      "easy": "speedwrite",
+      "medium": "blurring fingers",
+      "hard": "type so swiftly your hands become a protective blur"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 5 Ward.",
+    "description": "Gain 6 Ward and draw 1 card.",
     "effects": [
       {
         "type": "ward",
-        "amount": 5
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#8265f8",
-      "secondaryColor": "#027293",
-      "shape": "diamond"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better blur",
-        "medium": "upgraded blur",
-        "hard": "execute a powerful blur"
+        "amount": 6
       },
-      "description": "Gain 8 Ward.",
-      "effects": [
-        {
-          "type": "ward",
-          "amount": 8
-        }
-      ]
-    }
-  },
-  {
-    "id": "tools_of_the_trade",
-    "rarity": "common",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "trade",
-      "medium": "tools of the trade",
-      "hard": "execute a tools of the trade"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Draw 1 card.",
-    "effects": [
       {
         "type": "draw",
         "amount": 1
       }
     ],
-    "burnDraft": true,
     "art": {
-      "primaryColor": "#db419e",
-      "secondaryColor": "#12b348",
-      "shape": "thorn"
+      "primaryColor": "#0369a1",
+      "secondaryColor": "#7dd3fc",
+      "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better trade",
-        "medium": "upgraded tools of the trade",
-        "hard": "execute a powerful tools of the trade"
+        "easy": "windwrite",
+        "medium": "whirlwind keystrokes",
+        "hard": "weave a whirlwind of keystrokes that deflects every blow"
       },
-      "description": "Draw 2 cards.",
+      "description": "Gain 9 Ward and draw 1 card.",
       "effects": [
         {
+          "type": "ward",
+          "amount": 9
+        },
+        {
           "type": "draw",
-          "amount": 2
+          "amount": 1
         }
       ]
     }
@@ -1250,39 +1895,38 @@
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "defend",
-      "medium": "defend",
-      "hard": "execute a defend"
+      "easy": "parry",
+      "medium": "wax-seal parry",
+      "hard": "deflect the blow with a hardened crimson wax seal"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 5 Ward.",
+    "description": "Gain 8 Ward.",
     "effects": [
       {
         "type": "ward",
-        "amount": 5
+        "amount": 8
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#3cfd3d",
-      "secondaryColor": "#214deb",
+      "primaryColor": "#1d4ed8",
+      "secondaryColor": "#93c5fd",
       "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better defend",
-        "medium": "upgraded defend",
-        "hard": "execute a powerful defend"
+        "easy": "royal seal",
+        "medium": "imperial wax barricade",
+        "hard": "raise an unyielding imperial wax seal of protection"
       },
-      "description": "Gain 8 Ward.",
+      "description": "Gain 11 Ward.",
       "effects": [
         {
           "type": "ward",
-          "amount": 8
+          "amount": 11
         }
       ]
     }
@@ -1294,16 +1938,16 @@
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "backflip",
-      "medium": "backflip",
-      "hard": "execute a backflip"
+      "easy": "page flip",
+      "medium": "acrobatic page turn",
+      "hard": "vault backward on a swirling gust of turning pages"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 5 Ward. Draw 2 cards.",
+    "description": "Gain 5 Ward and draw 2 cards.",
     "effects": [
       {
         "type": "ward",
@@ -1314,19 +1958,18 @@
         "amount": 2
       }
     ],
-    "burnDraft": true,
     "art": {
-      "primaryColor": "#ca069b",
-      "secondaryColor": "#e322f7",
-      "shape": "diamond"
+      "primaryColor": "#0284c7",
+      "secondaryColor": "#bae6fd",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better backflip",
-        "medium": "upgraded backflip",
-        "hard": "execute a powerful backflip"
+        "easy": "wind flip",
+        "medium": "galeforce page leap",
+        "hard": "soar clear of danger on a galeforce spiral of parchment"
       },
-      "description": "Gain 8 Ward. Draw 2 cards.",
+      "description": "Gain 8 Ward and draw 2 cards.",
       "effects": [
         {
           "type": "ward",
@@ -1346,88 +1989,94 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "slash",
-      "medium": "fiery slash",
-      "hard": "perform a fiery slash"
+      "easy": "sear",
+      "medium": "searing wax slash",
+      "hard": "slash with a blade coated in boiling sealing wax"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 7 damage. Apply 2 Ink Burn.",
+    "description": "Deal 8 damage and apply 2 Ink Burn.",
     "effects": [
       {
         "type": "damage",
-        "amount": 7
+        "amount": 8
       },
       {
         "type": "ink_burn",
         "amount": 2
       }
     ],
-    "burnDraft": true,
     "art": {
-      "primaryColor": "#9084de",
-      "secondaryColor": "#90a18b",
-      "shape": "hexagon"
+      "primaryColor": "#ea580c",
+      "secondaryColor": "#fdba74",
+      "shape": "diamond"
     },
     "upgrade": {
       "names": {
-        "easy": "better slash",
-        "medium": "upgraded fiery slash",
-        "hard": "perform a powerful fiery slash"
+        "easy": "molten sear",
+        "medium": "molten letterpress slash",
+        "hard": "cleave with the white-hot edge of a molten letterpress"
       },
-      "description": "Deal 10 damage. Apply 3 Ink Burn.",
+      "description": "Deal 11 damage and apply 4 Ink Burn.",
       "effects": [
         {
           "type": "damage",
-          "amount": 10
+          "amount": 11
         },
         {
           "type": "ink_burn",
-          "amount": 3
+          "amount": 4
         }
       ]
     }
   },
   {
     "id": "weaken",
-    "rarity": "uncommon",
+    "rarity": "common",
     "type": "skill",
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "weaken",
-      "medium": "weaken",
-      "hard": "execute a weaken"
+      "easy": "bleach",
+      "medium": "fading wash",
+      "hard": "douse the enemy in a pale wash of bleaching solvent"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Apply 2 Faded.",
+    "description": "Gain 4 Ward and apply 2 Faded.",
     "effects": [
+      {
+        "type": "ward",
+        "amount": 4
+      },
       {
         "type": "faded",
         "amount": 2
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#476ae8",
-      "secondaryColor": "#e89f6d",
-      "shape": "diamond"
+      "primaryColor": "#475569",
+      "secondaryColor": "#cbd5e1",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better weaken",
-        "medium": "upgraded weaken",
-        "hard": "execute a powerful weaken"
+        "easy": "whitewash",
+        "medium": "erasing limewash",
+        "hard": "scrub their strength away with a caustic erasing limewash"
       },
-      "description": "Apply 3 Faded.",
+      "description": "Gain 6 Ward and apply 3 Faded.",
       "effects": [
+        {
+          "type": "ward",
+          "amount": 6
+        },
         {
           "type": "faded",
           "amount": 3
@@ -1438,95 +2087,58 @@
   {
     "id": "corrosive_spit",
     "rarity": "uncommon",
-    "type": "attack",
+    "type": "skill",
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "spit",
-      "medium": "corrosive spit",
-      "hard": "execute a corrosive spit"
+      "easy": "etch acid",
+      "medium": "etching acid splash",
+      "hard": "hurl a flask of copperplate etching acid"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Apply 2 Exposed and 2 Ink Burn.",
+    "description": "Apply 2 Exposed, 1 Faded, and 3 Ink Burn.",
     "effects": [
       {
         "type": "exposed",
         "amount": 2
       },
       {
+        "type": "faded",
+        "amount": 1
+      },
+      {
         "type": "ink_burn",
-        "amount": 2
+        "amount": 3
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#38e1b5",
-      "secondaryColor": "#4510a9",
-      "shape": "capsule"
+      "primaryColor": "#65a30d",
+      "secondaryColor": "#bef264",
+      "shape": "thorn"
     },
     "upgrade": {
       "names": {
-        "easy": "better spit",
-        "medium": "upgraded corrosive spit",
-        "hard": "execute a powerful corrosive spit"
+        "easy": "vitriol",
+        "medium": "fuming vitriol splash",
+        "hard": "drench their armour in fuming alchemical vitriol"
       },
-      "description": "Apply 3 Exposed and 3 Ink Burn.",
+      "description": "Apply 3 Exposed, 2 Faded, and 4 Ink Burn.",
       "effects": [
         {
           "type": "exposed",
           "amount": 3
         },
         {
-          "type": "ink_burn",
-          "amount": 3
-        }
-      ]
-    }
-  },
-  {
-    "id": "caltrops",
-    "rarity": "uncommon",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "caltrops",
-      "medium": "caltrops",
-      "hard": "execute a caltrops"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 3 Ward.",
-    "effects": [
-      {
-        "type": "ward",
-        "amount": 3
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#3c3a06",
-      "secondaryColor": "#e99db0",
-      "shape": "crown"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better caltrops",
-        "medium": "upgraded caltrops",
-        "hard": "execute a powerful caltrops"
-      },
-      "description": "Gain 5 Ward.",
-      "effects": [
+          "type": "faded",
+          "amount": 2
+        },
         {
-          "type": "ward",
-          "amount": 5
+          "type": "ink_burn",
+          "amount": 4
         }
       ]
     }
@@ -1538,84 +2150,91 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "dart",
-      "medium": "toxic dart",
-      "hard": "execute a toxic dart"
+      "easy": "quill dart",
+      "medium": "poisoned quill dart",
+      "hard": "flick a needle-sharp quill tipped with nightshade ink"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Apply 5 Ink Burn.",
+    "description": "Deal 3 damage and apply 6 Ink Burn. Once per combat.",
     "effects": [
       {
+        "type": "damage",
+        "amount": 3
+      },
+      {
         "type": "ink_burn",
-        "amount": 5
+        "amount": 6
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#ab9dfb",
-      "secondaryColor": "#912d3e",
-      "shape": "hexagon"
+      "primaryColor": "#581c87",
+      "secondaryColor": "#d8b4fe",
+      "shape": "thorn"
     },
     "upgrade": {
       "names": {
-        "easy": "better dart",
-        "medium": "upgraded toxic dart",
-        "hard": "execute a powerful toxic dart"
+        "easy": "adder dart",
+        "medium": "black-adder quill dart",
+        "hard": "launch a black-adder quill steeped in abyssal venom"
       },
-      "description": "Apply 8 Ink Burn.",
+      "description": "Deal 5 damage and apply 9 Ink Burn. Once per combat.",
       "effects": [
         {
+          "type": "damage",
+          "amount": 5
+        },
+        {
           "type": "ink_burn",
-          "amount": 8
+          "amount": 9
         }
       ]
     }
   },
   {
     "id": "cleave",
-    "rarity": "uncommon",
+    "rarity": "common",
     "type": "attack",
     "cost": 2,
     "target": "all_enemies",
     "names": {
-      "easy": "cleave",
-      "medium": "cleave",
-      "hard": "execute a cleave"
+      "easy": "paper guillotine",
+      "medium": "sweeping paper cutter",
+      "hard": "swing the heavy brass blade of a paper guillotine"
     },
     "connectors": {
       "easy": "all",
       "medium": "upon all",
       "hard": "sweeping across all"
     },
-    "description": "Deal 8 damage to all enemies.",
+    "description": "Deal 10 damage to ALL enemies.",
     "effects": [
       {
         "type": "damage",
-        "amount": 8,
+        "amount": 10,
         "target": "all_enemies"
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#0be1d9",
-      "secondaryColor": "#f76a9a",
+      "primaryColor": "#b91c1c",
+      "secondaryColor": "#fca5a5",
       "shape": "hexagon"
     },
     "upgrade": {
       "names": {
-        "easy": "better cleave",
-        "medium": "upgraded cleave",
-        "hard": "execute a powerful cleave"
+        "easy": "reaper blade",
+        "medium": "industrial trimmer sweep",
+        "hard": "cleave the whole formation with an industrial trimmer blade"
       },
-      "description": "Deal 12 damage to all enemies.",
+      "description": "Deal 14 damage to ALL enemies.",
       "effects": [
         {
           "type": "damage",
-          "amount": 12,
+          "amount": 14,
           "target": "all_enemies"
         }
       ]
@@ -1623,140 +2242,146 @@
   },
   {
     "id": "meteor_smash",
-    "rarity": "uncommon",
+    "rarity": "rare",
     "type": "attack",
     "cost": 3,
     "target": "enemy",
     "names": {
-      "easy": "smash",
-      "medium": "meteor smash",
-      "hard": "execute a meteor smash"
+      "easy": "atlas drop",
+      "medium": "falling world atlas",
+      "hard": "drop a gargantuan bronze-bound world atlas from the heavens"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 25 damage.",
+    "description": "Deal 26 damage and apply 2 Exposed.",
     "effects": [
       {
         "type": "damage",
-        "amount": 25
-      }
-    ],
-    "burnDraft": false,
-    "art": {
-      "primaryColor": "#5afa30",
-      "secondaryColor": "#f6e105",
-      "shape": "spiky"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better smash",
-        "medium": "upgraded meteor smash",
-        "hard": "execute a powerful meteor smash"
-      },
-      "description": "Deal 32 damage.",
-      "effects": [
-        {
-          "type": "damage",
-          "amount": 32
-        }
-      ]
-    }
-  },
-  {
-    "id": "warcry",
-    "rarity": "uncommon",
-    "type": "skill",
-    "cost": 0,
-    "target": "self",
-    "names": {
-      "easy": "warcry",
-      "medium": "warcry",
-      "hard": "execute a warcry"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Draw 1 card. Gain 2 Bold.",
-    "effects": [
-      {
-        "type": "draw",
-        "amount": 1
+        "amount": 26
       },
       {
-        "type": "bold",
+        "type": "exposed",
         "amount": 2
       }
     ],
-    "burnDraft": true,
     "art": {
-      "primaryColor": "#86710b",
-      "secondaryColor": "#09c89d",
-      "shape": "diamond"
+      "primaryColor": "#9a3412",
+      "secondaryColor": "#fdba74",
+      "shape": "hexagon"
     },
     "upgrade": {
       "names": {
-        "easy": "better warcry",
-        "medium": "upgraded warcry",
-        "hard": "execute a powerful warcry"
+        "easy": "celestial drop",
+        "medium": "crashing celestial encyclopedia",
+        "hard": "summon a crashing celestial encyclopedia to flatten the foe"
       },
-      "description": "Draw 2 cards. Gain 3 Bold.",
+      "description": "Deal 34 damage and apply 3 Exposed.",
       "effects": [
         {
-          "type": "draw",
-          "amount": 2
+          "type": "damage",
+          "amount": 34
         },
         {
-          "type": "bold",
+          "type": "exposed",
           "amount": 3
         }
       ]
     }
   },
   {
-    "id": "quick_slash",
-    "rarity": "uncommon",
-    "type": "attack",
+    "id": "warcry",
+    "rarity": "common",
+    "type": "skill",
     "cost": 0,
-    "target": "enemy",
+    "target": "self",
     "names": {
-      "easy": "slash",
-      "medium": "quick slash",
-      "hard": "perform a quick slash"
+      "easy": "battle motto",
+      "medium": "shouted epigraph",
+      "hard": "inscribe a rallying battle epigraph across the air"
     },
     "connectors": {
-      "easy": "at",
-      "medium": "towards",
-      "hard": "directly against"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Deal 4 damage.",
+    "description": "Gain 2 Bold and draw 1 card. Once per combat.",
     "effects": [
       {
-        "type": "damage",
-        "amount": 4
+        "type": "bold",
+        "amount": 2
+      },
+      {
+        "type": "draw",
+        "amount": 1
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#ddc5cb",
-      "secondaryColor": "#a12cf3",
-      "shape": "spiky"
+      "primaryColor": "#d97706",
+      "secondaryColor": "#fde68a",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better slash",
-        "medium": "upgraded quick slash",
-        "hard": "perform a powerful quick slash"
+        "easy": "war anthem",
+        "medium": "thunderous battle epigraph",
+        "hard": "blazon a thunderous war anthem in letters of gold"
       },
-      "description": "Deal 6 damage.",
+      "description": "Gain 3 Bold and draw 2 cards. Once per combat.",
+      "effects": [
+        {
+          "type": "bold",
+          "amount": 3
+        },
+        {
+          "type": "draw",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "quick_slash",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 0,
+    "target": "enemy",
+    "names": {
+      "easy": "comma flick",
+      "medium": "flicked comma",
+      "hard": "flick a razor-edged comma straight at their throat"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "aiming squarely at"
+    },
+    "description": "Deal 5 damage.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 5
+      }
+    ],
+    "art": {
+      "primaryColor": "#b45309",
+      "secondaryColor": "#fcd34d",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "semicolon slash",
+        "medium": "whipping semicolon",
+        "hard": "snap a whipping semicolon with pinpoint velocity"
+      },
+      "description": "Deal 8 damage.",
       "effects": [
         {
           "type": "damage",
-          "amount": 6
+          "amount": 8
         }
       ]
     }
@@ -1768,39 +2393,47 @@
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "outmaneuver",
-      "medium": "outmaneuver",
-      "hard": "execute a outmaneuver"
+      "easy": "margin step",
+      "medium": "sidestep into the margin",
+      "hard": "slip gracefully between the lines into the white margin"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Next turn, gain 2 Energy.",
+    "description": "Gain 5 Ward and 2 Energy. Once per combat.",
     "effects": [
+      {
+        "type": "ward",
+        "amount": 5
+      },
       {
         "type": "energy",
         "amount": 2
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#adcdd7",
-      "secondaryColor": "#9a8782",
-      "shape": "diamond"
+      "primaryColor": "#0d9488",
+      "secondaryColor": "#99f6e4",
+      "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better outmaneuver",
-        "medium": "upgraded outmaneuver",
-        "hard": "execute a powerful outmaneuver"
+        "easy": "footnote step",
+        "medium": "vanish into the footnote",
+        "hard": "vanish into a hidden footnote and emerge with fresh vigor"
       },
-      "description": "Next turn, gain 3 Energy.",
+      "description": "Gain 8 Ward and 2 Energy. Once per combat.",
       "effects": [
         {
+          "type": "ward",
+          "amount": 8
+        },
+        {
           "type": "energy",
-          "amount": 3
+          "amount": 2
         }
       ]
     }
@@ -1812,91 +2445,91 @@
     "cost": 0,
     "target": "self",
     "names": {
-      "easy": "button",
-      "medium": "panic button",
-      "hard": "execute a panic button"
+      "easy": "slam lid",
+      "medium": "slam the typewriter case",
+      "hard": "slam the heavy oak typewriter case shut around you"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 10 Ward.",
+    "description": "Gain 12 Ward. Once per combat.",
     "effects": [
       {
         "type": "ward",
-        "amount": 10
+        "amount": 12
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#111463",
-      "secondaryColor": "#75f8ec",
+      "primaryColor": "#1d4ed8",
+      "secondaryColor": "#93c5fd",
       "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better button",
-        "medium": "upgraded panic button",
-        "hard": "execute a powerful panic button"
+        "easy": "vault lid",
+        "medium": "lock the iron strongbox",
+        "hard": "seal yourself inside an iron-ribbed courier strongbox"
       },
-      "description": "Gain 14 Ward.",
+      "description": "Gain 17 Ward. Once per combat.",
       "effects": [
         {
           "type": "ward",
-          "amount": 14
+          "amount": 17
         }
       ]
     }
   },
   {
     "id": "draining_touch",
-    "rarity": "uncommon",
+    "rarity": "common",
     "type": "attack",
-    "cost": 2,
+    "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "touch",
-      "medium": "draining touch",
-      "hard": "execute a draining touch"
+      "easy": "blotter touch",
+      "medium": "absorbent blotter press",
+      "hard": "press a dry pink blotter sheet to drink their strength"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 8 damage. Heal 4 HP.",
+    "description": "Deal 6 damage and heal 3 HP. Once per combat.",
     "effects": [
       {
         "type": "damage",
-        "amount": 8
+        "amount": 6
       },
       {
         "type": "heal",
-        "amount": 4
+        "amount": 3
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#33f98e",
-      "secondaryColor": "#89c173",
+      "primaryColor": "#9d174d",
+      "secondaryColor": "#f9a8d4",
       "shape": "hexagon"
     },
     "upgrade": {
       "names": {
-        "easy": "better touch",
-        "medium": "upgraded draining touch",
-        "hard": "execute a powerful draining touch"
+        "easy": "sponge press",
+        "medium": "thirsty alchemical blotter",
+        "hard": "drain their vitality into a thirsty alchemical blotter"
       },
-      "description": "Deal 12 damage. Heal 6 HP.",
+      "description": "Deal 9 damage and heal 5 HP. Once per combat.",
       "effects": [
         {
           "type": "damage",
-          "amount": 12
+          "amount": 9
         },
         {
           "type": "heal",
-          "amount": 6
+          "amount": 5
         }
       ]
     }
@@ -1908,47 +2541,54 @@
     "cost": 2,
     "target": "enemy",
     "names": {
-      "easy": "strike",
-      "medium": "thunder strike",
-      "hard": "deliver a thunder strike"
+      "easy": "bell strike",
+      "medium": "sonorous carriage bell",
+      "hard": "ring a deafening shockwave from the brass carriage bell"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 14 damage. Apply 2 Exposed.",
+    "description": "Deal 13 damage, apply 2 Exposed, and apply 1 Faded.",
     "effects": [
       {
         "type": "damage",
-        "amount": 14
+        "amount": 13
       },
       {
         "type": "exposed",
         "amount": 2
+      },
+      {
+        "type": "faded",
+        "amount": 1
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#c9b199",
-      "secondaryColor": "#f3fb48",
-      "shape": "capsule"
+      "primaryColor": "#ca8a04",
+      "secondaryColor": "#fef08a",
+      "shape": "spiky"
     },
     "upgrade": {
       "names": {
-        "easy": "better strike",
-        "medium": "upgraded thunder strike",
-        "hard": "deliver a powerful thunder strike"
+        "easy": "chime blast",
+        "medium": "shattering carillon peal",
+        "hard": "unleash a shattering carillon peal from the brass bell"
       },
-      "description": "Deal 18 damage. Apply 3 Exposed.",
+      "description": "Deal 17 damage, apply 3 Exposed, and apply 2 Faded.",
       "effects": [
         {
           "type": "damage",
-          "amount": 18
+          "amount": 17
         },
         {
           "type": "exposed",
           "amount": 3
+        },
+        {
+          "type": "faded",
+          "amount": 2
         }
       ]
     }
@@ -1960,39 +2600,47 @@
     "cost": 0,
     "target": "self",
     "names": {
-      "easy": "concentrate",
-      "medium": "concentrate",
-      "hard": "execute a concentrate"
+      "easy": "burn notes",
+      "medium": "sacrifice rough notes",
+      "hard": "burn your rough notes to fuel a surge of inspiration"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 2 Energy.",
+    "description": "Take 3 damage. Gain 2 Energy. Once per combat.",
     "effects": [
+      {
+        "type": "self_damage",
+        "amount": 3
+      },
       {
         "type": "energy",
         "amount": 2
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#19d002",
-      "secondaryColor": "#68c3cc",
+      "primaryColor": "#0f766e",
+      "secondaryColor": "#5eead4",
       "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better concentrate",
-        "medium": "upgraded concentrate",
-        "hard": "execute a powerful concentrate"
+        "easy": "pure focus",
+        "medium": "Laser-sharp editorial focus",
+        "hard": "channel every nerve into laser-sharp editorial focus"
       },
-      "description": "Gain 3 Energy.",
+      "description": "Take 1 damage. Gain 2 Energy. Once per combat.",
       "effects": [
         {
+          "type": "self_damage",
+          "amount": 1
+        },
+        {
           "type": "energy",
-          "amount": 3
+          "amount": 2
         }
       ]
     }
@@ -2004,58 +2652,58 @@
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "expertise",
-      "medium": "expertise",
-      "hard": "execute a expertise"
+      "easy": "research",
+      "medium": "deep archival research",
+      "hard": "conduct a sweeping search through the forbidden archives"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Draw until you have 6 cards.",
+    "description": "Draw 4 cards. Once per combat.",
     "effects": [
       {
         "type": "draw",
-        "amount": 6
+        "amount": 4
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#8b19b1",
-      "secondaryColor": "#5a514f",
+      "primaryColor": "#1e40af",
+      "secondaryColor": "#bfdbfe",
       "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better expertise",
-        "medium": "upgraded expertise",
-        "hard": "execute a powerful expertise"
+        "easy": "omniscience",
+        "medium": "encyclopedic mastery",
+        "hard": "command the full breadth of encyclopedic mastery"
       },
-      "description": "Draw until you have 8 cards.",
+      "description": "Draw 5 cards. Once per combat.",
       "effects": [
         {
           "type": "draw",
-          "amount": 8
+          "amount": 5
         }
       ]
     }
   },
   {
     "id": "iron_skin",
-    "rarity": "uncommon",
+    "rarity": "common",
     "type": "skill",
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "skin",
-      "medium": "iron skin",
-      "hard": "execute a iron skin"
+      "easy": "vellum coat",
+      "medium": "embossed vellum coat",
+      "hard": "drape yourself in a tough embossed vellum coat"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
     "description": "Gain 6 Ward and 1 Bold.",
     "effects": [
@@ -2068,17 +2716,16 @@
         "amount": 1
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#3bca9f",
-      "secondaryColor": "#4c47f9",
-      "shape": "diamond"
+      "primaryColor": "#475569",
+      "secondaryColor": "#e2e8f0",
+      "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better skin",
-        "medium": "upgraded iron skin",
-        "hard": "execute a powerful iron skin"
+        "easy": "dragonhide folio",
+        "medium": "dragonhide bookbinding",
+        "hard": "armour your chest in scales of dragonhide bookbinding"
       },
       "description": "Gain 9 Ward and 2 Bold.",
       "effects": [
@@ -2095,21 +2742,21 @@
   },
   {
     "id": "piercing_stab",
-    "rarity": "uncommon",
+    "rarity": "common",
     "type": "attack",
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "stab",
-      "medium": "piercing stab",
-      "hard": "execute a piercing stab"
+      "easy": "awl thrust",
+      "medium": "bookbinder awl thrust",
+      "hard": "drive a sharp bookbinder awl between their plates"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 6 damage. Apply 1 Exposed.",
+    "description": "Deal 6 damage and apply 2 Exposed.",
     "effects": [
       {
         "type": "damage",
@@ -2117,74 +2764,72 @@
       },
       {
         "type": "exposed",
-        "amount": 1
+        "amount": 2
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#e96429",
-      "secondaryColor": "#86a824",
-      "shape": "hexagon"
+      "primaryColor": "#991b1b",
+      "secondaryColor": "#fca5a5",
+      "shape": "thorn"
     },
     "upgrade": {
       "names": {
-        "easy": "better stab",
-        "medium": "upgraded piercing stab",
-        "hard": "execute a powerful piercing stab"
+        "easy": "bodkin lunge",
+        "medium": "tempered bodkin lunge",
+        "hard": "pierce the heart of their guard with a tempered bodkin"
       },
-      "description": "Deal 8 damage. Apply 2 Exposed.",
+      "description": "Deal 9 damage and apply 3 Exposed.",
       "effects": [
         {
           "type": "damage",
-          "amount": 8
+          "amount": 9
         },
         {
           "type": "exposed",
-          "amount": 2
+          "amount": 3
         }
       ]
     }
   },
   {
     "id": "ink_spill",
-    "rarity": "uncommon",
-    "type": "attack",
+    "rarity": "common",
+    "type": "skill",
     "cost": 1,
     "target": "enemy",
     "names": {
       "easy": "spill",
-      "medium": "ink spill",
-      "hard": "execute a ink spill"
+      "medium": "upended inkbottle",
+      "hard": "upend an entire bottle of caustic gall-nut ink"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Apply 4 Ink Burn.",
+    "description": "Apply 5 Ink Burn.",
     "effects": [
       {
         "type": "ink_burn",
-        "amount": 4
+        "amount": 5
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#ed6c03",
-      "secondaryColor": "#f00b72",
-      "shape": "hexagon"
+      "primaryColor": "#4c1d95",
+      "secondaryColor": "#c4b5fd",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better spill",
-        "medium": "upgraded ink spill",
-        "hard": "execute a powerful ink spill"
+        "easy": "deluge",
+        "medium": "flooding inkwell deluge",
+        "hard": "unleash a flooding deluge from a cracked obsidian inkwell"
       },
-      "description": "Apply 7 Ink Burn.",
+      "description": "Apply 8 Ink Burn.",
       "effects": [
         {
           "type": "ink_burn",
-          "amount": 7
+          "amount": 8
         }
       ]
     }
@@ -2196,134 +2841,45 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "swing",
-      "medium": "wild swing",
-      "hard": "execute a wild swing"
+      "easy": "typebar smash",
+      "medium": "jammed typebar haymaker",
+      "hard": "swing a reckless haymaker with a bundle of jammed typebars"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 10 damage. Deal 2 damage to yourself.",
+    "description": "Deal 13 damage. Take 2 damage.",
     "effects": [
       {
         "type": "damage",
-        "amount": 10
+        "amount": 13
       },
       {
         "type": "self_damage",
         "amount": 2
       }
     ],
-    "burnDraft": true,
     "art": {
-      "primaryColor": "#4465d9",
-      "secondaryColor": "#42c72b",
-      "shape": "hexagon"
+      "primaryColor": "#c2410c",
+      "secondaryColor": "#fdba74",
+      "shape": "spiky"
     },
     "upgrade": {
       "names": {
-        "easy": "better swing",
-        "medium": "upgraded wild swing",
-        "hard": "execute a powerful wild swing"
+        "easy": "platen crash",
+        "medium": "overclocked platen crash",
+        "hard": "bring the entire steel platen crashing down in fury"
       },
-      "description": "Deal 14 damage. Deal 2 damage to yourself.",
+      "description": "Deal 17 damage. Take 2 damage.",
       "effects": [
         {
           "type": "damage",
-          "amount": 14
+          "amount": 17
         },
         {
           "type": "self_damage",
-          "amount": 2
-        }
-      ]
-    }
-  },
-  {
-    "id": "berserk",
-    "rarity": "uncommon",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "berserk",
-      "medium": "berserk",
-      "hard": "execute a berserk"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 1 Energy.",
-    "effects": [
-      {
-        "type": "energy",
-        "amount": 1
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#ed05dc",
-      "secondaryColor": "#30dd14",
-      "shape": "crown"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better berserk",
-        "medium": "upgraded berserk",
-        "hard": "execute a powerful berserk"
-      },
-      "description": "Gain 2 Energy.",
-      "effects": [
-        {
-          "type": "energy",
-          "amount": 2
-        }
-      ]
-    }
-  },
-  {
-    "id": "echo_form",
-    "rarity": "uncommon",
-    "type": "power",
-    "cost": 3,
-    "target": "self",
-    "names": {
-      "easy": "form",
-      "medium": "echo form",
-      "hard": "assume a echo form"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 1 Energy per turn.",
-    "effects": [
-      {
-        "type": "energy",
-        "amount": 1
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#600f0c",
-      "secondaryColor": "#f99bd4",
-      "shape": "crown"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better form",
-        "medium": "upgraded echo form",
-        "hard": "assume a powerful echo form"
-      },
-      "description": "Gain 2 Energy per turn.",
-      "effects": [
-        {
-          "type": "energy",
           "amount": 2
         }
       ]
@@ -2336,16 +2892,16 @@
     "cost": 2,
     "target": "enemy",
     "names": {
-      "easy": "force",
-      "medium": "blunt force",
-      "hard": "execute a blunt force"
+      "easy": "dictionary thump",
+      "medium": "unabridged dictionary thump",
+      "hard": "concuss the enemy with an unabridged dictionary"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 12 damage. Apply 2 Faded.",
+    "description": "Deal 12 damage and apply 2 Faded.",
     "effects": [
       {
         "type": "damage",
@@ -2356,19 +2912,18 @@
         "amount": 2
       }
     ],
-    "burnDraft": true,
     "art": {
-      "primaryColor": "#22ae01",
-      "secondaryColor": "#05422f",
-      "shape": "capsule"
+      "primaryColor": "#78350f",
+      "secondaryColor": "#fcd34d",
+      "shape": "hexagon"
     },
     "upgrade": {
       "names": {
-        "easy": "better force",
-        "medium": "upgraded blunt force",
-        "hard": "execute a powerful blunt force"
+        "easy": "lexicon slam",
+        "medium": "two-volume lexicon slam",
+        "hard": "sandwich their skull between a two-volume historical lexicon"
       },
-      "description": "Deal 16 damage. Apply 3 Faded.",
+      "description": "Deal 16 damage and apply 3 Faded.",
       "effects": [
         {
           "type": "damage",
@@ -2383,178 +2938,45 @@
   },
   {
     "id": "sweeping_blow",
-    "rarity": "uncommon",
+    "rarity": "common",
     "type": "attack",
     "cost": 1,
     "target": "all_enemies",
     "names": {
-      "easy": "blow",
-      "medium": "sweeping blow",
-      "hard": "execute a sweeping blow"
+      "easy": "ribbon lash",
+      "medium": "whipping ink ribbon",
+      "hard": "lash the entire enemy line with an unspooled ink ribbon"
     },
     "connectors": {
       "easy": "all",
       "medium": "upon all",
       "hard": "sweeping across all"
     },
-    "description": "Deal 5 damage to all enemies.",
+    "description": "Deal 6 damage to ALL enemies.",
     "effects": [
       {
         "type": "damage",
-        "amount": 5,
+        "amount": 6,
         "target": "all_enemies"
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#d03fec",
-      "secondaryColor": "#0ea333",
-      "shape": "capsule"
+      "primaryColor": "#991b1b",
+      "secondaryColor": "#fca5a5",
+      "shape": "diamond"
     },
     "upgrade": {
       "names": {
-        "easy": "better blow",
-        "medium": "upgraded sweeping blow",
-        "hard": "execute a powerful sweeping blow"
+        "easy": "razor ribbon",
+        "medium": "razor-edged silk ribbon",
+        "hard": "whip a razor-edged silk ribbon across every foe in sight"
       },
-      "description": "Deal 8 damage to all enemies.",
+      "description": "Deal 9 damage to ALL enemies.",
       "effects": [
         {
           "type": "damage",
-          "amount": 8,
+          "amount": 9,
           "target": "all_enemies"
-        }
-      ]
-    }
-  },
-  {
-    "id": "accuracy",
-    "rarity": "uncommon",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
-    "names": {
-      "easy": "accuracy",
-      "medium": "accuracy",
-      "hard": "execute a accuracy"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 3 Bold.",
-    "effects": [
-      {
-        "type": "bold",
-        "amount": 3
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#967ef7",
-      "secondaryColor": "#d33407",
-      "shape": "thorn"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better accuracy",
-        "medium": "upgraded accuracy",
-        "hard": "execute a powerful accuracy"
-      },
-      "description": "Gain 4 Bold.",
-      "effects": [
-        {
-          "type": "bold",
-          "amount": 4
-        }
-      ]
-    }
-  },
-  {
-    "id": "wraith_form",
-    "rarity": "uncommon",
-    "type": "power",
-    "cost": 3,
-    "target": "self",
-    "names": {
-      "easy": "form",
-      "medium": "wraith form",
-      "hard": "assume a wraith form"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 3 Faded.",
-    "effects": [
-      {
-        "type": "faded",
-        "amount": 3
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#4df599",
-      "secondaryColor": "#059402",
-      "shape": "crown"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better form",
-        "medium": "upgraded wraith form",
-        "hard": "assume a powerful wraith form"
-      },
-      "description": "Gain 4 Faded.",
-      "effects": [
-        {
-          "type": "faded",
-          "amount": 4
-        }
-      ]
-    }
-  },
-  {
-    "id": "juggernaut",
-    "rarity": "rare",
-    "type": "power",
-    "cost": 2,
-    "target": "self",
-    "names": {
-      "easy": "juggernaut",
-      "medium": "juggernaut",
-      "hard": "execute a juggernaut"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Deal 5 damage.",
-    "effects": [
-      {
-        "type": "damage",
-        "amount": 5
-      }
-    ],
-    "burnDraft": true,
-    "art": {
-      "primaryColor": "#5d7ba2",
-      "secondaryColor": "#162e41",
-      "shape": "thorn"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better juggernaut",
-        "medium": "upgraded juggernaut",
-        "hard": "execute a powerful juggernaut"
-      },
-      "description": "Deal 7 damage.",
-      "effects": [
-        {
-          "type": "damage",
-          "amount": 7
         }
       ]
     }
@@ -2566,43 +2988,43 @@
     "cost": 3,
     "target": "enemy",
     "names": {
-      "easy": "sunder",
-      "medium": "sunder",
-      "hard": "execute a sunder"
+      "easy": "tear in two",
+      "medium": "rip the manuscript",
+      "hard": "rip their defences in half like a rejected manuscript"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
-      "hard": "directly against"
+      "hard": "aiming squarely at"
     },
-    "description": "Deal 24 damage. Gain 2 Energy.",
+    "description": "Deal 22 damage and gain 1 Energy. Once per combat.",
     "effects": [
       {
         "type": "damage",
-        "amount": 24
+        "amount": 22
       },
       {
         "type": "energy",
-        "amount": 2
+        "amount": 1
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#11a54d",
-      "secondaryColor": "#bf2d12",
-      "shape": "spiky"
+      "primaryColor": "#7f1d1d",
+      "secondaryColor": "#fca5a5",
+      "shape": "hexagon"
     },
     "upgrade": {
       "names": {
-        "easy": "better sunder",
-        "medium": "upgraded sunder",
-        "hard": "execute a powerful sunder"
+        "easy": "shred to confetti",
+        "medium": "shred the whole chapter",
+        "hard": "obliterate their armour and regain your full momentum"
       },
-      "description": "Deal 32 damage. Gain 2 Energy.",
+      "description": "Deal 28 damage and gain 2 Energy. Once per combat.",
       "effects": [
         {
           "type": "damage",
-          "amount": 32
+          "amount": 28
         },
         {
           "type": "energy",
@@ -2613,103 +3035,110 @@
   },
   {
     "id": "smoke_bomb",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "type": "skill",
     "cost": 1,
-    "target": "enemy",
+    "target": "all_enemies",
     "names": {
-      "easy": "bomb",
-      "medium": "smoke bomb",
-      "hard": "execute a smoke bomb"
+      "easy": "pounce cloud",
+      "medium": "cloud of pounce powder",
+      "hard": "throw a blinding handful of sandarac pounce powder"
     },
     "connectors": {
-      "easy": "at",
-      "medium": "towards",
-      "hard": "directly against"
+      "easy": "all",
+      "medium": "upon all",
+      "hard": "sweeping across all"
     },
-    "description": "Gain 5 Ward. Apply 1 Faded.",
+    "description": "Gain 5 Ward and apply 1 Faded to ALL enemies.",
     "effects": [
       {
         "type": "ward",
-        "amount": 5
+        "amount": 5,
+        "target": "self"
       },
       {
         "type": "faded",
-        "amount": 1
+        "amount": 1,
+        "target": "all_enemies"
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#af5bf1",
-      "secondaryColor": "#db79b6",
+      "primaryColor": "#475569",
+      "secondaryColor": "#cbd5e1",
       "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better bomb",
-        "medium": "upgraded smoke bomb",
-        "hard": "execute a powerful smoke bomb"
+        "easy": "soot tempest",
+        "medium": "lampblack soot cloud",
+        "hard": "vanish behind a swirling curtain of lampblack soot"
       },
-      "description": "Gain 8 Ward. Apply 2 Faded.",
+      "description": "Gain 8 Ward and apply 2 Faded to ALL enemies.",
       "effects": [
         {
           "type": "ward",
-          "amount": 8
+          "amount": 8,
+          "target": "self"
         },
         {
           "type": "faded",
-          "amount": 2
+          "amount": 2,
+          "target": "all_enemies"
         }
       ]
     }
   },
   {
     "id": "tactics",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "type": "skill",
     "cost": 0,
     "target": "self",
     "names": {
-      "easy": "tactics",
-      "medium": "tactics",
-      "hard": "execute a tactics"
+      "easy": "bookmark",
+      "medium": "silk ribbon bookmark",
+      "hard": "flip immediately to your silk ribbon bookmark"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Draw 1 card. Gain 1 Energy.",
+    "description": "Gain 1 Energy and draw 1 card. Once per combat.",
     "effects": [
       {
-        "type": "draw",
+        "type": "energy",
         "amount": 1
       },
       {
-        "type": "energy",
+        "type": "draw",
         "amount": 1
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#13b3b0",
-      "secondaryColor": "#b41d85",
-      "shape": "shield"
+      "primaryColor": "#0284c7",
+      "secondaryColor": "#bae6fd",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better tactics",
-        "medium": "upgraded tactics",
-        "hard": "execute a powerful tactics"
+        "easy": "gold tassel",
+        "medium": "golden tassel bookmark",
+        "hard": "seize the initiative with a golden tassel bookmark"
       },
-      "description": "Draw 2 cards. Gain 1 Energy.",
+      "description": "Gain 1 Energy, 3 Ward, and draw 1 card. Once per combat.",
       "effects": [
         {
-          "type": "draw",
-          "amount": 2
+          "type": "energy",
+          "amount": 1
         },
         {
-          "type": "energy",
+          "type": "ward",
+          "amount": 3
+        },
+        {
+          "type": "draw",
           "amount": 1
         }
       ]
@@ -2722,35 +3151,36 @@
     "cost": 2,
     "target": "self",
     "names": {
-      "easy": "entrench",
-      "medium": "entrench",
-      "hard": "execute a entrench"
+      "easy": "double bind",
+      "medium": "double-stitched binding",
+      "hard": "double-stitch your defensive bindings with waxed linen thread"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Double your current Ward.",
+    "description": "Double your current Ward. Once per combat.",
     "effects": [
       {
         "type": "double_ward",
         "amount": 1
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#b69725",
-      "secondaryColor": "#44eaeb",
+      "primaryColor": "#1e3a8a",
+      "secondaryColor": "#93c5fd",
       "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better entrench",
-        "medium": "upgraded entrench",
-        "hard": "execute a powerful entrench"
+        "easy": "triple bind",
+        "medium": "iron-riveted binding",
+        "hard": "rivet your doubled ward into an unbreakable iron binding"
       },
-      "description": "Double your current Ward.",
+      "cost": 1,
+      "description": "Double your current Ward. Once per combat.",
       "effects": [
         {
           "type": "double_ward",
@@ -2763,39 +3193,43 @@
     "id": "catalyst",
     "rarity": "rare",
     "type": "skill",
-    "cost": 2,
-    "target": "self",
+    "cost": 1,
+    "target": "enemy",
     "names": {
-      "easy": "catalyst",
-      "medium": "catalyst",
-      "hard": "execute a catalyst"
+      "easy": "turpentine",
+      "medium": "splash of turpentine",
+      "hard": "Catalyse the ink on the enemy with volatile turpentine"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "at",
+      "medium": "towards",
+      "hard": "aiming squarely at"
     },
-    "description": "Double Ink Burn on an enemy.",
+    "description": "Double the enemy Ink Burn. Once per combat.",
     "effects": [
       {
         "type": "double_ink_burn",
         "amount": 1
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#b4d701",
-      "secondaryColor": "#9b6070",
-      "shape": "diamond"
+      "primaryColor": "#6d28d9",
+      "secondaryColor": "#ddd6fe",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better catalyst",
-        "medium": "upgraded catalyst",
-        "hard": "execute a powerful catalyst"
+        "easy": "alchemical ether",
+        "medium": "volatile ether catalyst",
+        "hard": "ignite every drop of ink on the foe with volatile ether"
       },
-      "description": "Double Ink Burn on an enemy.",
+      "description": "Apply 2 Ink Burn, then double the enemy Ink Burn. Once per combat.",
       "effects": [
+        {
+          "type": "ink_burn",
+          "amount": 2
+        },
         {
           "type": "double_ink_burn",
           "amount": 1
@@ -2805,88 +3239,88 @@
   },
   {
     "id": "empower",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "type": "skill",
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "empower",
-      "medium": "empower",
-      "hard": "execute a empower"
+      "easy": "all caps",
+      "medium": "lock the shift key",
+      "hard": "lock down the brass shift key for ALL-CAPS power"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 2 Bold.",
+    "description": "Gain 3 Bold. Once per combat.",
     "effects": [
       {
         "type": "bold",
-        "amount": 2
+        "amount": 3
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#9f5bb0",
-      "secondaryColor": "#3767c1",
-      "shape": "shield"
+      "primaryColor": "#d97706",
+      "secondaryColor": "#fef08a",
+      "shape": "crown"
     },
     "upgrade": {
       "names": {
-        "easy": "better empower",
-        "medium": "upgraded empower",
-        "hard": "execute a powerful empower"
+        "easy": "headline caps",
+        "medium": "display-type shift lock",
+        "hard": "engage the heavy display-type shift lock for maximum impact"
       },
-      "description": "Gain 3 Bold.",
+      "description": "Gain 5 Bold. Once per combat.",
       "effects": [
         {
           "type": "bold",
-          "amount": 3
+          "amount": 5
         }
       ]
     }
   },
   {
     "id": "bandaging",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "type": "skill",
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "bandaging",
-      "medium": "bandaging",
-      "hard": "execute a bandaging"
+      "easy": "paper tape",
+      "medium": "archival mending tape",
+      "hard": "bind your wounds with enchanted archival mending tape"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Heal 4 HP.",
+    "description": "Heal 6 HP. Once per combat.",
     "effects": [
       {
         "type": "heal",
-        "amount": 4
+        "amount": 6
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#9b609b",
-      "secondaryColor": "#9d2128",
-      "shape": "shield"
+      "primaryColor": "#15803d",
+      "secondaryColor": "#86efac",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better bandaging",
-        "medium": "upgraded bandaging",
-        "hard": "execute a powerful bandaging"
+        "easy": "gold leaf mend",
+        "medium": "kintsugi gold-leaf mend",
+        "hard": "seal every wound with luminous kintsugi gold-leaf paste"
       },
-      "description": "Heal 6 HP.",
+      "description": "Heal 10 HP. Once per combat.",
       "effects": [
         {
           "type": "heal",
-          "amount": 6
+          "amount": 10
         }
       ]
     }
@@ -2898,39 +3332,51 @@
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "meditate",
-      "medium": "meditate",
-      "hard": "execute a meditate"
+      "easy": "quiet study",
+      "medium": "candlelit contemplation",
+      "hard": "pause in candlelit contemplation to restore your focus"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 2 Energy.",
+    "description": "Gain 3 Energy and 4 Ward. Once per combat.",
     "effects": [
       {
         "type": "energy",
-        "amount": 2
+        "amount": 3
+      },
+      {
+        "type": "ward",
+        "amount": 4
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#622e2d",
-      "secondaryColor": "#67a53a",
+      "primaryColor": "#0284c7",
+      "secondaryColor": "#bae6fd",
       "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better meditate",
-        "medium": "upgraded meditate",
-        "hard": "execute a powerful meditate"
+        "easy": "zen study",
+        "medium": "luminous scriptorium trance",
+        "hard": "enter a luminous scriptorium trance of boundless energy"
       },
-      "description": "Gain 3 Energy.",
+      "description": "Gain 3 Energy, 7 Ward, and draw 1 card. Once per combat.",
       "effects": [
         {
           "type": "energy",
           "amount": 3
+        },
+        {
+          "type": "ward",
+          "amount": 7
+        },
+        {
+          "type": "draw",
+          "amount": 1
         }
       ]
     }
@@ -2942,79 +3388,82 @@
     "cost": 0,
     "target": "self",
     "names": {
-      "easy": "gamble",
-      "medium": "calculated gamble",
-      "hard": "execute a calculated gamble"
+      "easy": "reshuffle",
+      "medium": "toss the rough draft",
+      "hard": "sweep the desk clean and draw a brand-new hand of pages"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Discard your hand. Draw that many cards.",
+    "description": "Draw 4 cards. Once per combat.",
     "effects": [
       {
         "type": "draw",
-        "amount": 5
+        "amount": 4
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#e848e1",
-      "secondaryColor": "#ad4509",
-      "shape": "diamond"
+      "primaryColor": "#0f766e",
+      "secondaryColor": "#99f6e4",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better gamble",
-        "medium": "upgraded calculated gamble",
-        "hard": "execute a powerful calculated gamble"
+        "easy": "grand reshuffle",
+        "medium": "master printer revision",
+        "hard": "pull five fresh proof-sheets straight from the press"
       },
-      "description": "Discard your hand. Draw that many cards (up to 7).",
+      "description": "Draw 5 cards and gain 3 Ward. Once per combat.",
       "effects": [
         {
           "type": "draw",
-          "amount": 7
+          "amount": 5
+        },
+        {
+          "type": "ward",
+          "amount": 3
         }
       ]
     }
   },
   {
     "id": "acrobatics",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "type": "skill",
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "acrobatics",
-      "medium": "acrobatics",
-      "hard": "execute a acrobatics"
+      "easy": "skim read",
+      "medium": "rapid diagonal skimming",
+      "hard": "skim diagonally across three chapters in a single breath"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Draw 3 cards. Discard 1.",
+    "description": "Draw 3 cards.",
     "effects": [
       {
         "type": "draw",
         "amount": 3
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#4ec904",
-      "secondaryColor": "#4e1a0e",
-      "shape": "shield"
+      "primaryColor": "#0369a1",
+      "secondaryColor": "#7dd3fc",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better acrobatics",
-        "medium": "upgraded acrobatics",
-        "hard": "execute a powerful acrobatics"
+        "easy": "speed read",
+        "medium": "photographic page sweep",
+        "hard": "absorb four entire pages with a photographic sweep"
       },
-      "description": "Draw 4 cards. Discard 1.",
+      "description": "Draw 4 cards.",
       "effects": [
         {
           "type": "draw",
@@ -3025,63 +3474,19 @@
   },
   {
     "id": "dodge",
-    "rarity": "rare",
+    "rarity": "common",
     "type": "skill",
     "cost": 0,
     "target": "self",
     "names": {
-      "easy": "dodge",
-      "medium": "dodge",
-      "hard": "execute a dodge"
+      "easy": "indent",
+      "medium": "paragraph indent",
+      "hard": "duck neatly behind a deep paragraph indentation"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
-    },
-    "description": "Gain 3 Ward.",
-    "effects": [
-      {
-        "type": "ward",
-        "amount": 3
-      }
-    ],
-    "burnDraft": false,
-    "art": {
-      "primaryColor": "#8bc8fa",
-      "secondaryColor": "#dfdb01",
-      "shape": "shield"
-    },
-    "upgrade": {
-      "names": {
-        "easy": "better dodge",
-        "medium": "upgraded dodge",
-        "hard": "execute a powerful dodge"
-      },
-      "description": "Gain 5 Ward.",
-      "effects": [
-        {
-          "type": "ward",
-          "amount": 5
-        }
-      ]
-    }
-  },
-  {
-    "id": "deflect",
-    "rarity": "rare",
-    "type": "skill",
-    "cost": 0,
-    "target": "self",
-    "names": {
-      "easy": "deflect",
-      "medium": "deflect",
-      "hard": "execute a deflect"
-    },
-    "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
     "description": "Gain 4 Ward.",
     "effects": [
@@ -3090,17 +3495,16 @@
         "amount": 4
       }
     ],
-    "burnDraft": false,
     "art": {
-      "primaryColor": "#b2b4d3",
-      "secondaryColor": "#8000f5",
+      "primaryColor": "#1d4ed8",
+      "secondaryColor": "#93c5fd",
       "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better deflect",
-        "medium": "upgraded deflect",
-        "hard": "execute a powerful deflect"
+        "easy": "hanging indent",
+        "medium": "deep hanging indent",
+        "hard": "slip untouched behind a fortified hanging indentation"
       },
       "description": "Gain 7 Ward.",
       "effects": [
@@ -3112,41 +3516,84 @@
     }
   },
   {
+    "id": "deflect",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "fan guard",
+      "medium": "fanned hand of cards",
+      "hard": "fan your held pages into an overlapping paper buckler"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
+    },
+    "description": "Gain 2 Ward for each other card in your hand.",
+    "effects": [
+      {
+        "type": "gain_ward_per_card_in_hand",
+        "amount": 2
+      }
+    ],
+    "art": {
+      "primaryColor": "#0284c7",
+      "secondaryColor": "#bae6fd",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "accordian guard",
+        "medium": "accordion-fold pavilion",
+        "hard": "unfold your hand into an accordion-pleated fortress"
+      },
+      "description": "Gain 3 Ward for each other card in your hand.",
+      "effects": [
+        {
+          "type": "gain_ward_per_card_in_hand",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
     "id": "deep_breath",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "type": "skill",
     "cost": 0,
     "target": "self",
     "names": {
-      "easy": "breath",
-      "medium": "deep breath",
-      "hard": "execute a deep breath"
+      "easy": "fresh page",
+      "medium": "turn to a fresh page",
+      "hard": "inhale the crisp scent of a freshly cut sheet of paper"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Draw 2 cards.",
+    "description": "Draw 2 cards. Once per combat.",
     "effects": [
       {
         "type": "draw",
         "amount": 2
       }
     ],
-    "burnDraft": false,
+    "burnDraft": true,
     "art": {
-      "primaryColor": "#db00bd",
-      "secondaryColor": "#73a5e0",
-      "shape": "shield"
+      "primaryColor": "#0d9488",
+      "secondaryColor": "#99f6e4",
+      "shape": "scroll"
     },
     "upgrade": {
       "names": {
-        "easy": "better breath",
-        "medium": "upgraded deep breath",
-        "hard": "execute a powerful deep breath"
+        "easy": "clean chapter",
+        "medium": "open a pristine chapter",
+        "hard": "begin a pristine new chapter with clarity and poise"
       },
-      "description": "Draw 3 cards.",
+      "description": "Draw 3 cards. Once per combat.",
       "effects": [
         {
           "type": "draw",
@@ -3156,89 +3603,97 @@
     }
   },
   {
-    "id": "inflame",
+    "id": "final_draft",
     "rarity": "rare",
-    "type": "power",
-    "cost": 1,
-    "target": "self",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
     "names": {
-      "easy": "inflame",
-      "medium": "inflame",
-      "hard": "execute a inflame"
+      "easy": "final draft",
+      "medium": "flawless final draft",
+      "hard": "hammer out the definitive flawless final draft"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "at",
+      "medium": "towards",
+      "hard": "aiming squarely at"
     },
-    "description": "Gain 2 Bold.",
+    "description": "Deal 28 damage. Once per combat.",
     "effects": [
       {
-        "type": "bold",
-        "amount": 2
+        "type": "damage",
+        "amount": 28
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#37decf",
-      "secondaryColor": "#dbc496",
-      "shape": "crown"
+      "primaryColor": "#7c2d12",
+      "secondaryColor": "#fdba74",
+      "shape": "diamond"
     },
     "upgrade": {
       "names": {
-        "easy": "better inflame",
-        "medium": "upgraded inflame",
-        "hard": "execute a powerful inflame"
+        "easy": "magnum opus",
+        "medium": "immortal magnum opus",
+        "hard": "unveil your legendary immortal magnum opus"
       },
-      "description": "Gain 3 Bold.",
+      "description": "Deal 38 damage. Once per combat.",
       "effects": [
         {
-          "type": "bold",
-          "amount": 3
+          "type": "damage",
+          "amount": 38
         }
       ]
     }
   },
   {
-    "id": "feel_no_pain",
+    "id": "blank_page_sanctuary",
     "rarity": "rare",
-    "type": "power",
+    "type": "skill",
     "cost": 1,
     "target": "self",
     "names": {
-      "easy": "pain",
-      "medium": "feel no pain",
-      "hard": "execute a feel no pain"
+      "easy": "blank page",
+      "medium": "blank page sanctuary",
+      "hard": "hide within the quiet sanctuary of a blank page"
     },
     "connectors": {
-      "easy": "on",
-      "medium": "upon",
-      "hard": "channeled upon"
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to fortify my stance"
     },
-    "description": "Gain 3 Ward.",
+    "description": "Gain 20 Ward and draw 1 card. Once per combat.",
     "effects": [
       {
         "type": "ward",
-        "amount": 3
+        "amount": 20
+      },
+      {
+        "type": "draw",
+        "amount": 1
       }
     ],
     "burnDraft": true,
     "art": {
-      "primaryColor": "#986afd",
-      "secondaryColor": "#37bd45",
-      "shape": "crown"
+      "primaryColor": "#e5e7eb",
+      "secondaryColor": "#60a5fa",
+      "shape": "shield"
     },
     "upgrade": {
       "names": {
-        "easy": "better pain",
-        "medium": "upgraded feel no pain",
-        "hard": "execute a powerful feel no pain"
+        "easy": "white fortress",
+        "medium": "unwritten paper fortress",
+        "hard": "raise an unwritten fortress of pristine linen paper"
       },
-      "description": "Gain 4 Ward.",
+      "description": "Gain 28 Ward and draw 2 cards. Once per combat.",
       "effects": [
         {
           "type": "ward",
-          "amount": 4
+          "amount": 28
+        },
+        {
+          "type": "draw",
+          "amount": 2
         }
       ]
     }

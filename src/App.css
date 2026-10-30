@@ -1461,3 +1461,262 @@ body,
   align-items: center;
   gap: 8px;
 }
+
+
+/* ==================== SCENE TRANSITIONS & CARD HAND DRAW/DISCARD ANIMATIONS ==================== */
+.scene-page-transition {
+  animation: parchmentSceneUnfurl 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes parchmentSceneUnfurl {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985) rotate(-0.35deg);
+    filter: sepia(0.25) brightness(0.96);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.002) rotate(0.08deg);
+    filter: sepia(0) brightness(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+    filter: none;
+  }
+}
+
+/* Unused cards sliding/fluttering back into the deck at turn end */
+.hand-anim-discarding .card-tab {
+  animation: cardReturnToDeck 0.33s cubic-bezier(0.55, 0.05, 0.68, 0.19) forwards !important;
+}
+
+@keyframes cardReturnToDeck {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translateX(14px) translateY(12px) scale(0.96) rotate(2deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-65px) translateY(180px) scale(0.65) rotate(-8deg);
+  }
+}
+
+/* Newly drawn cards dealing out into the hand at turn start */
+.hand-anim-drawing .card-tab {
+  animation: cardDealFromDeck 0.38s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+@keyframes cardDealFromDeck {
+  0% {
+    opacity: 0;
+    transform: translateX(-85px) translateY(155px) scale(0.68) rotate(-7deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(8px) translateY(-4px) scale(1.02) rotate(0.6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+/* ==================== CARD RIGHT-HEADER BADGES (ENERGY + SHOP PRICE + TRAIT) ==================== */
+.card-badges-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.card-price-pill {
+  background: #b67d10;
+  color: #fffdf7;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1.5px solid #2b1e16;
+  white-space: nowrap;
+}
+
+.card-trait-chip {
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.trait-power {
+  background: #0f766e;
+  color: #f0fdfa;
+}
+
+.trait-once {
+  background: #9e2a2b;
+  color: #fff1f2;
+}
+
+/* ==================== MERCHANT 2x2 CARD GRID ==================== */
+.shop-cards-grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 286px);
+  gap: 14px 20px;
+  justify-content: center;
+  margin: 12px auto 16px auto;
+}
+
+@media (max-width: 680px) {
+  .shop-cards-grid-2x2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==================== PERSISTENT POWER PILL & ENTER HINT ==================== */
+.power-active-pill {
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  color: #fef08a;
+  border: 1.5px solid #ffd166;
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.35);
+}
+
+.sentence-enter-hint {
+  font-size: 0.88rem;
+  font-style: normal;
+  font-weight: 800;
+  color: #137547;
+  background: #d1fae5;
+  border: 1.5px solid #059669;
+  border-radius: 8px;
+  padding: 1px 8px;
+  margin-left: 4px;
+}
+
+/* ==================== FOREST ENTRANCE LANDMARK ON MAP ==================== */
+.map-forest-entrance {
+  position: absolute;
+  transform: translate(-50%, -25%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.map-entrance-arch-svg {
+  filter: drop-shadow(0 3px 6px rgba(43, 30, 22, 0.28));
+}
+
+.map-entrance-label {
+  margin-top: 2px;
+  background: #fdf8ef;
+  color: #102a3a;
+  border: 2px solid #2b1e16;
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 6px rgba(43, 30, 22, 0.18);
+  white-space: nowrap;
+}
+
+/* ==================== MYSTERY ENCOUNTER STATED ODDS & OUTCOME BANNER ==================== */
+.mystery-choice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mystery-choice-odds-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.mystery-odds-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 8px;
+  border: 1.5px solid #2b1e16;
+}
+
+.odds-certain {
+  background: #fef3c7;
+  color: #78350f;
+  border-color: #b45309;
+}
+
+.odds-gamble {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #059669;
+}
+
+.odds-fail {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #dc2626;
+}
+
+.mystery-outcome-summary-box {
+  border: 2.5px solid #2b1e16;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.outcome-box-success {
+  background: #ecfdf5;
+  border-color: #059669;
+}
+
+.outcome-box-failed {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.mystery-outcome-header {
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #102a3a;
+  margin-bottom: 8px;
+}
+
+.mystery-outcome-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mystery-outcome-chip {
+  background: #fdf8ef;
+  color: #102a3a;
+  border: 2px solid #2b1e16;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  box-shadow: 0 2px 4px rgba(43, 30, 22, 0.12);
+}
+
+.mystery-outcome-narrative {
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: #162229;
+  margin: 10px 0 12px 0;
+}

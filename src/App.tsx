@@ -5,11 +5,15 @@ import { EntitySprite, IntentBadge } from './components/EntitySprite';
 import { MAP_NODE_STYLES, ScrollableMap } from './components/ScrollableMap';
 import type {
   ActiveEnemy,
+  ActivePower,
   CardInstance,
   Difficulty,
   GameSettings,
   MapNode,
+  MysteryChoice,
+  MysteryEffects,
   MysteryEventDefinition,
+  PowerEffectType,
   RelicDefinition,
   RunMetrics,
   StatusState,
@@ -189,6 +193,8 @@ export function App() {
   const [discardPile, setDiscardPile] = useState<CardInstance[]>([]);
   const [burnDraftPile, setBurnDraftPile] = useState<CardInstance[]>([]);
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
+  const [activePowers, setActivePowers] = useState<ActivePower[]>([]);
+  const [handAnimState, setHandAnimState] = useState<'idle' | 'discarding' | 'drawing'>('idle');
   const [selectedCard, setSelectedCard] = useState<CardInstance | null>(null);
   const [isAnimatingTurn, setIsAnimatingTurn] = useState<boolean>(false);
   const [activeProjectile, setActiveProjectile] = useState<CombatProjectile | null>(null);
@@ -203,6 +209,8 @@ export function App() {
   const [shopInventory, setShopInventory] = useState<ShopInventory | null>(null);
   const [activeEvent, setActiveEvent] = useState<MysteryEventDefinition | null>(null);
   const [eventOutcomeText, setEventOutcomeText] = useState<string | null>(null);
+  const [eventOutcomeSummary, setEventOutcomeSummary] = useState<string[]>([]);
+  const [eventRollSucceeded, setEventRollSucceeded] = useState<boolean | null>(null);
 
   const [typedInput, setTypedInput] = useState<string>('');
   const [actionStartTime, setActionStartTime] = useState<number | null>(null);
@@ -432,11 +440,14 @@ export function App() {
       setDrawPile(nextDraw);
       setDiscardPile(nextDiscard);
       setBurnDraftPile([]);
+      setActivePowers([]);
       setEnemies(spawnedEnemies);
       setSelectedCard(null);
       setFloatingPopups([]);
       resetTypingBuffer(true);
       setScreen('battle');
+      setHandAnimState('drawing');
+      window.setTimeout(() => setHandAnimState('idle'), 420);
     },
     [drawCards, phraseDiff, resetTypingBuffer, settings]
   );
@@ -672,8 +683,70 @@ export function App() {
             spawnPopup('player', `-${eff.amount} HP`, '#e63946');
             break;
           }
+          case 'power_ward_each_turn':
+          case 'power_bold_each_turn':
+          case 'power_draw_each_turn':
+          case 'power_energy_each_turn':
+          case 'power_heal_each_turn':
+          case 'power_ink_burn_all_each_turn':
+          case 'power_damage_all_each_turn':
+          case 'power_ward_on_card_play':
+          case 'power_damage_all_on_attack': {
+            const pType = eff.type as PowerEffectType;
+            const pAmt = scaleAmount(eff.amount);
+            const labelMap: Record<PowerEffectType, string> = {
+              power_ward_each_turn: `Ward +${pAmt}/turn`,
+              power_bold_each_turn: `Bold +${pAmt}/turn`,
+              power_draw_each_turn: `Draw +${pAmt}/turn`,
+              power_energy_each_turn: `Energy +${pAmt}/turn`,
+              power_heal_each_turn: `Heal +${pAmt}/turn`,
+              power_ink_burn_all_each_turn: `Ink Burn ${pAmt}/turn`,
+              power_damage_all_each_turn: `Deal ${pAmt} All/turn`,
+              power_ward_on_card_play: `Ward +${pAmt}/card`,
+              power_damage_all_on_attack: `Fire Breath ${pAmt}/atk`,
+            };
+            setActivePowers((prev) => {
+              const existingIdx = prev.findIndex((p) => p.type === pType);
+              if (existingIdx >= 0) {
+                const updated = [...prev];
+                const newAmt = updated[existingIdx].amount + pAmt;
+                updated[existingIdx] = {
+                  ...updated[existingIdx],
+                  amount: newAmt,
+                  label: labelMap[pType].replace(String(pAmt), String(newAmt)),
+                };
+                return updated;
+              }
+              return [
+                ...prev,
+                {
+                  id: nextUid('pwr'),
+                  name: resolved.name,
+                  type: pType,
+                  amount: pAmt,
+                  label: labelMap[pType],
+                },
+              ];
+            });
+            spawnPopup('player', `Power: ${labelMap[pType]}`, '#b67d10');
+            break;
+          }
         }
       }
+
+      // Trigger active combat powers that fire on card play or attack play
+      activePowers.forEach((pwr) => {
+        if (pwr.type === 'power_ward_on_card_play') {
+          nextWard += pwr.amount;
+          spawnPopup('player', `+${pwr.amount} Ward (${pwr.name})`, '#1d6fa5');
+          setMetrics((m) => ({ ...m, totalWardGained: m.totalWardGained + pwr.amount }));
+        }
+        if (pwr.type === 'power_damage_all_on_attack' && resolved.type === 'attack') {
+          nextEnemies.forEach((en) => {
+            if (en.hp > 0) dealHitToEnemy(en, pwr.amount);
+          });
+        }
+      });
 
       relicIds.forEach((rId) => {
         const rel = getRelicDefinition(rId);
@@ -714,6 +787,8 @@ export function App() {
 
       if (extraDraw > 0) {
         soundEngine.playDrawCard(settings);
+        setHandAnimState('drawing');
+        window.setTimeout(() => setHandAnimState('idle'), 380);
       }
       const drawnResult =
         extraDraw > 0
@@ -745,6 +820,7 @@ export function App() {
       }
     },
     [
+      activePowers,
       burnDraftPile,
       difficulty,
       discardPile,
@@ -777,6 +853,17 @@ export function App() {
     setSelectedCard(null);
     resetTypingBuffer(true);
 
+    // Animate unused cards returning to the deck/discard at the end of turn!
+    const discardedHand = [...discardPile, ...hand];
+    if (hand.length > 0) {
+      setHandAnimState('discarding');
+      soundEngine.playDrawCard(settings);
+      await delay(340);
+      setHand([]);
+      setDiscardPile(discardedHand);
+      setHandAnimState('idle');
+    }
+
     let nextPlayerHp = hp;
     let nextPlayerWard = playerWard;
     const nextPlayerStats = { ...playerStatuses };
@@ -795,6 +882,33 @@ export function App() {
     let totalBlockedSummary = 0;
     let totalHpLostSummary = 0;
     const workingEnemies = enemies.map((e) => ({ ...e, statuses: { ...e.statuses } }));
+
+    // Trigger end-of-player-turn active powers (Ink Burn all each turn, Damage all each turn)
+    for (const pwr of activePowers) {
+      if (pwr.type === 'power_ink_burn_all_each_turn') {
+        workingEnemies.forEach((en) => {
+          if (en.hp > 0) {
+            en.statuses.ink_burn += pwr.amount;
+            spawnPopup(en.instanceId, `+${pwr.amount} Ink Burn (${pwr.name})`, '#6d28d9');
+          }
+        });
+        await delay(240);
+      }
+      if (pwr.type === 'power_damage_all_each_turn') {
+        workingEnemies.forEach((en) => {
+          if (en.hp > 0) {
+            const blocked = Math.min(en.ward, pwr.amount);
+            en.ward -= blocked;
+            const hpLoss = pwr.amount - blocked;
+            en.hp = Math.max(0, en.hp - hpLoss);
+            totalBurnDamage += hpLoss;
+            spawnPopup(en.instanceId, `-${hpLoss} HP (${pwr.name})`, '#e63946');
+          }
+        });
+        setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+        await delay(280);
+      }
+    }
 
     for (let idx = 0; idx < workingEnemies.length; idx++) {
       const en = workingEnemies[idx];
@@ -957,6 +1071,7 @@ export function App() {
     }
 
     let newTurnWard = 0;
+    let newTurnEnergy = maxEnergy;
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
       if (rel && rel.trigger === 'turn_start' && rel.effectType === 'ward') {
@@ -964,7 +1079,6 @@ export function App() {
       }
     });
 
-    const discardedHand = [...discardPile, ...hand];
     let turnDrawCount = 5;
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
@@ -973,8 +1087,31 @@ export function App() {
       }
     });
 
+    // Trigger start-of-turn active combat powers
+    activePowers.forEach((pwr) => {
+      if (pwr.type === 'power_ward_each_turn') {
+        newTurnWard += pwr.amount;
+        spawnPopup('player', `+${pwr.amount} Ward (${pwr.name})`, '#1d6fa5');
+      }
+      if (pwr.type === 'power_bold_each_turn') {
+        nextPlayerStats.bold += pwr.amount;
+        spawnPopup('player', `+${pwr.amount} Bold (${pwr.name})`, '#d97706');
+      }
+      if (pwr.type === 'power_draw_each_turn') {
+        turnDrawCount += pwr.amount;
+      }
+      if (pwr.type === 'power_energy_each_turn') {
+        newTurnEnergy += pwr.amount;
+        spawnPopup('player', `+${pwr.amount} Energy (${pwr.name})`, '#2a9d8f');
+      }
+      if (pwr.type === 'power_heal_each_turn') {
+        nextPlayerHp = Math.min(maxHp, nextPlayerHp + pwr.amount);
+        spawnPopup('player', `+${pwr.amount} HP (${pwr.name})`, '#3a8918');
+      }
+    });
+
     const { nextHand, nextDraw, nextDiscard } = drawCards(
-      turnDrawCount,
+      Math.min(10, turnDrawCount),
       [],
       drawPile,
       discardedHand
@@ -984,13 +1121,16 @@ export function App() {
     setHp(nextPlayerHp);
     setPlayerWard(newTurnWard);
     setPlayerStatuses(nextPlayerStats);
-    setEnergy(maxEnergy);
+    setEnergy(newTurnEnergy);
     setHand(nextHand);
     setDrawPile(nextDraw);
     setDiscardPile(nextDiscard);
     setEnemies(survivingEnemies);
+    setHandAnimState('drawing');
+    window.setTimeout(() => setHandAnimState('idle'), 420);
     setIsAnimatingTurn(false);
   }, [
+    activePowers,
     discardPile,
     drawCards,
     drawPile,
@@ -1000,6 +1140,7 @@ export function App() {
     hp,
     isAnimatingTurn,
     maxEnergy,
+    maxHp,
     playerStatuses,
     playerWard,
     relicIds,
@@ -1086,6 +1227,8 @@ export function App() {
         const ev = pickRandom(EVENTS_CATALOG);
         setActiveEvent(ev);
         setEventOutcomeText(null);
+        setEventOutcomeSummary([]);
+        setEventRollSucceeded(null);
         resetTypingBuffer(true);
         setScreen('mystery');
       }
@@ -1715,9 +1858,30 @@ export function App() {
 
       const resolvedSelected = resolveCardInstance(selectedCard, phraseDiff);
       if (resolvedSelected.target === 'self' || resolvedSelected.target === 'all_enemies') {
-        if (!norm || matchCommand(raw, ['confirm', 'cast', 'yes', resolvedSelected.connector], 'easy')) {
+        const enemyMatch = evaluatedEnemies[0]?.isValidConfirm;
+        if (
+          !norm ||
+          enemyMatch ||
+          matchCommand(
+            raw,
+            [
+              'confirm',
+              'cast',
+              'yes',
+              'self',
+              'myself',
+              'me',
+              'all',
+              'enemies',
+              'all enemies',
+              playerName,
+              resolvedSelected.connector,
+            ],
+            'easy'
+          )
+        ) {
           soundEngine.playConfirm(settings);
-          const speedMult = recordActionMetrics('', 0);
+          const speedMult = recordActionMetrics(raw, 0);
           executeCardPlay(selectedCard, null, speedMult);
           return;
         }
@@ -2049,42 +2213,96 @@ export function App() {
         soundEngine.playPageTurn(settings);
         triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 65);
         const choice = evalChoices[0].item;
-        const eff = choice.effects;
+
+        let succeeded = true;
+        let rolledPct: number | null = null;
+        if (typeof choice.chance === 'number') {
+          rolledPct = Math.floor(Math.random() * 100) + 1;
+          succeeded = rolledPct <= choice.chance;
+        }
+
+        const eff: MysteryEffects = succeeded
+          ? choice.effects
+          : choice.failEffects || {};
+        const finalNarrative = succeeded
+          ? choice.outcomeText
+          : choice.failText || choice.outcomeText;
+
+        const summaryItems: string[] = [];
+        if (typeof choice.chance === 'number') {
+          summaryItems.push(
+            succeeded
+              ? `🎲 Roll Succeeded! (${choice.chance}% chance)`
+              : `🎲 Roll Failed (${choice.chance}% success chance)`
+          );
+        }
 
         if (eff.maxHpChange) {
           setMaxHp((m) => Math.max(10, m + eff.maxHpChange!));
           if (eff.maxHpChange > 0) setHp((h) => h + eff.maxHpChange!);
+          summaryItems.push(
+            `${eff.maxHpChange > 0 ? '+' : ''}${eff.maxHpChange} Max HP`
+          );
         }
         if (eff.hpChange) {
           setHp((h) => Math.max(1, Math.min(maxHp, h + eff.hpChange!)));
+          summaryItems.push(
+            `${eff.hpChange > 0 ? '+' : ''}${eff.hpChange} HP`
+          );
         }
         if (eff.goldChange) {
           setGold((g) => Math.max(0, g + eff.goldChange!));
+          summaryItems.push(
+            `${eff.goldChange > 0 ? '+' : ''}${eff.goldChange} Gold`
+          );
+        }
+        if (eff.gainRareCard) {
+          const newCard = generateCardRewards(1, true)[0];
+          const cName = resolveCardInstance(newCard, phraseDiff).name;
+          setDeck((d) => [...d, newCard]);
+          summaryItems.push(`Gained Rare Card: "${cName}"`);
         }
         if (eff.gainRandomCard) {
           const newCard = generateCardRewards(1, false)[0];
+          const cName = resolveCardInstance(newCard, phraseDiff).name;
           setDeck((d) => [...d, newCard]);
+          summaryItems.push(`Gained Card: "${cName}"`);
         }
         if (eff.upgradeRandomCard) {
-          setDeck((prev) => {
-            const unup = prev.filter((c) => !c.upgraded);
-            if (unup.length === 0) return prev;
+          const unup = deck.filter((c) => !c.upgraded);
+          if (unup.length > 0) {
             const pick = pickRandom(unup);
-            return prev.map((c) =>
-              c.instanceId === pick.instanceId ? { ...c, upgraded: true } : c
+            const oldName = resolveCardInstance(pick, phraseDiff).name;
+            const newName = resolveCardInstance({ ...pick, upgraded: true }, phraseDiff).name;
+            setDeck((prev) =>
+              prev.map((c) =>
+                c.instanceId === pick.instanceId ? { ...c, upgraded: true } : c
+              )
             );
-          });
+            summaryItems.push(`Upgraded Card: "${oldName}" → "${newName}"`);
+          }
         }
         if (eff.gainRandomRelic) {
           const newRel = generateRelicRewards(relicIds, 1)[0];
-          if (newRel) setRelicIds((ids) => [...ids, newRel.id]);
+          if (newRel) {
+            setRelicIds((ids) => [...ids, newRel.id]);
+            summaryItems.push(`Gained Relic: "${newRel.names[phraseDiff]}"`);
+          }
         }
         if (eff.removeRandomCard && deck.length > 5) {
           const pick = pickRandom(deck);
+          const remName = resolveCardInstance(pick, phraseDiff).name;
           setDeck((prev) => prev.filter((c) => c.instanceId !== pick.instanceId));
+          summaryItems.push(`Removed Card from Deck: "${remName}"`);
         }
 
-        setEventOutcomeText(choice.outcomeText);
+        if (summaryItems.length === 0) {
+          summaryItems.push('No stat changes — continued safely.');
+        }
+
+        setEventRollSucceeded(succeeded);
+        setEventOutcomeSummary(summaryItems);
+        setEventOutcomeText(finalNarrative);
         resetTypingBuffer(true);
         return;
       }
@@ -2467,6 +2685,50 @@ export function App() {
     </span>
   );
 
+  const formatEffectsTokens = (eff?: MysteryEffects): string[] => {
+    if (!eff) return [];
+    const tokens: string[] = [];
+    if (eff.maxHpChange) {
+      tokens.push(`${eff.maxHpChange > 0 ? '+' : ''}${eff.maxHpChange} Max HP`);
+    }
+    if (eff.hpChange) {
+      tokens.push(`${eff.hpChange > 0 ? '+' : ''}${eff.hpChange} HP`);
+    }
+    if (eff.goldChange) {
+      tokens.push(`${eff.goldChange > 0 ? '+' : ''}${eff.goldChange} Gold`);
+    }
+    if (eff.gainRareCard) tokens.push('+1 Rare Card');
+    if (eff.gainRandomCard) tokens.push('+1 Card');
+    if (eff.upgradeRandomCard) tokens.push('Upgrade a Card');
+    if (eff.gainRandomRelic) tokens.push('+1 Relic');
+    if (eff.removeRandomCard) tokens.push('Remove a Card');
+    return tokens;
+  };
+
+  const renderMysteryChoiceOdds = (ch: MysteryChoice) => {
+    const winTokens = formatEffectsTokens(ch.effects);
+    const failTokens = formatEffectsTokens(ch.failEffects);
+    if (typeof ch.chance === 'number') {
+      return (
+        <div className="mystery-choice-odds-row">
+          <span className="mystery-odds-badge odds-gamble">
+            🎲 {ch.chance}% Success: {winTokens.join(', ') || 'No Change'}
+          </span>
+          <span className="mystery-odds-badge odds-fail">
+            {100 - ch.chance}% Fail: {failTokens.join(', ') || 'Nothing'}
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="mystery-choice-odds-row">
+        <span className="mystery-odds-badge odds-certain">
+          {winTokens.length > 0 ? winTokens.join(' · ') : 'Safe — Leave Unharmed'}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className={`typemancer-viewport ${settings.highContrast ? 'high-contrast' : ''}`}>
       {/* TACTILE PARCHMENT GRAIN / NOISE TEXTURE OVERLAY ACROSS ALL SCENES */}
@@ -2502,10 +2764,10 @@ export function App() {
 
       {/* ==================== BATTLE SCENE ==================== */}
       {screen === 'battle' && (
-        <div className="battle-layout">
+        <div key="scene-battle" className="battle-layout scene-page-transition">
           {/* LEFT COLUMN: Stacked Paper Card Banners */}
           <aside className="cards-column" aria-label="Player Hand">
-            <div className="cards-stack">
+            <div className={`cards-stack hand-anim-${handAnimState}`}>
               {handCandidates.map(({ item, resolved }, idx) => {
                 const isSelected = selectedCard?.instanceId === item.instanceId;
                 const isHighlighted = highlightedCardIds.has(item.instanceId);
@@ -2530,6 +2792,7 @@ export function App() {
               <div className="cards-pile-counts">
                 <span>Draw {drawPile.length}</span>
                 <span>Discard {discardPile.length}</span>
+                {burnDraftPile.length > 0 && <span>Burned {burnDraftPile.length}</span>}
               </div>
             </div>
           </aside>
@@ -2542,9 +2805,6 @@ export function App() {
                 <span className="minimal-stat-chip">
                   HP {hp}/{maxHp}
                 </span>
-                {playerWard > 0 && (
-                  <span className="minimal-stat-chip ward-stat-chip">Ward {playerWard}</span>
-                )}
                 <span className="minimal-stat-chip gold-stat-chip">Gold {gold}</span>
               </div>
               {renderCommandPills([
@@ -2612,6 +2872,11 @@ export function App() {
                   {playerStatuses.faded > 0 && <span className="status-pill faded-pill">Faded {playerStatuses.faded}</span>}
                   {playerStatuses.exposed > 0 && <span className="status-pill exposed-pill">Exposed {playerStatuses.exposed}</span>}
                   {playerStatuses.ink_burn > 0 && <span className="status-pill burn-pill">Ink Burn {playerStatuses.ink_burn}</span>}
+                  {activePowers.map((pwr) => (
+                    <span key={pwr.id} className="status-pill power-active-pill" title={`${pwr.name}: Rest of combat`}>
+                      ★ {pwr.label}
+                    </span>
+                  ))}
                 </div>
               </div>
 
@@ -2625,10 +2890,16 @@ export function App() {
                     <h3 className="inspected-card-title">{inspectedCard.name}</h3>
                     <p className="inspected-card-desc">{inspectedCard.description}</p>
                     <div className="inspected-card-connector">
-                      "{inspectedCard.name}" -{inspectedCard.connector}- ...
+                      "{inspectedCard.name}" -{inspectedCard.connector}-{' '}
+                      {inspectedCard.target === 'self' || inspectedCard.target === 'all_enemies'
+                        ? '(Press Enter)'
+                        : '...'}
                     </div>
-                    {inspectedCard.burnDraft && (
-                      <div className="inspected-burn-tag">Burn Draft</div>
+                    {inspectedCard.type === 'power' && (
+                      <div className="inspected-burn-tag">Persistent Power (Rest of Combat)</div>
+                    )}
+                    {inspectedCard.burnDraft && inspectedCard.type !== 'power' && (
+                      <div className="inspected-burn-tag">Once Per Combat (Burn Draft)</div>
                     )}
                   </div>
                 )}
@@ -2735,7 +3006,14 @@ export function App() {
                 {selectedCardResolved ? (
                   <>
                     <span className="sentence-locked-card">"{selectedCardResolved.name}"</span>
-                    <span className="sentence-connector"> -{selectedCardResolved.connector}- </span>
+                    <span className="sentence-connector">
+                      {' '}
+                      -{selectedCardResolved.connector}-{' '}
+                      {(selectedCardResolved.target === 'self' ||
+                        selectedCardResolved.target === 'all_enemies') && (
+                        <span className="sentence-enter-hint">(Press Enter) </span>
+                      )}
+                    </span>
                     {renderTypingInputWithCaret()}
                   </>
                 ) : (
@@ -2749,7 +3027,12 @@ export function App() {
 
       {/* ==================== NON-BATTLE SCREENS ==================== */}
       {screen !== 'battle' && (
-        <div className={`narrative-screen-layout ${screen === 'map' ? 'map-fullscreen-mode' : ''}`}>
+        <div
+          key={`scene-${screen}`}
+          className={`narrative-screen-layout scene-page-transition ${
+            screen === 'map' ? 'map-fullscreen-mode' : ''
+          }`}
+        >
           {/* Minimal Floating Top Bar */}
           <header className="minimal-top-bar">
             {screen !== 'main_menu' && screen !== 'tutorial' && screen !== 'peasant_intro' ? (
@@ -3043,7 +3326,7 @@ export function App() {
                 </h2>
                 {shopSubMode === 'browse' ? (
                   <>
-                    <div className="deck-banner-grid">
+                    <div className="shop-cards-grid-2x2">
                       {shopInventory.cards.map(({ instance, price, sold }, idx) => {
                         const res = resolveCardInstance(instance, phraseDiff);
                         const st = !sold
@@ -3153,18 +3436,35 @@ export function App() {
                       return (
                         <div
                           key={ch.id}
-                          className={`choice-item ${
+                          className={`choice-item mystery-choice-card ${
                             st.isHighlighted ? 'option-highlighted' : ''
                           } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
                         >
                           <div className="phrase-to-type">{phrase}</div>
+                          {renderMysteryChoiceOdds(ch)}
                         </div>
                       );
                     })}
                   </div>
                 ) : (
-                  <div className="prompt-panel">
-                    <p>{eventOutcomeText}</p>
+                  <div className="prompt-panel mystery-outcome-panel">
+                    <div
+                      className={`mystery-outcome-summary-box ${
+                        eventRollSucceeded === false ? 'outcome-box-failed' : 'outcome-box-success'
+                      }`}
+                    >
+                      <div className="mystery-outcome-header">
+                        {eventRollSucceeded === false ? 'OUTCOME — RISK FAILED' : 'OUTCOME SUMMARY'}
+                      </div>
+                      <div className="mystery-outcome-badges">
+                        {eventOutcomeSummary.map((line, idx) => (
+                          <span key={idx} className="mystery-outcome-chip">
+                            {line}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="mystery-outcome-narrative">{eventOutcomeText}</p>
                     <div className="phrase-to-type">continue</div>
                   </div>
                 )}

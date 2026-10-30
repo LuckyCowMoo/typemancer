@@ -18,6 +18,25 @@
         }
       },
       {
+        "id": "gamble_drink_violet",
+        "phrases": {
+          "easy": "gulp violet",
+          "medium": "quaff the glowing ink",
+          "hard": "boldly drink from the swirling violet pedestal"
+        },
+        "chance": 65,
+        "outcomeText": "Pure typographic brilliance surges through your veins! You gain a Rare card and expand your maximum vitality.",
+        "effects": {
+          "maxHpChange": 6,
+          "hpChange": 6,
+          "gainRareCard": true
+        },
+        "failText": "The unstable ink curdles in your stomach, scorching your throat before fading away.",
+        "failEffects": {
+          "hpChange": -11
+        }
+      },
+      {
         "id": "bottle_ink",
         "phrases": {
           "easy": "take gold",
@@ -55,7 +74,25 @@
         },
         "outcomeText": "As your pen traces the notes, a phantom harmony fills the air, mending your wounds.",
         "effects": {
-          "hpChange": 15
+          "hpChange": 16
+        }
+      },
+      {
+        "id": "conduct_choir",
+        "phrases": {
+          "easy": "lead choir",
+          "medium": "conduct the statues",
+          "hard": "wave your quill like a baton to awaken the choir"
+        },
+        "chance": 60,
+        "outcomeText": "The statues resonate with silent gratitude, bestowing an ancient relic and revising one of your drafts!",
+        "effects": {
+          "gainRandomRelic": true,
+          "upgradeRandomCard": true
+        },
+        "failText": "A discordant shockwave snaps your quill and rattles your ribs!",
+        "failEffects": {
+          "hpChange": -10
         }
       },
       {
@@ -65,10 +102,10 @@
           "medium": "steal the sheet music",
           "hard": "snatch the ancient sheet music from their frozen hands"
         },
-        "outcomeText": "You take the rare composition. You can sell it later, but the figures weep silent tears of ink.",
+        "outcomeText": "You take the rare composition to sell later, though the figures weep silent tears of ink that burn your skin.",
         "effects": {
-          "goldChange": 50,
-          "hpChange": -2
+          "goldChange": 60,
+          "hpChange": -5
         }
       }
     ]
@@ -85,11 +122,30 @@
           "medium": "dive into the fire",
           "hard": "brave the emerald flames to rescue a tome"
         },
-        "outcomeText": "You plunge your hand into the fire, retrieving a powerful manuscript at the cost of severe burns.",
+        "outcomeText": "You plunge your hand into the fire, retrieving a powerful manuscript and revising a card at the cost of severe burns.",
         "effects": {
           "hpChange": -10,
-          "gainRandomCard": true,
+          "gainRareCard": true,
           "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "ambush_golems",
+        "phrases": {
+          "easy": "raid pyre",
+          "medium": "snatch the gold chest",
+          "hard": "sprint behind the golems to loot their coin lockbox"
+        },
+        "chance": 70,
+        "outcomeText": "You deftly slip past the lumbering golems and escape with their entire confiscations chest!",
+        "effects": {
+          "goldChange": 95,
+          "gainRandomCard": true
+        },
+        "failText": "A golem spots your shadow and hurls a glob of molten emerald wax across your back!",
+        "failEffects": {
+          "hpChange": -12,
+          "goldChange": 20
         }
       },
       {
@@ -111,7 +167,7 @@
           "medium": "sneak past them",
           "hard": "silently creep past the tragic burning library"
         },
-        "outcomeText": "You avoid the flames and the guards, moving on with a heavy heart.",
+        "outcomeText": "You avoid the flames and the guards, moving on unharmed.",
         "effects": {}
       }
     ]
@@ -119,7 +175,7 @@
   {
     "id": "smuggler_of_words",
     "title": "The Synonym Smuggler",
-    "narrative": "A cloaked figure pssts at you from a dark alley. They open their coat to reveal prohibited dictionaries and thesauruses dangling from the lining.",
+    "narrative": "A cloaked figure pssts at you from a dark alley. They open their coat to reveal prohibited dictionaries, wax dice, and thesauruses dangling from the lining.",
     "choices": [
       {
         "id": "buy_relic",
@@ -130,8 +186,26 @@
         },
         "outcomeText": "You hand over your coins, receiving a heavy, leather-bound volume radiating archaic power.",
         "effects": {
-          "goldChange": -50,
+          "goldChange": -45,
           "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "wager_smuggler",
+        "phrases": {
+          "easy": "roll dice",
+          "medium": "play the word wager",
+          "hard": "accept the smuggler high stakes lexicon dice wager"
+        },
+        "chance": 55,
+        "outcomeText": "Your dice spell out a winning triad! The smuggler groans and hands over a hefty purse and a rare scroll.",
+        "effects": {
+          "goldChange": 100,
+          "gainRareCard": true
+        },
+        "failText": "The weighted bone dice roll blank! The smuggler chuckles and relieves you of your coin.",
+        "failEffects": {
+          "goldChange": -40
         }
       },
       {
@@ -141,10 +215,15 @@
           "medium": "threaten the smuggler",
           "hard": "draw your weapon and demand the forbidden texts"
         },
-        "outcomeText": "The smuggler throws an ink-bomb in your face and flees, but drops some coins in the panic.",
+        "chance": 65,
+        "outcomeText": "Startled by your bold stanza, the smuggler drops a relic and bolts into the fog!",
         "effects": {
-          "hpChange": -5,
-          "goldChange": 30
+          "gainRandomRelic": true,
+          "goldChange": 25
+        },
+        "failText": "The smuggler hurls a flash-ink bomb into your eyes and escapes while you cough!",
+        "failEffects": {
+          "hpChange": -9
         }
       }
     ]
@@ -163,8 +242,26 @@
         },
         "outcomeText": "The voice rings out clear for a moment, filling you with renewed vigor and permanent resolve.",
         "effects": {
-          "maxHpChange": 5,
-          "hpChange": 5
+          "maxHpChange": 6,
+          "hpChange": 10
+        }
+      },
+      {
+        "id": "overclock_horn",
+        "phrases": {
+          "easy": "crank handle",
+          "medium": "wind the spring tight",
+          "hard": "wind the brass crank to amplify the forbidden song"
+        },
+        "chance": 60,
+        "outcomeText": "The amplified aria shatters the curse around your satchel, upgrading two aspects of your kit!",
+        "effects": {
+          "upgradeRandomCard": true,
+          "gainRareCard": true
+        },
+        "failText": "The overwound spring snaps violently, launching brass shrapnel across your arms!",
+        "failEffects": {
+          "hpChange": -11
         }
       },
       {
@@ -174,8 +271,9 @@
           "medium": "break the record",
           "hard": "shatter the haunted record to end the sad song"
         },
-        "outcomeText": "The shattered vinyl reveals a hidden compartment containing forgotten treasure.",
+        "outcomeText": "The shattered vinyl reveals a hidden compartment containing a forgotten relic, though a sharp shard nicks your hand.",
         "effects": {
+          "hpChange": -5,
           "gainRandomRelic": true
         }
       }
@@ -193,10 +291,11 @@
           "medium": "add your signature",
           "hard": "etch your own words of rebellion onto the wall"
         },
-        "outcomeText": "Writing your truth bolsters your spirit, though the magical backlash stings your mind.",
+        "outcomeText": "Writing your truth bolsters your maximum spirit and purges a weak page from your deck, though the backlash stings.",
         "effects": {
-          "maxHpChange": 3,
-          "hpChange": -3
+          "maxHpChange": 5,
+          "hpChange": -4,
+          "removeRandomCard": true
         }
       },
       {
@@ -208,7 +307,25 @@
         },
         "outcomeText": "You learn a new technique hidden within the overlapping scrawls.",
         "effects": {
-          "gainRandomCard": true
+          "gainRandomCard": true,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "scrape_gold_leaf",
+        "phrases": {
+          "easy": "scrape gold",
+          "medium": "peel the gilt letters",
+          "hard": "scrape the luminous gold leaf from the bricks"
+        },
+        "chance": 75,
+        "outcomeText": "You carefully flake off a small fortune in enchanted gold leaf!",
+        "effects": {
+          "goldChange": 75
+        },
+        "failText": "The rebellious runes flare in anger, searing your knuckles!",
+        "failEffects": {
+          "hpChange": -8
         }
       }
     ]
@@ -219,13 +336,31 @@
     "narrative": "A sudden gale sweeps through the canyon, carrying a flock of enchanted paper pages that flutter like trapped white birds.",
     "choices": [
       {
+        "id": "leap_for_golden_page",
+        "phrases": {
+          "easy": "grab gold page",
+          "medium": "leap for the gilded sheet",
+          "hard": "vault toward the cliff edge to snatch the golden manuscript"
+        },
+        "chance": 65,
+        "outcomeText": "Your fingers close around the gilded sheet! It binds itself into your deck as a Rare card alongside a shower of coins.",
+        "effects": {
+          "gainRareCard": true,
+          "goldChange": 45
+        },
+        "failText": "A gust buffets you against the canyon rock as the gilded sheet slips away!",
+        "failEffects": {
+          "hpChange": -9
+        }
+      },
+      {
         "id": "catch_pages",
         "phrases": {
           "easy": "catch them",
           "medium": "grab the pages",
           "hard": "leap up to snatch the fluttering magical pages"
         },
-        "outcomeText": "You catch a handful of pages. Most are blank, but one contains a powerful new concept.",
+        "outcomeText": "You catch a handful of pages. One contains a sharp new concept.",
         "effects": {
           "gainRandomCard": true
         }
@@ -239,7 +374,7 @@
         },
         "outcomeText": "One page lands gently on your shoulder, dissolving into healing warmth.",
         "effects": {
-          "hpChange": 10
+          "hpChange": 12
         }
       }
     ]
@@ -258,8 +393,22 @@
         },
         "outcomeText": "The beggar bows deeply and hands you a strange, glowing trinket from their pocket in gratitude.",
         "effects": {
-          "goldChange": -25,
+          "goldChange": -30,
           "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "share_rations",
+        "phrases": {
+          "easy": "share food",
+          "medium": "offer your rations",
+          "hard": "split your travel rations with the silent performer"
+        },
+        "outcomeText": "Though you go slightly hungry, the mime teaches you how to trim wasted movements from your deck.",
+        "effects": {
+          "hpChange": -5,
+          "removeRandomCard": true,
+          "upgradeRandomCard": true
         }
       },
       {
@@ -269,7 +418,7 @@
           "medium": "walk past him",
           "hard": "coldly ignore the beggar and continue your journey"
         },
-        "outcomeText": "You walk past. You feel a pang of guilt, but your purse remains heavy.",
+        "outcomeText": "You walk past. Your purse remains heavy.",
         "effects": {}
       }
     ]
@@ -286,10 +435,29 @@
           "medium": "pluck a string",
           "hard": "carefully pluck the dripping ink strings of the lute"
         },
-        "outcomeText": "A dissonant, sharp chord rings out, slicing your skin but sharpening your mind. You upgrade a card.",
+        "outcomeText": "A dissonant, sharp chord rings out, slicing your skin but sharpening your mind. You upgrade a card and purge clutter.",
         "effects": {
-          "hpChange": -5,
-          "upgradeRandomCard": true
+          "hpChange": -6,
+          "upgradeRandomCard": true,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "strum_ballad",
+        "phrases": {
+          "easy": "play song",
+          "medium": "strum a full ballad",
+          "hard": "attempt to perform a legendary forbidden ballad"
+        },
+        "chance": 55,
+        "outcomeText": "The ink-strings sing in resonant harmony, weaving a priceless relic and healing your spirit!",
+        "effects": {
+          "gainRandomRelic": true,
+          "hpChange": 12
+        },
+        "failText": "All six ink-strings snap at once, whipping across your forearms!",
+        "failEffects": {
+          "hpChange": -10
         }
       },
       {
@@ -299,9 +467,9 @@
           "medium": "break the lute",
           "hard": "dismantle the wooden instrument to sell for parts"
         },
-        "outcomeText": "You break the instrument down. The rare wood fetches a decent price.",
+        "outcomeText": "You break the instrument down. The rare rosewood fetches a tidy sum.",
         "effects": {
-          "goldChange": 40
+          "goldChange": 50
         }
       }
     ]
@@ -320,8 +488,26 @@
         },
         "outcomeText": "The cave violently rejects the sound, tearing at your life force, but spitting out an ancient relic.",
         "effects": {
-          "hpChange": -15,
+          "hpChange": -14,
           "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "bottle_echo",
+        "phrases": {
+          "easy": "catch echo",
+          "medium": "trap a golden echo",
+          "hard": "uncork a glass vial to capture a resonant echo"
+        },
+        "chance": 65,
+        "outcomeText": "You cork a shimmering syllable! It condenses into a Rare card and revitalizing warmth.",
+        "effects": {
+          "gainRareCard": true,
+          "hpChange": 8
+        },
+        "failText": "A screeching echo shatters the glass vial in your palm!",
+        "failEffects": {
+          "hpChange": -8
         }
       },
       {
@@ -333,7 +519,7 @@
         },
         "outcomeText": "The dust swirls and forms a pile of coins, rewarding your silent respect.",
         "effects": {
-          "goldChange": 50
+          "goldChange": 55
         }
       }
     ]
@@ -350,10 +536,28 @@
           "medium": "smash the padlock",
           "hard": "strike the rusted padlock with all your might"
         },
-        "outcomeText": "The lock breaks. A trapped aria bursts forth, shattering glass and deafening you slightly, but leaving behind a powerful boon.",
+        "outcomeText": "The lock breaks! A trapped aria bursts forth, bruising you slightly, but granting permanent fortitude and a revised card.",
         "effects": {
-          "hpChange": -8,
-          "maxHpChange": 6
+          "hpChange": -7,
+          "maxHpChange": 7,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "pick_padlock",
+        "phrases": {
+          "easy": "pick lock",
+          "medium": "pick lock with nib",
+          "hard": "delicately pick the rusted padlock with a steel nib"
+        },
+        "chance": 65,
+        "outcomeText": "Click! The gag falls away smoothly, revealing a jeweled throat-charm inside the marble!",
+        "effects": {
+          "gainRandomRelic": true
+        },
+        "failText": "Your steel nib snaps inside the mechanism and the iron chain whips back at your hand!",
+        "failEffects": {
+          "hpChange": -8
         }
       },
       {
@@ -382,10 +586,28 @@
           "medium": "taste the fluid",
           "hard": "cup your hands and drink the dark obsidian ink"
         },
-        "outcomeText": "It tastes of bitter iron and lost words. You feel sickened, but your deck is purged of a weakness.",
+        "outcomeText": "It tastes of bitter iron and lost words. You feel sickened, but your deck is purged of a weak card.",
         "effects": {
-          "hpChange": -7,
+          "hpChange": -6,
           "removeRandomCard": true
+        }
+      },
+      {
+        "id": "dive_basin",
+        "phrases": {
+          "easy": "search basin",
+          "medium": "dredge the fountain floor",
+          "hard": "plunge your arms deep into the ink basin for coins"
+        },
+        "chance": 70,
+        "outcomeText": "Your fingers brush against sunken offerings! You haul up a heavy pouch of gold and an upgraded technique.",
+        "effects": {
+          "goldChange": 85,
+          "upgradeRandomCard": true
+        },
+        "failText": "Something sharp and metallic snaps at your fingers beneath the opaque ink!",
+        "failEffects": {
+          "hpChange": -9
         }
       },
       {
@@ -426,10 +648,27 @@
           "medium": "start a fire",
           "hard": "use the precious letters to start a warm campfire"
         },
-        "outcomeText": "The magical paper burns bright and long. You feel permanently strengthened, but you lose a piece of your humanity.",
+        "outcomeText": "The magical paper burns bright and long. You gain permanent vitality and purge a weak card from your deck.",
         "effects": {
-          "maxHpChange": 4,
+          "maxHpChange": 5,
           "removeRandomCard": true
+        }
+      },
+      {
+        "id": "search_hollow",
+        "phrases": {
+          "easy": "reach deep",
+          "medium": "search the deep hollow",
+          "hard": "reach past the letters into the dark root hollow"
+        },
+        "chance": 60,
+        "outcomeText": "Beneath the letters lies a velvet box holding an heirloom relic!",
+        "effects": {
+          "gainRandomRelic": true
+        },
+        "failText": "A nest of ink-wasps stings your hand repeatedly as you pull back!",
+        "failEffects": {
+          "hpChange": -9
         }
       }
     ]
@@ -444,12 +683,30 @@
         "phrases": {
           "easy": "cross out",
           "medium": "deface the sign",
-          "hard": "boldly strike through the wizard's floating decree"
+          "hard": "boldly strike through the wizard floating decree"
         },
         "outcomeText": "Your pen clashes with the magic. The edict shatters into gold coins, though the magical explosion hurts.",
         "effects": {
-          "hpChange": -10,
-          "goldChange": 75
+          "hpChange": -9,
+          "goldChange": 80
+        }
+      },
+      {
+        "id": "rewrite_decree",
+        "phrases": {
+          "easy": "rewrite law",
+          "medium": "hijack the enchantment",
+          "hard": "cleverly edit the floating decree to bless yourself"
+        },
+        "chance": 55,
+        "outcomeText": "Masterful editing! The hacked decree showers you with a Rare card and revises your deck.",
+        "effects": {
+          "gainRareCard": true,
+          "upgradeRandomCard": true
+        },
+        "failText": "The security glyph detects your edit and zaps your fingers with arcane static!",
+        "failEffects": {
+          "hpChange": -10
         }
       },
       {
@@ -463,16 +720,6 @@
         "effects": {
           "gainRandomCard": true
         }
-      },
-      {
-        "id": "walk_around",
-        "phrases": {
-          "easy": "go around",
-          "medium": "avoid the edict",
-          "hard": "carefully step around the dangerous glowing parchment"
-        },
-        "outcomeText": "You sensibly avoid the trap and continue your journey unharmed.",
-        "effects": {}
       }
     ]
   },
@@ -488,10 +735,29 @@
           "medium": "absorb the light",
           "hard": "shatter the glass and inhale the golden energy"
         },
-        "outcomeText": "A fleeting moment of song fills your mind! Your maximum health increases significantly, though you drop some gold in your daze.",
+        "outcomeText": "A fleeting moment of song fills your mind! Your maximum health increases significantly and your wounds mend.",
         "effects": {
           "maxHpChange": 8,
-          "goldChange": -30
+          "hpChange": 8,
+          "goldChange": -25
+        }
+      },
+      {
+        "id": "attune_quill",
+        "phrases": {
+          "easy": "dip quill",
+          "medium": "attune your pen",
+          "hard": "touch your quill tip to the resonant golden jar"
+        },
+        "chance": 65,
+        "outcomeText": "Golden resonance flows into your satchel, producing a Rare card and revising an existing page!",
+        "effects": {
+          "gainRareCard": true,
+          "upgradeRandomCard": true
+        },
+        "failText": "The jar cracks with a sonic boom that knocks you backward!",
+        "failEffects": {
+          "hpChange": -9
         }
       },
       {
@@ -501,9 +767,268 @@
           "medium": "steal the jar",
           "hard": "carefully place the valuable jar into your satchel"
         },
-        "outcomeText": "You don't dare open it, but you know someone who will pay handsomely for it.",
+        "outcomeText": "You don't dare open it, but a rebel broker pays handsomely for it.",
         "effects": {
-          "goldChange": 80
+          "goldChange": 75
+        }
+      }
+    ]
+  },
+  {
+    "id": "mechanical_typesetter",
+    "title": "The Clockwork Typesetter",
+    "narrative": "A towering brass linotype machine sits steaming beside the trail. Its molten lead pot bubbles softly, waiting for an operator courageous enough to key a line.",
+    "choices": [
+      {
+        "id": "cast_rare_slug",
+        "phrases": {
+          "easy": "type fast",
+          "medium": "key a rapid stanza",
+          "hard": "hammer a lightning fast sequence across the brass keys"
+        },
+        "chance": 70,
+        "outcomeText": "Clack-shunk! The machine casts a gleaming Rare card slug and upgrades a draft in your satchel!",
+        "effects": {
+          "gainRareCard": true,
+          "upgradeRandomCard": true
+        },
+        "failText": "A jammed matrix sprays droplets of scalding lead across your wrists!",
+        "failEffects": {
+          "hpChange": -11
+        }
+      },
+      {
+        "id": "melt_scrap_card",
+        "phrases": {
+          "easy": "burn scrap",
+          "medium": "recycle a flawed page",
+          "hard": "feed an unwanted draft into the furnace for gold"
+        },
+        "outcomeText": "The furnace consumes your flawed page and mints fresh gold coins from the ash.",
+        "effects": {
+          "removeRandomCard": true,
+          "goldChange": 55
+        }
+      },
+      {
+        "id": "warm_hands",
+        "phrases": {
+          "easy": "warm hands",
+          "medium": "rest by the boiler",
+          "hard": "warm your bruised fingers beside the brass boiler"
+        },
+        "outcomeText": "The steady warmth of the linotype boiler eases your aches.",
+        "effects": {
+          "hpChange": 14
+        }
+      }
+    ]
+  },
+  {
+    "id": "phantom_proofreader",
+    "title": "The Spectral Editor",
+    "narrative": "A translucent scholar wearing half-moon spectacles materializes before you, brandishing a glowing red pen. She gestures impatiently at your deck.",
+    "choices": [
+      {
+        "id": "submit_full_audit",
+        "phrases": {
+          "easy": "full edit",
+          "medium": "request a brutal critique",
+          "hard": "hand over your entire manuscript for ruthless editing"
+        },
+        "chance": 65,
+        "outcomeText": "She nods approvingly! She trims a weak draft, polishes another, and gifts you her spare spectacle charm.",
+        "effects": {
+          "removeRandomCard": true,
+          "upgradeRandomCard": true,
+          "gainRandomRelic": true
+        },
+        "failText": "Incensed by a split infinitive, she slashes red marks across your knuckles—though she still deletes a bad card!",
+        "failEffects": {
+          "hpChange": -10,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "pay_tuition",
+        "phrases": {
+          "easy": "pay tutor",
+          "medium": "pay for a lesson",
+          "hard": "offer forty gold coins for a formal style lesson"
+        },
+        "outcomeText": "For a modest fee, she elevates one of your cards and teaches you a Rare composition.",
+        "effects": {
+          "goldChange": -40,
+          "upgradeRandomCard": true,
+          "gainRareCard": true
+        }
+      },
+      {
+        "id": "bow_politely",
+        "phrases": {
+          "easy": "bow down",
+          "medium": "offer a polite bow",
+          "hard": "tip your hat respectfully and decline the critique"
+        },
+        "outcomeText": "Charmed by your manners, she tosses you a small pouch of ink-tokens.",
+        "effects": {
+          "goldChange": 35
+        }
+      }
+    ]
+  },
+  {
+    "id": "origami_bridge",
+    "title": "The Origami Chasm",
+    "narrative": "A deep gorge blocks the path. Spanning the abyss is a bridge folded entirely from giant sheets of parchment that sway in the mountain wind.",
+    "choices": [
+      {
+        "id": "sprint_across",
+        "phrases": {
+          "easy": "run fast",
+          "medium": "sprint across the paper",
+          "hard": "dash full speed across the swaying origami bridge"
+        },
+        "chance": 75,
+        "outcomeText": "Your light footsteps carry you across! Halfway over, you snatch a gilded satchel caught in the folds.",
+        "effects": {
+          "goldChange": 85,
+          "gainRandomCard": true
+        },
+        "failText": "A wet crease tears beneath your boot! You scramble up the ledge with scraped shins.",
+        "failEffects": {
+          "hpChange": -9
+        }
+      },
+      {
+        "id": "reinforce_bridge",
+        "phrases": {
+          "easy": "tape bridge",
+          "medium": "reinforce the creases",
+          "hard": "bind the paper bridge with spare wax and ink"
+        },
+        "outcomeText": "You spend 20 gold worth of sealing wax to cross safely, discovering a revised technique etched on the handrail.",
+        "effects": {
+          "goldChange": -20,
+          "upgradeRandomCard": true,
+          "hpChange": 8
+        }
+      },
+      {
+        "id": "climb_detour",
+        "phrases": {
+          "easy": "climb rocks",
+          "medium": "take the rocky detour",
+          "hard": "scale the exhausting cliff path around the gorge"
+        },
+        "outcomeText": "The detour bruises your knees, but builds lasting stamina.",
+        "effects": {
+          "hpChange": -5,
+          "maxHpChange": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "forbidden_printing_press",
+    "title": "The Underground Press",
+    "narrative": "Hidden beneath a trapdoor, you discover an abandoned rebel printing cellar. Plates of illicit poetry are still locked into the iron rollers.",
+    "choices": [
+      {
+        "id": "print_pamphlets",
+        "phrases": {
+          "easy": "pull lever",
+          "medium": "run the heavy press",
+          "hard": "heave the iron lever to print rebel broadsheets"
+        },
+        "outcomeText": "The physical strain leaves you winded, but rebel couriers pay generously for the fresh broadsheets and leave a Rare draft!",
+        "effects": {
+          "hpChange": -7,
+          "goldChange": 70,
+          "gainRareCard": true
+        }
+      },
+      {
+        "id": "experiment_plates",
+        "phrases": {
+          "easy": "mix plates",
+          "medium": "rearrange the type plates",
+          "hard": "experimentally recombine the leaden printing plates"
+        },
+        "chance": 60,
+        "outcomeText": "Eureka! Your experimental layout prints a masterwork Relic and upgrades a card!",
+        "effects": {
+          "gainRandomRelic": true,
+          "upgradeRandomCard": true
+        },
+        "failText": "The iron roller pinches your fingers and smudges a card in ink!",
+        "failEffects": {
+          "hpChange": -8
+        }
+      },
+      {
+        "id": "rest_in_cellar",
+        "phrases": {
+          "easy": "rest here",
+          "medium": "sleep on paper bales",
+          "hard": "catch your breath atop the warm bales of vellum"
+        },
+        "outcomeText": "You rest undisturbed in the quiet cellar, recovering your strength.",
+        "effects": {
+          "hpChange": 16
+        }
+      }
+    ]
+  },
+  {
+    "id": "wax_seal_altar",
+    "title": "Shrine of the Crimson Seal",
+    "narrative": "Candles of scarlet sealing wax drip onto a stone altar. Three brass signet rings rest in shallow bowls, each engraved with a different vow.",
+    "choices": [
+      {
+        "id": "vow_of_blood",
+        "phrases": {
+          "easy": "blood seal",
+          "medium": "press the crimson ring",
+          "hard": "stamp the burning crimson signet onto your wrist"
+        },
+        "outcomeText": "Hot wax sears your skin, but the signet fuses into a permanent Relic and purges your weakest page!",
+        "effects": {
+          "hpChange": -10,
+          "gainRandomRelic": true,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "vow_of_fortune",
+        "phrases": {
+          "easy": "gold seal",
+          "medium": "press the gilded ring",
+          "hard": "test your luck with the shimmering golden signet"
+        },
+        "chance": 65,
+        "outcomeText": "The altar drawer slides open, overflowing with gold coins and a revised card!",
+        "effects": {
+          "goldChange": 95,
+          "upgradeRandomCard": true
+        },
+        "failText": "A hidden needle pricks your thumb and drains a trickle of coin from your purse!",
+        "failEffects": {
+          "hpChange": -6,
+          "goldChange": -20
+        }
+      },
+      {
+        "id": "vow_of_vitality",
+        "phrases": {
+          "easy": "life seal",
+          "medium": "press the emerald ring",
+          "hard": "touch the soothing emerald signet to your brow"
+        },
+        "outcomeText": "Warmth radiates from the wax, mending your wounds and fortifying your max health.",
+        "effects": {
+          "hpChange": 12,
+          "maxHpChange": 4
         }
       }
     ]
