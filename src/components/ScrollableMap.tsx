@@ -73,7 +73,7 @@ export const MAP_NODE_STYLES: Record<MapNodeType, NodeStyleMeta> = {
   },
 };
 
-const ROW_HEIGHT = 205;
+const ROW_HEIGHT = 225;
 const MAP_WIDTH = 1380;
 
 /**
@@ -148,21 +148,27 @@ function buildInkyAndTextPaths(
 
   const linePath = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
 
+  // Inset the text guide endpoints by 16% from each node center so road text stays between symbols
+  const tx1 = x1 + dx * 0.16;
+  const ty1 = y1 + dy * 0.16;
+  const tx2 = x1 + dx * 0.84;
+  const ty2 = y1 + dy * 0.84;
+
   // Perpendicular normal offset so text floats parallel beside the inky line
   const len = Math.max(1, Math.hypot(dx, dy));
-  const nx = (-dy / len) * 18;
-  const ny = (dx / len) * 18 - 6;
+  const nx = (-dy / len) * 14;
+  const ny = (dx / len) * 14 - 5;
 
   // Ensure text guide runs Left -> Right (or bottom-to-top if nearly vertical) so letters read right-side up
   if (x1 <= x2 + 12) {
-    const textGuidePath = `M ${x1 + nx} ${y1 + ny} C ${cx1 + nx} ${cy1 + ny}, ${cx2 + nx} ${
+    const textGuidePath = `M ${tx1 + nx} ${ty1 + ny} C ${cx1 + nx} ${cy1 + ny}, ${cx2 + nx} ${
       cy2 + ny
-    }, ${x2 + nx} ${y2 + ny}`;
+    }, ${tx2 + nx} ${ty2 + ny}`;
     return { linePath, textGuidePath };
   } else {
-    const textGuidePath = `M ${x2 + nx} ${y2 + ny} C ${cx2 + nx} ${cy2 + ny}, ${cx1 + nx} ${
+    const textGuidePath = `M ${tx2 + nx} ${ty2 + ny} C ${cx2 + nx} ${cy2 + ny}, ${cx1 + nx} ${
       cy1 + ny
-    }, ${x1 + nx} ${y1 + ny}`;
+    }, ${tx1 + nx} ${ty1 + ny}`;
     return { linePath, textGuidePath };
   }
 }
@@ -480,6 +486,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
             return (
               <div
                 key={node.id}
+                data-node-id={node.id}
                 className={`map-symbol-only ${
                   isAvailable ? 'map-symbol-available' : ''
                 } ${isHighlighted ? 'map-symbol-highlighted' : ''} ${
@@ -495,14 +502,16 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                     : isHighlighted
                     ? '#d97706'
                     : styleMeta.color,
-                  animationDelay: `${((node.floor + idx) % 6) * 0.35}s`,
                 }}
               >
                 <svg
-                  width={node.type === 'boss' ? 62 : 42}
-                  height={node.type === 'boss' ? 62 : 42}
+                  width={node.type === 'boss' ? 58 : 38}
+                  height={node.type === 'boss' ? 58 : 38}
                   viewBox={styleMeta.viewBox}
                   className="map-pure-svg-symbol"
+                  style={{
+                    animationDelay: `${((node.floor + idx) % 6) * 0.35}s`,
+                  }}
                 >
                   <path fill="currentColor" d={styleMeta.pathD} />
                 </svg>

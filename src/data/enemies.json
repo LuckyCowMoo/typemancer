@@ -115,24 +115,24 @@
     "namePools": {
       "easy": [
         "goblin drummer",
-        "goblin bard",
-        "goblin chanter",
-        "goblin yeller",
-        "goblin noisemaker"
+        "warbeat thumper",
+        "kettle pounder",
+        "rhythm keeper",
+        "hideskin beater"
       ],
       "medium": [
-        "loud goblin drummer",
-        "frenzied goblin bard",
-        "wild goblin chanter",
-        "screaming goblin yeller",
-        "annoying goblin noisemaker"
+        "percussionist of the marching horde",
+        "twin-mallet battle cadence striker",
+        "booming war-timpani operator",
+        "tempo-setting goblin noise maker",
+        "bone-stick hide drum rattler"
       ],
       "hard": [
-        "the deafening goblin drummer",
-        "the inspiring goblin bard",
-        "the mad goblin chanter",
-        "the crazed goblin yeller",
-        "the chaotic goblin noisemaker"
+        "thunder-wristed maestro of the battle march",
+        "relentless percussionist who wakes the whole cavern",
+        "warband timekeeper pounding a hollowed brass kettle",
+        "frenzied rhythm-smith of the charging vanguard",
+        "deafening ceremonial drummer of the goblin court"
       ]
     },
     "art": {
@@ -225,25 +225,25 @@
     "maxHp": 40,
     "namePools": {
       "easy": [
-        "goblin shaman",
-        "goblin mystic",
         "goblin hexer",
-        "goblin curser",
-        "goblin witch"
+        "ash diviner",
+        "bone rattle mystic",
+        "cinder augur",
+        "totem chanter"
       ],
       "medium": [
-        "dark goblin shaman",
-        "weird goblin mystic",
-        "foul goblin hexer",
-        "spiteful goblin curser",
-        "creepy goblin witch"
+        "skull-staff ritual caller",
+        "smoke-weaving warlock of the caves",
+        "goblin oracle of the cracked cauldron",
+        "blood-ink hex caster",
+        "chanting keeper of the tribal embers"
       ],
       "hard": [
-        "the grand goblin shaman",
-        "the elder goblin mystic",
-        "the dreaded goblin hexer",
-        "the vile goblin curser",
-        "the sinister goblin witch"
+        "spirit-speaker draped in rattling talismans",
+        "goblin high augur of the blackened rune",
+        "curse-muttering channeler of ancient soot",
+        "wild-eyed medium of the subterranean shrine",
+        "hex-scribing shaman of the eclipsed moon"
       ]
     },
     "art": {
@@ -283,25 +283,25 @@
     "maxHp": 75,
     "namePools": {
       "easy": [
-        "goblin assassin",
-        "goblin ninja",
-        "goblin slayer",
-        "goblin butcher",
-        "goblin executioner"
+        "goblin nightblade",
+        "throat slitter",
+        "alley lurker",
+        "venom tipper",
+        "cloak skulker"
       ],
       "medium": [
-        "shadow goblin assassin",
-        "silent goblin ninja",
-        "lethal goblin slayer",
-        "bloody goblin butcher",
-        "grim goblin executioner"
+        "soot-masked dagger artist",
+        "silent backstabber from the rafters",
+        "poison-coated stiletto wielder",
+        "shadow-stepping goblin executioner",
+        "hired knife of the whispering guild"
       ],
       "hard": [
-        "the master goblin assassin",
-        "the unseen goblin ninja",
-        "the flawless goblin slayer",
-        "the sadistic goblin butcher",
-        "the supreme goblin executioner"
+        "unseen phantom of the guttering lantern",
+        "twin-dagger specialist in sudden departures",
+        "nightshade-brewing eliminator of the clan",
+        "silent stalker who strikes from behind the curtain",
+        "master of the poisoned needle and quiet exit"
       ]
     },
     "art": {
@@ -336,25 +336,25 @@
     "maxHp": 100,
     "namePools": {
       "easy": [
-        "goblin warlord",
-        "goblin chieftain",
-        "goblin boss",
-        "goblin general",
-        "goblin king"
+        "goblin warmonger",
+        "clan conqueror",
+        "iron tyrant",
+        "skull throne warboss",
+        "horde sovereign"
       ],
       "medium": [
-        "mighty goblin warlord",
-        "iron goblin chieftain",
-        "cruel goblin boss",
-        "clever goblin general",
-        "fat goblin king"
+        "trophy-clad chieftain of the seven caves",
+        "greatsword-wielding goblin conqueror",
+        "armor-plated warboss of the iron peaks",
+        "blood-sworn sovereign of the raiding clans",
+        "scar-covered champion of the war pit"
       ],
       "hard": [
-        "the supreme goblin warlord",
-        "the eternal goblin chieftain",
-        "the tyrannical goblin boss",
-        "the brilliant goblin general",
-        "the undisputed goblin king"
+        "supreme warmaster of the united goblin tribes",
+        "breaker of shields and collector of shiny crowns",
+        "iron-jawed autocrat of the subterranean empire",
+        "undefeated pit-lord of the jagged fortress",
+        "dread warboss who rides an armored boar into battle"
       ]
     },
     "art": {
@@ -394,25 +394,25 @@
     "maxHp": 40,
     "namePools": {
       "easy": [
-        "rock pebble",
-        "stone chip",
-        "gravel bit",
-        "little rock",
-        "boulder piece"
+        "animated pebble",
+        "rolling cobble",
+        "skipping flint",
+        "gravel sprite",
+        "chipped river stone"
       ],
       "medium": [
-        "hard rock pebble",
-        "sharp stone chip",
-        "rough gravel bit",
-        "solid little rock",
-        "dense boulder piece"
+        "ankle-biting sentient cobblestone",
+        "tumbling shard of living flint",
+        "hopping limestone fragment",
+        "stubborn little road-blocker",
+        "spinning chunk of riverbed gravel"
       ],
       "hard": [
-        "the jagged rock pebble",
-        "the unbreakable stone chip",
-        "the ancient gravel bit",
-        "the sturdy little rock",
-        "the compact boulder piece"
+        "surprisingly dense pebble with a grudge against boots",
+        "hyperactive splinter chipped from an elder monolith",
+        "ricocheting slingshot stone with its own opinions",
+        "miniature mineral menace of the mountain pass",
+        "indestructible grain of oversized quarry rubble"
       ]
     },
     "art": {
@@ -603,25 +603,25 @@
     "maxHp": 90,
     "namePools": {
       "easy": [
-        "rock golem",
-        "stone giant",
-        "boulder fiend",
-        "granite golem",
-        "slate monster"
+        "stone golem",
+        "quarry construct",
+        "masonry guardian",
+        "cairn walker",
+        "rubble automaton"
       ],
       "medium": [
-        "ancient rock golem",
-        "sturdy stone giant",
-        "angry boulder fiend",
-        "hard granite golem",
-        "tough slate monster"
+        "rune-bound sentinel of stacked boulders",
+        "mortar-free temple gatekeeper",
+        "lumbering effigy of carved sandstone",
+        "awakened statue from the ruined courtyard",
+        "heavy-fisted construct of fieldstone"
       ],
       "hard": [
-        "the primordial rock golem",
-        "the colossal stone giant",
-        "the raging boulder fiend",
-        "the unbreakable granite golem",
-        "the immovable slate monster"
+        "tireless architectural guardian animated by ancient ink",
+        "hulking humanoid assembled from broken castle battlements",
+        "inscribed sandstone colossus sworn to guard the road",
+        "grinding clockwork of interlocking granite blocks",
+        "moss-grown monument that remembers how to punch"
       ]
     },
     "art": {
@@ -986,25 +986,25 @@
     "maxHp": 60,
     "namePools": {
       "easy": [
-        "evil flytrap",
-        "bad snapper",
-        "nasty jaw",
-        "foul biter",
-        "toxic maw"
+        "snapjaw trap",
+        "carnivorous pitcher",
+        "nectar maw",
+        "sundew gullet",
+        "man-eating bloom"
       ],
       "medium": [
-        "hungry evil flytrap",
-        "drooling bad snapper",
-        "vicious nasty jaw",
-        "snapping foul biter",
-        "acidic toxic maw"
+        "drooling floral jaw with hair-trigger cilia",
+        "sweet-scented pitcher plant of acid",
+        "hinged leaf-trap snapping at passing birds",
+        "hungry conservatory specimen gone feral",
+        "digestive blossom of the steaming mire"
       ],
       "hard": [
-        "the ravenous evil flytrap",
-        "the devouring bad snapper",
-        "the inescapable nasty jaw",
-        "the crushing foul biter",
-        "the dissolving toxic maw"
+        "overgrown greenhouse monstrosity demanding a fresh meal",
+        "bear-trap blossom dripping with sweet paralytic dew",
+        "toothy botanical ambush predator disguised as a lily",
+        "gurgling pitcher-vine filled with armor-dissolving nectar",
+        "voracious venus snap-dragon of the sunken bog"
       ]
     },
     "art": {
@@ -1045,25 +1045,25 @@
     "maxHp": 130,
     "namePools": {
       "easy": [
-        "evil treant",
-        "bad forest",
-        "nasty grove",
-        "foul thicket",
-        "toxic jungle"
+        "blighted treant",
+        "gnarled oakwarden",
+        "hollow deadwood",
+        "gallows elm",
+        "weeping willow hulk"
       ],
       "medium": [
-        "towering evil treant",
-        "creeping bad forest",
-        "living nasty grove",
-        "dense foul thicket",
-        "wild toxic jungle"
+        "lightning-split oak animated by grudges",
+        "creaking elder tree with branch-antlers",
+        "termite-ridden timber giant of the woods",
+        "moss-bearded sentinel of the forbidden grove",
+        "root-stomping lumberjack nightmare"
       ],
       "hard": [
-        "the colossal evil treant",
-        "the consuming bad forest",
-        "the swallowing nasty grove",
-        "the endless foul thicket",
-        "the suffocating toxic jungle"
+        "three-hundred-year-old hangman oak pulling up its roots",
+        "splintering patriarch of the forest who hates paper-makers",
+        "hollow-hearted yew tree swarming with angry hornets",
+        "creaking timber leviathan draped in hangman nooses",
+        "vengeful ancient redwood marching to reclaim the sawmill"
       ]
     },
     "art": {
@@ -1108,25 +1108,25 @@
     "maxHp": 110,
     "namePools": {
       "easy": [
-        "evil mandragora",
-        "bad root",
-        "nasty tuber",
-        "foul bulb",
-        "toxic seed"
+        "shrieking mandrake",
+        "wailing tuber",
+        "gallows root",
+        "banshee turnip",
+        "nightshade bulb"
       ],
       "medium": [
-        "screaming evil mandragora",
-        "wailing bad root",
-        "crying nasty tuber",
-        "shrieking foul bulb",
-        "howling toxic seed"
+        "ear-splitting homunculus of knotted roots",
+        "freshly unearthed alchemical night-screamer",
+        "mud-caked tuber with a human grimace",
+        "glass-shattering parsnip of the witch-garden",
+        "tantrum-throwing root vegetable of doom"
       ],
       "hard": [
-        "the deafening evil mandragora",
-        "the maddening bad root",
-        "the torturous nasty tuber",
-        "the agonizing foul bulb",
-        "the despairing toxic seed"
+        "unconscionably loud root vegetable pulled up without earmuffs",
+        "writhing humanoid turnip whose wail curdles ink in the bottle",
+        "alchemical mandragora watered with midnight tears",
+        "muddy subterranean choirboy singing a song of migraine",
+        "five-century-old taproot with lungs of brass and spite"
       ]
     },
     "art": {
@@ -1167,25 +1167,25 @@
     "maxHp": 250,
     "namePools": {
       "easy": [
-        "goblin king",
-        "goblin emperor",
-        "goblin overload",
-        "goblin dictator",
-        "goblin tyrant"
+        "the goblin king",
+        "monarch of scrap",
+        "crown-thief rex",
+        "sovereign of soot",
+        "high king of caves"
       ],
       "medium": [
-        "greedy goblin king",
-        "cruel goblin emperor",
-        "fat goblin overload",
-        "mad goblin dictator",
-        "ruthless goblin tyrant"
+        "his majesty the tin-crowned goblin king",
+        "hoarder-in-chief of the subterranean throne",
+        "royal tax-collector of the plundered road",
+        "velvet-robed tyrant of the goblin parliament",
+        "grand usurper of the tarnished scepter"
       ],
       "hard": [
-        "the golden goblin king",
-        "the supreme goblin emperor",
-        "the eternal goblin overload",
-        "the absolute goblin dictator",
-        "the undying goblin tyrant"
+        "his illustrious greediness the supreme monarch of all goblins",
+        "the self-coronated emperor sitting atop a pile of stolen spoons",
+        "high sovereign of the deep warrens and keeper of the shiny hat",
+        "autocrat of the goblin court who taxes every syllable you type",
+        "grand potentate of the rabble army in patched ermine robes"
       ]
     },
     "art": {
@@ -1233,25 +1233,25 @@
     "maxHp": 350,
     "namePools": {
       "easy": [
-        "living mountain",
-        "stone peak",
-        "rock summit",
-        "granite apex",
-        "boulder zenith"
+        "the living mountain",
+        "walking peak",
+        "continental titan",
+        "summit colossus",
+        "world-ridge giant"
       ],
       "medium": [
-        "angry living mountain",
-        "trembling stone peak",
-        "shaking rock summit",
-        "rumbling granite apex",
-        "cracking boulder zenith"
+        "snow-capped peak that stood up to fight",
+        "walking geological range of solid granite",
+        "avalanche-shouldered sovereign of stone",
+        "cloud-piercing monolith of the spine ridge",
+        "tectonic grandfather of all boulders"
       ],
       "hard": [
-        "the eternal living mountain",
-        "the soaring stone peak",
-        "the towering rock summit",
-        "the majestic granite apex",
-        "the absolute boulder zenith"
+        "entire mountain range that grew tired of being climbed",
+        "glacier-crowned landmass whose breath is a falling rockslide",
+        "primordial granite peak awakened from a million-year nap",
+        "sky-scraping geological titan with pine forests on its shoulders",
+        "unyielding spine of the continent risen to block the horizon"
       ]
     },
     "art": {
@@ -1285,25 +1285,25 @@
     "maxHp": 300,
     "namePools": {
       "easy": [
-        "world tree",
-        "life tree",
-        "soul tree",
-        "spirit tree",
-        "ancient tree"
+        "corrupted world tree",
+        "blighted axis mundi",
+        "canker yggdrasil",
+        "heartwood leviathan",
+        "rot-crowned canopy"
       ],
       "medium": [
-        "corrupt world tree",
-        "dark life tree",
-        "foul soul tree",
-        "twisted spirit tree",
-        "rotten ancient tree"
+        "sky-supporting ash tree hollowed by dark ink",
+        "continental root-system drinking poisoned rivers",
+        "eclipsing canopy of the ancient forest heart",
+        "rotted pillar of the primordial biosphere",
+        "world-spanning bough dripping with black sap"
       ],
       "hard": [
-        "the malignant world tree",
-        "the dying life tree",
-        "the screaming soul tree",
-        "the bleeding spirit tree",
-        "the damned ancient tree"
+        "colossal axis-tree whose roots strangle the foundations of the earth",
+        "blighted mother of all forests weeping rivers of corrosive resin",
+        "horizon-devouring canopy that blots out the sun and stars alike",
+        "ancient heartwood cathedral corrupted by the wizard dark lexicon",
+        "world-bridging elder tree whose falling leaves are toxic curses"
       ]
     },
     "art": {
@@ -1355,25 +1355,25 @@
     "maxHp": 500,
     "namePools": {
       "easy": [
-        "the evil wizard",
-        "the dark mage",
-        "the wicked sorcerer",
-        "the foul warlock",
-        "the vile necromancer"
+        "the silent archmage",
+        "censor of voices",
+        "thief of song",
+        "lord of mute ink",
+        "the grand lexicon"
       ],
       "medium": [
-        "the terrifying evil wizard",
-        "the supreme dark mage",
-        "the ultimate wicked sorcerer",
-        "the mad foul warlock",
-        "the grand vile necromancer"
+        "arch-sorcerer who bottled the world voices",
+        "tyrant of the hushed tower and stolen tongue",
+        "high censor of spoken word and melody",
+        "ink-drenched despot of the silent spire",
+        "weaver of the great spell of muteness"
       ],
       "hard": [
-        "the all powerful evil wizard",
-        "the absolute dark mage",
-        "the cosmic wicked sorcerer",
-        "the chaotic foul warlock",
-        "the immortal vile necromancer"
+        "the grand arch-censor who stole every song and syllable from the realm",
+        "sovereign of the silent tower who hoards the world voices in glass jars",
+        "architect of the quiet dystopia and enemy of the magical typewriter",
+        "ink-blooded autocrat who decreed that no creature shall ever speak again",
+        "supreme spell-binder of the hushed spire awaiting your final keystroke"
       ]
     },
     "art": {

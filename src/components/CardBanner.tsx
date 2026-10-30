@@ -35,6 +35,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
 
   return (
     <div
+      data-card-id={instance.instanceId}
       className={`card-tab ${index % 2 === 0 ? 'card-tab-light' : 'card-tab-dark'} ${
         isHighlighted ? 'card-tab-highlighted' : ''
       } ${isEnterCandidate ? 'card-tab-enter-ready' : ''} ${
@@ -45,23 +46,27 @@ export const CardBanner: React.FC<CardBannerProps> = ({
       }}
     >
       <div className="card-tab-inner">
-        {/* 1:1 Square Image Slot on Left */}
-        <div className="card-art-square">
-          {resolved.art.spriteUrl ? (
-            <img src={resolved.art.spriteUrl} alt="" />
-          ) : (
-            <span className="card-rarity-seal">{resolved.rarity[0].toUpperCase()}</span>
-          )}
+        {/* Left Column: 1:1 Square Image Slot + Compact Rarity Seal underneath */}
+        <div className="card-left-art-col">
+          <div className="card-art-square">
+            {resolved.art.spriteUrl ? (
+              <img src={resolved.art.spriteUrl} alt="" />
+            ) : (
+              <span className="card-rarity-seal">{resolved.rarity[0].toUpperCase()}</span>
+            )}
+          </div>
+          <span className={`card-rarity-pill rarity-pill-${resolved.rarity}`}>
+            {resolved.rarity}
+          </span>
         </div>
 
-        {/* Right Half: Name, Rarity/Upgrade tag & Cost along Top, Description beneath */}
+        {/* Right Half: Full-Width Card Name & Cost along Top, Description beneath */}
         <div className="card-info-right">
           <div className="card-tab-header">
             <span className="card-tab-name">
               {resolved.name}
-              {instance.upgraded && <span className="card-upgraded-tag"> +REVISED</span>}
+              {instance.upgraded && <span className="card-upgraded-tag"> +</span>}
             </span>
-            <span className="card-rarity-pill">{resolved.rarity}</span>
             <span className="card-cost-pill">{priceBadge ?? resolved.cost}</span>
           </div>
           <div className="card-tab-sub">{subtitleOverride ?? resolved.description}</div>

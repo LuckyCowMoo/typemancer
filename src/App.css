@@ -24,22 +24,43 @@ body,
   display: flex;
   flex-direction: column;
   position: relative;
-  background-color: #ece3d5;
+  background-color: #eadfce;
   background-image:
-    radial-gradient(circle at 50% 45%, rgba(255, 250, 240, 0.45) 0%, rgba(196, 173, 142, 0.38) 100%),
+    radial-gradient(circle at 50% 42%, rgba(255, 251, 242, 0.55) 0%, rgba(182, 154, 118, 0.48) 100%),
     repeating-linear-gradient(
       0deg,
-      rgba(90, 68, 42, 0.025) 0px,
-      rgba(90, 68, 42, 0.025) 1px,
+      rgba(78, 56, 32, 0.032) 0px,
+      rgba(78, 56, 32, 0.032) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(78, 56, 32, 0.022) 0px,
+      rgba(78, 56, 32, 0.022) 1px,
       transparent 1px,
       transparent 4px
     );
+}
+
+/* Authentic SVG Fractal Noise Grain Layer across all scenes */
+.paper-grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 160;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperNoise)' opacity='0.14'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
 }
 
 .typemancer-viewport.high-contrast {
   background-color: #f8f9fa;
   background-image: none;
   color: #000000;
+}
+
+.typemancer-viewport.high-contrast .paper-grain-overlay {
+  display: none;
 }
 
 /* ==================== SUBTLE ORGANIC PAPER MOVEMENT ==================== */
@@ -121,26 +142,76 @@ body,
 .minimal-run-status {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .minimal-stat-chip {
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 800;
+  font-size: 0.92rem;
   color: #162229;
-  background: rgba(255, 249, 240, 0.82);
-  padding: 2px 10px;
-  border-radius: 8px;
-  border: 1.5px solid #2b1e16;
+  background: #fdf8ef;
+  padding: 3px 11px;
+  border-radius: 9px;
+  border: 1.8px solid #2b1e16;
+  box-shadow: 1px 2px 4px rgba(43, 30, 22, 0.14);
+}
+
+.ward-stat-chip {
+  background: #e0f2fe;
+  color: #0c4a6e;
+}
+
+.gold-stat-chip {
+  background: #fef9c3;
+  color: #713f12;
 }
 
 .minimal-command-hint {
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: #3d3127;
-  background: rgba(255, 249, 240, 0.72);
-  padding: 3px 10px;
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #2b1e16;
+}
+
+.cmd-hint-prefix {
+  font-style: italic;
+  font-weight: 700;
+  color: #4a3828;
+  margin-right: 2px;
+}
+
+.top-cmd-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdf8ef;
+  color: #162229;
+  border: 1.8px solid #2b1e16;
+  border-radius: 9px;
+  padding: 2px 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  box-shadow: 1px 2px 4px rgba(43, 30, 22, 0.15);
+  transition: transform 0.14s ease, background-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.top-cmd-highlighted {
+  background-color: #ffd166 !important;
+  color: #162229 !important;
+  border-color: #b45309 !important;
+  transform: translateY(-1px) scale(1.04);
+}
+
+.top-cmd-enter-ready {
+  background-color: #2ec4b6 !important;
+  color: #072227 !important;
+  border-color: #0b4f4a !important;
+  transform: translateY(-2px) scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(19, 117, 71, 0.4) !important;
 }
 
 .relic-icons-bar {
@@ -262,16 +333,24 @@ body,
 
 .card-tab-inner {
   display: flex;
-  align-items: stretch;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.card-left-art-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
 }
 
 .card-art-square {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   aspect-ratio: 1 / 1;
-  background: rgba(255, 250, 240, 0.35);
+  background: rgba(255, 250, 240, 0.42);
   border: 2px solid #2b1e16;
   border-radius: 8px;
   display: flex;
@@ -303,9 +382,9 @@ body,
 
 .card-tab-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 5px;
+  gap: 6px;
   font-weight: 800;
   font-size: 0.88rem;
 }
@@ -313,29 +392,31 @@ body,
 .card-tab-name {
   flex: 1;
   text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.16;
+  word-break: break-word;
 }
 
 .card-upgraded-tag {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 900;
   color: #065f46;
   background: #a7f3d0;
-  padding: 1px 4px;
+  padding: 0px 4px;
   border-radius: 4px;
-  margin-left: 4px;
+  margin-left: 3px;
 }
 
 .card-rarity-pill {
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 1px 5px;
-  border-radius: 6px;
-  background: rgba(43, 30, 22, 0.18);
+  border-radius: 5px;
+  background: rgba(253, 248, 239, 0.82);
+  color: #2b1e16;
+  border: 1px solid rgba(43, 30, 22, 0.35);
   font-weight: 800;
+  line-height: 1.1;
 }
 
 .rarity-rare .card-rarity-pill {
@@ -723,64 +804,53 @@ body,
   color: #4a1238;
 }
 
-/* Middle Row: Energy Box + Area for Stats */
+/* Middle Row: Compact Energy Box (+ Extra Hard WPM Meter when unlocked) */
 .battle-stats-row {
   display: flex;
-  align-items: stretch;
-  gap: 18px;
+  align-items: center;
+  gap: 16px;
 }
 
 .energy-box {
-  width: 100px;
-  height: 84px;
+  width: 96px;
+  height: 76px;
   background-color: #155a7a;
   border: 2.5px solid #2b1e16;
-  border-radius: 20px;
+  border-radius: 18px;
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 2px 3px 8px rgba(43, 30, 22, 0.18);
 }
 
 .energy-value {
-  font-size: 1.55rem;
+  font-size: 1.5rem;
   font-weight: 800;
 }
 
 .energy-label {
-  font-size: 0.82rem;
-  opacity: 0.9;
+  font-size: 0.8rem;
+  opacity: 0.92;
 }
 
-.stats-area-box {
+.wpm-meter-standalone {
   flex: 1;
-  max-width: 520px;
+  max-width: 340px;
   background-color: #155a7a;
   border: 2.5px solid #2b1e16;
-  border-radius: 20px;
+  border-radius: 16px;
   color: #fff;
-  padding: 12px 22px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.stats-grid {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1rem;
-}
-
-.wpm-meter-container {
-  margin-top: 8px;
+  padding: 10px 18px;
 }
 
 .wpm-meter-labels {
   display: flex;
   justify-content: space-between;
   font-size: 0.78rem;
-  margin-bottom: 3px;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .wpm-bar-track {
@@ -830,18 +900,57 @@ body,
   font-style: italic;
   margin: 0 6px;
 }
-.sentence-live-input { color: #162229; }
+.sentence-live-input {
+  color: #162229;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: pre-wrap;
+}
 
+/* Classic Typewriter Inky Nib Caret (replaces blank orange block) */
 .typing-caret {
   display: inline-block;
-  margin-left: 2px;
-  color: #bc5215;
-  animation: blinkCaret 0.9s infinite;
+  position: relative;
+  width: 2.5px;
+  height: 1.18em;
+  background-color: #102a3a;
+  margin: 0 2px;
+  vertical-align: -0.16em;
+  border-radius: 1px;
+  animation: blinkCaret 0.9s steps(2, start) infinite;
+}
+
+.typing-caret::before,
+.typing-caret::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 2.5px;
+  background-color: #bc5215;
+  border-radius: 2px;
+}
+
+.typing-caret::before {
+  top: -1px;
+}
+
+.typing-caret::after {
+  bottom: -1px;
+}
+
+/* Faint Ghost Autocomplete Text after 5 characters typed, right in front of the cursor */
+.typing-ghost-autocomplete {
+  color: rgba(22, 34, 41, 0.36);
+  font-weight: 600;
+  font-style: italic;
+  pointer-events: none;
 }
 
 @keyframes blinkCaret {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0%, 54% { opacity: 1; }
+  55%, 100% { opacity: 0.15; }
 }
 
 /* ==================== FULL-SCREEN PARCHMENT MAP, KEY & WINDING PARALLEL TEXT ==================== */
@@ -899,15 +1008,15 @@ body,
   pointer-events: none;
 }
 
-/* Winding Text Parallel to the Inky Path */
+/* Winding Text Parallel to the Inky Path (Smaller & inset so it never clips under icons) */
 .map-winding-path-text {
-  font-size: 16.5px;
+  font-size: 13px;
   font-weight: 800;
-  fill: #5c2709;
-  letter-spacing: 0.03em;
+  fill: #4e2107;
+  letter-spacing: 0.02em;
   paint-order: stroke;
-  stroke: #ece3d5;
-  stroke-width: 5px;
+  stroke: #eadfce;
+  stroke-width: 4.5px;
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: font-size 0.16s ease, fill 0.16s ease;
@@ -916,17 +1025,17 @@ body,
 .map-text-highlighted {
   fill: #b45309;
   stroke: #fef3c7;
-  font-size: 18px;
+  font-size: 14.5px;
 }
 
 .map-text-enter-ready {
   fill: #065f46 !important;
   stroke: #a7f3d0 !important;
-  stroke-width: 6px;
-  font-size: 20.5px !important;
+  stroke-width: 5px;
+  font-size: 16px !important;
 }
 
-/* Pure Colored Symbol Nodes (No Circle, No Floor Number) */
+/* Pure Colored Symbol Nodes — Centered strictly on (pos.x, pos.y) via translate(-50%, -50%)! */
 .map-symbol-only {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -935,11 +1044,11 @@ body,
   justify-content: center;
   z-index: 6;
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), filter 0.18s ease, color 0.18s ease;
-  animation: gentleEntityBob 4.6s ease-in-out infinite;
 }
 
 .map-pure-svg-symbol {
   filter: drop-shadow(0 2px 3px rgba(43, 30, 22, 0.25));
+  animation: gentleEntityBob 4.6s ease-in-out infinite;
 }
 
 .map-symbol-completed {
@@ -1190,6 +1299,7 @@ body,
 
 .keyboard-modal-card {
   background: #fdf8ef;
+  color: #102027;
   border: 3px solid #2b1e16;
   border-radius: 20px;
   padding: 22px 28px;
@@ -1198,6 +1308,28 @@ body,
   max-height: 86vh;
   overflow-y: auto;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.keyboard-modal-card h2,
+.keyboard-modal-card h3 {
+  color: #102027;
+  margin-top: 0;
+}
+
+.keyboard-modal-card p,
+.keyboard-modal-card li {
+  color: #162229;
+  font-weight: 600;
+  line-height: 1.48;
+}
+
+.keyboard-modal-card code {
+  background: #eadfce;
+  color: #7c2d12;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(43, 30, 22, 0.3);
+  font-weight: 800;
 }
 
 .modal-list li {
@@ -1214,6 +1346,7 @@ body,
 
 .modal-item-chip {
   background: #fff;
+  color: #102027;
   border: 1.5px solid #2b1e16;
   border-radius: 10px;
   padding: 8px 12px;
@@ -1241,6 +1374,7 @@ body,
 
 .status-def-card {
   background: #fff;
+  color: #102027;
   border: 2px solid #2b1e16;
   border-radius: 12px;
   padding: 10px 14px;
@@ -1255,21 +1389,65 @@ body,
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #ece3d5;
+  background: #eadfce;
+  color: #102027;
   border: 2px solid #2b1e16;
   border-radius: 12px;
   padding: 10px 14px;
   margin: 10px 0;
 }
 
+.dictionary-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #102027;
+}
+
 .dictionary-phonetic {
-  color: #155a7a;
+  display: inline-block;
+  align-self: flex-start;
+  color: #0b3c49;
+  background: #e0f2fe;
+  border: 1.5px solid #0c4a6e;
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-weight: 800;
   font-style: italic;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .dictionary-meaning-block {
-  margin-bottom: 10px;
+  background: #fffdf9;
+  border: 2px solid #2b1e16;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #102027;
+}
+
+.dictionary-meaning-block strong {
+  display: inline-block;
+  color: #7c2d12;
+  background: #fef3c7;
+  border: 1px solid #b45309;
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.dictionary-meaning-block ul {
+  margin: 6px 0 0 0;
+  padding-left: 20px;
+}
+
+.dictionary-meaning-block li {
+  color: #102027 !important;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .modal-footer-prompt {
@@ -1278,4 +1456,8 @@ body,
   border-top: 2px solid #2b1e16;
   font-size: 1.1rem;
   font-weight: 700;
+  color: #102027;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

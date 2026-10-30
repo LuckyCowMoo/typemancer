@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import { CardBanner } from './components/CardBanner';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
-import { ScrollableMap } from './components/ScrollableMap';
+import { MAP_NODE_STYLES, ScrollableMap } from './components/ScrollableMap';
 import type {
   ActiveEnemy,
   CardInstance,
@@ -210,27 +210,66 @@ export function App() {
   const [liveWpm, setLiveWpm] = useState<number>(40);
 
   /**
-   * Spawns a tactile ink-splatter / parchment-spark particle burst whenever an action is confirmed!
+   * Spawns a tactile ink-splatter / parchment-spark particle burst at the given viewport %
+   * and with a contextual color palette matching whatever was selected or acted upon.
    */
-  const triggerActionParticles = useCallback((xPct: number = 50, yPct: number = 88) => {
-    const id = nextUid('burst');
-    const colors = ['#137547', '#bc5215', '#102a3a', '#d97706', '#ffd166'];
-    const particles = Array.from({ length: 24 }, (_, idx) => {
-      const angle = (Math.PI * 2 * idx) / 24 + (Math.random() - 0.5) * 0.35;
-      const dist = 36 + Math.random() * 115;
-      return {
-        dx: Math.cos(angle) * dist,
-        dy: Math.sin(angle) * dist - 22,
-        size: 5 + Math.random() * 7,
-        color: colors[idx % colors.length],
-        rot: Math.floor(Math.random() * 360),
-      };
-    });
-    setParticleBursts((prev) => [...prev, { id, x: xPct, y: yPct, particles }]);
-    window.setTimeout(() => {
-      setParticleBursts((prev) => prev.filter((b) => b.id !== id));
-    }, 750);
-  }, []);
+  const triggerActionParticles = useCallback(
+    (
+      xPct: number = 50,
+      yPct: number = 88,
+      customPalette?: string[]
+    ) => {
+      const id = nextUid('burst');
+      const colors =
+        customPalette && customPalette.length > 0
+          ? customPalette
+          : ['#137547', '#bc5215', '#102a3a', '#d97706', '#ffd166'];
+      const particles = Array.from({ length: 26 }, (_, idx) => {
+        const angle = (Math.PI * 2 * idx) / 26 + (Math.random() - 0.5) * 0.35;
+        const dist = 38 + Math.random() * 120;
+        return {
+          dx: Math.cos(angle) * dist,
+          dy: Math.sin(angle) * dist - 18,
+          size: 5 + Math.random() * 7.5,
+          color: colors[idx % colors.length],
+          rot: Math.floor(Math.random() * 360),
+        };
+      });
+      setParticleBursts((prev) => [...prev, { id, x: xPct, y: yPct, particles }]);
+      window.setTimeout(() => {
+        setParticleBursts((prev) => prev.filter((b) => b.id !== id));
+      }, 750);
+    },
+    []
+  );
+
+  /**
+   * Locates a DOM element by CSS selector (or falls back to any currently `.option-enter-ready` /
+   * `.card-tab-enter-ready` / `.top-cmd-enter-ready` element) and bursts colored particles directly
+   * from that element's center on screen!
+   */
+  const triggerElementParticles = useCallback(
+    (selector?: string, customPalette?: string[], fallbackX = 50, fallbackY = 82) => {
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const el =
+          (selector ? document.querySelector(selector) : null) ||
+          document.querySelector(
+            '.card-tab-enter-ready, .enemy-spot-enter-ready, .map-symbol-enter-ready, .option-enter-ready, .top-cmd-enter-ready'
+          );
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            const xPct = Math.max(4, Math.min(96, ((rect.left + rect.width / 2) / window.innerWidth) * 100));
+            const yPct = Math.max(4, Math.min(96, ((rect.top + rect.height / 2) / window.innerHeight) * 100));
+            triggerActionParticles(xPct, yPct, customPalette);
+            return;
+          }
+        }
+      }
+      triggerActionParticles(fallbackX, fallbackY, customPalette);
+    },
+    [triggerActionParticles]
+  );
 
   const spawnPopup = useCallback((target: 'player' | string, text: string, color: string) => {
     const id = nextUid('popup');
@@ -388,6 +427,7 @@ export function App() {
       const initialDrawCount = Math.min(8, 5 + bonusDraw);
       const { nextHand, nextDraw, nextDiscard } = drawCards(initialDrawCount, [], shuffled, []);
 
+      soundEngine.playShuffle(settings);
       setHand(nextHand);
       setDrawPile(nextDraw);
       setDiscardPile(nextDiscard);
@@ -398,7 +438,7 @@ export function App() {
       resetTypingBuffer(true);
       setScreen('battle');
     },
-    [drawCards, phraseDiff, resetTypingBuffer]
+    [drawCards, phraseDiff, resetTypingBuffer, settings]
   );
 
   const handleCombatVictory = useCallback(
@@ -456,7 +496,20 @@ export function App() {
         return;
       }
 
-      triggerActionParticles(50, 86);
+      soundEngine.playCardCast(settings);
+      const cardPalette = [
+        resolved.art.primaryColor || '#bc5215',
+        resolved.art.secondaryColor || '#d97706',
+        '#137547',
+        '#ffd166',
+      ];
+      if (targetEnemy) {
+        triggerElementParticles(`[data-enemy-id="${targetEnemy.instanceId}"]`, cardPalette, 72, 46);
+      } else if (resolved.target === 'all_enemies') {
+        triggerElementParticles('.enemies-formation', cardPalette, 72, 46);
+      } else {
+        triggerElementParticles('[data-player-spot="true"]', cardPalette, 36, 48);
+      }
       setIsAnimatingTurn(true);
       setSelectedCard(null);
       resetTypingBuffer(true);
@@ -502,10 +555,13 @@ export function App() {
         totalDmgDealtThisCard += hpLoss;
 
         if (blocked > 0 && hpLoss > 0) {
+          soundEngine.playHit(settings);
           spawnPopup(enemyObj.instanceId, `-${hpLoss} HP (${blocked} Blocked)`, '#e63946');
         } else if (blocked > 0) {
+          soundEngine.playWardBlock(settings);
           spawnPopup(enemyObj.instanceId, `${blocked} Blocked`, '#1d6fa5');
         } else if (hpLoss > 0) {
+          soundEngine.playHit(settings);
           spawnPopup(enemyObj.instanceId, `-${hpLoss} HP`, '#e63946');
         }
       };
@@ -540,6 +596,7 @@ export function App() {
           case 'ward': {
             const gained = scaleAmount(eff.amount);
             nextWard += gained;
+            soundEngine.playWardBlock(settings);
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
             setMetrics((m) => ({ ...m, totalWardGained: m.totalWardGained + gained }));
             break;
@@ -649,11 +706,15 @@ export function App() {
       const nextBurn = [...burnDraftPile];
 
       if (resolved.burnDraft || resolved.type === 'power') {
+        soundEngine.playBurnCard(settings);
         nextBurn.push(cardInst);
       } else {
         nextDiscard.push(cardInst);
       }
 
+      if (extraDraw > 0) {
+        soundEngine.playDrawCard(settings);
+      }
       const drawnResult =
         extraDraw > 0
           ? drawCards(extraDraw, remainingHand, drawPile, nextDiscard)
@@ -703,7 +764,7 @@ export function App() {
       resetTypingBuffer,
       settings,
       spawnPopup,
-      triggerActionParticles,
+      triggerElementParticles,
       triggerProjectile,
     ]
   );
@@ -712,7 +773,7 @@ export function App() {
     if (isAnimatingTurn) return;
     setIsAnimatingTurn(true);
     soundEngine.playConfirm(settings);
-    triggerActionParticles(50, 86);
+    triggerElementParticles('[data-cmd="end turn"]', ['#d97706', '#bc5215', '#102a3a', '#ffd166'], 58, 4);
     setSelectedCard(null);
     resetTypingBuffer(true);
 
@@ -919,6 +980,7 @@ export function App() {
       discardedHand
     );
 
+    soundEngine.playDrawCard(settings);
     setHp(nextPlayerHp);
     setPlayerWard(newTurnWard);
     setPlayerStatuses(nextPlayerStats);
@@ -944,13 +1006,20 @@ export function App() {
     resetTypingBuffer,
     settings,
     spawnPopup,
-    triggerActionParticles,
+    triggerElementParticles,
     triggerProjectile,
   ]);
 
   const enterMapNode = useCallback(
     (node: MapNode) => {
-      triggerActionParticles(50, 75);
+      soundEngine.playChooseRoad(settings);
+      const nodeColor = MAP_NODE_STYLES[node.type]?.color || '#137547';
+      triggerElementParticles(
+        `[data-node-id="${node.id}"]`,
+        [nodeColor, '#137547', '#d97706', '#ffd166'],
+        50,
+        55
+      );
       setCurrentNodeId(node.id);
       setMapFloors((prev) =>
         prev.map((row) =>
@@ -1031,17 +1100,19 @@ export function App() {
       playerName,
       relicIds,
       resetTypingBuffer,
+      settings,
       startBattle,
-      triggerActionParticles,
+      triggerElementParticles,
     ]
   );
 
   const advanceToMapNextFloor = useCallback(() => {
+    soundEngine.playMapOpen(settings);
     const nextF = Math.min(24, currentFloor + 1);
     setCurrentFloor(nextF);
     resetTypingBuffer(true);
     setScreen('map');
-  }, [currentFloor, resetTypingBuffer]);
+  }, [currentFloor, resetTypingBuffer, settings]);
 
   const availableMapNodes = useMemo(() => {
     const floorRow = mapFloors[currentFloor - 1] || [];
@@ -1133,7 +1204,8 @@ export function App() {
 
   const startNewRun = useCallback(
     (chosenName: string, chosenDiff: Difficulty) => {
-      triggerActionParticles(50, 82);
+      soundEngine.playMapOpen(settings);
+      triggerElementParticles(undefined, ['#137547', '#d97706', '#102a3a', '#ffd166'], 50, 68);
       const freshDeck = createStarterDeck();
       const freshMap = generateProceduralMap();
       setPlayerName(chosenName);
@@ -1150,7 +1222,7 @@ export function App() {
       resetTypingBuffer(true);
       setScreen('map');
     },
-    [resetTypingBuffer, triggerActionParticles]
+    [resetTypingBuffer, settings, triggerElementParticles]
   );
 
   const restoreFromSavePayload = useCallback(
@@ -1158,7 +1230,8 @@ export function App() {
       const payload = decodeSaveCode(rawCode);
       if (!payload) return false;
 
-      triggerActionParticles(50, 82);
+      soundEngine.playMapOpen(settings);
+      triggerElementParticles(undefined, ['#137547', '#d97706', '#102a3a', '#ffd166'], 50, 68);
       setPlayerName(payload.name);
       setDifficulty(payload.diff);
       setCurrentFloor(payload.floor);
@@ -1180,7 +1253,7 @@ export function App() {
       setScreen('map');
       return true;
     },
-    [resetTypingBuffer, triggerActionParticles]
+    [resetTypingBuffer, settings, triggerElementParticles]
   );
 
   const handleEnterSubmit = useCallback(() => {
@@ -1192,8 +1265,8 @@ export function App() {
     if (raw.endsWith('?') && raw.length > 1) {
       const queryWord = raw.slice(0, -1).trim();
       if (queryWord.length > 0 && !queryWord.includes(' ')) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 88);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles('.typing-console-box', ['#1b6488', '#137547', '#ffd166'], 50, 90);
         setDictionaryQuery(queryWord);
         setDictionaryLoading(true);
         setDictionaryData(null);
@@ -1213,8 +1286,8 @@ export function App() {
         !raw ||
         matchCommand(raw, ['back', 'return', 'close', 'exit', 'cancel', 'resume', 'done'], 'easy')
       ) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 85);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles('.modal-footer-prompt', ['#102a3a', '#d97706', '#137547'], 50, 82);
         setOverlay('none');
         setHighlightedStatusId(null);
         setInspectedEntity(null);
@@ -1226,63 +1299,63 @@ export function App() {
         if (matchCommand(raw, ['mute', 'unmute', 'toggle mute'], 'easy')) {
           setSettings((s) => ({ ...s, muted: !s.muted }));
           soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['typewriter', 'mechanical typewriter'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'mechanical_typewriter' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'mechanical_typewriter' });
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['telegraph', 'vintage telegraph'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'vintage_telegraph' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'vintage_telegraph' });
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['quill', 'arcane quill'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'arcane_quill' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'arcane_quill' });
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['chalk', 'soft chalk'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'soft_chalk' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'soft_chalk' });
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['bell', 'carriage bell'], 'easy')) {
           setSettings((s) => ({ ...s, confirmSound: 'carriage_bell' }));
           soundEngine.playConfirm({ ...settings, confirmSound: 'carriage_bell' });
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['chime', 'spell chime'], 'easy')) {
           setSettings((s) => ({ ...s, confirmSound: 'spell_chime' }));
           soundEngine.playConfirm({ ...settings, confirmSound: 'spell_chime' });
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['stamp', 'heavy stamp'], 'easy')) {
           setSettings((s) => ({ ...s, confirmSound: 'heavy_stamp' }));
           soundEngine.playConfirm({ ...settings, confirmSound: 'heavy_stamp' });
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['contrast', 'high contrast'], 'easy')) {
           setSettings((s) => ({ ...s, highContrast: !s.highContrast }));
           soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 85);
+          triggerElementParticles('.keyboard-modal-card', ['#137547', '#d97706'], 50, 50);
           resetTypingBuffer(false);
           return;
         }
@@ -1302,22 +1375,22 @@ export function App() {
 
     // 2. Universal Meta-Commands
     if (matchCommand(raw, ['help', 'commands', 'what can i type'], 'easy')) {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('[data-cmd="help"]', ['#1b6488', '#137547', '#ffd166'], 82, 4);
       setOverlay('help');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['options', 'settings', 'audio', 'sound'], 'easy')) {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('[data-cmd="options"]', ['#1b6488', '#d97706', '#ffd166'], 88, 4);
       setOverlay('options');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['mute'], 'easy')) {
       setSettings((s) => ({ ...s, muted: true }));
-      triggerActionParticles(50, 88);
+      triggerElementParticles('[data-cmd="options"]', ['#64748b', '#102a3a'], 88, 4);
       resetTypingBuffer(false);
       return;
     }
@@ -1325,13 +1398,13 @@ export function App() {
       const next = { ...settings, muted: false };
       setSettings(next);
       soundEngine.playConfirm(next);
-      triggerActionParticles(50, 88);
+      triggerElementParticles('[data-cmd="options"]', ['#137547', '#ffd166'], 88, 4);
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['status effects', 'statuses', 'status', 'effects'], 'easy')) {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('[data-cmd="status effects"]', ['#6d28d9', '#1d6fa5', '#d97706'], 74, 4);
       setHighlightedStatusId(null);
       setOverlay('status_effects');
       resetTypingBuffer(false);
@@ -1345,8 +1418,8 @@ export function App() {
           evaluatedHand[0]?.isValidConfirm &&
           normalizeText(evaluatedHand[0].phrase) === norm;
         if (!collidesWithHandCard) {
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 88);
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles('[data-cmd="status effects"]', [st.color, '#ffd166'], 74, 4);
           setHighlightedStatusId(st.id);
           setOverlay('status_effects');
           resetTypingBuffer(false);
@@ -1360,22 +1433,22 @@ export function App() {
       screen !== 'main_menu' &&
       screen !== 'peasant_intro'
     ) {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('[data-cmd="view deck"]', ['#bc5215', '#d97706', '#ffd166'], 92, 4);
       setOverlay('deck');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['view discard', 'discard', 'discard pile'], 'easy') && screen === 'battle') {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('.cards-footer-box', ['#bc5215', '#102a3a'], 12, 92);
       setOverlay('discard');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['view burn', 'burn draft', 'burned'], 'easy') && screen === 'battle') {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('.cards-footer-box', ['#9e2a2b', '#d95d16'], 12, 92);
       setOverlay('burn_draft');
       resetTypingBuffer(false);
       return;
@@ -1385,15 +1458,15 @@ export function App() {
       screen !== 'main_menu' &&
       screen !== 'peasant_intro'
     ) {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('[data-cmd="relics"]', ['#b67d10', '#ffd166', '#137547'], 66, 4);
       setOverlay('relics');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['save', 'save code', 'export save'], 'easy')) {
-      soundEngine.playConfirm(settings);
-      triggerActionParticles(50, 88);
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('[data-cmd="save"]', ['#137547', '#102a3a', '#ffd166'], 86, 4);
       setOverlay('save');
       resetTypingBuffer(false);
       return;
@@ -1402,16 +1475,16 @@ export function App() {
     // 3. MAIN MENU
     if (screen === 'main_menu') {
       if (matchCommand(raw, ['new run', 'new', 'start', 'play'], 'easy')) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#137547', '#bc5215', '#ffd166'], 50, 52);
         setIntroStep('ask_name');
         setScreen('peasant_intro');
         resetTypingBuffer(true);
         return;
       }
       if (matchCommand(raw, ['tutorial', 'learn', 'how to play'], 'easy')) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 58);
         setTutorialStep(0);
         setScreen('tutorial');
         resetTypingBuffer(true);
@@ -1425,8 +1498,8 @@ export function App() {
           restoreFromSavePayload(localCode);
           return;
         }
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#d97706', '#102a3a', '#ffd166'], 50, 64);
         setIntroStep('load_save');
         setScreen('peasant_intro');
         resetTypingBuffer(true);
@@ -1443,29 +1516,29 @@ export function App() {
     // 4. TUTORIAL
     if (screen === 'tutorial') {
       if (matchCommand(raw, ['back', 'exit', 'menu', 'skip'], 'easy')) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 80);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#102a3a', '#d97706'], 50, 80);
         setScreen('main_menu');
         resetTypingBuffer(true);
         return;
       }
       if (tutorialStep === 0 && matchCommand(raw, ['strike'], 'easy')) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 75);
+        soundEngine.playCardCast(settings);
+        triggerElementParticles(undefined, ['#b84a14', '#137547', '#ffd166'], 50, 65);
         setTutorialStep(1);
         resetTypingBuffer(true);
         return;
       }
       if (tutorialStep === 1 && matchCommand(raw, ['goblin scout', 'goblin'], 'easy')) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 75);
+        soundEngine.playHit(settings);
+        triggerElementParticles(undefined, ['#9e2a2b', '#d97706', '#ffd166'], 50, 65);
         setTutorialStep(2);
         resetTypingBuffer(true);
         return;
       }
       if (tutorialStep === 2 && (!norm || matchCommand(raw, ['new run', 'start', 'menu', 'done'], 'easy'))) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 75);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 65);
         setIntroStep('ask_name');
         setScreen('peasant_intro');
         resetTypingBuffer(true);
@@ -1479,7 +1552,7 @@ export function App() {
     if (screen === 'peasant_intro') {
       if (introStep === 'ask_name') {
         if (matchCommand(raw, ['back', 'menu', 'return'], 'easy')) {
-          soundEngine.playConfirm(settings);
+          soundEngine.playPageTurn(settings);
           setScreen('main_menu');
           resetTypingBuffer(true);
           return;
@@ -1492,8 +1565,8 @@ export function App() {
           soundEngine.playError(settings);
           return;
         }
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 78);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles('.prompt-panel', ['#137547', '#bc5215', '#ffd166'], 50, 68);
         setPlayerName(raw.slice(0, 28));
         setIntroStep('ask_difficulty');
         resetTypingBuffer(true);
@@ -1516,7 +1589,7 @@ export function App() {
 
       if (introStep === 'ask_difficulty') {
         if (matchCommand(raw, ['back', 'return', 'change name'], 'easy')) {
-          soundEngine.playConfirm(settings);
+          soundEngine.playPageTurn(settings);
           setIntroStep('ask_name');
           resetTypingBuffer(true);
           return;
@@ -1595,8 +1668,18 @@ export function App() {
             return;
           }
 
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(18, 52);
+          soundEngine.playDrawCard(settings);
+          triggerElementParticles(
+            `[data-card-id="${chosenInst.instanceId}"]`,
+            [
+              resolved.art.primaryColor || '#bc5215',
+              resolved.art.secondaryColor || '#d97706',
+              '#137547',
+              '#ffd166',
+            ],
+            14,
+            45
+          );
           setSelectedCard(chosenInst);
           setActionCharAccum((prev) => prev + resolved.name.length);
           setTypedInput('');
@@ -1605,16 +1688,21 @@ export function App() {
 
         const bestEnemyInspect = evaluatedEnemies[0];
         if (bestEnemyInspect && bestEnemyInspect.isValidConfirm) {
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(75, 50);
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles(
+            `[data-enemy-id="${bestEnemyInspect.item.instanceId}"]`,
+            [bestEnemyInspect.item.art.primaryColor, bestEnemyInspect.item.art.secondaryColor, '#ffd166'],
+            75,
+            48
+          );
           setInspectedEntity(bestEnemyInspect.item);
           setOverlay('entity_inspect');
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['player', 'myself', playerName], 'easy')) {
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(35, 50);
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles('[data-player-spot="true"]', ['#165b7d', '#2980b9', '#ffd166'], 36, 48);
           setInspectedEntity('player');
           setOverlay('entity_inspect');
           resetTypingBuffer(false);
@@ -1653,7 +1741,7 @@ export function App() {
     if (screen === 'reward') {
       if (matchCommand(raw, ['skip', 'continue', 'next', 'leave', 'pass'], 'easy')) {
         soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 82);
+        triggerElementParticles(undefined, ['#64748b', '#102a3a'], 50, 82);
         advanceToMapNextFloor();
         return;
       }
@@ -1665,9 +1753,15 @@ export function App() {
         });
         const evalCards = evaluateCandidates(raw, cardCands, difficulty);
         if (evalCards[0] && evalCards[0].isValidConfirm) {
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 65);
+          soundEngine.playDrawCard(settings);
           const picked = evalCards[0].item;
+          const resPicked = resolveCardInstance(picked, phraseDiff);
+          triggerElementParticles(
+            `[data-card-id="${picked.instanceId}"]`,
+            [resPicked.art.primaryColor, resPicked.art.secondaryColor, '#137547', '#ffd166'],
+            50,
+            55
+          );
           setDeck((d) => [...d, picked]);
           setRewardCards([]);
           resetTypingBuffer(true);
@@ -1686,8 +1780,13 @@ export function App() {
         const evalRelics = evaluateCandidates(raw, relicCands, difficulty);
         if (evalRelics[0] && evalRelics[0].isValidConfirm) {
           soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 65);
           const pickedRelic = evalRelics[0].item;
+          triggerElementParticles(
+            undefined,
+            [pickedRelic.art.primaryColor, pickedRelic.art.secondaryColor, '#ffd166'],
+            50,
+            62
+          );
           setRelicIds((ids) => [...ids, pickedRelic.id]);
           if (pickedRelic.trigger === 'passive_max_hp' && pickedRelic.effectType === 'max_hp') {
             setMaxHp((m) => m + pickedRelic.amount);
@@ -1711,7 +1810,7 @@ export function App() {
       if (campfireSubMode === 'choose') {
         if (matchCommand(raw, ['rest', 'sleep', 'heal', 'rest by the fire'], difficulty)) {
           soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 65);
+          triggerElementParticles(undefined, ['#3a8918', '#d95d16', '#ffd166'], 50, 58);
           let healAmt = Math.max(10, Math.round(maxHp * 0.3));
           relicIds.forEach((id) => {
             const r = getRelicDefinition(id);
@@ -1722,8 +1821,8 @@ export function App() {
           return;
         }
         if (matchCommand(raw, ['revise', 'edit', 'upgrade', 'smith', 'revise a card'], difficulty)) {
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 65);
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles(undefined, ['#d95d16', '#ffd166', '#137547'], 50, 66);
           setCampfireSubMode('revise_select');
           resetTypingBuffer(true);
           return;
@@ -1750,9 +1849,14 @@ export function App() {
         }));
         const evalUp = evaluateCandidates(raw, cands, difficulty);
         if (evalUp[0] && evalUp[0].isValidConfirm) {
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 65);
+          soundEngine.playCardCast(settings);
           const targetInst = evalUp[0].item;
+          triggerElementParticles(
+            `[data-card-id="${targetInst.instanceId}"]`,
+            ['#137547', '#ffd166', '#d95d16'],
+            50,
+            58
+          );
           setDeck((prev) =>
             prev.map((c) =>
               c.instanceId === targetInst.instanceId ? { ...c, upgraded: true } : c
@@ -1780,9 +1884,14 @@ export function App() {
         }));
         const evalRem = evaluateCandidates(raw, cands, difficulty);
         if (evalRem[0] && evalRem[0].isValidConfirm) {
-          soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 65);
+          soundEngine.playBurnCard(settings);
           const toRemove = evalRem[0].item;
+          triggerElementParticles(
+            `[data-card-id="${toRemove.instanceId}"]`,
+            ['#9e2a2b', '#d95d16', '#ffd166'],
+            50,
+            58
+          );
           setDeck((prev) => prev.filter((c) => c.instanceId !== toRemove.instanceId));
           setGold((g) => g - shopInventory.removeServicePrice);
           setShopInventory({ ...shopInventory, removeUsed: true });
@@ -1796,7 +1905,7 @@ export function App() {
 
       if (matchCommand(raw, ['leave', 'exit', 'continue', 'skip', 'back'], 'easy')) {
         soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 82);
+        triggerElementParticles(undefined, ['#1b7a58', '#ffd166'], 50, 82);
         advanceToMapNextFloor();
         return;
       }
@@ -1806,8 +1915,8 @@ export function App() {
           soundEngine.playError(settings);
           return;
         }
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#9e2a2b', '#d95d16'], 50, 35);
         setShopSubMode('remove_select');
         resetTypingBuffer(true);
         return;
@@ -1828,8 +1937,13 @@ export function App() {
           soundEngine.playError(settings);
           return;
         }
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
+        soundEngine.playDrawCard(settings);
+        triggerElementParticles(
+          `[data-card-id="${entry.instance.instanceId}"]`,
+          ['#1b7a58', '#b67d10', '#ffd166'],
+          50,
+          55
+        );
         setGold((g) => g - entry.price);
         setDeck((d) => [...d, entry.instance]);
         setShopInventory({
@@ -1858,7 +1972,12 @@ export function App() {
           return;
         }
         soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
+        triggerElementParticles(
+          undefined,
+          [entry.relic.art.primaryColor, entry.relic.art.secondaryColor, '#ffd166'],
+          50,
+          72
+        );
         setGold((g) => g - entry.price);
         setRelicIds((ids) => [...ids, entry.relic.id]);
         setShopInventory({
@@ -1889,8 +2008,13 @@ export function App() {
       );
       if (evalRelics[0] && evalRelics[0].isValidConfirm) {
         soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
         const picked = evalRelics[0].item;
+        triggerElementParticles(
+          undefined,
+          [picked.art.primaryColor, picked.art.secondaryColor, '#b67d10', '#ffd166'],
+          50,
+          58
+        );
         setRelicIds((ids) => [...ids, picked.id]);
         if (picked.trigger === 'passive_max_hp' && picked.effectType === 'max_hp') {
           setMaxHp((m) => m + picked.amount);
@@ -1908,7 +2032,7 @@ export function App() {
       if (eventOutcomeText !== null) {
         if (!norm || matchCommand(raw, ['continue', 'onward', 'next', 'leave'], 'easy')) {
           soundEngine.playConfirm(settings);
-          triggerActionParticles(50, 75);
+          triggerElementParticles('.prompt-panel', ['#1b6488', '#137547', '#ffd166'], 50, 72);
           advanceToMapNextFloor();
           return;
         }
@@ -1922,8 +2046,8 @@ export function App() {
         difficulty
       );
       if (evalChoices[0] && evalChoices[0].isValidConfirm) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 65);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 65);
         const choice = evalChoices[0].item;
         const eff = choice.effects;
 
@@ -1972,8 +2096,8 @@ export function App() {
     // 13. GAME OVER / VICTORY REPORT CARD
     if (screen === 'game_over' || screen === 'victory') {
       if (matchCommand(raw, ['new run', 'restart', 'play again', 'again', 'start', 'menu'], 'easy')) {
-        soundEngine.playConfirm(settings);
-        triggerActionParticles(50, 75);
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 75);
         setScreen('main_menu');
         resetTypingBuffer(true);
         return;
@@ -2015,7 +2139,7 @@ export function App() {
     shopSubMode,
     spawnPopup,
     startNewRun,
-    triggerActionParticles,
+    triggerElementParticles,
     tutorialStep,
     typedInput,
   ]);
@@ -2122,6 +2246,147 @@ export function App() {
     [phraseDiff, selectedCard]
   );
 
+  /**
+   * Computes the faint ghost autocomplete suffix shown in front of (after) the cursor
+   * once the student has typed at least 5 characters of a matching option!
+   */
+  const ghostAutocompleteSuffix = useMemo(() => {
+    if (typedInput.length < 5) return '';
+
+    const pool: string[] = [];
+
+    if (overlay !== 'none') {
+      pool.push('back', 'return', 'close');
+      if (overlay === 'options') {
+        pool.push(
+          'mute',
+          'unmute',
+          'mechanical typewriter',
+          'vintage telegraph',
+          'arcane quill',
+          'soft chalk',
+          'carriage bell',
+          'spell chime',
+          'heavy stamp',
+          'high contrast'
+        );
+      }
+    } else {
+      if (screen === 'main_menu') {
+        pool.push('new run', 'tutorial', 'load', 'options', 'help');
+      } else if (screen === 'tutorial') {
+        if (tutorialStep === 0) pool.push('strike');
+        if (tutorialStep === 1) pool.push('goblin scout');
+        if (tutorialStep === 2) pool.push('new run');
+        pool.push('back');
+      } else if (screen === 'peasant_intro') {
+        if (introStep === 'ask_difficulty') {
+          pool.push(
+            'easy',
+            'a fair challenge',
+            'i expect this quest to be a grueling endeavour'
+          );
+          if (extraHardAvailable) {
+            pool.push('my fingers move faster than lightning itself');
+          }
+        }
+        pool.push('back');
+      } else if (screen === 'map') {
+        availableMapNodes.forEach((n) => pool.push(n.phrases[phraseDiff]));
+      } else if (screen === 'battle') {
+        if (!selectedCard) {
+          handCandidates.forEach((c) => pool.push(c.phrase));
+          enemies.forEach((e) => pool.push(e.displayName));
+          pool.push('end turn', 'view discard', 'view deck', 'status effects', 'relics');
+        } else if (
+          selectedCardResolved &&
+          (selectedCardResolved.target === 'self' ||
+            selectedCardResolved.target === 'all_enemies')
+        ) {
+          pool.push(selectedCardResolved.connector, 'confirm', 'back', 'cancel');
+        } else {
+          enemies.forEach((e) => pool.push(e.displayName));
+          pool.push('back', 'cancel');
+        }
+      } else if (screen === 'reward') {
+        rewardCards.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+        rewardRelics.forEach((r) => pool.push(r.names[phraseDiff]));
+        pool.push('skip', 'continue');
+      } else if (screen === 'campfire') {
+        if (campfireSubMode === 'choose') {
+          pool.push('rest', 'revise', 'skip');
+        } else {
+          deck
+            .filter((c) => !c.upgraded)
+            .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('back');
+        }
+      } else if (screen === 'merchant' && shopInventory) {
+        if (shopSubMode === 'remove_select') {
+          deck.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('back');
+        } else {
+          shopInventory.cards
+            .filter((c) => !c.sold)
+            .forEach((c) => pool.push(resolveCardInstance(c.instance, phraseDiff).name));
+          shopInventory.relics
+            .filter((r) => !r.sold)
+            .forEach((r) => pool.push(r.relic.names[phraseDiff]));
+          pool.push('burn card', 'leave');
+        }
+      } else if (screen === 'treasure') {
+        rewardRelics.forEach((r) => pool.push(r.names[phraseDiff]));
+        pool.push('skip');
+      } else if (screen === 'mystery' && activeEvent) {
+        if (eventOutcomeText === null) {
+          activeEvent.choices.forEach((ch) => pool.push(ch.phrases[phraseDiff]));
+        } else {
+          pool.push('continue');
+        }
+      } else if (screen === 'game_over' || screen === 'victory') {
+        pool.push('new run');
+      }
+
+      pool.push('help', 'options', 'save', 'relics', 'view deck', 'status effects');
+      STATUS_DEFINITIONS.forEach((st) => pool.push(st.name));
+    }
+
+    const uniquePool = Array.from(new Set(pool));
+    const evaluated = evaluateCandidates(
+      typedInput,
+      uniquePool.map((p) => ({ item: p, phrase: p })),
+      difficulty
+    );
+    const best = evaluated[0];
+    if (!best || !best.isPrefixMatch) return '';
+
+    const candidatePhrase = best.phrase;
+    if (candidatePhrase.length <= typedInput.length) return '';
+    return candidatePhrase.slice(typedInput.length);
+  }, [
+    activeEvent,
+    availableMapNodes,
+    campfireSubMode,
+    deck,
+    difficulty,
+    enemies,
+    eventOutcomeText,
+    extraHardAvailable,
+    handCandidates,
+    introStep,
+    overlay,
+    phraseDiff,
+    rewardCards,
+    rewardRelics,
+    screen,
+    selectedCard,
+    selectedCardResolved,
+    shopInventory,
+    shopSubMode,
+    tutorialStep,
+    typedInput,
+  ]);
+
   const avgWpm = useMemo(() => {
     if (metrics.wpmSamples.length === 0) return 0;
     return Math.round(
@@ -2170,8 +2435,43 @@ export function App() {
     </div>
   );
 
+  const renderCommandPills = (commands: string[]) => (
+    <div className="minimal-command-hint">
+      <span className="cmd-hint-prefix">type</span>
+      {commands.map((cmd) => {
+        const st = getPhraseHighlightState(cmd, 'easy');
+        return (
+          <span
+            key={cmd}
+            data-cmd={cmd}
+            className={`top-cmd-box ${st.isHighlighted ? 'top-cmd-highlighted' : ''} ${
+              st.isEnterReady ? 'top-cmd-enter-ready' : ''
+            }`}
+          >
+            {cmd}
+          </span>
+        );
+      })}
+    </div>
+  );
+
+  const renderTypingInputWithCaret = () => (
+    <span className="sentence-live-input">
+      {typedInput}
+      <span className="typing-caret" aria-hidden="true" />
+      {ghostAutocompleteSuffix && (
+        <span className="typing-ghost-autocomplete" aria-hidden="true">
+          {ghostAutocompleteSuffix}
+        </span>
+      )}
+    </span>
+  );
+
   return (
     <div className={`typemancer-viewport ${settings.highContrast ? 'high-contrast' : ''}`}>
+      {/* TACTILE PARCHMENT GRAIN / NOISE TEXTURE OVERLAY ACROSS ALL SCENES */}
+      <div className="paper-grain-overlay" aria-hidden="true" />
+
       {/* GLOBAL INK & PARCHMENT ACTION PARTICLE BURSTS */}
       <div className="particles-overlay-layer" aria-hidden="true">
         {particleBursts.map((burst) => (
@@ -2237,10 +2537,24 @@ export function App() {
           {/* RIGHT MAIN AREA */}
           <main className="battle-main">
             <header className="minimal-top-bar">
-              {renderRelicIconsBar()}
-              <div className="minimal-command-hint">
-                type (end turn) (relics) (status effects) (help) (options)
+              <div className="minimal-run-status">
+                {renderRelicIconsBar()}
+                <span className="minimal-stat-chip">
+                  HP {hp}/{maxHp}
+                </span>
+                {playerWard > 0 && (
+                  <span className="minimal-stat-chip ward-stat-chip">Ward {playerWard}</span>
+                )}
+                <span className="minimal-stat-chip gold-stat-chip">Gold {gold}</span>
               </div>
+              {renderCommandPills([
+                'end turn',
+                'relics',
+                'status effects',
+                'view deck',
+                'help',
+                'options',
+              ])}
             </header>
 
             <section className="arena-stage">
@@ -2257,7 +2571,7 @@ export function App() {
               )}
 
               {/* Player Entity */}
-              <div className="player-spot paper-sway-slow">
+              <div className="player-spot paper-sway-slow" data-player-spot="true">
                 <div className="entity-name-label">{playerName}</div>
                 <div className="hp-bar-frame player-hp-bar">
                   <div
@@ -2328,6 +2642,7 @@ export function App() {
                   return (
                     <div
                       key={enemy.instanceId}
+                      data-enemy-id={enemy.instanceId}
                       className={`enemy-spot enemy-slot-${index} ${
                         isTargetHighlighted ? 'enemy-spot-highlighted' : ''
                       } ${isTargetEnterReady ? 'enemy-spot-enter-ready' : ''}`}
@@ -2385,7 +2700,7 @@ export function App() {
               </div>
             </section>
 
-            {/* MIDDLE ROW: Energy Box + Area for Stats */}
+            {/* MIDDLE ROW: Compact Energy Box (+ Extra Hard WPM Meter when unlocked) */}
             <section className="battle-stats-row">
               <div className="energy-box">
                 <div className="energy-value">
@@ -2394,44 +2709,24 @@ export function App() {
                 <div className="energy-label">energy</div>
               </div>
 
-              <div className="stats-area-box">
-                <div className="stats-grid">
-                  <div>
-                    <strong>Ward:</strong> {playerWard}
+              {difficulty === 'extra_hard' && (
+                <div className="wpm-meter-standalone">
+                  <div className="wpm-meter-labels">
+                    <span>Speed: {liveWpm} WPM</span>
+                    <span>Power: {liveEffectiveness.displayPercent}%</span>
                   </div>
-                  <div>
-                    <strong>Bold:</strong> {playerStatuses.bold}
-                  </div>
-                  <div>
-                    <strong>Faded:</strong> {playerStatuses.faded}
-                  </div>
-                  <div>
-                    <strong>Exposed:</strong> {playerStatuses.exposed}
-                  </div>
-                  <div>
-                    <strong>Gold:</strong> {gold}g
+                  <div className="wpm-bar-track">
+                    <div
+                      className={`wpm-bar-fill ${
+                        liveEffectiveness.displayPercent > 100 ? 'wpm-bar-overflow' : ''
+                      }`}
+                      style={{
+                        width: `${Math.min(130, Math.max(15, Math.round(liveWpm * 2.5)))}%`,
+                      }}
+                    />
                   </div>
                 </div>
-
-                {difficulty === 'extra_hard' && (
-                  <div className="wpm-meter-container">
-                    <div className="wpm-meter-labels">
-                      <span>Speed: {liveWpm} WPM</span>
-                      <span>Power: {liveEffectiveness.displayPercent}%</span>
-                    </div>
-                    <div className="wpm-bar-track">
-                      <div
-                        className={`wpm-bar-fill ${
-                          liveEffectiveness.displayPercent > 100 ? 'wpm-bar-overflow' : ''
-                        }`}
-                        style={{
-                          width: `${Math.min(130, Math.max(15, Math.round(liveWpm * 2.5)))}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </section>
 
             {/* BOTTOM ROW: Clean Typing Bar */}
@@ -2441,16 +2736,10 @@ export function App() {
                   <>
                     <span className="sentence-locked-card">"{selectedCardResolved.name}"</span>
                     <span className="sentence-connector"> -{selectedCardResolved.connector}- </span>
-                    <span className="sentence-live-input">
-                      {typedInput}
-                      <span className="typing-caret">▋</span>
-                    </span>
+                    {renderTypingInputWithCaret()}
                   </>
                 ) : (
-                  <span className="sentence-live-input">
-                    {typedInput}
-                    <span className="typing-caret">▋</span>
-                  </span>
+                  renderTypingInputWithCaret()
                 )}
               </div>
             </section>
@@ -2466,15 +2755,15 @@ export function App() {
             {screen !== 'main_menu' && screen !== 'tutorial' && screen !== 'peasant_intro' ? (
               <div className="minimal-run-status">
                 {renderRelicIconsBar()}
-                <span className="minimal-stat-chip">HP {hp}/{maxHp}</span>
-                <span className="minimal-stat-chip">Gold {gold}</span>
+                <span className="minimal-stat-chip">
+                  HP {hp}/{maxHp}
+                </span>
+                <span className="minimal-stat-chip gold-stat-chip">Gold {gold}</span>
               </div>
             ) : (
               <div />
             )}
-            <div className="minimal-command-hint">
-              type (help) (options) (save) (relics) (view deck)
-            </div>
+            {renderCommandPills(['help', 'options', 'save', 'relics', 'view deck'])}
           </header>
 
           {/* Main Content Stage */}
@@ -2923,10 +3212,7 @@ export function App() {
           {/* Clean Bottom Typing Console */}
           <footer className="typing-console-box narrative-console">
             <div className="typing-sentence-display">
-              <span className="sentence-live-input">
-                {typedInput}
-                <span className="typing-caret">▋</span>
-              </span>
+              {renderTypingInputWithCaret()}
             </div>
           </footer>
         </div>
@@ -3202,11 +3488,9 @@ export function App() {
             )}
 
             <div className="modal-footer-prompt">
-              type (back){' '}
-              <span className="sentence-live-input">
-                {typedInput}
-                <span className="typing-caret">▋</span>
-              </span>
+              <span className="cmd-hint-prefix">type</span>{' '}
+              <span className="top-cmd-box">back</span>{' '}
+              {renderTypingInputWithCaret()}
             </div>
           </div>
         </div>

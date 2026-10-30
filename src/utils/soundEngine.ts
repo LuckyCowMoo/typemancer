@@ -2,6 +2,69 @@ import type { ConfirmSoundProfile, GameSettings, SoundProfile } from '../types/g
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
+  private sampleCache: Map<string, HTMLAudioElement> = new Map();
+
+  private playSample(
+    filename: string,
+    settings: GameSettings,
+    volumeMultiplier = 0.65,
+    rateJitter = 0.06
+  ): void {
+    if (typeof window === 'undefined' || settings.muted || settings.volume <= 0) return;
+    try {
+      const src = `./assets/sfx/${filename}`;
+      let baseAudio = this.sampleCache.get(src);
+      if (!baseAudio) {
+        baseAudio = new Audio(src);
+        baseAudio.preload = 'auto';
+        this.sampleCache.set(src, baseAudio);
+      }
+      const instance = baseAudio.cloneNode(true) as HTMLAudioElement;
+      instance.volume = Math.min(1, Math.max(0, settings.volume * volumeMultiplier));
+      if (rateJitter > 0) {
+        instance.playbackRate = 1 + (Math.random() * 2 - 1) * rateJitter;
+      }
+      instance.play().catch(() => {});
+    } catch {
+      // Ignore audio playback errors if blocked by browser autoplay policy
+    }
+  }
+
+  public playShuffle(settings: GameSettings): void {
+    this.playSample('shuffle.wav', settings, 0.7, 0.04);
+  }
+
+  public playDrawCard(settings: GameSettings): void {
+    this.playSample('draw.wav', settings, 0.55, 0.08);
+  }
+
+  public playCardCast(settings: GameSettings): void {
+    this.playSample('play_card.wav', settings, 0.72, 0.06);
+  }
+
+  public playMapOpen(settings: GameSettings): void {
+    this.playSample('map_open.mp3', settings, 0.68, 0.04);
+  }
+
+  public playChooseRoad(settings: GameSettings): void {
+    this.playSample('road_choose.mp3', settings, 0.75, 0.05);
+  }
+
+  public playPageTurn(settings: GameSettings): void {
+    this.playSample('page_turn.mp3', settings, 0.65, 0.06);
+  }
+
+  public playBurnCard(settings: GameSettings): void {
+    this.playSample('burn_card.mp3', settings, 0.7, 0.05);
+  }
+
+  public playHit(settings: GameSettings): void {
+    this.playSample('attack_hit.ogg', settings, 0.65, 0.08);
+  }
+
+  public playWardBlock(settings: GameSettings): void {
+    this.playSample('ward_block.ogg', settings, 0.65, 0.06);
+  }
 
   private getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
