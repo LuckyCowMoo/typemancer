@@ -14,7 +14,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/W_Book06.png"
     },
     "price": 150
   },
@@ -33,7 +34,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/A_Shoes03.png"
     },
     "price": 100
   },
@@ -52,7 +54,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_GoldCoin.png"
     },
     "price": 100
   },
@@ -71,7 +74,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/P_Green02.png"
     },
     "price": 120
   },
@@ -90,7 +94,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Rock02.png"
     },
     "price": 110
   },
@@ -109,7 +114,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_C_Bread.png"
     },
     "price": 130
   },
@@ -128,7 +134,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/E_Wood02.png"
     },
     "price": 140
   },
@@ -140,14 +147,15 @@
       "medium": "rusty sword",
       "hard": "chipped rusty sword"
     },
-    "description": "Your first attack each combat deals 4 extra damage (Bold).",
+    "description": "Start each combat with 2 Bold.",
     "trigger": "combat_start",
     "effectType": "bold",
-    "amount": 4,
+    "amount": 2,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/W_Sword001.png"
     },
     "price": 125
   },
@@ -166,7 +174,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Bottle01.png"
     },
     "price": 135
   },
@@ -178,14 +187,15 @@
       "medium": "magic ink well",
       "hard": "everflowing ink well"
     },
-    "description": "Whenever you play a card, 10% chance to gain 1 Energy. (Represented as +1 Max Energy for now).",
+    "description": "Gain 1 extra Energy each turn.",
     "trigger": "passive_energy",
     "effectType": "energy",
     "amount": 1,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Ink.png"
     },
     "price": 200
   },
@@ -204,7 +214,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Feather01.png"
     },
     "price": 220
   },
@@ -212,9 +223,9 @@
     "id": "coffee_mug",
     "rarity": "uncommon",
     "names": {
-      "easy": "mug",
-      "medium": "coffee mug",
-      "hard": "hot coffee mug"
+      "easy": "tonic",
+      "medium": "amber tonic",
+      "hard": "steaming amber tonic"
     },
     "description": "Start each combat with 1 extra Energy.",
     "trigger": "combat_start",
@@ -223,7 +234,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/P_Orange03.png"
     },
     "price": 210
   },
@@ -235,14 +247,15 @@
       "medium": "pocket watch",
       "hard": "silver pocket watch"
     },
-    "description": "WPM forgiveness increased by 10%.",
+    "description": "Boosts measured typing speed by +10 WPM on Extra Hard mode.",
     "trigger": "passive_wpm_forgiveness",
     "effectType": "wpm_boost",
     "amount": 10,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Clock.png"
     },
     "price": 190
   },
@@ -250,9 +263,9 @@
     "id": "broken_glasses",
     "rarity": "uncommon",
     "names": {
-      "easy": "glasses",
-      "medium": "broken glasses",
-      "hard": "cracked broken glasses"
+      "easy": "spyglass",
+      "medium": "brass spyglass",
+      "hard": "etched brass spyglass"
     },
     "description": "Apply 2 Exposed to all enemies at combat start.",
     "trigger": "combat_start",
@@ -261,7 +274,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Telescope.png"
     },
     "price": 180
   },
@@ -273,14 +287,15 @@
       "medium": "heavy book",
       "hard": "dusty heavy book"
     },
-    "description": "Deal 10 damage to a random enemy when you rest. (Wait, let's make it max hp). Gain 10 Max HP.",
+    "description": "Gain 10 Max HP upon pickup.",
     "trigger": "passive_max_hp",
     "effectType": "max_hp",
     "amount": 10,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Book.png"
     },
     "price": 200
   },
@@ -288,18 +303,19 @@
     "id": "silver_spoon",
     "rarity": "uncommon",
     "names": {
-      "easy": "spoon",
-      "medium": "silver spoon",
-      "hard": "tarnished silver spoon"
+      "easy": "medal",
+      "medium": "silver medal",
+      "hard": "tarnished silver medal"
     },
-    "description": "Heal 3 HP at the end of every combat.",
+    "description": "Heal 4 HP at the end of every combat.",
     "trigger": "combat_victory",
     "effectType": "heal",
-    "amount": 3,
+    "amount": 4,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/Ac_Medal02.png"
     },
     "price": 230
   },
@@ -307,18 +323,19 @@
     "id": "golden_ticket",
     "rarity": "rare",
     "names": {
-      "easy": "ticket",
-      "medium": "golden ticket",
-      "hard": "shining golden ticket"
+      "easy": "ingot",
+      "medium": "golden ingot",
+      "hard": "gleaming golden ingot"
     },
-    "description": "Start combat with 20 Gold.",
-    "trigger": "combat_start",
+    "description": "Combat victory grants 20 extra Gold.",
+    "trigger": "combat_victory",
     "effectType": "gold",
     "amount": 20,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_GoldBar.png"
     },
     "price": 300
   },
@@ -330,14 +347,15 @@
       "medium": "diamond ring",
       "hard": "flawless diamond ring"
     },
-    "description": "Gain 2 Energy at the start of your first turn.",
+    "description": "Gain 2 extra Energy on the first turn of combat.",
     "trigger": "combat_start",
     "effectType": "energy",
     "amount": 2,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/Ac_Ring02.png"
     },
     "price": 320
   },
@@ -345,18 +363,19 @@
     "id": "magic_carpet",
     "rarity": "rare",
     "names": {
-      "easy": "carpet",
-      "medium": "magic carpet",
-      "hard": "flying magic carpet"
+      "easy": "scroll",
+      "medium": "ancient scroll",
+      "hard": "illuminated ancient scroll"
     },
-    "description": "Draw 2 extra cards on turn 1.",
+    "description": "Draw 2 extra cards on the first turn of combat.",
     "trigger": "combat_start",
     "effectType": "draw",
     "amount": 2,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Scroll.png"
     },
     "price": 310
   },
@@ -366,7 +385,7 @@
     "names": {
       "easy": "scale",
       "medium": "dragon scale",
-      "hard": "red dragon scale"
+      "hard": "crimson dragon scale"
     },
     "description": "Start each combat with 10 Ward.",
     "trigger": "combat_start",
@@ -375,7 +394,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_SolidShell.png"
     },
     "price": 290
   },
@@ -387,14 +407,15 @@
       "medium": "phoenix feather",
       "hard": "burning phoenix feather"
     },
-    "description": "Heal 5 HP at the start of each turn.",
-    "trigger": "turn_start",
+    "description": "Heal 6 HP at the end of each combat.",
+    "trigger": "combat_victory",
     "effectType": "heal",
-    "amount": 5,
+    "amount": 6,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Feather02.png"
     },
     "price": 350
   },
@@ -402,9 +423,9 @@
     "id": "crystal_ball",
     "rarity": "rare",
     "names": {
-      "easy": "ball",
-      "medium": "crystal ball",
-      "hard": "glowing crystal ball"
+      "easy": "orb",
+      "medium": "crystal orb",
+      "hard": "glowing crystal orb"
     },
     "description": "Apply 3 Faded to all enemies at combat start.",
     "trigger": "combat_start",
@@ -413,7 +434,8 @@
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Crystal01.png"
     },
     "price": 280
   },
@@ -422,17 +444,18 @@
     "rarity": "boss",
     "names": {
       "easy": "crown",
-      "medium": "boss crown",
-      "hard": "jeweled boss crown"
+      "medium": "royal crown",
+      "hard": "jeweled royal crown"
     },
-    "description": "Gain 1 Energy every turn.",
+    "description": "Gain 1 extra Energy every turn.",
     "trigger": "passive_energy",
     "effectType": "energy",
     "amount": 1,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/C_Elm04.png"
     },
     "price": 0
   },
@@ -444,14 +467,15 @@
       "medium": "cursed amulet",
       "hard": "dark cursed amulet"
     },
-    "description": "Draw 2 extra cards per turn, but take 1 damage.",
+    "description": "Draw 2 extra cards every turn.",
     "trigger": "passive_draw",
     "effectType": "draw",
     "amount": 2,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/Ac_Necklace06.png"
     },
     "price": 0
   },
@@ -459,18 +483,19 @@
     "id": "holy_grail",
     "rarity": "boss",
     "names": {
-      "easy": "grail",
-      "medium": "holy grail",
-      "hard": "radiant holy grail"
+      "easy": "ruby",
+      "medium": "blood ruby",
+      "hard": "radiant blood ruby"
     },
-    "description": "Increase max HP by 30.",
+    "description": "Increase Max HP by 25.",
     "trigger": "passive_max_hp",
     "effectType": "max_hp",
-    "amount": 30,
+    "amount": 25,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Ruby.png"
     },
     "price": 0
   },
@@ -478,18 +503,19 @@
     "id": "demon_horn",
     "rarity": "boss",
     "names": {
-      "easy": "horn",
-      "medium": "demon horn",
-      "hard": "twisted demon horn"
+      "easy": "fang",
+      "medium": "demon fang",
+      "hard": "twisted demon fang"
     },
-    "description": "Gain 5 Bold at the start of each turn.",
-    "trigger": "turn_start",
+    "description": "Start each combat with 4 Bold.",
+    "trigger": "combat_start",
     "effectType": "bold",
-    "amount": 5,
+    "amount": 4,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Fang.png"
     },
     "price": 0
   },
@@ -497,18 +523,19 @@
     "id": "void_stone",
     "rarity": "boss",
     "names": {
-      "easy": "stone",
-      "medium": "void stone",
-      "hard": "black void stone"
+      "easy": "amethyst",
+      "medium": "void amethyst",
+      "hard": "black void amethyst"
     },
-    "description": "Apply 5 Ink Burn to all enemies every turn.",
-    "trigger": "turn_start",
+    "description": "Apply 5 Ink Burn to all enemies at the start of combat.",
+    "trigger": "combat_start",
     "effectType": "ink_burn_all",
     "amount": 5,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Amethist.png"
     },
     "price": 0
   },
@@ -516,18 +543,19 @@
     "id": "membership_card",
     "rarity": "shop",
     "names": {
-      "easy": "card",
-      "medium": "membership card",
-      "hard": "gold membership card"
+      "easy": "key",
+      "medium": "golden key",
+      "hard": "ornate golden key"
     },
-    "description": "Gain 50 Gold at start of combat.",
-    "trigger": "combat_start",
-    "effectType": "gold",
-    "amount": 50,
+    "description": "Whenever you play a card, gain 1 Ward.",
+    "trigger": "on_card_play",
+    "effectType": "ward",
+    "amount": 1,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Key04.png"
     },
     "price": 150
   },
@@ -535,18 +563,19 @@
     "id": "merchant_bag",
     "rarity": "shop",
     "names": {
-      "easy": "bag",
-      "medium": "merchant bag",
-      "hard": "heavy merchant bag"
+      "easy": "clover",
+      "medium": "four leaf clover",
+      "hard": "lucky four leaf clover"
     },
-    "description": "Increase WPM boost by 20%.",
+    "description": "Boosts measured typing speed by +15 WPM on Extra Hard mode.",
     "trigger": "passive_wpm_forgiveness",
     "effectType": "wpm_boost",
-    "amount": 20,
+    "amount": 15,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Clover.png"
     },
     "price": 160
   },
@@ -554,18 +583,19 @@
     "id": "smiling_mask",
     "rarity": "shop",
     "names": {
-      "easy": "mask",
-      "medium": "smiling mask",
-      "hard": "creepy smiling mask"
+      "easy": "mirror",
+      "medium": "enchanted mirror",
+      "hard": "silver enchanted mirror"
     },
-    "description": "Heal 10 HP on combat victory.",
+    "description": "Heal 8 HP on combat victory.",
     "trigger": "combat_victory",
     "effectType": "heal",
-    "amount": 10,
+    "amount": 8,
     "art": {
       "primaryColor": "#d4a373",
       "secondaryColor": "#faedcd",
-      "shape": "hexagon"
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/I_Mirror.png"
     },
     "price": 180
   }

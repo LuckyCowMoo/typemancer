@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
+import { ScrollableMap } from './components/ScrollableMap';
 import type {
   ActiveEnemy,
-  CardEffect,
   CardInstance,
   Difficulty,
   GameSettings,
@@ -40,6 +40,12 @@ import {
 } from './utils/saveEngine';
 import { soundEngine } from './utils/soundEngine';
 import {
+  describeEnemyIntentInEnglish,
+  lookupWordDefinition,
+  STATUS_DEFINITIONS,
+} from './utils/statusCatalog';
+import type { DictionaryResult } from './utils/statusCatalog';
+import {
   calculateSpeedEffectiveness,
   calculateWpm,
   evaluateCandidates,
@@ -49,6 +55,8 @@ import {
 } from './utils/typingEngine';
 
 type GameScreen =
+  | 'main_menu'
+  | 'tutorial'
   | 'peasant_intro'
   | 'map'
   | 'battle'
@@ -61,13 +69,38 @@ type GameScreen =
   | 'victory';
 
 type IntroStep = 'ask_name' | 'ask_difficulty' | 'load_save';
-type ModalOverlay = 'none' | 'help' | 'options' | 'deck' | 'discard' | 'burn_draft' | 'relics' | 'save';
+type ModalOverlay =
+  | 'none'
+  | 'help'
+  | 'options'
+  | 'deck'
+  | 'discard'
+  | 'burn_draft'
+  | 'relics'
+  | 'save'
+  | 'status_effects'
+  | 'entity_inspect'
+  | 'dictionary';
 
 interface ShopInventory {
   cards: { instance: CardInstance; price: number; sold: boolean }[];
   relics: { relic: RelicDefinition; price: number; sold: boolean }[];
   removeServicePrice: number;
   removeUsed: boolean;
+}
+
+export interface CombatProjectile {
+  id: string;
+  from: 'player' | number; // player or enemy slot index (0, 1, 2)
+  to: 'player' | number;
+  color: string;
+}
+
+export interface FloatingCombatPopup {
+  id: string;
+  target: 'player' | string; // 'player' or enemy instanceId
+  text: string;
+  color: string;
 }
 
 const DEFAULT_SETTINGS: GameSettings = {
@@ -94,15 +127,25 @@ const INITIAL_METRICS = (): RunMetrics => ({
   elapsedSeconds: 0,
 });
 
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
 export function App() {
   // Settings & Overlay state
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS);
   const [overlay, setOverlay] = useState<ModalOverlay>('none');
   const [extraHardAvailable, setExtraHardAvailable] = useState<boolean>(() => isExtraHardUnlocked());
 
-  // Main Screen & Intro Flow
-  const [screen, setScreen] = useState<GameScreen>('peasant_intro');
+  // Main Screen, Tutorial & Intro Flow
+  const [screen, setScreen] = useState<GameScreen>('main_menu');
+  const [tutorialStep, setTutorialStep] = useState<number>(0);
   const [introStep, setIntroStep] = useState<IntroStep>('ask_name');
+
+  // Inspected Status / Entity / Dictionary States
+  const [inspectedEntity, setInspectedEntity] = useState<ActiveEnemy | 'player' | null>(null);
+  const [highlightedStatusId, setHighlightedStatusId] = useState<string | null>(null);
+  const [dictionaryQuery, setDictionaryQuery] = useState<string>('');
+  const [dictionaryLoading, setDictionaryLoading] = useState<boolean>(false);
+  const [dictionaryData, setDictionaryData] = useState<DictionaryResult | null>(null);
 
   // Player & Run State
   const [playerName, setPlayerName] = useState<string>('Scribe');
@@ -116,11 +159,12 @@ export function App() {
   const [relicIds, setRelicIds] = useState<string[]>(['magical_typewriter']);
   const [metrics, setMetrics] = useState<RunMetrics>(() => INITIAL_METRICS());
 
-  // Map State (24 Floors)
+  // Map State (24 Floors + Scroll Offset)
   const [mapFloors, setMapFloors] = useState<MapNode[][]>(() => generateProceduralMap());
   const [currentFloor, setCurrentFloor] = useState<number>(1);
   const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
   const [activeNodeType, setActiveNodeType] = useState<'battle' | 'elite' | 'boss'>('battle');
+  const [mapScrollOffset, setMapScrollOffset] = useState<number>(2000);
 
   // Combat State
   const [energy, setEnergy] = useState<number>(3);
@@ -138,7 +182,9 @@ export function App() {
   const [burnDraftPile, setBurnDraftPile] = useState<CardInstance[]>([]);
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
   const [selectedCard, setSelectedCard] = useState<CardInstance | null>(null);
-  const [combatLog, setCombatLog] = useState<string>('Type the name of a card to begin casting!');
+  const [isAnimatingTurn, setIsAnimatingTurn] = useState<boolean>(false);
+  const [activeProjectile, setActiveProjectile] = useState<CombatProjectile | null>(null);
+  const [floatingPopups, setFloatingPopups] = useState<FloatingCombatPopup[]>([]);
 
   // Non-Combat Encounter States
   const [rewardCards, setRewardCards] = useState<CardInstance[]>([]);
@@ -152,14 +198,31 @@ export function App() {
 
   // Typing Console & Forgiving WPM Timer State
   const [typedInput, setTypedInput] = useState<string>('');
-  const [feedbackBanner, setFeedbackBanner] = useState<string>('');
   const [actionStartTime, setActionStartTime] = useState<number | null>(null);
   const [actionCharAccum, setActionCharAccum] = useState<number>(0);
   const [liveWpm, setLiveWpm] = useState<number>(40);
 
-  // Tick live WPM meter while typing on Extra Hard (or for live display)
+  const spawnPopup = useCallback((target: 'player' | string, text: string, color: string) => {
+    const id = nextUid('popup');
+    setFloatingPopups((prev) => [...prev, { id, target, text, color }]);
+    window.setTimeout(() => {
+      setFloatingPopups((prev) => prev.filter((p) => p.id !== id));
+    }, 1850);
+  }, []);
+
+  const triggerProjectile = useCallback(
+    async (from: 'player' | number, to: 'player' | number, color: string) => {
+      const id = nextUid('proj');
+      setActiveProjectile({ id, from, to, color });
+      await delay(360);
+      setActiveProjectile(null);
+    },
+    []
+  );
+
+  // Tick live WPM meter while typing on Extra Hard
   useEffect(() => {
-    if (!actionStartTime || typedInput.trim().length === 0) {
+    if (difficulty !== 'extra_hard' || !actionStartTime || typedInput.trim().length === 0) {
       setLiveWpm(40);
       return;
     }
@@ -169,7 +232,7 @@ export function App() {
       setLiveWpm(calculateWpm(totalChars, elapsed));
     }, 80);
     return () => window.clearInterval(interval);
-  }, [actionStartTime, actionCharAccum, typedInput]);
+  }, [actionStartTime, actionCharAccum, difficulty, typedInput]);
 
   const wpmRelicBonus = useMemo(() => {
     return relicIds.reduce((sum, id) => {
@@ -193,7 +256,6 @@ export function App() {
     }
   }, []);
 
-  // Helper to record a completed typed phrase in student metrics
   const recordActionMetrics = useCallback(
     (finalPhrase: string, editDistance: number): number => {
       const elapsed = actionStartTime ? Math.max(400, Date.now() - actionStartTime) : 1500;
@@ -215,7 +277,6 @@ export function App() {
     [actionStartTime, actionCharAccum, difficulty, wpmRelicBonus]
   );
 
-  // Draw cards helper
   const drawCards = useCallback(
     (
       count: number,
@@ -249,7 +310,6 @@ export function App() {
       setActiveNodeType(nodeType);
       const spawnedEnemies = generateEncounter(floorNum, nodeType, phraseDiff);
 
-      // Compute relic passive bonuses
       let startWard = 0;
       let startBold = 0;
       let bonusEnergy = 0;
@@ -281,7 +341,6 @@ export function App() {
         }
       });
 
-      // Magical typewriter always grants +1 opening draw
       if (currentRelics.includes('magical_typewriter')) {
         bonusDraw += 1;
       }
@@ -307,9 +366,7 @@ export function App() {
       setBurnDraftPile([]);
       setEnemies(spawnedEnemies);
       setSelectedCard(null);
-      setCombatLog(
-        `Floor ${floorNum} ${nodeType.toUpperCase()}: Type a card name on the left to cast, or type "end turn".`
-      );
+      setFloatingPopups([]);
       resetTypingBuffer(true);
       setScreen('battle');
     },
@@ -319,7 +376,6 @@ export function App() {
   // Trigger Victory after defeating all enemies in a fight
   const handleCombatVictory = useCallback(
     (survivingHp: number) => {
-      // Check Floor 24 Boss Victory!
       if (currentFloor >= 24 || activeNodeType === 'boss') {
         if (difficulty === 'hard' || difficulty === 'extra_hard') {
           setExtraHardUnlocked(true);
@@ -327,15 +383,16 @@ export function App() {
         }
         clearLocalRun();
         setScreen('victory');
-        setCombatLog('You shattered the Evil Wizard’s silence! Song and speech return to the realm!');
         return;
       }
 
       let healOnWin = 0;
+      let bonusGold = 0;
       relicIds.forEach((id) => {
         const r = getRelicDefinition(id);
-        if (r && r.trigger === 'combat_victory' && r.effectType === 'heal') {
-          healOnWin += r.amount;
+        if (r && r.trigger === 'combat_victory') {
+          if (r.effectType === 'heal') healOnWin += r.amount;
+          if (r.effectType === 'gold') bonusGold += r.amount;
         }
       });
 
@@ -343,9 +400,9 @@ export function App() {
       setHp(finalHp);
 
       const goldEarned =
-        activeNodeType === 'elite'
+        (activeNodeType === 'elite'
           ? 35 + Math.floor(Math.random() * 15)
-          : 18 + Math.floor(Math.random() * 12);
+          : 18 + Math.floor(Math.random() * 12)) + bonusGold;
       setGold((g) => g + goldEarned);
       setRewardGoldClaimed(goldEarned);
 
@@ -360,28 +417,28 @@ export function App() {
       setSelectedCard(null);
       resetTypingBuffer(true);
       setScreen('reward');
-      setFeedbackBanner(
-        `Victory! Earned ${goldEarned} Gold${healOnWin > 0 ? ` and healed ${healOnWin} HP` : ''}. Choose 1 of 4 cards (or type "skip").`
-      );
     },
     [activeNodeType, currentFloor, difficulty, maxHp, relicIds, resetTypingBuffer]
   );
 
-  // Execute a selected card against a target (or self / all enemies)
+  // Execute a selected card with sequential projectile & popup animations
   const executeCardPlay = useCallback(
-    (cardInst: CardInstance, targetEnemy: ActiveEnemy | null, speedMult: number) => {
+    async (cardInst: CardInstance, targetEnemy: ActiveEnemy | null, speedMult: number) => {
       const resolved = resolveCardInstance(cardInst, phraseDiff);
-      if (energy < resolved.cost) {
+      if (energy < resolved.cost || isAnimatingTurn) {
         soundEngine.playError(settings);
-        setFeedbackBanner(`Not enough Energy! Need ${resolved.cost} Energy (or type "end turn").`);
         return;
       }
+
+      setIsAnimatingTurn(true);
+      setSelectedCard(null);
+      resetTypingBuffer(true);
 
       let nextEnergy = energy - resolved.cost;
       let nextWard = playerWard;
       let nextHp = hp;
       const nextPlayerStatuses = { ...playerStatuses };
-      let nextEnemies = enemies.map((e) => ({
+      const nextEnemies = enemies.map((e) => ({
         ...e,
         statuses: { ...e.statuses },
       }));
@@ -393,6 +450,14 @@ export function App() {
         if (difficulty !== 'extra_hard') return raw;
         return Math.max(1, Math.round(raw * speedMult));
       };
+
+      // Launch projectile animation if targeting an enemy
+      if (resolved.target === 'enemy' || resolved.target === 'all_enemies') {
+        const targetIdx = targetEnemy
+          ? Math.max(0, nextEnemies.findIndex((e) => e.instanceId === targetEnemy.instanceId))
+          : 0;
+        await triggerProjectile('player', targetIdx, resolved.art.primaryColor || '#bc5215');
+      }
 
       const dealHitToEnemy = (enemyObj: ActiveEnemy, baseDamage: number) => {
         let dmg = scaleAmount(baseDamage) + nextPlayerStatuses.bold;
@@ -409,9 +474,17 @@ export function App() {
         const hpLoss = dmg - blocked;
         enemyObj.hp = Math.max(0, enemyObj.hp - hpLoss);
         totalDmgDealtThisCard += hpLoss;
+
+        if (blocked > 0 && hpLoss > 0) {
+          spawnPopup(enemyObj.instanceId, `-${hpLoss} HP (${blocked} Blocked)`, '#e63946');
+        } else if (blocked > 0) {
+          spawnPopup(enemyObj.instanceId, `${blocked} Blocked`, '#1d6fa5');
+        } else if (hpLoss > 0) {
+          spawnPopup(enemyObj.instanceId, `-${hpLoss} HP`, '#e63946');
+        }
       };
 
-      resolved.effects.forEach((eff: CardEffect) => {
+      for (const eff of resolved.effects) {
         const effTarget = eff.target || resolved.target;
         const targetList =
           effTarget === 'all_enemies'
@@ -428,6 +501,7 @@ export function App() {
               targetList.forEach((en) => {
                 if (en.hp > 0) dealHitToEnemy(en, eff.amount);
               });
+              if (hits > 1 && h < hits - 1) await delay(180);
             }
             break;
           }
@@ -440,46 +514,58 @@ export function App() {
           case 'ward': {
             const gained = scaleAmount(eff.amount);
             nextWard += gained;
+            spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
             setMetrics((m) => ({ ...m, totalWardGained: m.totalWardGained + gained }));
             break;
           }
           case 'double_ward': {
             const gained = nextWard;
             nextWard += gained;
+            spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
             setMetrics((m) => ({ ...m, totalWardGained: m.totalWardGained + gained }));
             break;
           }
           case 'gain_ward_per_card_in_hand': {
             const gained = scaleAmount(eff.amount) * Math.max(0, hand.length - 1);
             nextWard += gained;
+            spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
             setMetrics((m) => ({ ...m, totalWardGained: m.totalWardGained + gained }));
             break;
           }
           case 'bold': {
-            nextPlayerStatuses.bold += scaleAmount(eff.amount);
+            const amt = scaleAmount(eff.amount);
+            nextPlayerStatuses.bold += amt;
+            spawnPopup('player', `+${amt} Bold`, '#d97706');
             break;
           }
           case 'faded': {
+            const amt = scaleAmount(eff.amount);
             targetList.forEach((en) => {
-              en.statuses.faded += scaleAmount(eff.amount);
+              en.statuses.faded += amt;
+              spawnPopup(en.instanceId, `+${amt} Faded`, '#64748b');
             });
             break;
           }
           case 'exposed': {
+            const amt = scaleAmount(eff.amount);
             targetList.forEach((en) => {
-              en.statuses.exposed += scaleAmount(eff.amount);
+              en.statuses.exposed += amt;
+              spawnPopup(en.instanceId, `+${amt} Exposed`, '#be123c');
             });
             break;
           }
           case 'ink_burn': {
+            const amt = scaleAmount(eff.amount);
             targetList.forEach((en) => {
-              en.statuses.ink_burn += scaleAmount(eff.amount);
+              en.statuses.ink_burn += amt;
+              spawnPopup(en.instanceId, `+${amt} Ink Burn`, '#6d28d9');
             });
             break;
           }
           case 'double_ink_burn': {
             targetList.forEach((en) => {
               en.statuses.ink_burn *= 2;
+              spawnPopup(en.instanceId, `2x Ink Burn!`, '#6d28d9');
             });
             break;
           }
@@ -489,20 +575,23 @@ export function App() {
           }
           case 'energy': {
             nextEnergy += eff.amount;
+            spawnPopup('player', `+${eff.amount} Energy`, '#2a9d8f');
             break;
           }
           case 'heal': {
-            nextHp = Math.min(maxHp, nextHp + scaleAmount(eff.amount));
+            const healAmt = scaleAmount(eff.amount);
+            nextHp = Math.min(maxHp, nextHp + healAmt);
+            spawnPopup('player', `+${healAmt} HP`, '#3a8918');
             break;
           }
           case 'self_damage': {
             nextHp = Math.max(1, nextHp - eff.amount);
+            spawnPopup('player', `-${eff.amount} HP`, '#e63946');
             break;
           }
         }
-      });
+      }
 
-      // Check on_card_play or on_attack relics
       relicIds.forEach((rId) => {
         const rel = getRelicDefinition(rId);
         if (!rel) return;
@@ -517,7 +606,6 @@ export function App() {
         }
       });
 
-      // Count defeated enemies
       const killedCount = nextEnemies.filter((e) => e.hp <= 0).length;
       if (killedCount > 0) {
         relicIds.forEach((rId) => {
@@ -530,10 +618,8 @@ export function App() {
       }
 
       const aliveEnemies = nextEnemies.filter((e) => e.hp > 0);
-
-      // Move played card from hand to Discard or Burn Draft
       const remainingHand = hand.filter((c) => c.instanceId !== cardInst.instanceId);
-      let nextDiscard = [...discardPile];
+      const nextDiscard = [...discardPile];
       const nextBurn = [...burnDraftPile];
 
       if (resolved.burnDraft || resolved.type === 'power') {
@@ -556,8 +642,6 @@ export function App() {
       setDiscardPile(drawnResult.nextDiscard);
       setBurnDraftPile(nextBurn);
       setEnemies(aliveEnemies);
-      setSelectedCard(null);
-      resetTypingBuffer(true);
 
       setMetrics((prev) => ({
         ...prev,
@@ -566,13 +650,10 @@ export function App() {
         enemiesDefeated: prev.enemiesDefeated + killedCount,
       }));
 
-      const speedNote =
-        difficulty === 'extra_hard' ? ` (${Math.round(speedMult * 100)}% speed power!)` : '';
-      setCombatLog(
-        `Cast "${resolved.name}"${targetEnemy ? ` at ${targetEnemy.displayName}` : ''}${speedNote}!`
-      );
+      setIsAnimatingTurn(false);
 
       if (aliveEnemies.length === 0) {
+        await delay(300);
         handleCombatVictory(nextHp);
       }
     },
@@ -587,6 +668,7 @@ export function App() {
       hand,
       handleCombatVictory,
       hp,
+      isAnimatingTurn,
       maxHp,
       phraseDiff,
       playerStatuses,
@@ -594,39 +676,51 @@ export function App() {
       relicIds,
       resetTypingBuffer,
       settings,
+      spawnPopup,
+      triggerProjectile,
     ]
   );
 
-  // End Player Turn & Execute Enemy Intents
-  const executeEndTurn = useCallback(() => {
+  // End Player Turn & Sequentially Animate Each Enemy Action One by One
+  const executeEndTurn = useCallback(async () => {
+    if (isAnimatingTurn) return;
+    setIsAnimatingTurn(true);
     soundEngine.playConfirm(settings);
+    setSelectedCard(null);
+    resetTypingBuffer(true);
 
     let nextPlayerHp = hp;
     let nextPlayerWard = playerWard;
     const nextPlayerStats = { ...playerStatuses };
 
-    // End of player turn relic triggers
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
       if (rel && rel.trigger === 'turn_end' && rel.effectType === 'ward') {
         nextPlayerWard += rel.amount;
+        spawnPopup('player', `+${rel.amount} Ward`, '#1d6fa5');
       }
     });
+    setPlayerWard(nextPlayerWard);
 
-    // Process each living enemy's turn (Ink Burn ticks first, then enemy executes move)
     let killedByInkBurn = 0;
     let totalBurnDamage = 0;
-    const updatedEnemies: ActiveEnemy[] = [];
+    let totalBlockedSummary = 0;
+    let totalHpLostSummary = 0;
+    const workingEnemies = enemies.map((e) => ({ ...e, statuses: { ...e.statuses } }));
 
-    for (const enemy of enemies) {
-      const en = { ...enemy, statuses: { ...enemy.statuses } };
+    for (let idx = 0; idx < workingEnemies.length; idx++) {
+      const en = workingEnemies[idx];
+      if (en.hp <= 0) continue;
 
-      // 1. Tick Ink Burn at start of enemy turn
+      // 1. Tick Ink Burn at start of this enemy's turn
       if (en.statuses.ink_burn > 0) {
         const burnDmg = en.statuses.ink_burn;
         en.hp = Math.max(0, en.hp - burnDmg);
         totalBurnDamage += burnDmg;
         en.statuses.ink_burn = Math.max(0, en.statuses.ink_burn - 1);
+        spawnPopup(en.instanceId, `-${burnDmg} Ink Burn`, '#6d28d9');
+        setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+        await delay(420);
       }
 
       if (en.hp <= 0) {
@@ -634,14 +728,18 @@ export function App() {
         continue;
       }
 
-      // Reset enemy Ward at start of its action
-      en.ward = 0;
+      // Reset enemy Ward before its action
+      if (en.ward > 0) {
+        en.ward = 0;
+        spawnPopup(en.instanceId, `Ward wore off`, '#64748b');
+      }
 
-      // 2. Execute Enemy Move
+      // 2. Animate and Execute Enemy Move sequentially
       const move = en.currentMove;
       if (move.damage && move.damage > 0) {
         const hits = move.hits || 1;
         for (let h = 0; h < hits; h++) {
+          await triggerProjectile(idx, 'player', '#b84a14');
           let dmg = move.damage + en.statuses.bold;
           if (en.statuses.faded > 0) dmg = Math.floor(dmg * 0.75);
           if (nextPlayerStats.exposed > 0) dmg = Math.floor(dmg * 1.5);
@@ -651,53 +749,80 @@ export function App() {
           nextPlayerWard -= blocked;
           const unblocked = dmg - blocked;
           nextPlayerHp = Math.max(0, nextPlayerHp - unblocked);
-          if (unblocked > 0) {
-            setMetrics((m) => ({ ...m, totalDamageTaken: m.totalDamageTaken + unblocked }));
+
+          totalBlockedSummary += blocked;
+          totalHpLostSummary += unblocked;
+
+          if (blocked > 0 && unblocked > 0) {
+            spawnPopup('player', `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
+          } else if (blocked > 0) {
+            spawnPopup('player', `${blocked} Blocked`, '#1d6fa5');
+          } else if (unblocked > 0) {
+            spawnPopup('player', `-${unblocked} HP`, '#e63946');
           }
+
+          setPlayerWard(nextPlayerWard);
+          setHp(nextPlayerHp);
+          await delay(320);
         }
+      } else {
+        await delay(300);
       }
 
       if (move.ward && move.ward > 0) {
         en.ward += move.ward;
+        spawnPopup(en.instanceId, `+${move.ward} Ward`, '#1d6fa5');
       }
 
       if (move.heal && move.heal > 0) {
         en.hp = Math.min(en.maxHp, en.hp + move.heal);
+        spawnPopup(en.instanceId, `+${move.heal} HP`, '#3a8918');
       }
 
       if (move.statusEffects) {
         move.statusEffects.forEach((se) => {
           if (se.target === 'player') {
             nextPlayerStats[se.status] += se.amount;
+            spawnPopup('player', `+${se.amount} ${se.status.replace('_', ' ')}`, '#6d28d9');
           } else if (se.target === 'self') {
             en.statuses[se.status] += se.amount;
-          }
-        });
-      }
-
-      // Decrement enemy temporary debuffs (Faded & Exposed)
-      if (en.statuses.faded > 0) en.statuses.faded -= 1;
-      if (en.statuses.exposed > 0) en.statuses.exposed -= 1;
-
-      // Pick next move
-      const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
-      en.currentMove = def ? chooseEnemyMove(def.moves) : en.currentMove;
-      updatedEnemies.push(en);
-    }
-
-    // Apply any enemy "all_allies" Bold buffs
-    enemies.forEach((e) => {
-      if (e.hp > 0 && e.currentMove.statusEffects) {
-        e.currentMove.statusEffects.forEach((se) => {
-          if (se.target === 'all_allies') {
-            updatedEnemies.forEach((ally) => {
-              ally.statuses[se.status] += se.amount;
+            spawnPopup(en.instanceId, `+${se.amount} ${se.status.replace('_', ' ')}`, '#d97706');
+          } else if (se.target === 'all_allies') {
+            workingEnemies.forEach((ally) => {
+              if (ally.hp > 0) {
+                ally.statuses[se.status] += se.amount;
+                spawnPopup(ally.instanceId, `+${se.amount} ${se.status.replace('_', ' ')}`, '#d97706');
+              }
             });
           }
         });
       }
-    });
 
+      // Decrement enemy temporary debuffs & show wearing off
+      const woreOffList: string[] = [];
+      if (en.statuses.faded > 0) {
+        en.statuses.faded -= 1;
+        if (en.statuses.faded === 0) woreOffList.push('Faded wore off');
+      }
+      if (en.statuses.exposed > 0) {
+        en.statuses.exposed -= 1;
+        if (en.statuses.exposed === 0) woreOffList.push('Exposed wore off');
+      }
+      if (woreOffList.length > 0) {
+        spawnPopup(en.instanceId, woreOffList.join(', '), '#64748b');
+      }
+
+      const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
+      en.currentMove = def ? chooseEnemyMove(def.moves) : en.currentMove;
+
+      setPlayerStatuses({ ...nextPlayerStats });
+      setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+      await delay(260);
+    }
+
+    if (totalHpLostSummary > 0) {
+      setMetrics((m) => ({ ...m, totalDamageTaken: m.totalDamageTaken + totalHpLostSummary }));
+    }
     if (killedByInkBurn > 0 || totalBurnDamage > 0) {
       setMetrics((m) => ({
         ...m,
@@ -706,32 +831,49 @@ export function App() {
       }));
     }
 
-    // Check if all enemies died from Ink Burn!
-    if (updatedEnemies.length === 0) {
-      setHp(nextPlayerHp);
+    const survivingEnemies = workingEnemies.filter((x) => x.hp > 0);
+    if (survivingEnemies.length === 0) {
+      setIsAnimatingTurn(false);
       handleCombatVictory(nextPlayerHp);
       return;
     }
 
-    // Check Player Ink Burn & Defeat
+    // Player Ink Burn tick
     if (nextPlayerStats.ink_burn > 0) {
-      nextPlayerHp = Math.max(0, nextPlayerHp - nextPlayerStats.ink_burn);
+      const pBurn = nextPlayerStats.ink_burn;
+      nextPlayerHp = Math.max(0, nextPlayerHp - pBurn);
+      totalHpLostSummary += pBurn;
       nextPlayerStats.ink_burn -= 1;
+      spawnPopup('player', `-${pBurn} Ink Burn`, '#6d28d9');
     }
 
     if (nextPlayerHp <= 0) {
       setHp(0);
+      setIsAnimatingTurn(false);
       clearLocalRun();
       setScreen('game_over');
-      setCombatLog('Your typewriter falls silent... You were defeated on Floor ' + currentFloor + '.');
       return;
     }
 
-    // Decrement player temporary debuffs at start of new turn
-    if (nextPlayerStats.faded > 0) nextPlayerStats.faded -= 1;
-    if (nextPlayerStats.exposed > 0) nextPlayerStats.exposed -= 1;
+    // Decrement player temporary debuffs at start of new turn & show summary popup
+    const playerWoreOff: string[] = [];
+    if (nextPlayerStats.faded > 0) {
+      nextPlayerStats.faded -= 1;
+      if (nextPlayerStats.faded === 0) playerWoreOff.push('Faded wore off');
+    }
+    if (nextPlayerStats.exposed > 0) {
+      nextPlayerStats.exposed -= 1;
+      if (nextPlayerStats.exposed === 0) playerWoreOff.push('Exposed wore off');
+    }
 
-    // Start of new player turn: reset Ward (unless a relic retains or grants Ward)
+    if (totalBlockedSummary > 0 || totalHpLostSummary > 0 || playerWoreOff.length > 0) {
+      const parts: string[] = [];
+      if (totalBlockedSummary > 0) parts.push(`${totalBlockedSummary} Blocked`);
+      if (totalHpLostSummary > 0) parts.push(`-${totalHpLostSummary} HP`);
+      if (playerWoreOff.length > 0) parts.push(playerWoreOff.join(', '));
+      spawnPopup('player', `Turn Summary: ${parts.join(' · ')}`, '#102a3a');
+    }
+
     let newTurnWard = 0;
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
@@ -763,12 +905,9 @@ export function App() {
     setHand(nextHand);
     setDrawPile(nextDraw);
     setDiscardPile(nextDiscard);
-    setEnemies(updatedEnemies);
-    setSelectedCard(null);
-    resetTypingBuffer(true);
-    setCombatLog('Your turn begins! Energy refilled and 5 fresh pages drawn.');
+    setEnemies(survivingEnemies);
+    setIsAnimatingTurn(false);
   }, [
-    currentFloor,
     discardPile,
     drawCards,
     drawPile,
@@ -776,12 +915,15 @@ export function App() {
     hand,
     handleCombatVictory,
     hp,
+    isAnimatingTurn,
     maxEnergy,
     playerStatuses,
     playerWard,
     relicIds,
     resetTypingBuffer,
     settings,
+    spawnPopup,
+    triggerProjectile,
   ]);
 
   // Enter a chosen Map Node
@@ -794,7 +936,6 @@ export function App() {
         )
       );
 
-      // Auto-save run state to localStorage on every floor transition
       const code = encodeSaveCode(
         playerName,
         difficulty,
@@ -817,7 +958,6 @@ export function App() {
         setCampfireSubMode('choose');
         resetTypingBuffer(true);
         setScreen('campfire');
-        setFeedbackBanner('Warm Campfire: Type "rest" to heal 30% HP, or type "revise" / "edit" to upgrade a card.');
         return;
       }
 
@@ -841,7 +981,6 @@ export function App() {
         setShopSubMode('browse');
         resetTypingBuffer(true);
         setScreen('merchant');
-        setFeedbackBanner('The Arcane Bookshop: Type an item name to purchase it, "burn card" to remove a card, or "leave" to continue.');
         return;
       }
 
@@ -849,7 +988,6 @@ export function App() {
         setRewardRelics(generateRelicRewards(relicIds, 3));
         resetTypingBuffer(true);
         setScreen('treasure');
-        setFeedbackBanner('Ancient Relic Vault: Type the name of 1 of the 3 relics to claim it, or type "skip".');
         return;
       }
 
@@ -859,7 +997,6 @@ export function App() {
         setEventOutcomeText(null);
         resetTypingBuffer(true);
         setScreen('mystery');
-        setFeedbackBanner('Mystery Encounter: Type your chosen action below and press Enter.');
       }
     },
     [
@@ -876,16 +1013,13 @@ export function App() {
     ]
   );
 
-  // Advance to the next floor on the map
   const advanceToMapNextFloor = useCallback(() => {
     const nextF = Math.min(24, currentFloor + 1);
     setCurrentFloor(nextF);
     resetTypingBuffer(true);
     setScreen('map');
-    setFeedbackBanner(`Floor ${nextF} of 24: Type the path phrase for your chosen destination.`);
   }, [currentFloor, resetTypingBuffer]);
 
-  // Available map nodes for the current floor
   const availableMapNodes = useMemo(() => {
     const floorRow = mapFloors[currentFloor - 1] || [];
     if (currentFloor === 1 || !currentNodeId) return floorRow;
@@ -896,7 +1030,6 @@ export function App() {
     return connected.length > 0 ? connected : floorRow;
   }, [currentFloor, currentNodeId, mapFloors]);
 
-  // Live candidate evaluation for Battle Cards & Targets
   const handCandidates = useMemo(() => {
     return hand.map((inst) => {
       const resolved = resolveCardInstance(inst, phraseDiff);
@@ -923,7 +1056,7 @@ export function App() {
     return new Set(matches.map((m) => m.item.item.instanceId));
   }, [evaluatedHand, selectedCard, typedInput]);
 
-  // When narrowed down to 1 card (or top match while typing), inspect that card!
+  // Only show card inspector in center when narrowed down to 1 card or selected
   const inspectedCard = useMemo(() => {
     if (selectedCard) {
       return resolveCardInstance(selectedCard, phraseDiff);
@@ -933,23 +1066,17 @@ export function App() {
     if (prefixMatches.length === 1) {
       return prefixMatches[0].item.resolved;
     }
-    if (prefixMatches.length > 1 && prefixMatches[0].isValidConfirm) {
-      return prefixMatches[0].item.resolved;
-    }
     return null;
   }, [evaluatedHand, phraseDiff, selectedCard, typedInput]);
 
-  // Live candidate evaluation for Enemy Targets when a single-enemy card is selected
   const evaluatedEnemies = useMemo(() => {
-    if (screen !== 'battle' || !selectedCard) return [];
-    const resolved = resolveCardInstance(selectedCard, phraseDiff);
-    if (resolved.target !== 'enemy') return [];
+    if (screen !== 'battle') return [];
     return evaluateCandidates(
       typedInput,
       enemies.map((e) => ({ item: e, phrase: e.displayName })),
       difficulty
     );
-  }, [difficulty, enemies, phraseDiff, screen, selectedCard, typedInput]);
+  }, [difficulty, enemies, screen, typedInput]);
 
   const highlightedEnemyIds = useMemo(() => {
     if (!selectedCard || !typedInput.trim()) return new Set<string>();
@@ -957,7 +1084,6 @@ export function App() {
     return new Set(matches.map((m) => m.item.instanceId));
   }, [evaluatedEnemies, selectedCard, typedInput]);
 
-  // Start a fresh new run
   const startNewRun = useCallback(
     (chosenName: string, chosenDiff: Difficulty) => {
       const freshDeck = createStarterDeck();
@@ -975,14 +1101,10 @@ export function App() {
       setCurrentNodeId(null);
       resetTypingBuffer(true);
       setScreen('map');
-      setFeedbackBanner(
-        `Welcome, ${chosenName}! Floor 1 of 24: Type a path below to begin your ascent toward the Wizard's Tower.`
-      );
     },
     [resetTypingBuffer]
   );
 
-  // Load a saved run from a Save Code
   const restoreFromSavePayload = useCallback(
     (rawCode: string): boolean => {
       const payload = decodeSaveCode(rawCode);
@@ -1007,7 +1129,6 @@ export function App() {
       resetTypingBuffer(true);
       setOverlay('none');
       setScreen('map');
-      setFeedbackBanner(`Save Code Loaded! Welcome back, ${payload.name} (Floor ${payload.floor}).`);
       return true;
     },
     [resetTypingBuffer]
@@ -1015,8 +1136,27 @@ export function App() {
 
   // Handle pressing Enter on any screen
   const handleEnterSubmit = useCallback(() => {
+    if (isAnimatingTurn) return;
     const raw = typedInput.trim();
     const norm = normalizeText(raw);
+
+    // 0. Check if user typed `<word>?` to look up a word's meaning!
+    if (raw.endsWith('?') && raw.length > 1) {
+      const queryWord = raw.slice(0, -1).trim();
+      if (queryWord.length > 0 && !queryWord.includes(' ')) {
+        soundEngine.playConfirm(settings);
+        setDictionaryQuery(queryWord);
+        setDictionaryLoading(true);
+        setDictionaryData(null);
+        setOverlay('dictionary');
+        resetTypingBuffer(false);
+        lookupWordDefinition(queryWord).then((res) => {
+          setDictionaryData(res);
+          setDictionaryLoading(false);
+        });
+        return;
+      }
+    }
 
     // 1. Check Modal Overlay Commands first
     if (overlay !== 'none') {
@@ -1026,6 +1166,8 @@ export function App() {
       ) {
         soundEngine.playConfirm(settings);
         setOverlay('none');
+        setHighlightedStatusId(null);
+        setInspectedEntity(null);
         resetTypingBuffer(false);
         return;
       }
@@ -1095,7 +1237,6 @@ export function App() {
       }
 
       soundEngine.playError(settings);
-      setFeedbackBanner('Type "back" or "close" (or press Enter on empty input) to return.');
       resetTypingBuffer(false);
       return;
     }
@@ -1115,7 +1256,6 @@ export function App() {
     }
     if (matchCommand(raw, ['mute'], 'easy')) {
       setSettings((s) => ({ ...s, muted: true }));
-      setFeedbackBanner('Audio muted. Type "unmute" at any time to restore sound.');
       resetTypingBuffer(false);
       return;
     }
@@ -1123,11 +1263,41 @@ export function App() {
       const next = { ...settings, muted: false };
       setSettings(next);
       soundEngine.playConfirm(next);
-      setFeedbackBanner('Audio unmuted!');
       resetTypingBuffer(false);
       return;
     }
-    if (matchCommand(raw, ['view deck', 'deck', 'show deck'], 'easy') && screen !== 'peasant_intro') {
+    if (
+      matchCommand(raw, ['status effects', 'statuses', 'status', 'effects'], 'easy')
+    ) {
+      soundEngine.playConfirm(settings);
+      setHighlightedStatusId(null);
+      setOverlay('status_effects');
+      resetTypingBuffer(false);
+      return;
+    }
+    // Check if the user typed the name of a specific status effect (when not matching a card in hand)
+    for (const st of STATUS_DEFINITIONS) {
+      if (matchCommand(raw, [st.name, `inspect ${st.name}`], 'easy')) {
+        const collidesWithHandCard =
+          screen === 'battle' &&
+          !selectedCard &&
+          evaluatedHand[0]?.isValidConfirm &&
+          normalizeText(evaluatedHand[0].phrase) === norm;
+        if (!collidesWithHandCard) {
+          soundEngine.playConfirm(settings);
+          setHighlightedStatusId(st.id);
+          setOverlay('status_effects');
+          resetTypingBuffer(false);
+          return;
+        }
+      }
+    }
+
+    if (
+      matchCommand(raw, ['view deck', 'deck', 'show deck'], 'easy') &&
+      screen !== 'main_menu' &&
+      screen !== 'peasant_intro'
+    ) {
       soundEngine.playConfirm(settings);
       setOverlay('deck');
       resetTypingBuffer(false);
@@ -1145,31 +1315,98 @@ export function App() {
       resetTypingBuffer(false);
       return;
     }
-    if (matchCommand(raw, ['view relics', 'relics', 'inspect relics'], 'easy') && screen !== 'peasant_intro') {
+    if (
+      matchCommand(raw, ['relics', 'view relics', 'inspect relics'], 'easy') &&
+      screen !== 'main_menu' &&
+      screen !== 'peasant_intro'
+    ) {
       soundEngine.playConfirm(settings);
       setOverlay('relics');
       resetTypingBuffer(false);
       return;
     }
-    if (matchCommand(raw, ['save', 'save code', 'export save', 'load'], 'easy')) {
+    if (matchCommand(raw, ['save', 'save code', 'export save'], 'easy')) {
       soundEngine.playConfirm(settings);
       setOverlay('save');
       resetTypingBuffer(false);
       return;
     }
 
-    // 3. Screen-Specific Logic: PEASANT OPENING SEQUENCE
+    // 3. MAIN MENU
+    if (screen === 'main_menu') {
+      if (matchCommand(raw, ['new run', 'new', 'start', 'play'], 'easy')) {
+        soundEngine.playConfirm(settings);
+        setIntroStep('ask_name');
+        setScreen('peasant_intro');
+        resetTypingBuffer(true);
+        return;
+      }
+      if (matchCommand(raw, ['tutorial', 'learn', 'how to play'], 'easy')) {
+        soundEngine.playConfirm(settings);
+        setTutorialStep(0);
+        setScreen('tutorial');
+        resetTypingBuffer(true);
+        return;
+      }
+      if (matchCommand(raw, ['load', 'load run', 'continue'], 'easy')) {
+        const localSave = loadRunFromLocal();
+        if (localSave) {
+          soundEngine.playConfirm(settings);
+          const localCode = localStorage.getItem('typemancer_save_v1') || '';
+          restoreFromSavePayload(localCode);
+          return;
+        }
+        soundEngine.playConfirm(settings);
+        setIntroStep('load_save');
+        setScreen('peasant_intro');
+        resetTypingBuffer(true);
+        return;
+      }
+      if (raw.toUpperCase().startsWith('TM1-') && restoreFromSavePayload(raw)) {
+        soundEngine.playConfirm(settings);
+        return;
+      }
+      soundEngine.playError(settings);
+      return;
+    }
+
+    // 4. INTERACTIVE TUTORIAL
+    if (screen === 'tutorial') {
+      if (matchCommand(raw, ['back', 'exit', 'menu', 'skip'], 'easy')) {
+        soundEngine.playConfirm(settings);
+        setScreen('main_menu');
+        resetTypingBuffer(true);
+        return;
+      }
+      if (tutorialStep === 0 && matchCommand(raw, ['strike'], 'easy')) {
+        soundEngine.playConfirm(settings);
+        setTutorialStep(1);
+        resetTypingBuffer(true);
+        return;
+      }
+      if (tutorialStep === 1 && matchCommand(raw, ['goblin scout', 'goblin'], 'easy')) {
+        soundEngine.playConfirm(settings);
+        setTutorialStep(2);
+        resetTypingBuffer(true);
+        return;
+      }
+      if (tutorialStep === 2 && (!norm || matchCommand(raw, ['new run', 'start', 'menu', 'done'], 'easy'))) {
+        soundEngine.playConfirm(settings);
+        setIntroStep('ask_name');
+        setScreen('peasant_intro');
+        resetTypingBuffer(true);
+        return;
+      }
+      soundEngine.playError(settings);
+      return;
+    }
+
+    // 5. PEASANT OPENING SEQUENCE
     if (screen === 'peasant_intro') {
       if (introStep === 'ask_name') {
-        if (matchCommand(raw, ['load', 'load save', 'continue'], 'easy')) {
-          const localSave = loadRunFromLocal();
-          if (localSave) {
-            soundEngine.playConfirm(settings);
-            const localCode = localStorage.getItem('typemancer_save_v1') || '';
-            restoreFromSavePayload(localCode);
-            return;
-          }
-          setIntroStep('load_save');
+        if (matchCommand(raw, ['back', 'menu', 'return'], 'easy')) {
+          soundEngine.playConfirm(settings);
+          setScreen('main_menu');
           resetTypingBuffer(true);
           return;
         }
@@ -1179,7 +1416,6 @@ export function App() {
         }
         if (raw.length < 1) {
           soundEngine.playError(settings);
-          setFeedbackBanner('Please type your name and press Enter!');
           return;
         }
         soundEngine.playConfirm(settings);
@@ -1190,8 +1426,8 @@ export function App() {
       }
 
       if (introStep === 'load_save') {
-        if (matchCommand(raw, ['back', 'return', 'cancel'], 'easy')) {
-          setIntroStep('ask_name');
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'menu'], 'easy')) {
+          setScreen('main_menu');
           resetTypingBuffer(true);
           return;
         }
@@ -1200,7 +1436,6 @@ export function App() {
           return;
         }
         soundEngine.playError(settings);
-        setFeedbackBanner('Invalid Save Code! Paste or type your TM1-... code, or type "back".');
         return;
       }
 
@@ -1233,12 +1468,11 @@ export function App() {
         }
 
         soundEngine.playError(settings);
-        setFeedbackBanner('The peasant tilts their head. Type one of the difficulty phrases shown above!');
         return;
       }
     }
 
-    // 4. Screen-Specific Logic: MAP
+    // 6. MAP
     if (screen === 'map') {
       const nodeCandidates = availableMapNodes.map((n) => ({
         item: n,
@@ -1253,13 +1487,11 @@ export function App() {
         return;
       }
       soundEngine.playError(settings);
-      setFeedbackBanner('Could not match that path! Type one of the highlighted route phrases above.');
       return;
     }
 
-    // 5. Screen-Specific Logic: BATTLE
+    // 7. BATTLE
     if (screen === 'battle') {
-      // Allow deselecting a card at any time by typing back / return / cancel / deselect
       if (
         selectedCard &&
         matchCommand(raw, ['back', 'return', 'cancel', 'deselect', 'abort'], 'easy')
@@ -1267,7 +1499,6 @@ export function App() {
         soundEngine.playBackspace(settings);
         setSelectedCard(null);
         resetTypingBuffer(true);
-        setCombatLog('Card deselected. Timer reset—type a card name to cast!');
         return;
       }
 
@@ -1276,7 +1507,7 @@ export function App() {
         return;
       }
 
-      // STEP 1: Selecting a card from hand
+      // STEP 1: Selecting a card from hand OR inspecting an entity by typing its name!
       if (!selectedCard) {
         const bestCard = evaluatedHand[0];
         if (bestCard && bestCard.isValidConfirm) {
@@ -1285,38 +1516,40 @@ export function App() {
 
           if (energy < resolved.cost) {
             soundEngine.playError(settings);
-            setFeedbackBanner(
-              `"${resolved.name}" costs ${resolved.cost} Energy, but you only have ${energy} Energy! Type another card or "end turn".`
-            );
+            spawnPopup('player', `Need ${resolved.cost} Energy!`, '#b84a14');
             resetTypingBuffer(true);
             return;
           }
 
           soundEngine.playConfirm(settings);
           setSelectedCard(chosenInst);
-          // Accumulate the characters typed for Step 1 so the total action WPM covers the full sentence
           setActionCharAccum((prev) => prev + resolved.name.length);
           setTypedInput('');
-          if (resolved.target === 'enemy') {
-            setCombatLog(
-              `Selected "${resolved.name}" -${resolved.connector}- ... Now type the target enemy's name (or "back" to cancel)!`
-            );
-          } else {
-            setCombatLog(
-              `Ready: "${resolved.name} ${resolved.connector}". Press Enter again to confirm, or type "back" / "cancel"!`
-            );
-          }
+          return;
+        }
+
+        // Check if player typed an enemy's name (or "player" / their own name) to inspect it!
+        const bestEnemyInspect = evaluatedEnemies[0];
+        if (bestEnemyInspect && bestEnemyInspect.isValidConfirm) {
+          soundEngine.playConfirm(settings);
+          setInspectedEntity(bestEnemyInspect.item);
+          setOverlay('entity_inspect');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['player', 'myself', playerName], 'easy')) {
+          soundEngine.playConfirm(settings);
+          setInspectedEntity('player');
+          setOverlay('entity_inspect');
+          resetTypingBuffer(false);
           return;
         }
 
         soundEngine.playError(settings);
-        setFeedbackBanner(
-          'No matching card in hand! Type a card name from the left column, or type "end turn".'
-        );
         return;
       }
 
-      // STEP 2: Card is already selected -> confirm self/all_enemies on Enter, or match target enemy name
+      // STEP 2: Card is selected -> confirm self/all_enemies on Enter, or match target enemy name
       const resolvedSelected = resolveCardInstance(selectedCard, phraseDiff);
       if (resolvedSelected.target === 'self' || resolvedSelected.target === 'all_enemies') {
         if (!norm || matchCommand(raw, ['confirm', 'cast', 'yes', resolvedSelected.connector], 'easy')) {
@@ -1326,11 +1559,9 @@ export function App() {
           return;
         }
         soundEngine.playError(settings);
-        setFeedbackBanner('Press Enter with an empty box to confirm casting, or type "back" / "cancel".');
         return;
       }
 
-      // Single-enemy targeted card: match enemy name
       const bestEnemy = evaluatedEnemies[0];
       if (bestEnemy && bestEnemy.isValidConfirm) {
         soundEngine.playConfirm(settings);
@@ -1340,13 +1571,10 @@ export function App() {
       }
 
       soundEngine.playError(settings);
-      setFeedbackBanner(
-        'Could not match that enemy target! Type one of the living enemy names on the right, or type "back" to deselect.'
-      );
       return;
     }
 
-    // 6. Screen-Specific Logic: POST-BATTLE REWARD (1 of 4 Cards + 1 of 3 Relics on Elites)
+    // 8. POST-BATTLE REWARD
     if (screen === 'reward') {
       if (matchCommand(raw, ['skip', 'continue', 'next', 'leave', 'pass'], 'easy')) {
         soundEngine.playConfirm(settings);
@@ -1354,7 +1582,6 @@ export function App() {
         return;
       }
 
-      // Check card reward match
       if (rewardCards.length > 0) {
         const cardCands = rewardCards.map((c) => {
           const res = resolveCardInstance(c, phraseDiff);
@@ -1364,20 +1591,16 @@ export function App() {
         if (evalCards[0] && evalCards[0].isValidConfirm) {
           soundEngine.playConfirm(settings);
           const picked = evalCards[0].item;
-          const pickedName = resolveCardInstance(picked, phraseDiff).name;
           setDeck((d) => [...d, picked]);
           setRewardCards([]);
           resetTypingBuffer(true);
           if (rewardRelics.length === 0) {
             advanceToMapNextFloor();
-          } else {
-            setFeedbackBanner(`Added "${pickedName}" to your deck! Now choose 1 of the 3 Elite Relics (or type "skip").`);
           }
           return;
         }
       }
 
-      // Check relic reward match (if Elite fight)
       if (rewardRelics.length > 0) {
         const relicCands = rewardRelics.map((r) => ({
           item: r,
@@ -1396,19 +1619,16 @@ export function App() {
           resetTypingBuffer(true);
           if (rewardCards.length === 0) {
             advanceToMapNextFloor();
-          } else {
-            setFeedbackBanner(`Claimed Relic "${pickedRelic.names[phraseDiff]}"! Now choose 1 of the 4 cards (or type "skip").`);
           }
           return;
         }
       }
 
       soundEngine.playError(settings);
-      setFeedbackBanner('Type the name of a reward card/relic to claim it, or type "skip" to move on.');
       return;
     }
 
-    // 7. Screen-Specific Logic: CAMPFIRE (Rest or Revise/Edit)
+    // 9. CAMPFIRE
     if (screen === 'campfire') {
       if (campfireSubMode === 'choose') {
         if (matchCommand(raw, ['rest', 'sleep', 'heal', 'rest by the fire'], difficulty)) {
@@ -1426,7 +1646,6 @@ export function App() {
           soundEngine.playConfirm(settings);
           setCampfireSubMode('revise_select');
           resetTypingBuffer(true);
-          setFeedbackBanner('Type the name of an unrevised card from your deck below to upgrade it (or type "back").');
           return;
         }
         if (matchCommand(raw, ['skip', 'leave'], 'easy')) {
@@ -1435,7 +1654,6 @@ export function App() {
           return;
         }
         soundEngine.playError(settings);
-        setFeedbackBanner('Type "rest" to heal 30% HP, or type "revise" / "edit" to upgrade a card!');
         return;
       }
 
@@ -1463,12 +1681,11 @@ export function App() {
           return;
         }
         soundEngine.playError(settings);
-        setFeedbackBanner('Could not match that card! Type the name of one of the unrevised cards shown, or "back".');
         return;
       }
     }
 
-    // 8. Screen-Specific Logic: MERCHANT / BOOKSHOP
+    // 10. MERCHANT / BOOKSHOP
     if (screen === 'merchant' && shopInventory) {
       if (shopSubMode === 'remove_select') {
         if (matchCommand(raw, ['back', 'return', 'cancel'], 'easy')) {
@@ -1489,11 +1706,9 @@ export function App() {
           setShopInventory({ ...shopInventory, removeUsed: true });
           setShopSubMode('browse');
           resetTypingBuffer(true);
-          setFeedbackBanner('Card permanently burned from your deck! Type another item or "leave".');
           return;
         }
         soundEngine.playError(settings);
-        setFeedbackBanner('Type the name of a card in your deck to remove it, or type "back".');
         return;
       }
 
@@ -1504,24 +1719,16 @@ export function App() {
       }
 
       if (matchCommand(raw, ['burn card', 'remove card', 'purge card', 'remove'], difficulty)) {
-        if (shopInventory.removeUsed) {
+        if (shopInventory.removeUsed || gold < shopInventory.removeServicePrice) {
           soundEngine.playError(settings);
-          setFeedbackBanner('You already used the card removal service at this shop!');
-          return;
-        }
-        if (gold < shopInventory.removeServicePrice) {
-          soundEngine.playError(settings);
-          setFeedbackBanner(`Not enough Gold! Card removal costs ${shopInventory.removeServicePrice} Gold.`);
           return;
         }
         soundEngine.playConfirm(settings);
         setShopSubMode('remove_select');
         resetTypingBuffer(true);
-        setFeedbackBanner('Select a card from your deck to permanently burn (or type "back").');
         return;
       }
 
-      // Check shop cards
       const availCards = shopInventory.cards.filter((c) => !c.sold);
       const evalShopCards = evaluateCandidates(
         raw,
@@ -1535,7 +1742,6 @@ export function App() {
         const entry = evalShopCards[0].item;
         if (gold < entry.price) {
           soundEngine.playError(settings);
-          setFeedbackBanner(`Not enough Gold! Need ${entry.price} Gold.`);
           return;
         }
         soundEngine.playConfirm(settings);
@@ -1548,11 +1754,9 @@ export function App() {
           ),
         });
         resetTypingBuffer(true);
-        setFeedbackBanner(`Purchased "${evalShopCards[0].phrase}"!`);
         return;
       }
 
-      // Check shop relics
       const availRelics = shopInventory.relics.filter((r) => !r.sold);
       const evalShopRelics = evaluateCandidates(
         raw,
@@ -1566,7 +1770,6 @@ export function App() {
         const entry = evalShopRelics[0].item;
         if (gold < entry.price) {
           soundEngine.playError(settings);
-          setFeedbackBanner(`Not enough Gold! Need ${entry.price} Gold.`);
           return;
         }
         soundEngine.playConfirm(settings);
@@ -1579,16 +1782,14 @@ export function App() {
           ),
         });
         resetTypingBuffer(true);
-        setFeedbackBanner(`Purchased Relic "${evalShopRelics[0].phrase}"!`);
         return;
       }
 
       soundEngine.playError(settings);
-      setFeedbackBanner('Type the name of an item on sale, "burn card", or "leave".');
       return;
     }
 
-    // 9. Screen-Specific Logic: TREASURE CHEST (1 of 3 Relics)
+    // 11. TREASURE CHEST
     if (screen === 'treasure') {
       if (matchCommand(raw, ['skip', 'leave', 'continue'], 'easy')) {
         soundEngine.playConfirm(settings);
@@ -1612,11 +1813,10 @@ export function App() {
         return;
       }
       soundEngine.playError(settings);
-      setFeedbackBanner('Type the name of 1 of the 3 Relics to claim it, or type "skip".');
       return;
     }
 
-    // 10. Screen-Specific Logic: MYSTERY ENCOUNTER (?)
+    // 12. MYSTERY ENCOUNTER (?)
     if (screen === 'mystery' && activeEvent) {
       if (eventOutcomeText !== null) {
         if (!norm || matchCommand(raw, ['continue', 'onward', 'next', 'leave'], 'easy')) {
@@ -1625,7 +1825,6 @@ export function App() {
           return;
         }
         soundEngine.playError(settings);
-        setFeedbackBanner('Press Enter or type "continue" to proceed to the next floor.');
         return;
       }
 
@@ -1678,21 +1877,18 @@ export function App() {
       }
 
       soundEngine.playError(settings);
-      setFeedbackBanner('Type one of the choice phrases listed above and press Enter!');
       return;
     }
 
-    // 11. Screen-Specific Logic: GAME OVER / VICTORY REPORT CARD
+    // 13. GAME OVER / VICTORY REPORT CARD
     if (screen === 'game_over' || screen === 'victory') {
-      if (matchCommand(raw, ['new run', 'restart', 'play again', 'again', 'start'], 'easy')) {
+      if (matchCommand(raw, ['new run', 'restart', 'play again', 'again', 'start', 'menu'], 'easy')) {
         soundEngine.playConfirm(settings);
-        setIntroStep('ask_name');
-        setScreen('peasant_intro');
+        setScreen('main_menu');
         resetTypingBuffer(true);
         return;
       }
       soundEngine.playError(settings);
-      setFeedbackBanner('Type "new run" or "play again" and press Enter to start a new quest!');
     }
   }, [
     activeEvent,
@@ -1711,6 +1907,7 @@ export function App() {
     extraHardAvailable,
     gold,
     introStep,
+    isAnimatingTurn,
     maxHp,
     overlay,
     phraseDiff,
@@ -1726,11 +1923,13 @@ export function App() {
     settings,
     shopInventory,
     shopSubMode,
+    spawnPopup,
     startNewRun,
+    tutorialStep,
     typedInput,
   ]);
 
-  // Global 100% Keyboard Listener (No Mouse Needed anywhere)
+  // Global Keyboard Listener (Supports Map Scrolling via ArrowUp/Down & PageUp/Down)
   const handleEnterRef = useRef(handleEnterSubmit);
   useEffect(() => {
     handleEnterRef.current = handleEnterSubmit;
@@ -1739,8 +1938,31 @@ export function App() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.altKey || e.metaKey) {
-        // Allow Ctrl+V for pasting save codes if needed
         return;
+      }
+
+      // Map scrolling via ArrowUp / ArrowDown / PageUp / PageDown
+      if (screen === 'map' && overlay === 'none') {
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setMapScrollOffset((prev) => Math.max(0, prev - 130));
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setMapScrollOffset((prev) => Math.min(2800, prev + 130));
+          return;
+        }
+        if (e.key === 'PageUp') {
+          e.preventDefault();
+          setMapScrollOffset((prev) => Math.max(0, prev - 380));
+          return;
+        }
+        if (e.key === 'PageDown') {
+          e.preventDefault();
+          setMapScrollOffset((prev) => Math.min(2800, prev + 380));
+          return;
+        }
       }
 
       if (e.key === 'Enter') {
@@ -1754,7 +1976,6 @@ export function App() {
         soundEngine.playBackspace(settings);
         setTypedInput((prev) => {
           const next = prev.slice(0, -1);
-          // Forgive initial typing if the user clears the input to rethink or re-type faster!
           if (next.trim().length === 0 && !selectedCard) {
             setActionStartTime(null);
             setActionCharAccum(0);
@@ -1805,9 +2026,8 @@ export function App() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('paste', onPaste);
     };
-  }, [actionStartTime, overlay, resetTypingBuffer, selectedCard, settings]);
+  }, [actionStartTime, overlay, resetTypingBuffer, screen, selectedCard, settings]);
 
-  // Render active sentence preview in the bottom typing bar
   const selectedCardResolved = useMemo(
     () => (selectedCard ? resolveCardInstance(selectedCard, phraseDiff) : null),
     [phraseDiff, selectedCard]
@@ -1843,12 +2063,31 @@ export function App() {
     [currentFloor, deck, difficulty, gold, hp, maxHp, metrics, playerName, relicIds]
   );
 
+  // Reusable Relic Icon Bar (Shows only icons; type "relics" to inspect names & descriptions)
+  const renderRelicIconsBar = () => (
+    <div className="relic-icons-bar" aria-label="Collected Relics">
+      {relicIds.map((rId, idx) => {
+        const rel = getRelicDefinition(rId);
+        if (!rel) return null;
+        return (
+          <div key={`${rId}_${idx}`} className="relic-icon-slot">
+            {rel.art.spriteUrl ? (
+              <img src={rel.art.spriteUrl} alt="" className="relic-pixel-img" />
+            ) : (
+              <div className="relic-fallback-dot" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className={`typemancer-viewport ${settings.highContrast ? 'high-contrast' : ''}`}>
-      {/* ==================== BATTLE SCENE (Exact Layout from User Mockup) ==================== */}
+      {/* ==================== BATTLE SCENE ==================== */}
       {screen === 'battle' && (
         <div className="battle-layout">
-          {/* LEFT COLUMN: Stacked Card Banners */}
+          {/* LEFT COLUMN: Stacked Cards with 1:1 Image Frame on Left, Name+Cost on Top, Description on Right */}
           <aside className="cards-column" aria-label="Player Hand">
             <div className="cards-stack">
               {handCandidates.map(({ item, phrase, resolved }, idx) => {
@@ -1862,14 +2101,26 @@ export function App() {
                       isHighlighted ? 'card-tab-highlighted' : ''
                     } ${isSelected ? 'card-tab-selected' : ''} ${!canAfford ? 'card-tab-unaffordable' : ''}`}
                   >
-                    <div className="card-tab-header">
-                      <span className="card-cost-pill">{resolved.cost}⚡</span>
-                      <span className="card-tab-name">
-                        {phrase}
-                        {item.upgraded ? ' +' : ''}
-                      </span>
+                    <div className="card-tab-inner">
+                      {/* 1:1 Square Image Slot on Left */}
+                      <div className="card-art-square">
+                        {resolved.art.spriteUrl ? (
+                          <img src={resolved.art.spriteUrl} alt="" />
+                        ) : null}
+                      </div>
+
+                      {/* Right Half: Name & Cost along Top, Description beneath */}
+                      <div className="card-info-right">
+                        <div className="card-tab-header">
+                          <span className="card-tab-name">
+                            {phrase}
+                            {item.upgraded ? ' +' : ''}
+                          </span>
+                          <span className="card-cost-pill">{resolved.cost}</span>
+                        </div>
+                        <div className="card-tab-sub">{resolved.description}</div>
+                      </div>
                     </div>
-                    <div className="card-tab-sub">{resolved.description}</div>
                   </div>
                 );
               })}
@@ -1877,38 +2128,37 @@ export function App() {
             <div className="cards-footer-box">
               <div className="cards-footer-title">cards ({hand.length})</div>
               <div className="cards-pile-counts">
-                <span>Draw: {drawPile.length}</span>
-                <span>Discard: {discardPile.length}</span>
-                {burnDraftPile.length > 0 && <span>Burned: {burnDraftPile.length}</span>}
+                <span>Draw {drawPile.length}</span>
+                <span>Discard {discardPile.length}</span>
               </div>
             </div>
           </aside>
 
-          {/* RIGHT MAIN AREA: Arena + Energy/Stats + Typing Console */}
+          {/* RIGHT MAIN AREA */}
           <main className="battle-main">
-            {/* Top Status Strip (Floor, Relics, Quick Command Hints) */}
-            <header className="arena-top-bar">
-              <div className="arena-floor-badge">
-                Floor {currentFloor}/24 — {activeNodeType.toUpperCase()} ({difficulty.replace('_', ' ').toUpperCase()})
-              </div>
-              <div className="arena-relics-strip">
-                {relicIds.map((rId) => {
-                  const rel = getRelicDefinition(rId);
-                  if (!rel) return null;
-                  return (
-                    <span key={rId} className="relic-chip">
-                      ✒️ {rel.names.easy}
-                    </span>
-                  );
-                })}
-              </div>
-              <div className="arena-hint-strip">
-                Commands: <code>end turn</code> · <code>view deck</code> · <code>help</code> · <code>options</code>
+            {/* Minimal Uncluttered Top Bar: Relic Icons + Clean Hint */}
+            <header className="minimal-top-bar">
+              {renderRelicIconsBar()}
+              <div className="minimal-command-hint">
+                type (end turn) (relics) (status effects) (help) (options)
               </div>
             </header>
 
-            {/* ARENA: Player Capsule on Left, Inspected Card Popup in Center, Enemy Formation on Right */}
+            {/* ARENA: Player on Left, Optional Single-Card Inspector in Center, Enemies on Right */}
             <section className="arena-stage">
+              {/* Animated Projectile Ball */}
+              {activeProjectile && (
+                <div
+                  key={activeProjectile.id}
+                  className={`combat-projectile-ball ${
+                    activeProjectile.from === 'player'
+                      ? `proj-player-to-${activeProjectile.to}`
+                      : `proj-enemy-${activeProjectile.from}-to-player`
+                  }`}
+                  style={{ backgroundColor: activeProjectile.color }}
+                />
+              )}
+
               {/* Player Entity */}
               <div className="player-spot">
                 <div className="entity-name-label">{playerName}</div>
@@ -1918,9 +2168,25 @@ export function App() {
                     style={{ width: `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%` }}
                   />
                   <span className="hp-bar-text">
-                    {hp}/{maxHp} {playerWard > 0 ? `(🛡️${playerWard})` : ''}
+                    {hp}/{maxHp} {playerWard > 0 ? `(${playerWard})` : ''}
                   </span>
                 </div>
+
+                {/* Floating Popups over Player */}
+                <div className="floating-popups-anchor">
+                  {floatingPopups
+                    .filter((p) => p.target === 'player')
+                    .map((p) => (
+                      <div
+                        key={p.id}
+                        className="floating-combat-popup"
+                        style={{ backgroundColor: p.color }}
+                      >
+                        {p.text}
+                      </div>
+                    ))}
+                </div>
+
                 <EntitySprite
                   art={{
                     primaryColor: '#165b7d',
@@ -1939,9 +2205,9 @@ export function App() {
                 </div>
               </div>
 
-              {/* Dynamic Card Inspector (Appears automatically when typing narrows down a card) */}
+              {/* Center Area: Empty unless 1 card is narrowed down for inspection */}
               <div className="arena-center-inspector">
-                {inspectedCard ? (
+                {inspectedCard && (
                   <div className="inspected-card-panel">
                     <div className="inspected-card-badge">
                       {inspectedCard.rarity.toUpperCase()} {inspectedCard.type.toUpperCase()} · {inspectedCard.cost} Energy
@@ -1949,18 +2215,16 @@ export function App() {
                     <h3 className="inspected-card-title">{inspectedCard.name}</h3>
                     <p className="inspected-card-desc">{inspectedCard.description}</p>
                     <div className="inspected-card-connector">
-                      Sentence: <em>"{inspectedCard.name}" -{inspectedCard.connector}- ...</em>
+                      "{inspectedCard.name}" -{inspectedCard.connector}- ...
                     </div>
                     {inspectedCard.burnDraft && (
-                      <div className="inspected-burn-tag">🔥 Burn Draft (Removed for rest of combat)</div>
+                      <div className="inspected-burn-tag">Burn Draft</div>
                     )}
                   </div>
-                ) : (
-                  <div className="combat-log-callout">{combatLog}</div>
                 )}
               </div>
 
-              {/* Enemy Formation (Staggered layout matching the mockup) */}
+              {/* Enemy Formation */}
               <div className="enemies-formation">
                 {enemies.map((enemy, index) => {
                   const isTargetHighlighted = highlightedEnemyIds.has(enemy.instanceId);
@@ -1980,9 +2244,25 @@ export function App() {
                           }}
                         />
                         <span className="hp-bar-text">
-                          {enemy.hp}/{enemy.maxHp} {enemy.ward > 0 ? `(🛡️${enemy.ward})` : ''}
+                          {enemy.hp}/{enemy.maxHp} {enemy.ward > 0 ? `(${enemy.ward})` : ''}
                         </span>
                       </div>
+
+                      {/* Floating Popups over Enemy */}
+                      <div className="floating-popups-anchor">
+                        {floatingPopups
+                          .filter((p) => p.target === enemy.instanceId)
+                          .map((p) => (
+                            <div
+                              key={p.id}
+                              className="floating-combat-popup"
+                              style={{ backgroundColor: p.color }}
+                            >
+                              {p.text}
+                            </div>
+                          ))}
+                      </div>
+
                       <EntitySprite
                         art={enemy.art}
                         width={68}
@@ -1997,11 +2277,11 @@ export function App() {
                         heal={enemy.currentMove.heal}
                       />
                       <div className="status-pills-row">
-                        {enemy.ward > 0 && <span className="status-pill ward-pill">🛡️{enemy.ward}</span>}
+                        {enemy.ward > 0 && <span className="status-pill ward-pill">Ward {enemy.ward}</span>}
                         {enemy.statuses.bold > 0 && <span className="status-pill bold-pill">Bold +{enemy.statuses.bold}</span>}
                         {enemy.statuses.faded > 0 && <span className="status-pill faded-pill">Faded {enemy.statuses.faded}</span>}
                         {enemy.statuses.exposed > 0 && <span className="status-pill exposed-pill">Exposed {enemy.statuses.exposed}</span>}
-                        {enemy.statuses.ink_burn > 0 && <span className="status-pill burn-pill">💧{enemy.statuses.ink_burn}</span>}
+                        {enemy.statuses.ink_burn > 0 && <span className="status-pill burn-pill">Ink Burn {enemy.statuses.ink_burn}</span>}
                       </div>
                     </div>
                   );
@@ -2009,7 +2289,7 @@ export function App() {
               </div>
             </section>
 
-            {/* MIDDLE ROW: Energy Box + Area for Stats ( + WPM Speed Gauge) */}
+            {/* MIDDLE ROW: Energy Box + Area for Stats (WPM Speed Meter ONLY shown on Extra Hard) */}
             <section className="battle-stats-row">
               <div className="energy-box">
                 <div className="energy-value">
@@ -2027,74 +2307,54 @@ export function App() {
                     <strong>Bold:</strong> {playerStatuses.bold}
                   </div>
                   <div>
-                    <strong>Gold:</strong> {gold}g
+                    <strong>Faded:</strong> {playerStatuses.faded}
                   </div>
                   <div>
-                    <strong>Avg WPM:</strong> {avgWpm || '—'}
+                    <strong>Exposed:</strong> {playerStatuses.exposed}
+                  </div>
+                  <div>
+                    <strong>Gold:</strong> {gold}g
                   </div>
                 </div>
 
-                {/* Linear Speed Effectiveness Meter (Always shown, with active scaling on Extra Hard) */}
-                <div className="wpm-meter-container">
-                  <div className="wpm-meter-labels">
-                    <span>
-                      Typing Speed: <strong>{liveWpm} WPM</strong>
-                    </span>
-                    <span>
-                      Card Power:{' '}
-                      <strong>
-                        {difficulty === 'extra_hard'
-                          ? `${liveEffectiveness.displayPercent}%`
-                          : `100% (Live ${ Math.round(liveWpm * 2.5)}% on Extra Hard)`}
-                      </strong>
-                    </span>
+                {/* Extra Hard Mode Speed Effectiveness Meter (Hidden on Easy/Medium/Hard) */}
+                {difficulty === 'extra_hard' && (
+                  <div className="wpm-meter-container">
+                    <div className="wpm-meter-labels">
+                      <span>Speed: {liveWpm} WPM</span>
+                      <span>Power: {liveEffectiveness.displayPercent}%</span>
+                    </div>
+                    <div className="wpm-bar-track">
+                      <div
+                        className={`wpm-bar-fill ${
+                          liveEffectiveness.displayPercent > 100 ? 'wpm-bar-overflow' : ''
+                        }`}
+                        style={{
+                          width: `${Math.min(130, Math.max(15, Math.round(liveWpm * 2.5)))}%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="wpm-bar-track">
-                    <div
-                      className={`wpm-bar-fill ${
-                        liveEffectiveness.displayPercent > 100 ? 'wpm-bar-overflow' : ''
-                      }`}
-                      style={{
-                        width: `${Math.min(130, Math.max(15, Math.round(liveWpm * 2.5)))}%`,
-                      }}
-                    />
-                    <div className="wpm-cap-marker" style={{ left: '100%' }} title="40 WPM = 100% Power" />
-                  </div>
-                </div>
+                )}
               </div>
             </section>
 
-            {/* BOTTOM ROW: Dedicated Typing Bar matching Mockup */}
+            {/* BOTTOM ROW: Clean Typing Bar (Just a blinking cursor when empty) */}
             <section className="typing-console-box">
-              {feedbackBanner && <div className="typing-feedback-toast">{feedbackBanner}</div>}
               <div className="typing-sentence-display">
                 {selectedCardResolved ? (
                   <>
                     <span className="sentence-locked-card">"{selectedCardResolved.name}"</span>
                     <span className="sentence-connector"> -{selectedCardResolved.connector}- </span>
-                    {selectedCardResolved.target === 'enemy' ? (
-                      <span className="sentence-live-input">
-                        "{typedInput}
-                        <span className="typing-caret">▋</span>"
-                      </span>
-                    ) : (
-                      <span className="sentence-confirm-prompt">
-                        [Press ENTER to cast, or type "{typedInput || 'back'}" to cancel]
-                      </span>
-                    )}
+                    <span className="sentence-live-input">
+                      {typedInput}
+                      <span className="typing-caret">▋</span>
+                    </span>
                   </>
                 ) : (
                   <span className="sentence-live-input">
-                    {typedInput ? (
-                      <>
-                        {typedInput}
-                        <span className="typing-caret">▋</span>
-                      </>
-                    ) : (
-                      <span className="typing-placeholder">
-                        Area for typing — type a card name, "end turn", "view deck", or "help" and press Enter...
-                      </span>
-                    )}
+                    {typedInput}
+                    <span className="typing-caret">▋</span>
                   </span>
                 )}
               </div>
@@ -2106,285 +2366,290 @@ export function App() {
       {/* ==================== NON-BATTLE SCREENS ==================== */}
       {screen !== 'battle' && (
         <div className="narrative-screen-layout">
-          {/* Top Status Header */}
-          <header className="narrative-header">
-            <div className="narrative-brand">✒️ TYPEMANCER</div>
-            {screen !== 'peasant_intro' && (
-              <div className="narrative-stats-strip">
-                <span>👤 {playerName}</span>
-                <span>❤️ {hp}/{maxHp} HP</span>
-                <span>💰 {gold} Gold</span>
-                <span>🃏 {deck.length} Cards</span>
-                <span>🏰 Floor {currentFloor}/24</span>
-                <span>⌨️ Avg {avgWpm} WPM ({accuracyPercent}% Acc)</span>
+          {/* Minimal Uncluttered Top Bar */}
+          <header className="minimal-top-bar">
+            {screen !== 'main_menu' && screen !== 'tutorial' && screen !== 'peasant_intro' ? (
+              <div className="minimal-run-status">
+                {renderRelicIconsBar()}
+                <span className="minimal-stat-chip">HP {hp}/{maxHp}</span>
+                <span className="minimal-stat-chip">Gold {gold}</span>
+                <span className="minimal-stat-chip">Floor {currentFloor}/24</span>
               </div>
+            ) : (
+              <div />
             )}
-            <div className="narrative-help-hint">
-              Type <code>help</code>, <code>options</code>, <code>save</code>, or <code>view deck</code> anytime
+            <div className="minimal-command-hint">
+              type (help) (options) (save) (relics) (view deck)
             </div>
           </header>
 
           {/* Main Content Stage */}
           <main className="narrative-stage">
+            {/* 0. CLEAN MAIN MENU */}
+            {screen === 'main_menu' && (
+              <div className="clean-menu-card">
+                <h1 className="clean-menu-title">TYPEMANCER</h1>
+                <div className="clean-menu-options">
+                  <div className="clean-menu-option">new run</div>
+                  <div className="clean-menu-option">tutorial</div>
+                  <div className="clean-menu-option">load</div>
+                  <div className="clean-menu-option">options</div>
+                </div>
+              </div>
+            )}
+
+            {/* 0.5 SHORT INTERACTIVE TUTORIAL */}
+            {screen === 'tutorial' && (
+              <div className="story-card">
+                <h1 className="story-title">How to Play Typemancer</h1>
+                {tutorialStep === 0 && (
+                  <div className="prompt-panel">
+                    <h2>Step 1 of 3 — Casting a Card</h2>
+                    <p>
+                      In Typemancer, your keyboard controls everything. To select a card in battle,
+                      type its name and press <code>Enter</code>.
+                    </p>
+                    <p>Try selecting the basic attack card now by typing:</p>
+                    <div className="phrase-to-type">strike</div>
+                  </div>
+                )}
+                {tutorialStep === 1 && (
+                  <div className="prompt-panel">
+                    <h2>Step 2 of 3 — Targeting an Enemy</h2>
+                    <p>
+                      Once a card is selected, the game fills in the middle connector of the sentence:
+                      <em> "strike" -at- ...</em>
+                    </p>
+                    <p>Finish the sentence by typing the target enemy's name:</p>
+                    <div className="phrase-to-type">goblin scout</div>
+                  </div>
+                )}
+                {tutorialStep === 2 && (
+                  <div className="prompt-panel">
+                    <h2>Step 3 of 3 — Helpful Tips</h2>
+                    <ul className="modal-list">
+                      <li>Type <code>back</code> or <code>cancel</code> anytime to deselect a card.</li>
+                      <li>Type an enemy's name or status effect name (like <code>ward</code> or <code>ink burn</code>) to inspect what it does.</li>
+                      <li>Unsure what an English word means? Type the word followed by <code>?</code> (for example <code>pavilion?</code>) to look up its definition!</li>
+                    </ul>
+                    <div className="phrase-to-type">new run</div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* 1. OPENING SEQUENCE: THE PEASANT & THE TYPEWRITER */}
             {screen === 'peasant_intro' && (
               <div className="story-card">
-                <h1 className="story-title">The Curse of Silence & The Magical Typewriter</h1>
                 <p className="story-paragraph">
-                  In this dystopian world, an Evil Wizard has stolen the beauty of speech and song.
-                  All must write to one another to do anything at all—until you unearth an ancient
-                  magical relic: <strong>A TYPEWRITER!</strong>
-                </p>
-                <p className="story-paragraph">
-                  Its brass keys let your words strike faster and stronger than anyone else alive.
-                  Determined to free the world from eternal silence, you march toward the Wizard’s Tower.
-                  At the edge of the Whispering Forest, a curious peasant spots your typewriter and steps forward.
+                  In this dystopian world, an Evil Wizard has taken away the beauty of speech and song.
+                  All must write to each other to do anything—until you find a magical relic: a <strong>TYPEWRITER!</strong>
+                  It lets you move quicker and stronger than anyone else. You decide to free the world from this fate
+                  and head towards the Wizard’s Tower.
                 </p>
 
                 {introStep === 'ask_name' && (
                   <div className="prompt-panel">
-                    <h2>The Peasant Asks Your Name:</h2>
                     <p>
-                      <em>"Stranger! With a relic like that, your name will echo across history. Who are you?"</em>
+                      At the edge of the forest you find a peasant. They are interested in your typewriter
+                      and ask you your name:
                     </p>
-                    <div className="choice-list">
-                      <div className="choice-item">
-                        👉 <strong>Type your character's name</strong> for this run and press <code>Enter</code>.
-                      </div>
-                      <div className="choice-item">
-                        💾 Or type <code>load</code> (or paste a <code>TM1-...</code> Save Code) to resume a saved run.
-                      </div>
-                    </div>
+                    <div className="phrase-to-type">(Type your name and press Enter)</div>
                   </div>
                 )}
 
                 {introStep === 'load_save' && (
                   <div className="prompt-panel">
-                    <h2>Restore a Classroom Save Code:</h2>
-                    <p>Type or paste your <code>TM1-...</code> Save Code below and press <code>Enter</code> (or type <code>back</code>).</p>
+                    <h2>Load Save Code</h2>
+                    <p>Type or paste your <code>TM1-...</code> Save Code and press Enter (or type <code>back</code>):</p>
                   </div>
                 )}
 
                 {introStep === 'ask_difficulty' && (
                   <div className="prompt-panel">
-                    <h2>"Greetings, {playerName}! How difficult do you expect this journey to be?"</h2>
-                    <p>Type one of the exact difficulty phrases below and press <code>Enter</code> (or type <code>back</code>):</p>
+                    <p>
+                      "{playerName}, how difficult do you expect this journey to be?"
+                    </p>
                     <div className="choice-list">
                       <div className="choice-item">
-                        🟢 <strong>Easy (1-Word Names & Forgiving Autocorrect):</strong>
-                        <div className="phrase-to-type">"easy"</div>
+                        <div className="phrase-to-type">easy</div>
                       </div>
                       <div className="choice-item">
-                        🟡 <strong>Medium (2–3 Word Names & Moderate Autocorrect):</strong>
-                        <div className="phrase-to-type">"a fair challenge"</div>
+                        <div className="phrase-to-type">a fair challenge</div>
                       </div>
                       <div className="choice-item">
-                        🔴 <strong>Hard (Full Evocative Clauses & Strict Precision):</strong>
-                        <div className="phrase-to-type">"i expect this quest to be a grueling endeavour"</div>
+                        <div className="phrase-to-type">i expect this quest to be a grueling endeavour</div>
                       </div>
-                      <div className={`choice-item ${!extraHardAvailable ? 'choice-locked' : ''}`}>
-                        ⚡ <strong>Extra Hard (Hard Sentences + Live WPM Speed Scaling: 40 WPM = 100%, 20 WPM = 50%):</strong>
-                        {extraHardAvailable ? (
-                          <div className="phrase-to-type">"my fingers move faster than lightning itself"</div>
-                        ) : (
-                          <div className="phrase-locked-note">
-                            🔒 Locked — Beat Hard difficulty (or load an unlocked Save Code) to unlock!
-                          </div>
-                        )}
-                      </div>
+                      {extraHardAvailable && (
+                        <div className="choice-item">
+                          <div className="phrase-to-type">my fingers move faster than lightning itself</div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* 2. PROCEDURAL 24-FLOOR MAP */}
+            {/* 2. SCROLLABLE 24-FLOOR PROCEDURAL MAP */}
             {screen === 'map' && (
-              <div className="story-card">
-                <h1 className="story-title">
-                  The Ascent to the Wizard's Tower — Floor {currentFloor} of 24
-                </h1>
-                <p className="story-paragraph">
-                  Choose your path forward by typing its highlighted route phrase below and pressing <code>Enter</code>:
-                </p>
-
-                <div className="map-paths-grid">
-                  {availableMapNodes.map((node) => {
-                    const phrase = node.phrases[phraseDiff];
-                    const evalMatch = evaluateCandidates(
-                      typedInput,
-                      [{ item: node, phrase }],
-                      difficulty
-                    )[0];
-                    const isMatch = typedInput.trim().length > 0 && evalMatch?.isPrefixMatch;
-
-                    return (
-                      <div
-                        key={node.id}
-                        className={`map-path-card ${isMatch ? 'map-path-highlighted' : ''}`}
-                      >
-                        <div className="map-node-type-badge">{node.type.toUpperCase()}</div>
-                        <div className="map-phrase-callout">"{phrase}"</div>
-                        <div className="map-next-preview">
-                          Leads to Floor {Math.min(24, currentFloor + 1)}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Mini Upcoming Floors Preview */}
-                <div className="map-horizon-box">
-                  <h4>Upcoming Floors Ahead:</h4>
-                  <div className="map-horizon-list">
-                    {mapFloors.slice(currentFloor, currentFloor + 4).map((row, idx) => (
-                      <div key={idx} className="map-horizon-row">
-                        <strong>Floor {currentFloor + idx + 1}:</strong>{' '}
-                        {row.map((n) => n.type.toUpperCase()).join('  |  ')}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <ScrollableMap
+                mapFloors={mapFloors}
+                currentFloor={currentFloor}
+                currentNodeId={currentNodeId}
+                availableNodes={availableMapNodes}
+                typedInput={typedInput}
+                difficulty={difficulty}
+                phraseDiff={phraseDiff}
+                scrollOffset={mapScrollOffset}
+                setScrollOffset={setMapScrollOffset}
+              />
             )}
 
-            {/* 3. POST-BATTLE REWARDS (1 of 4 Cards + 1 of 3 Relics on Elites) */}
+            {/* 3. POST-BATTLE REWARDS */}
             {screen === 'reward' && (
               <div className="story-card">
-                <h1 className="story-title">Spoils of Battle (+{rewardGoldClaimed} Gold)</h1>
+                <h2 className="story-title">Rewards (+{rewardGoldClaimed} Gold) — or type (skip)</h2>
                 {rewardCards.length > 0 && (
-                  <>
-                    <h3>Choose 1 of 4 Cards to Add to Your Deck (or type "skip"):</h3>
-                    <div className="reward-cards-grid">
-                      {rewardCards.map((inst) => {
-                        const res = resolveCardInstance(inst, phraseDiff);
-                        return (
-                          <div key={inst.instanceId} className="reward-card-box">
-                            <div className="reward-card-top">
-                              <span>{res.cost}⚡</span>
-                              <span>{res.rarity.toUpperCase()}</span>
+                  <div className="reward-cards-grid">
+                    {rewardCards.map((inst) => {
+                      const res = resolveCardInstance(inst, phraseDiff);
+                      return (
+                        <div key={inst.instanceId} className="structured-card-box">
+                          <div className="card-art-square" />
+                          <div className="card-info-right">
+                            <div className="card-tab-header">
+                              <span className="phrase-to-type">{res.name}</span>
+                              <span className="card-cost-pill">{res.cost}</span>
                             </div>
-                            <div className="phrase-to-type">"{res.name}"</div>
-                            <p>{res.description}</p>
+                            <div className="card-tab-sub">{res.description}</div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
 
                 {rewardRelics.length > 0 && (
-                  <>
-                    <h3>Elite Trophy — Choose 1 of 3 Relics (or type "skip"):</h3>
-                    <div className="reward-cards-grid">
-                      {rewardRelics.map((rel) => (
-                        <div key={rel.id} className="reward-card-box relic-reward-box">
-                          <div className="phrase-to-type">"{rel.names[phraseDiff]}"</div>
-                          <p>{rel.description}</p>
+                  <div className="reward-cards-grid">
+                    {rewardRelics.map((rel) => (
+                      <div key={rel.id} className="structured-card-box">
+                        <div className="card-art-square">
+                          {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
                         </div>
-                      ))}
-                    </div>
-                  </>
+                        <div className="card-info-right">
+                          <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
+                          <div className="card-tab-sub">{rel.description}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}
 
-            {/* 4. CAMPFIRE (Rest or Revise/Edit) */}
+            {/* 4. CAMPFIRE */}
             {screen === 'campfire' && (
               <div className="story-card">
-                <h1 className="story-title">🔥 A Sheltered Campfire</h1>
+                <h2 className="story-title">Campfire</h2>
                 {campfireSubMode === 'choose' ? (
                   <div className="choice-list">
                     <div className="choice-item">
-                      💤 <strong>Rest by the Fire (Heal 30% Max HP):</strong>
-                      <div className="phrase-to-type">"rest"</div>
+                      <div className="phrase-to-type">rest</div>
+                      <div>Heal 30% Max HP</div>
                     </div>
                     <div className="choice-item">
-                      ✒️ <strong>Revise & Edit a Page (Upgrade a Card in Your Deck):</strong>
-                      <div className="phrase-to-type">"revise" (or "edit")</div>
+                      <div className="phrase-to-type">revise</div>
+                      <div>Upgrade a card in your deck</div>
                     </div>
                   </div>
                 ) : (
-                  <div>
-                    <h3>Type the Name of a Card to Revise & Upgrade (or type "back"):</h3>
-                    <div className="reward-cards-grid">
-                      {deck
-                        .filter((c) => !c.upgraded)
-                        .map((inst) => {
-                          const baseRes = resolveCardInstance(inst, phraseDiff);
-                          const upRes = resolveCardInstance({ ...inst, upgraded: true }, phraseDiff);
-                          return (
-                            <div key={inst.instanceId} className="reward-card-box">
-                              <div className="phrase-to-type">"{baseRes.name}"</div>
-                              <p>
-                                <strong>Upgrades to:</strong> "{upRes.name}" ({upRes.description})
-                              </p>
+                  <div className="reward-cards-grid">
+                    {deck
+                      .filter((c) => !c.upgraded)
+                      .map((inst) => {
+                        const baseRes = resolveCardInstance(inst, phraseDiff);
+                        const upRes = resolveCardInstance({ ...inst, upgraded: true }, phraseDiff);
+                        return (
+                          <div key={inst.instanceId} className="structured-card-box">
+                            <div className="card-art-square" />
+                            <div className="card-info-right">
+                              <div className="phrase-to-type">{baseRes.name}</div>
+                              <div className="card-tab-sub">
+                                → {upRes.name} ({upRes.description})
+                              </div>
                             </div>
-                          );
-                        })}
-                    </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 )}
               </div>
             )}
 
-            {/* 5. MERCHANT / BOOKSHOP */}
+            {/* 5. MERCHANT */}
             {screen === 'merchant' && shopInventory && (
               <div className="story-card">
-                <h1 className="story-title">📚 The Wandering Scribe's Bookshop (Gold: {gold}g)</h1>
+                <h2 className="story-title">
+                  Merchant ({gold} Gold) — type item name, (burn card [{shopInventory.removeServicePrice}g]), or (leave)
+                </h2>
                 {shopSubMode === 'browse' ? (
                   <>
-                    <h3>Pages for Sale (Type name to buy, "burn card" [{shopInventory.removeServicePrice}g], or "leave"):</h3>
                     <div className="reward-cards-grid">
                       {shopInventory.cards.map(({ instance, price, sold }) => {
                         const res = resolveCardInstance(instance, phraseDiff);
                         return (
                           <div
                             key={instance.instanceId}
-                            className={`reward-card-box ${sold ? 'choice-locked' : ''}`}
+                            className={`structured-card-box ${sold ? 'choice-locked' : ''}`}
                           >
-                            <div className="reward-card-top">
-                              <span>{res.cost}⚡</span>
-                              <span>💰 {sold ? 'SOLD' : `${price}g`}</span>
+                            <div className="card-art-square" />
+                            <div className="card-info-right">
+                              <div className="card-tab-header">
+                                <span className="phrase-to-type">{res.name}</span>
+                                <span className="card-cost-pill">{sold ? 'SOLD' : `${price}g`}</span>
+                              </div>
+                              <div className="card-tab-sub">{res.description}</div>
                             </div>
-                            <div className="phrase-to-type">"{res.name}"</div>
-                            <p>{res.description}</p>
                           </div>
                         );
                       })}
                     </div>
 
-                    <h3>Arcane Relics for Sale:</h3>
                     <div className="reward-cards-grid">
                       {shopInventory.relics.map(({ relic, price, sold }) => (
                         <div
                           key={relic.id}
-                          className={`reward-card-box ${sold ? 'choice-locked' : ''}`}
+                          className={`structured-card-box ${sold ? 'choice-locked' : ''}`}
                         >
-                          <div className="reward-card-top">
-                            <span>RELIC</span>
-                            <span>💰 {sold ? 'SOLD' : `${price}g`}</span>
+                          <div className="card-art-square">
+                            {relic.art.spriteUrl && <img src={relic.art.spriteUrl} alt="" />}
                           </div>
-                          <div className="phrase-to-type">"{relic.names[phraseDiff]}"</div>
-                          <p>{relic.description}</p>
+                          <div className="card-info-right">
+                            <div className="card-tab-header">
+                              <span className="phrase-to-type">{relic.names[phraseDiff]}</span>
+                              <span className="card-cost-pill">{sold ? 'SOLD' : `${price}g`}</span>
+                            </div>
+                            <div className="card-tab-sub">{relic.description}</div>
+                          </div>
                         </div>
                       ))}
                     </div>
                   </>
                 ) : (
-                  <div>
-                    <h3>Type a Card Name to Burn from Your Deck ({shopInventory.removeServicePrice}g) or type "back":</h3>
-                    <div className="reward-cards-grid">
-                      {deck.map((inst) => {
-                        const res = resolveCardInstance(inst, phraseDiff);
-                        return (
-                          <div key={inst.instanceId} className="reward-card-box">
-                            <div className="phrase-to-type">"{res.name}"</div>
-                            <p>{res.description}</p>
+                  <div className="reward-cards-grid">
+                    {deck.map((inst) => {
+                      const res = resolveCardInstance(inst, phraseDiff);
+                      return (
+                        <div key={inst.instanceId} className="structured-card-box">
+                          <div className="card-art-square" />
+                          <div className="card-info-right">
+                            <div className="phrase-to-type">{res.name}</div>
+                            <div className="card-tab-sub">{res.description}</div>
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -2393,39 +2658,40 @@ export function App() {
             {/* 6. TREASURE VAULT */}
             {screen === 'treasure' && (
               <div className="story-card">
-                <h1 className="story-title">💎 Ancient Relic Vault</h1>
-                <p className="story-paragraph">
-                  Inside the stone chest rest three humming artifacts. Type the name of <strong>1 of the 3 relics</strong> to claim it, or type <code>skip</code>:
-                </p>
+                <h2 className="story-title">Treasure Chest — Choose 1 of 3 Relics or type (skip)</h2>
                 <div className="reward-cards-grid">
                   {rewardRelics.map((rel) => (
-                    <div key={rel.id} className="reward-card-box">
-                      <div className="phrase-to-type">"{rel.names[phraseDiff]}"</div>
-                      <p>{rel.description}</p>
+                    <div key={rel.id} className="structured-card-box">
+                      <div className="card-art-square">
+                        {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
+                      </div>
+                      <div className="card-info-right">
+                        <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
+                        <div className="card-tab-sub">{rel.description}</div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* 7. MYSTERY ENCOUNTER (?) */}
+            {/* 7. MYSTERY ENCOUNTER */}
             {screen === 'mystery' && activeEvent && (
               <div className="story-card">
-                <h1 className="story-title">❓ {activeEvent.title}</h1>
+                <h2 className="story-title">{activeEvent.title}</h2>
                 <p className="story-paragraph">{activeEvent.narrative}</p>
                 {eventOutcomeText === null ? (
                   <div className="choice-list">
                     {activeEvent.choices.map((ch) => (
                       <div key={ch.id} className="choice-item">
-                        <div className="phrase-to-type">"{ch.phrases[phraseDiff]}"</div>
+                        <div className="phrase-to-type">{ch.phrases[phraseDiff]}</div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="prompt-panel">
-                    <h3>Outcome:</h3>
                     <p>{eventOutcomeText}</p>
-                    <div className="phrase-to-type">Press Enter or type "continue"</div>
+                    <div className="phrase-to-type">continue</div>
                   </div>
                 )}
               </div>
@@ -2434,91 +2700,47 @@ export function App() {
             {/* 8. END-OF-RUN TYPING & COMBAT REPORT CARD */}
             {(screen === 'game_over' || screen === 'victory') && (
               <div className="story-card report-card">
-                <h1 className="story-title">
-                  {screen === 'victory'
-                    ? '🏆 VICTORY! The Wizard’s Silence is Broken!'
-                    : '📜 Run Concluded — Typemancer Report Card'}
-                </h1>
-                <p className="story-paragraph">{combatLog}</p>
+                <h2 className="story-title">
+                  {screen === 'victory' ? 'Victory! Report Card' : 'Run Report Card'}
+                </h2>
 
                 <div className="report-columns">
                   <div className="report-box">
-                    <h3>⌨️ Typing Performance</h3>
+                    <h3>Typing Performance</h3>
                     <ul>
-                      <li>
-                        <strong>Average Typing Speed:</strong> {avgWpm} WPM
-                      </li>
-                      <li>
-                        <strong>Peak Typing Speed:</strong> {metrics.peakWpm} WPM
-                      </li>
-                      <li>
-                        <strong>Typing Accuracy:</strong> {accuracyPercent}%
-                      </li>
-                      <li>
-                        <strong>Total Characters Typed:</strong> {metrics.totalCharsTyped}
-                      </li>
-                      <li>
-                        <strong>Actions Executed:</strong> {metrics.totalActionsSubmitted}
-                      </li>
+                      <li>Average Speed: {avgWpm} WPM</li>
+                      <li>Peak Speed: {metrics.peakWpm} WPM</li>
+                      <li>Accuracy: {accuracyPercent}%</li>
+                      <li>Characters Typed: {metrics.totalCharsTyped}</li>
                     </ul>
                   </div>
 
                   <div className="report-box">
-                    <h3>⚔️ Combat & Quest Performance</h3>
+                    <h3>Game Performance</h3>
                     <ul>
-                      <li>
-                        <strong>Difficulty:</strong> {difficulty.replace('_', ' ').toUpperCase()}
-                      </li>
-                      <li>
-                        <strong>Floor Reached:</strong> {currentFloor} / 24
-                      </li>
-                      <li>
-                        <strong>Total Damage Dealt:</strong> {metrics.totalDamageDealt}
-                      </li>
-                      <li>
-                        <strong>Total Ward Gained:</strong> {metrics.totalWardGained}
-                      </li>
-                      <li>
-                        <strong>Enemies Defeated:</strong> {metrics.enemiesDefeated}
-                      </li>
-                      <li>
-                        <strong>Cards Cast:</strong> {metrics.cardsPlayed}
-                      </li>
-                      <li>
-                        <strong>Run Duration:</strong>{' '}
-                        {Math.max(1, Math.floor((Date.now() - metrics.startTimeMs) / 1000))}s
-                      </li>
+                      <li>Floor Reached: {currentFloor} / 24</li>
+                      <li>Damage Dealt: {metrics.totalDamageDealt}</li>
+                      <li>Enemies Defeated: {metrics.enemiesDefeated}</li>
+                      <li>Run Time: {Math.max(1, Math.floor((Date.now() - metrics.startTimeMs) / 1000))}s</li>
                     </ul>
                   </div>
                 </div>
 
                 <div className="save-code-box">
-                  <strong>Classroom Progress & Unlock Code:</strong>
                   <code className="save-code-string">{currentSaveCode}</code>
                 </div>
 
-                <div className="phrase-to-type">
-                  Type "new run" or "play again" and press Enter!
-                </div>
+                <div className="phrase-to-type">new run</div>
               </div>
             )}
           </main>
 
-          {/* Bottom Dedicated Typing Console */}
+          {/* Clean Bottom Typing Console (Only a blinking cursor when empty) */}
           <footer className="typing-console-box narrative-console">
-            {feedbackBanner && <div className="typing-feedback-toast">{feedbackBanner}</div>}
             <div className="typing-sentence-display">
               <span className="sentence-live-input">
-                {typedInput ? (
-                  <>
-                    {typedInput}
-                    <span className="typing-caret">▋</span>
-                  </>
-                ) : (
-                  <span className="typing-placeholder">
-                    Area for typing — type your command or phrase and press Enter...
-                  </span>
-                )}
+                {typedInput}
+                <span className="typing-caret">▋</span>
               </span>
             </div>
           </footer>
@@ -2531,36 +2753,183 @@ export function App() {
           <div className="keyboard-modal-card">
             {overlay === 'help' && (
               <>
-                <h2>⌨️ Typemancer — Universal Commands</h2>
-                <p>Everything in Typemancer is controlled by typing and pressing <code>Enter</code>:</p>
+                <h2>Commands</h2>
                 <ul className="modal-list">
-                  <li><code>back</code> / <code>return</code> / <code>cancel</code> / <code>deselect</code> — Cancel a selected card or close a menu</li>
-                  <li><code>end turn</code> — Finish your turn during battle</li>
-                  <li><code>view deck</code> — Inspect all cards currently in your deck</li>
-                  <li><code>view discard</code> / <code>view burn</code> — Inspect your discard or burned piles in battle</li>
-                  <li><code>view relics</code> — Inspect all relics you have collected</li>
-                  <li><code>options</code> — Change typewriter sound effects, confirm bells, mute, or high contrast</li>
-                  <li><code>save</code> — View or load your classroom <code>TM1-...</code> Save Code</li>
+                  <li><code>back</code> / <code>cancel</code> — Deselect card or close popup</li>
+                  <li><code>end turn</code> — Finish your turn in battle</li>
+                  <li><code>status effects</code> — View all status effect definitions (or type a status name like <code>ward</code>)</li>
+                  <li><code>[enemy name]</code> — Type an enemy's name in battle to inspect its intent and statuses</li>
+                  <li><code>[word]?</code> — Type any English word ending with <code>?</code> (e.g. <code>pavilion?</code>) to look up its definition</li>
+                  <li><code>relics</code> — View names and descriptions of your collected relics</li>
+                  <li><code>view deck</code> / <code>view discard</code> — View cards</li>
+                  <li><code>options</code> / <code>save</code> — Audio settings or Save Code</li>
                 </ul>
+              </>
+            )}
+
+            {overlay === 'status_effects' && (
+              <>
+                <h2>Status Effects</h2>
+                <div className="status-definitions-list">
+                  {STATUS_DEFINITIONS.map((st) => (
+                    <div
+                      key={st.id}
+                      className={`status-def-card ${
+                        highlightedStatusId === st.id ? 'status-def-highlighted' : ''
+                      }`}
+                    >
+                      <span className="status-pill" style={{ backgroundColor: st.color }}>
+                        {st.name}
+                      </span>
+                      <p>{st.summary}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {overlay === 'entity_inspect' && inspectedEntity && (
+              <>
+                {inspectedEntity === 'player' ? (
+                  <div>
+                    <h2>{playerName} (Player)</h2>
+                    <p>
+                      HP: {hp}/{maxHp} · Ward: {playerWard}
+                    </p>
+                    <h3>Active Status Effects:</h3>
+                    <ul className="modal-list">
+                      {playerWard > 0 && (
+                        <li>
+                          <strong>Ward ({playerWard}):</strong> Prevents {playerWard} incoming damage this turn.
+                        </li>
+                      )}
+                      {playerStatuses.bold > 0 && (
+                        <li>
+                          <strong>Bold ({playerStatuses.bold}):</strong> Attacks deal +{playerStatuses.bold} extra damage.
+                        </li>
+                      )}
+                      {playerStatuses.faded > 0 && (
+                        <li>
+                          <strong>Faded ({playerStatuses.faded}):</strong> Attacks deal 25% less damage.
+                        </li>
+                      )}
+                      {playerStatuses.exposed > 0 && (
+                        <li>
+                          <strong>Exposed ({playerStatuses.exposed}):</strong> Taking 50% more damage from attacks.
+                        </li>
+                      )}
+                      {playerStatuses.ink_burn > 0 && (
+                        <li>
+                          <strong>Ink Burn ({playerStatuses.ink_burn}):</strong> Takes {playerStatuses.ink_burn} damage at turn end.
+                        </li>
+                      )}
+                      {playerWard === 0 &&
+                        playerStatuses.bold === 0 &&
+                        playerStatuses.faded === 0 &&
+                        playerStatuses.exposed === 0 &&
+                        playerStatuses.ink_burn === 0 && <li>No active status effects.</li>}
+                    </ul>
+                  </div>
+                ) : (
+                  <div>
+                    <h2>{inspectedEntity.displayName}</h2>
+                    <p>
+                      HP: {inspectedEntity.hp}/{inspectedEntity.maxHp} · Ward: {inspectedEntity.ward}
+                    </p>
+                    <div className="entity-intent-english-box">
+                      <IntentBadge
+                        intent={inspectedEntity.currentMove.intent}
+                        damage={inspectedEntity.currentMove.damage}
+                        hits={inspectedEntity.currentMove.hits}
+                        ward={inspectedEntity.currentMove.ward}
+                        heal={inspectedEntity.currentMove.heal}
+                      />
+                      <p>
+                        <strong>
+                          {describeEnemyIntentInEnglish(inspectedEntity, playerStatuses.exposed)}
+                        </strong>
+                      </p>
+                    </div>
+                    <h3>Active Status Effects:</h3>
+                    <ul className="modal-list">
+                      {inspectedEntity.ward > 0 && (
+                        <li>
+                          <strong>Ward ({inspectedEntity.ward}):</strong> Prevents {inspectedEntity.ward} attack damage.
+                        </li>
+                      )}
+                      {inspectedEntity.statuses.bold > 0 && (
+                        <li>
+                          <strong>Bold ({inspectedEntity.statuses.bold}):</strong> Deals +{inspectedEntity.statuses.bold} attack damage.
+                        </li>
+                      )}
+                      {inspectedEntity.statuses.faded > 0 && (
+                        <li>
+                          <strong>Faded ({inspectedEntity.statuses.faded}):</strong> Deals 25% less attack damage ({inspectedEntity.statuses.faded} turns left).
+                        </li>
+                      )}
+                      {inspectedEntity.statuses.exposed > 0 && (
+                        <li>
+                          <strong>Exposed ({inspectedEntity.statuses.exposed}):</strong> Takes 50% more attack damage ({inspectedEntity.statuses.exposed} turns left).
+                        </li>
+                      )}
+                      {inspectedEntity.statuses.ink_burn > 0 && (
+                        <li>
+                          <strong>Ink Burn ({inspectedEntity.statuses.ink_burn}):</strong> Takes {inspectedEntity.statuses.ink_burn} damage at start of its turn, then decreases by 1.
+                        </li>
+                      )}
+                      {inspectedEntity.ward === 0 &&
+                        inspectedEntity.statuses.bold === 0 &&
+                        inspectedEntity.statuses.faded === 0 &&
+                        inspectedEntity.statuses.exposed === 0 &&
+                        inspectedEntity.statuses.ink_burn === 0 && <li>No active status effects.</li>}
+                    </ul>
+                  </div>
+                )}
+              </>
+            )}
+
+            {overlay === 'dictionary' && (
+              <>
+                <h2>Word Lookup: "{dictionaryQuery}"</h2>
+                {dictionaryLoading && <p>Looking up definition...</p>}
+                {!dictionaryLoading && !dictionaryData && (
+                  <p>No dictionary definition found for "{dictionaryQuery}".</p>
+                )}
+                {!dictionaryLoading && dictionaryData && (
+                  <div className="dictionary-results">
+                    {dictionaryData.phonetic && (
+                      <div className="dictionary-phonetic">{dictionaryData.phonetic}</div>
+                    )}
+                    {dictionaryData.meanings.map((m, idx) => (
+                      <div key={idx} className="dictionary-meaning-block">
+                        <strong>({m.partOfSpeech})</strong>
+                        <ul>
+                          {m.definitions.map((d, dIdx) => (
+                            <li key={dIdx}>{d.definition}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </>
             )}
 
             {overlay === 'options' && (
               <>
-                <h2>⚙️ Audio & Classroom Options</h2>
-                <p>Type any option command below and press <code>Enter</code>:</p>
+                <h2>Options</h2>
                 <ul className="modal-list">
                   <li>
-                    <strong>Audio Status:</strong> {settings.muted ? '🔇 Muted' : '🔊 Active'} — Type <code>mute</code> or <code>unmute</code>
+                    Audio ({settings.muted ? 'Muted' : 'On'}): type <code>mute</code> or <code>unmute</code>
                   </li>
                   <li>
-                    <strong>Typing Keystroke Sound ({settings.typingSound}):</strong> Type <code>typewriter</code>, <code>telegraph</code>, <code>quill</code>, or <code>chalk</code>
+                    Typing Sound ({settings.typingSound}): type <code>typewriter</code>, <code>telegraph</code>, <code>quill</code>, or <code>chalk</code>
                   </li>
                   <li>
-                    <strong>Confirm Enter Sound ({settings.confirmSound}):</strong> Type <code>bell</code>, <code>chime</code>, or <code>stamp</code>
+                    Confirm Sound ({settings.confirmSound}): type <code>bell</code>, <code>chime</code>, or <code>stamp</code>
                   </li>
                   <li>
-                    <strong>High Contrast Mode ({settings.highContrast ? 'ON' : 'OFF'}):</strong> Type <code>contrast</code>
+                    High Contrast ({settings.highContrast ? 'On' : 'Off'}): type <code>contrast</code>
                   </li>
                 </ul>
               </>
@@ -2568,14 +2937,14 @@ export function App() {
 
             {overlay === 'deck' && (
               <>
-                <h2>🃏 Your Deck ({deck.length} Cards)</h2>
+                <h2>Deck ({deck.length})</h2>
                 <div className="modal-grid">
                   {deck.map((inst) => {
                     const res = resolveCardInstance(inst, phraseDiff);
                     return (
                       <div key={inst.instanceId} className="modal-item-chip">
                         <strong>
-                          [{res.cost}⚡] {res.name}
+                          [{res.cost}] {res.name}
                         </strong>
                         <div>{res.description}</div>
                       </div>
@@ -2587,7 +2956,7 @@ export function App() {
 
             {overlay === 'discard' && (
               <>
-                <h2>♻️ Discard Pile ({discardPile.length} Cards)</h2>
+                <h2>Discard Pile ({discardPile.length})</h2>
                 <div className="modal-grid">
                   {discardPile.map((inst) => {
                     const res = resolveCardInstance(inst, phraseDiff);
@@ -2603,7 +2972,7 @@ export function App() {
 
             {overlay === 'burn_draft' && (
               <>
-                <h2>🔥 Burned Drafts ({burnDraftPile.length} Cards)</h2>
+                <h2>Burned Drafts ({burnDraftPile.length})</h2>
                 <div className="modal-grid">
                   {burnDraftPile.map((inst) => {
                     const res = resolveCardInstance(inst, phraseDiff);
@@ -2619,15 +2988,20 @@ export function App() {
 
             {overlay === 'relics' && (
               <>
-                <h2>🏺 Collected Relics ({relicIds.length})</h2>
+                <h2>Relics ({relicIds.length})</h2>
                 <div className="modal-grid">
-                  {relicIds.map((rId) => {
+                  {relicIds.map((rId, idx) => {
                     const rel = getRelicDefinition(rId);
                     if (!rel) return null;
                     return (
-                      <div key={rId} className="modal-item-chip">
-                        <strong>{rel.names[phraseDiff]}</strong>
-                        <div>{rel.description}</div>
+                      <div key={`${rId}_${idx}`} className="modal-item-chip relic-modal-item">
+                        {rel.art.spriteUrl && (
+                          <img src={rel.art.spriteUrl} alt="" className="relic-modal-img" />
+                        )}
+                        <div>
+                          <strong>{rel.names[phraseDiff]}</strong>
+                          <div>{rel.description}</div>
+                        </div>
                       </div>
                     );
                   })}
@@ -2637,8 +3011,7 @@ export function App() {
 
             {overlay === 'save' && (
               <>
-                <h2>💾 Classroom Save Code</h2>
-                <p>Copy or write down this code to resume your run on any school computer, or paste a <code>TM1-...</code> code below and press <code>Enter</code>:</p>
+                <h2>Save Code</h2>
                 <div className="save-code-box">
                   <code className="save-code-string">{currentSaveCode}</code>
                 </div>
@@ -2646,7 +3019,7 @@ export function App() {
             )}
 
             <div className="modal-footer-prompt">
-              Type <strong>"back"</strong> (or press <code>Enter</code> on empty input) to return:{' '}
+              type (back){' '}
               <span className="sentence-live-input">
                 {typedInput}
                 <span className="typing-caret">▋</span>
