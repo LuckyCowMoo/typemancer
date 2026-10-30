@@ -4,12 +4,30 @@
     "faction": "goblins",
     "role": "glass_cannon",
     "tier": 1,
-    "minHp": 22,
-    "maxHp": 28,
+    "minHp": 18,
+    "maxHp": 24,
     "namePools": {
-      "easy": ["goblin fighter", "goblin scout", "goblin rogue", "goblin raider"],
-      "medium": ["goblin skirmisher", "goblin cutthroat", "goblin ambusher", "goblin prowler"],
-      "hard": ["vicious goblin skirmisher", "cunning goblin cutthroat", "nimble goblin ambusher", "reckless goblin raider"]
+      "easy": [
+        "goblin skirmisher",
+        "goblin scout",
+        "goblin raider",
+        "goblin stabber",
+        "goblin runner"
+      ],
+      "medium": [
+        "sneaky goblin skirmisher",
+        "vicious goblin scout",
+        "fast goblin raider",
+        "cruel goblin stabber",
+        "agile goblin runner"
+      ],
+      "hard": [
+        "the deadly goblin skirmisher",
+        "the ruthless goblin scout",
+        "the unseen goblin raider",
+        "the wicked goblin stabber",
+        "the fleet goblin runner"
+      ]
     },
     "art": {
       "primaryColor": "#6a1b5d",
@@ -18,100 +36,1391 @@
     },
     "moves": [
       {
-        "id": "quick_slash",
-        "name": "Quick Slash",
+        "id": "stab",
+        "name": "Quick Stab",
         "intent": "attack",
-        "weight": 60,
-        "damage": 7
+        "weight": 70,
+        "damage": 6
       },
       {
-        "id": "twin_daggers",
-        "name": "Twin Daggers",
+        "id": "flurry",
+        "name": "Flurry",
         "intent": "multi_attack",
-        "weight": 40,
-        "damage": 4,
+        "weight": 30,
+        "damage": 3,
         "hits": 2
       }
     ]
   },
   {
-    "id": "goblin_medic",
+    "id": "goblin_archer",
     "faction": "goblins",
-    "role": "support",
+    "role": "glass_cannon",
     "tier": 1,
-    "minHp": 24,
-    "maxHp": 30,
+    "minHp": 15,
+    "maxHp": 20,
     "namePools": {
-      "easy": ["goblin medic", "goblin healer", "goblin shaman", "goblin herbalist"],
-      "medium": ["goblin field medic", "goblin stitcher", "goblin brewmaster", "goblin mender"],
-      "hard": ["frantic goblin field medic", "cackling goblin apothecary", "chanting goblin witchdoctor", "crafty goblin herbalist"]
+      "easy": [
+        "goblin archer",
+        "goblin sniper",
+        "goblin bowman",
+        "goblin shooter",
+        "goblin slinger"
+      ],
+      "medium": [
+        "keen goblin archer",
+        "hidden goblin sniper",
+        "nimble goblin bowman",
+        "quick goblin shooter",
+        "sneaky goblin slinger"
+      ],
+      "hard": [
+        "the eagle eyed goblin archer",
+        "the lethal goblin sniper",
+        "the swift goblin bowman",
+        "the precise goblin shooter",
+        "the venomous goblin slinger"
+      ]
     },
     "art": {
-      "primaryColor": "#d864c9",
-      "secondaryColor": "#f48fb1",
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
       "shape": "capsule"
     },
     "moves": [
       {
-        "id": "patch_up",
-        "name": "Patch Up Allies",
-        "intent": "heal",
-        "weight": 50,
-        "heal": 6
+        "id": "shoot",
+        "name": "Shoot",
+        "intent": "attack",
+        "weight": 60,
+        "damage": 7
       },
       {
-        "id": "war_chant",
-        "name": "War Chant",
+        "id": "multishot",
+        "name": "Multi Shot",
+        "intent": "multi_attack",
+        "weight": 40,
+        "damage": 2,
+        "hits": 3
+      }
+    ]
+  },
+  {
+    "id": "goblin_drummer",
+    "faction": "goblins",
+    "role": "support",
+    "tier": 1,
+    "minHp": 20,
+    "maxHp": 28,
+    "namePools": {
+      "easy": [
+        "goblin drummer",
+        "goblin bard",
+        "goblin chanter",
+        "goblin yeller",
+        "goblin noisemaker"
+      ],
+      "medium": [
+        "loud goblin drummer",
+        "frenzied goblin bard",
+        "wild goblin chanter",
+        "screaming goblin yeller",
+        "annoying goblin noisemaker"
+      ],
+      "hard": [
+        "the deafening goblin drummer",
+        "the inspiring goblin bard",
+        "the mad goblin chanter",
+        "the crazed goblin yeller",
+        "the chaotic goblin noisemaker"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "drum",
+        "name": "War Drum",
         "intent": "buff",
-        "weight": 30,
+        "weight": 60,
         "statusEffects": [
-          { "status": "bold", "amount": 2, "target": "all_allies" }
+          {
+            "status": "bold",
+            "amount": 1,
+            "target": "all_allies"
+          }
         ]
       },
       {
-        "id": "syringe_poke",
-        "name": "Rusty Poke",
-        "intent": "attack_debuff",
-        "weight": 20,
-        "damage": 5,
+        "id": "bash",
+        "name": "Drum Bash",
+        "intent": "attack",
+        "weight": 40,
+        "damage": 5
+      }
+    ]
+  },
+  {
+    "id": "goblin_brute",
+    "faction": "goblins",
+    "role": "balanced",
+    "tier": 2,
+    "minHp": 35,
+    "maxHp": 45,
+    "namePools": {
+      "easy": [
+        "goblin brute",
+        "goblin basher",
+        "goblin smasher",
+        "goblin thug",
+        "goblin heavy"
+      ],
+      "medium": [
+        "angry goblin brute",
+        "hulking goblin basher",
+        "fierce goblin smasher",
+        "mean goblin thug",
+        "tough goblin heavy"
+      ],
+      "hard": [
+        "the monstrous goblin brute",
+        "the unstoppable goblin basher",
+        "the brutal goblin smasher",
+        "the violent goblin thug",
+        "the towering goblin heavy"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "smash",
+        "name": "Smash",
+        "intent": "attack",
+        "weight": 60,
+        "damage": 10
+      },
+      {
+        "id": "wild_swings",
+        "name": "Wild Swings",
+        "intent": "multi_attack",
+        "weight": 40,
+        "damage": 4,
+        "hits": 3
+      }
+    ]
+  },
+  {
+    "id": "goblin_shaman",
+    "faction": "goblins",
+    "role": "support",
+    "tier": 2,
+    "minHp": 30,
+    "maxHp": 40,
+    "namePools": {
+      "easy": [
+        "goblin shaman",
+        "goblin mystic",
+        "goblin hexer",
+        "goblin curser",
+        "goblin witch"
+      ],
+      "medium": [
+        "dark goblin shaman",
+        "weird goblin mystic",
+        "foul goblin hexer",
+        "spiteful goblin curser",
+        "creepy goblin witch"
+      ],
+      "hard": [
+        "the grand goblin shaman",
+        "the elder goblin mystic",
+        "the dreaded goblin hexer",
+        "the vile goblin curser",
+        "the sinister goblin witch"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "curse",
+        "name": "Curse",
+        "intent": "debuff",
+        "weight": 50,
         "statusEffects": [
-          { "status": "faded", "amount": 1, "target": "player" }
+          {
+            "status": "exposed",
+            "amount": 1,
+            "target": "player"
+          }
+        ]
+      },
+      {
+        "id": "heal",
+        "name": "Herbal Brew",
+        "intent": "heal",
+        "weight": 50,
+        "heal": 10
+      }
+    ]
+  },
+  {
+    "id": "goblin_assassin",
+    "faction": "goblins",
+    "role": "elite",
+    "tier": 3,
+    "minHp": 60,
+    "maxHp": 75,
+    "namePools": {
+      "easy": [
+        "goblin assassin",
+        "goblin ninja",
+        "goblin slayer",
+        "goblin butcher",
+        "goblin executioner"
+      ],
+      "medium": [
+        "shadow goblin assassin",
+        "silent goblin ninja",
+        "lethal goblin slayer",
+        "bloody goblin butcher",
+        "grim goblin executioner"
+      ],
+      "hard": [
+        "the master goblin assassin",
+        "the unseen goblin ninja",
+        "the flawless goblin slayer",
+        "the sadistic goblin butcher",
+        "the supreme goblin executioner"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "assassinate",
+        "name": "Assassinate",
+        "intent": "attack",
+        "weight": 40,
+        "damage": 15
+      },
+      {
+        "id": "flurry",
+        "name": "Thousand Cuts",
+        "intent": "multi_attack",
+        "weight": 60,
+        "damage": 4,
+        "hits": 4
+      }
+    ]
+  },
+  {
+    "id": "goblin_warlord",
+    "faction": "goblins",
+    "role": "elite",
+    "tier": 3,
+    "minHp": 80,
+    "maxHp": 100,
+    "namePools": {
+      "easy": [
+        "goblin warlord",
+        "goblin chieftain",
+        "goblin boss",
+        "goblin general",
+        "goblin king"
+      ],
+      "medium": [
+        "mighty goblin warlord",
+        "iron goblin chieftain",
+        "cruel goblin boss",
+        "clever goblin general",
+        "fat goblin king"
+      ],
+      "hard": [
+        "the supreme goblin warlord",
+        "the eternal goblin chieftain",
+        "the tyrannical goblin boss",
+        "the brilliant goblin general",
+        "the undisputed goblin king"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "command",
+        "name": "Command",
+        "intent": "buff",
+        "weight": 50,
+        "statusEffects": [
+          {
+            "status": "bold",
+            "amount": 2,
+            "target": "all_allies"
+          }
+        ]
+      },
+      {
+        "id": "heavy_strike",
+        "name": "Heavy Strike",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 12
+      }
+    ]
+  },
+  {
+    "id": "rock_pebble",
+    "faction": "rock_monsters",
+    "role": "tank",
+    "tier": 1,
+    "minHp": 30,
+    "maxHp": 40,
+    "namePools": {
+      "easy": [
+        "rock pebble",
+        "stone chip",
+        "gravel bit",
+        "little rock",
+        "boulder piece"
+      ],
+      "medium": [
+        "hard rock pebble",
+        "sharp stone chip",
+        "rough gravel bit",
+        "solid little rock",
+        "dense boulder piece"
+      ],
+      "hard": [
+        "the jagged rock pebble",
+        "the unbreakable stone chip",
+        "the ancient gravel bit",
+        "the sturdy little rock",
+        "the compact boulder piece"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "tackle",
+        "name": "Tackle",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 5
+      },
+      {
+        "id": "harden",
+        "name": "Harden",
+        "intent": "defend",
+        "weight": 50,
+        "ward": 6
+      }
+    ]
+  },
+  {
+    "id": "rock_roller",
+    "faction": "rock_monsters",
+    "role": "balanced",
+    "tier": 1,
+    "minHp": 25,
+    "maxHp": 35,
+    "namePools": {
+      "easy": [
+        "rock roller",
+        "rolling stone",
+        "stone wheel",
+        "tumbling rock",
+        "rock sphere"
+      ],
+      "medium": [
+        "fast rock roller",
+        "spinning stone",
+        "crushing stone wheel",
+        "heavy tumbling rock",
+        "smooth rock sphere"
+      ],
+      "hard": [
+        "the unstoppable rock roller",
+        "the dizzying rolling stone",
+        "the grinding stone wheel",
+        "the relentless tumbling rock",
+        "the perfect rock sphere"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "roll",
+        "name": "Roll Over",
+        "intent": "attack",
+        "weight": 60,
+        "damage": 8
+      },
+      {
+        "id": "bump",
+        "name": "Bump",
+        "intent": "attack_defend",
+        "weight": 40,
+        "damage": 4,
+        "ward": 4
+      }
+    ]
+  },
+  {
+    "id": "rock_shield",
+    "faction": "rock_monsters",
+    "role": "tank",
+    "tier": 1,
+    "minHp": 35,
+    "maxHp": 45,
+    "namePools": {
+      "easy": [
+        "rock shield",
+        "stone wall",
+        "gravel guard",
+        "rock barrier",
+        "stone barricade"
+      ],
+      "medium": [
+        "thick rock shield",
+        "sturdy stone wall",
+        "heavy gravel guard",
+        "solid rock barrier",
+        "immovable stone barricade"
+      ],
+      "hard": [
+        "the impenetrable rock shield",
+        "the towering stone wall",
+        "the absolute gravel guard",
+        "the flawless rock barrier",
+        "the eternal stone barricade"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "guard",
+        "name": "Guard",
+        "intent": "defend",
+        "weight": 70,
+        "ward": 8
+      },
+      {
+        "id": "slam",
+        "name": "Shield Slam",
+        "intent": "attack",
+        "weight": 30,
+        "damage": 6
+      }
+    ]
+  },
+  {
+    "id": "rock_crusher",
+    "faction": "rock_monsters",
+    "role": "tank",
+    "tier": 2,
+    "minHp": 60,
+    "maxHp": 80,
+    "namePools": {
+      "easy": [
+        "rock crusher",
+        "stone breaker",
+        "boulder smasher",
+        "gravel grinder",
+        "stone hammer"
+      ],
+      "medium": [
+        "heavy rock crusher",
+        "brutal stone breaker",
+        "huge boulder smasher",
+        "loud gravel grinder",
+        "massive stone hammer"
+      ],
+      "hard": [
+        "the titanic rock crusher",
+        "the devastating stone breaker",
+        "the unstoppable boulder smasher",
+        "the deafening gravel grinder",
+        "the crushing stone hammer"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "crush",
+        "name": "Crush",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 14
+      },
+      {
+        "id": "brace",
+        "name": "Brace",
+        "intent": "defend",
+        "weight": 50,
+        "ward": 12
+      }
+    ]
+  },
+  {
+    "id": "rock_golem",
+    "faction": "rock_monsters",
+    "role": "tank",
+    "tier": 2,
+    "minHp": 70,
+    "maxHp": 90,
+    "namePools": {
+      "easy": [
+        "rock golem",
+        "stone giant",
+        "boulder fiend",
+        "granite golem",
+        "slate monster"
+      ],
+      "medium": [
+        "ancient rock golem",
+        "sturdy stone giant",
+        "angry boulder fiend",
+        "hard granite golem",
+        "tough slate monster"
+      ],
+      "hard": [
+        "the primordial rock golem",
+        "the colossal stone giant",
+        "the raging boulder fiend",
+        "the unbreakable granite golem",
+        "the immovable slate monster"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "pound",
+        "name": "Pound",
+        "intent": "attack_defend",
+        "weight": 60,
+        "damage": 8,
+        "ward": 8
+      },
+      {
+        "id": "quake",
+        "name": "Earthquake",
+        "intent": "attack",
+        "weight": 40,
+        "damage": 12
+      }
+    ]
+  },
+  {
+    "id": "rock_titan",
+    "faction": "rock_monsters",
+    "role": "elite",
+    "tier": 3,
+    "minHp": 120,
+    "maxHp": 150,
+    "namePools": {
+      "easy": [
+        "rock titan",
+        "stone colossus",
+        "mountain breaker",
+        "earth shaker",
+        "boulder behemoth"
+      ],
+      "medium": [
+        "massive rock titan",
+        "towering stone colossus",
+        "furious mountain breaker",
+        "violent earth shaker",
+        "huge boulder behemoth"
+      ],
+      "hard": [
+        "the legendary rock titan",
+        "the mythic stone colossus",
+        "the cataclysmic mountain breaker",
+        "the world earth shaker",
+        "the titanic boulder behemoth"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "megaslam",
+        "name": "Mega Slam",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 20
+      },
+      {
+        "id": "fortify",
+        "name": "Fortify",
+        "intent": "defend",
+        "weight": 50,
+        "ward": 20
+      }
+    ]
+  },
+  {
+    "id": "rock_elemental",
+    "faction": "rock_monsters",
+    "role": "elite",
+    "tier": 3,
+    "minHp": 100,
+    "maxHp": 130,
+    "namePools": {
+      "easy": [
+        "rock elemental",
+        "earth elemental",
+        "stone spirit",
+        "granite soul",
+        "obsidian essence"
+      ],
+      "medium": [
+        "pure rock elemental",
+        "raging earth elemental",
+        "ancient stone spirit",
+        "living granite soul",
+        "dark obsidian essence"
+      ],
+      "hard": [
+        "the pristine rock elemental",
+        "the unchained earth elemental",
+        "the transcendent stone spirit",
+        "the awakened granite soul",
+        "the void obsidian essence"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "rock_throw",
+        "name": "Boulder Throw",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 18
+      },
+      {
+        "id": "harden_core",
+        "name": "Harden Core",
+        "intent": "defend",
+        "weight": 50,
+        "ward": 15
+      }
+    ]
+  },
+  {
+    "id": "evil_weed",
+    "faction": "evil_plants",
+    "role": "support",
+    "tier": 1,
+    "minHp": 20,
+    "maxHp": 28,
+    "namePools": {
+      "easy": [
+        "evil weed",
+        "bad plant",
+        "nasty sprout",
+        "thorny vine",
+        "toxic root"
+      ],
+      "medium": [
+        "creeping evil weed",
+        "vile bad plant",
+        "spiteful nasty sprout",
+        "sharp thorny vine",
+        "bitter toxic root"
+      ],
+      "hard": [
+        "the overgrowing evil weed",
+        "the corrupted bad plant",
+        "the malignant nasty sprout",
+        "the strangling thorny vine",
+        "the venomous toxic root"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "sap",
+        "name": "Sap",
+        "intent": "debuff",
+        "weight": 50,
+        "statusEffects": [
+          {
+            "status": "faded",
+            "amount": 1,
+            "target": "player"
+          }
+        ]
+      },
+      {
+        "id": "whip",
+        "name": "Vine Whip",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 5
+      }
+    ]
+  },
+  {
+    "id": "evil_spore",
+    "faction": "evil_plants",
+    "role": "glass_cannon",
+    "tier": 1,
+    "minHp": 15,
+    "maxHp": 20,
+    "namePools": {
+      "easy": [
+        "evil spore",
+        "toxic mushroom",
+        "bad fungus",
+        "poison cap",
+        "nasty puffball"
+      ],
+      "medium": [
+        "floating evil spore",
+        "lethal toxic mushroom",
+        "foul bad fungus",
+        "deadly poison cap",
+        "stinking nasty puffball"
+      ],
+      "hard": [
+        "the infectious evil spore",
+        "the hallucinogenic toxic mushroom",
+        "the rot bad fungus",
+        "the fatal poison cap",
+        "the explosive nasty puffball"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "ink_puff",
+        "name": "Ink Puff",
+        "intent": "debuff",
+        "weight": 60,
+        "statusEffects": [
+          {
+            "status": "ink_burn",
+            "amount": 2,
+            "target": "player"
+          }
+        ]
+      },
+      {
+        "id": "bump",
+        "name": "Spore Bump",
+        "intent": "attack",
+        "weight": 40,
+        "damage": 4
+      }
+    ]
+  },
+  {
+    "id": "evil_flower",
+    "faction": "evil_plants",
+    "role": "support",
+    "tier": 1,
+    "minHp": 25,
+    "maxHp": 32,
+    "namePools": {
+      "easy": [
+        "evil flower",
+        "bad blossom",
+        "nasty bloom",
+        "toxic petal",
+        "foul rose"
+      ],
+      "medium": [
+        "alluring evil flower",
+        "deceptive bad blossom",
+        "stinging nasty bloom",
+        "bright toxic petal",
+        "thorny foul rose"
+      ],
+      "hard": [
+        "the mesmerizing evil flower",
+        "the treacherous bad blossom",
+        "the consuming nasty bloom",
+        "the blinding toxic petal",
+        "the blood foul rose"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "photosynthesis",
+        "name": "Photosynthesis",
+        "intent": "heal",
+        "weight": 50,
+        "heal": 5
+      },
+      {
+        "id": "pollen",
+        "name": "Pollen",
+        "intent": "debuff",
+        "weight": 50,
+        "statusEffects": [
+          {
+            "status": "exposed",
+            "amount": 1,
+            "target": "player"
+          }
         ]
       }
     ]
   },
   {
-    "id": "goblin_captain",
-    "faction": "goblins",
+    "id": "evil_tree",
+    "faction": "evil_plants",
     "role": "tank",
     "tier": 2,
-    "minHp": 40,
-    "maxHp": 48,
+    "minHp": 50,
+    "maxHp": 70,
     "namePools": {
-      "easy": ["goblin captain", "goblin brute", "goblin chief", "goblin guard"],
-      "medium": ["goblin berserker", "goblin barbarian", "goblin commissar", "goblin enforcer"],
-      "hard": ["the goblin commissar", "the raging goblin berserker", "the ruthless goblin barbarian", "the ironclad goblin warlord"]
+      "easy": [
+        "evil tree",
+        "bad oak",
+        "nasty pine",
+        "foul wood",
+        "corrupt timber"
+      ],
+      "medium": [
+        "gnarled evil tree",
+        "twisted bad oak",
+        "dark nasty pine",
+        "rotten foul wood",
+        "haunted corrupt timber"
+      ],
+      "hard": [
+        "the ancient evil tree",
+        "the shadow bad oak",
+        "the cursed nasty pine",
+        "the dead foul wood",
+        "the weeping corrupt timber"
+      ]
     },
     "art": {
-      "primaryColor": "#4a1238",
-      "secondaryColor": "#880e4f",
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
       "shape": "capsule"
     },
     "moves": [
       {
-        "id": "cleave",
-        "name": "Heavy Cleave",
+        "id": "branch_slam",
+        "name": "Branch Slam",
+        "intent": "attack",
+        "weight": 60,
+        "damage": 12
+      },
+      {
+        "id": "root",
+        "name": "Take Root",
+        "intent": "heal",
+        "weight": 40,
+        "heal": 10
+      }
+    ]
+  },
+  {
+    "id": "evil_flytrap",
+    "faction": "evil_plants",
+    "role": "balanced",
+    "tier": 2,
+    "minHp": 45,
+    "maxHp": 60,
+    "namePools": {
+      "easy": [
+        "evil flytrap",
+        "bad snapper",
+        "nasty jaw",
+        "foul biter",
+        "toxic maw"
+      ],
+      "medium": [
+        "hungry evil flytrap",
+        "drooling bad snapper",
+        "vicious nasty jaw",
+        "snapping foul biter",
+        "acidic toxic maw"
+      ],
+      "hard": [
+        "the ravenous evil flytrap",
+        "the devouring bad snapper",
+        "the inescapable nasty jaw",
+        "the crushing foul biter",
+        "the dissolving toxic maw"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "bite",
+        "name": "Bite",
         "intent": "attack",
         "weight": 50,
         "damage": 10
       },
       {
-        "id": "shield_order",
-        "name": "Rallying Guard",
-        "intent": "attack_defend",
+        "id": "acid",
+        "name": "Acid Spit",
+        "intent": "attack_debuff",
         "weight": 50,
+        "damage": 5,
+        "statusEffects": [
+          {
+            "status": "ink_burn",
+            "amount": 3,
+            "target": "player"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "evil_treant",
+    "faction": "evil_plants",
+    "role": "elite",
+    "tier": 3,
+    "minHp": 100,
+    "maxHp": 130,
+    "namePools": {
+      "easy": [
+        "evil treant",
+        "bad forest",
+        "nasty grove",
+        "foul thicket",
+        "toxic jungle"
+      ],
+      "medium": [
+        "towering evil treant",
+        "creeping bad forest",
+        "living nasty grove",
+        "dense foul thicket",
+        "wild toxic jungle"
+      ],
+      "hard": [
+        "the colossal evil treant",
+        "the consuming bad forest",
+        "the swallowing nasty grove",
+        "the endless foul thicket",
+        "the suffocating toxic jungle"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "uproot",
+        "name": "Uproot",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 16
+      },
+      {
+        "id": "spores",
+        "name": "Toxic Spores",
+        "intent": "debuff",
+        "weight": 50,
+        "statusEffects": [
+          {
+            "status": "ink_burn",
+            "amount": 4,
+            "target": "player"
+          },
+          {
+            "status": "faded",
+            "amount": 1,
+            "target": "player"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "evil_mandragora",
+    "faction": "evil_plants",
+    "role": "elite",
+    "tier": 3,
+    "minHp": 90,
+    "maxHp": 110,
+    "namePools": {
+      "easy": [
+        "evil mandragora",
+        "bad root",
+        "nasty tuber",
+        "foul bulb",
+        "toxic seed"
+      ],
+      "medium": [
+        "screaming evil mandragora",
+        "wailing bad root",
+        "crying nasty tuber",
+        "shrieking foul bulb",
+        "howling toxic seed"
+      ],
+      "hard": [
+        "the deafening evil mandragora",
+        "the maddening bad root",
+        "the torturous nasty tuber",
+        "the agonizing foul bulb",
+        "the despairing toxic seed"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "scream",
+        "name": "Scream",
+        "intent": "attack_debuff",
+        "weight": 60,
+        "damage": 10,
+        "statusEffects": [
+          {
+            "status": "exposed",
+            "amount": 2,
+            "target": "player"
+          }
+        ]
+      },
+      {
+        "id": "leech",
+        "name": "Leech Life",
+        "intent": "attack",
+        "weight": 40,
+        "damage": 8
+      }
+    ]
+  },
+  {
+    "id": "boss_goblin_king",
+    "faction": "boss",
+    "role": "boss",
+    "tier": 4,
+    "minHp": 200,
+    "maxHp": 250,
+    "namePools": {
+      "easy": [
+        "goblin king",
+        "goblin emperor",
+        "goblin overload",
+        "goblin dictator",
+        "goblin tyrant"
+      ],
+      "medium": [
+        "greedy goblin king",
+        "cruel goblin emperor",
+        "fat goblin overload",
+        "mad goblin dictator",
+        "ruthless goblin tyrant"
+      ],
+      "hard": [
+        "the golden goblin king",
+        "the supreme goblin emperor",
+        "the eternal goblin overload",
+        "the absolute goblin dictator",
+        "the undying goblin tyrant"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "royal_slash",
+        "name": "Royal Slash",
+        "intent": "attack",
+        "weight": 40,
+        "damage": 20
+      },
+      {
+        "id": "summon",
+        "name": "Call Guards",
+        "intent": "buff",
+        "weight": 30,
+        "statusEffects": [
+          {
+            "status": "bold",
+            "amount": 2,
+            "target": "all_allies"
+          }
+        ]
+      },
+      {
+        "id": "tantrum",
+        "name": "Tantrum",
+        "intent": "multi_attack",
+        "weight": 30,
         "damage": 6,
-        "ward": 7
+        "hits": 4
+      }
+    ]
+  },
+  {
+    "id": "boss_rock_mountain",
+    "faction": "boss",
+    "role": "boss",
+    "tier": 4,
+    "minHp": 300,
+    "maxHp": 350,
+    "namePools": {
+      "easy": [
+        "living mountain",
+        "stone peak",
+        "rock summit",
+        "granite apex",
+        "boulder zenith"
+      ],
+      "medium": [
+        "angry living mountain",
+        "trembling stone peak",
+        "shaking rock summit",
+        "rumbling granite apex",
+        "cracking boulder zenith"
+      ],
+      "hard": [
+        "the eternal living mountain",
+        "the soaring stone peak",
+        "the towering rock summit",
+        "the majestic granite apex",
+        "the absolute boulder zenith"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "avalanche",
+        "name": "Avalanche",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 25
+      },
+      {
+        "id": "stone_skin",
+        "name": "Stone Skin",
+        "intent": "defend",
+        "weight": 50,
+        "ward": 30
+      }
+    ]
+  },
+  {
+    "id": "boss_evil_world_tree",
+    "faction": "boss",
+    "role": "boss",
+    "tier": 4,
+    "minHp": 250,
+    "maxHp": 300,
+    "namePools": {
+      "easy": [
+        "world tree",
+        "life tree",
+        "soul tree",
+        "spirit tree",
+        "ancient tree"
+      ],
+      "medium": [
+        "corrupt world tree",
+        "dark life tree",
+        "foul soul tree",
+        "twisted spirit tree",
+        "rotten ancient tree"
+      ],
+      "hard": [
+        "the malignant world tree",
+        "the dying life tree",
+        "the screaming soul tree",
+        "the bleeding spirit tree",
+        "the damned ancient tree"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "nature_wrath",
+        "name": "Nature's Wrath",
+        "intent": "attack",
+        "weight": 40,
+        "damage": 22
+      },
+      {
+        "id": "toxic_bloom",
+        "name": "Toxic Bloom",
+        "intent": "debuff",
+        "weight": 30,
+        "statusEffects": [
+          {
+            "status": "ink_burn",
+            "amount": 5,
+            "target": "player"
+          },
+          {
+            "status": "faded",
+            "amount": 2,
+            "target": "player"
+          }
+        ]
+      },
+      {
+        "id": "siphon",
+        "name": "Siphon",
+        "intent": "heal",
+        "weight": 30,
+        "heal": 20
+      }
+    ]
+  },
+  {
+    "id": "the_evil_wizard",
+    "faction": "boss",
+    "role": "boss",
+    "tier": 4,
+    "minHp": 400,
+    "maxHp": 500,
+    "namePools": {
+      "easy": [
+        "the evil wizard",
+        "the dark mage",
+        "the wicked sorcerer",
+        "the foul warlock",
+        "the vile necromancer"
+      ],
+      "medium": [
+        "the terrifying evil wizard",
+        "the supreme dark mage",
+        "the ultimate wicked sorcerer",
+        "the mad foul warlock",
+        "the grand vile necromancer"
+      ],
+      "hard": [
+        "the all powerful evil wizard",
+        "the absolute dark mage",
+        "the cosmic wicked sorcerer",
+        "the chaotic foul warlock",
+        "the immortal vile necromancer"
+      ]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "doom_bolt",
+        "name": "Doom Bolt",
+        "intent": "attack",
+        "weight": 30,
+        "damage": 30
+      },
+      {
+        "id": "curse_of_weakness",
+        "name": "Curse of Weakness",
+        "intent": "debuff",
+        "weight": 25,
+        "statusEffects": [
+          {
+            "status": "faded",
+            "amount": 3,
+            "target": "player"
+          },
+          {
+            "status": "exposed",
+            "amount": 3,
+            "target": "player"
+          }
+        ]
+      },
+      {
+        "id": "magic_shield",
+        "name": "Magic Shield",
+        "intent": "defend",
+        "weight": 25,
+        "ward": 40
+      },
+      {
+        "id": "meteor_swarm",
+        "name": "Meteor Swarm",
+        "intent": "multi_attack",
+        "weight": 20,
+        "damage": 10,
+        "hits": 4
       }
     ]
   }

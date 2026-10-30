@@ -17,7 +17,10 @@
     },
     "description": "Deal 6 damage.",
     "effects": [
-      { "type": "damage", "amount": 6 }
+      {
+        "type": "damage",
+        "amount": 6
+      }
     ],
     "art": {
       "primaryColor": "#c85a32",
@@ -32,7 +35,10 @@
       },
       "description": "Deal 9 damage.",
       "effects": [
-        { "type": "damage", "amount": 9 }
+        {
+          "type": "damage",
+          "amount": 9
+        }
       ]
     }
   },
@@ -54,7 +60,10 @@
     },
     "description": "Gain 5 Ward.",
     "effects": [
-      { "type": "ward", "amount": 5 }
+      {
+        "type": "ward",
+        "amount": 5
+      }
     ],
     "art": {
       "primaryColor": "#1d5c78",
@@ -69,7 +78,10 @@
       },
       "description": "Gain 8 Ward.",
       "effects": [
-        { "type": "ward", "amount": 8 }
+        {
+          "type": "ward",
+          "amount": 8
+        }
       ]
     }
   },
@@ -91,8 +103,14 @@
     },
     "description": "Deal 8 damage and apply 2 Exposed.",
     "effects": [
-      { "type": "damage", "amount": 8 },
-      { "type": "exposed", "amount": 2 }
+      {
+        "type": "damage",
+        "amount": 8
+      },
+      {
+        "type": "exposed",
+        "amount": 2
+      }
     ],
     "art": {
       "primaryColor": "#b54823",
@@ -107,8 +125,14 @@
       },
       "description": "Deal 11 damage and apply 3 Exposed.",
       "effects": [
-        { "type": "damage", "amount": 11 },
-        { "type": "exposed", "amount": 3 }
+        {
+          "type": "damage",
+          "amount": 11
+        },
+        {
+          "type": "exposed",
+          "amount": 3
+        }
       ]
     }
   },
@@ -130,8 +154,14 @@
     },
     "description": "Apply 2 Faded and 3 Ink Burn.",
     "effects": [
-      { "type": "faded", "amount": 2 },
-      { "type": "ink_burn", "amount": 3 }
+      {
+        "type": "faded",
+        "amount": 2
+      },
+      {
+        "type": "ink_burn",
+        "amount": 3
+      }
     ],
     "art": {
       "primaryColor": "#5e35b1",
@@ -146,8 +176,3070 @@
       },
       "description": "Apply 3 Faded and 5 Ink Burn.",
       "effects": [
-        { "type": "faded", "amount": 3 },
-        { "type": "ink_burn", "amount": 5 }
+        {
+          "type": "faded",
+          "amount": 3
+        },
+        {
+          "type": "ink_burn",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "fire_breathing",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "breathing",
+      "medium": "fire breathing",
+      "hard": "execute a fire breathing"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Apply 1 Ink Burn.",
+    "effects": [
+      {
+        "type": "ink_burn",
+        "amount": 1
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#820eb4",
+      "secondaryColor": "#b8fb2a",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better breathing",
+        "medium": "upgraded fire breathing",
+        "hard": "execute a powerful fire breathing"
+      },
+      "description": "Apply 2 Ink Burn.",
+      "effects": [
+        {
+          "type": "ink_burn",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "venomous_bite",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "bite",
+      "medium": "venomous bite",
+      "hard": "execute a venomous bite"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 6 damage. Apply 4 Ink Burn.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 6
+      },
+      {
+        "type": "ink_burn",
+        "amount": 4
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#4ee75a",
+      "secondaryColor": "#4ad2bc",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better bite",
+        "medium": "upgraded venomous bite",
+        "hard": "execute a powerful venomous bite"
+      },
+      "description": "Deal 8 damage. Apply 6 Ink Burn.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 8
+        },
+        {
+          "type": "ink_burn",
+          "amount": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "flurry_of_blows",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "blows",
+      "medium": "flurry of blows",
+      "hard": "execute a flurry of blows"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 3 damage 4 times.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 3,
+        "hits": 4
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#b3093d",
+      "secondaryColor": "#2e23e6",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better blows",
+        "medium": "upgraded flurry of blows",
+        "hard": "execute a powerful flurry of blows"
+      },
+      "description": "Deal 4 damage 4 times.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 4,
+          "hits": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "heavy_blow",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "blow",
+      "medium": "heavy blow",
+      "hard": "execute a heavy blow"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 14 damage.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 14
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#f8a9ed",
+      "secondaryColor": "#e301e0",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better blow",
+        "medium": "upgraded heavy blow",
+        "hard": "execute a powerful heavy blow"
+      },
+      "description": "Deal 18 damage.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 18
+        }
+      ]
+    }
+  },
+  {
+    "id": "metallicize",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "metallicize",
+      "medium": "metallicize",
+      "hard": "execute a metallicize"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 3 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 3
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#32bc62",
+      "secondaryColor": "#3f80e2",
+      "shape": "thorn"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better metallicize",
+        "medium": "upgraded metallicize",
+        "hard": "execute a powerful metallicize"
+      },
+      "description": "Gain 4 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "vampiric_bite",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "bite",
+      "medium": "vampiric bite",
+      "hard": "execute a vampiric bite"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 10 damage. Heal 5 HP.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 10
+      },
+      {
+        "type": "heal",
+        "amount": 5
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#531b0a",
+      "secondaryColor": "#7dc064",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better bite",
+        "medium": "upgraded vampiric bite",
+        "hard": "execute a powerful vampiric bite"
+      },
+      "description": "Deal 14 damage. Heal 7 HP.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 14
+        },
+        {
+          "type": "heal",
+          "amount": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "barricade",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "barricade",
+      "medium": "barricade",
+      "hard": "execute a barricade"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 15 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 15
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#917529",
+      "secondaryColor": "#ccd5a4",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better barricade",
+        "medium": "upgraded barricade",
+        "hard": "execute a powerful barricade"
+      },
+      "description": "Gain 20 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 20
+        }
+      ]
+    }
+  },
+  {
+    "id": "twin_strike",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "strike",
+      "medium": "twin strike",
+      "hard": "deliver a twin strike"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 4 damage twice.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 4,
+        "hits": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#3195fa",
+      "secondaryColor": "#a8776b",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better strike",
+        "medium": "upgraded twin strike",
+        "hard": "deliver a powerful twin strike"
+      },
+      "description": "Deal 6 damage twice.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 6,
+          "hits": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "prepare",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "prepare",
+      "medium": "prepare",
+      "hard": "execute a prepare"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 2 cards.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#935511",
+      "secondaryColor": "#7635da",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better prepare",
+        "medium": "upgraded prepare",
+        "hard": "execute a powerful prepare"
+      },
+      "description": "Draw 3 cards.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "reckless_charge",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 0,
+    "target": "enemy",
+    "names": {
+      "easy": "charge",
+      "medium": "reckless charge",
+      "hard": "execute a reckless charge"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 8 damage. Take 3 damage.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 8
+      },
+      {
+        "type": "self_damage",
+        "amount": 3
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#63465f",
+      "secondaryColor": "#92b022",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better charge",
+        "medium": "upgraded reckless charge",
+        "hard": "execute a powerful reckless charge"
+      },
+      "description": "Deal 12 damage. Take 3 damage.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 12
+        },
+        {
+          "type": "self_damage",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "well_laid_plans",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "plans",
+      "medium": "well laid plans",
+      "hard": "execute a well laid plans"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 1 card.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#c3816d",
+      "secondaryColor": "#46e1c3",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better plans",
+        "medium": "upgraded well laid plans",
+        "hard": "execute a powerful well laid plans"
+      },
+      "description": "Draw 2 cards.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "fortify",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "fortify",
+      "medium": "fortify",
+      "hard": "execute a fortify"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 12 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 12
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#5c15f8",
+      "secondaryColor": "#113bd2",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better fortify",
+        "medium": "upgraded fortify",
+        "hard": "execute a powerful fortify"
+      },
+      "description": "Gain 16 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 16
+        }
+      ]
+    }
+  },
+  {
+    "id": "noxious_fumes",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "fumes",
+      "medium": "noxious fumes",
+      "hard": "execute a noxious fumes"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Apply 2 Ink Burn.",
+    "effects": [
+      {
+        "type": "ink_burn",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#c027ac",
+      "secondaryColor": "#458fcd",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better fumes",
+        "medium": "upgraded noxious fumes",
+        "hard": "execute a powerful noxious fumes"
+      },
+      "description": "Apply 3 Ink Burn.",
+      "effects": [
+        {
+          "type": "ink_burn",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "expose_weakness",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "weakness",
+      "medium": "expose weakness",
+      "hard": "execute a expose weakness"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Apply 2 Exposed.",
+    "effects": [
+      {
+        "type": "exposed",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#54e761",
+      "secondaryColor": "#269323",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better weakness",
+        "medium": "upgraded expose weakness",
+        "hard": "execute a powerful expose weakness"
+      },
+      "description": "Apply 3 Exposed.",
+      "effects": [
+        {
+          "type": "exposed",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "demon_form",
+    "rarity": "common",
+    "type": "power",
+    "cost": 3,
+    "target": "self",
+    "names": {
+      "easy": "form",
+      "medium": "demon form",
+      "hard": "assume a demon form"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 2 Bold.",
+    "effects": [
+      {
+        "type": "bold",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#da61af",
+      "secondaryColor": "#a5394e",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better form",
+        "medium": "upgraded demon form",
+        "hard": "assume a powerful demon form"
+      },
+      "description": "Gain 3 Bold.",
+      "effects": [
+        {
+          "type": "bold",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "shadow_strike",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "strike",
+      "medium": "shadow strike",
+      "hard": "deliver a shadow strike"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 9 damage.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 9
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#eac6f1",
+      "secondaryColor": "#aba0c9",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better strike",
+        "medium": "upgraded shadow strike",
+        "hard": "deliver a powerful shadow strike"
+      },
+      "description": "Deal 13 damage.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 13
+        }
+      ]
+    }
+  },
+  {
+    "id": "evolve",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "evolve",
+      "medium": "evolve",
+      "hard": "execute a evolve"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 1 card.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#28df13",
+      "secondaryColor": "#e0564d",
+      "shape": "thorn"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better evolve",
+        "medium": "upgraded evolve",
+        "hard": "execute a powerful evolve"
+      },
+      "description": "Draw 2 cards.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "adrenaline",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "adrenaline",
+      "medium": "adrenaline",
+      "hard": "execute a adrenaline"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 1 Energy. Draw 2 cards.",
+    "effects": [
+      {
+        "type": "energy",
+        "amount": 1
+      },
+      {
+        "type": "draw",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#4ee07c",
+      "secondaryColor": "#4e461a",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better adrenaline",
+        "medium": "upgraded adrenaline",
+        "hard": "execute a powerful adrenaline"
+      },
+      "description": "Gain 2 Energy. Draw 2 cards.",
+      "effects": [
+        {
+          "type": "energy",
+          "amount": 2
+        },
+        {
+          "type": "draw",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "shield_bash",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "bash",
+      "medium": "shield bash",
+      "hard": "execute a shield bash"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal damage equal to your Ward.",
+    "effects": [
+      {
+        "type": "damage_per_ward",
+        "amount": 1
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#1b3128",
+      "secondaryColor": "#112a7c",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better bash",
+        "medium": "upgraded shield bash",
+        "hard": "execute a powerful shield bash"
+      },
+      "description": "Deal damage equal to your Ward.",
+      "effects": [
+        {
+          "type": "damage_per_ward",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "lacerate",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "lacerate",
+      "medium": "lacerate",
+      "hard": "execute a lacerate"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 5 damage. Apply 3 Ink Burn.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 5
+      },
+      {
+        "type": "ink_burn",
+        "amount": 3
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#4b43ae",
+      "secondaryColor": "#2ffe41",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better lacerate",
+        "medium": "upgraded lacerate",
+        "hard": "execute a powerful lacerate"
+      },
+      "description": "Deal 7 damage. Apply 5 Ink Burn.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 7
+        },
+        {
+          "type": "ink_burn",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "execute",
+    "rarity": "common",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "execute",
+      "medium": "execute",
+      "hard": "execute a execute"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 15 damage. If Fatal, heal 5.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 15
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#fecbc6",
+      "secondaryColor": "#7041e0",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better execute",
+        "medium": "upgraded execute",
+        "hard": "execute a powerful execute"
+      },
+      "description": "Deal 20 damage. If Fatal, heal 5.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 20
+        }
+      ]
+    }
+  },
+  {
+    "id": "blur",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "blur",
+      "medium": "blur",
+      "hard": "execute a blur"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 5 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 5
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#8265f8",
+      "secondaryColor": "#027293",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better blur",
+        "medium": "upgraded blur",
+        "hard": "execute a powerful blur"
+      },
+      "description": "Gain 8 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "tools_of_the_trade",
+    "rarity": "common",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "trade",
+      "medium": "tools of the trade",
+      "hard": "execute a tools of the trade"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 1 card.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#db419e",
+      "secondaryColor": "#12b348",
+      "shape": "thorn"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better trade",
+        "medium": "upgraded tools of the trade",
+        "hard": "execute a powerful tools of the trade"
+      },
+      "description": "Draw 2 cards.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "defend",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "defend",
+      "medium": "defend",
+      "hard": "execute a defend"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 5 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 5
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#3cfd3d",
+      "secondaryColor": "#214deb",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better defend",
+        "medium": "upgraded defend",
+        "hard": "execute a powerful defend"
+      },
+      "description": "Gain 8 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "backflip",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "backflip",
+      "medium": "backflip",
+      "hard": "execute a backflip"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 5 Ward. Draw 2 cards.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 5
+      },
+      {
+        "type": "draw",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#ca069b",
+      "secondaryColor": "#e322f7",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better backflip",
+        "medium": "upgraded backflip",
+        "hard": "execute a powerful backflip"
+      },
+      "description": "Gain 8 Ward. Draw 2 cards.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 8
+        },
+        {
+          "type": "draw",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "fiery_slash",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "slash",
+      "medium": "fiery slash",
+      "hard": "perform a fiery slash"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 7 damage. Apply 2 Ink Burn.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 7
+      },
+      {
+        "type": "ink_burn",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#9084de",
+      "secondaryColor": "#90a18b",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better slash",
+        "medium": "upgraded fiery slash",
+        "hard": "perform a powerful fiery slash"
+      },
+      "description": "Deal 10 damage. Apply 3 Ink Burn.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 10
+        },
+        {
+          "type": "ink_burn",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "weaken",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "weaken",
+      "medium": "weaken",
+      "hard": "execute a weaken"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Apply 2 Faded.",
+    "effects": [
+      {
+        "type": "faded",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#476ae8",
+      "secondaryColor": "#e89f6d",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better weaken",
+        "medium": "upgraded weaken",
+        "hard": "execute a powerful weaken"
+      },
+      "description": "Apply 3 Faded.",
+      "effects": [
+        {
+          "type": "faded",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "corrosive_spit",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "spit",
+      "medium": "corrosive spit",
+      "hard": "execute a corrosive spit"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Apply 2 Exposed and 2 Ink Burn.",
+    "effects": [
+      {
+        "type": "exposed",
+        "amount": 2
+      },
+      {
+        "type": "ink_burn",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#38e1b5",
+      "secondaryColor": "#4510a9",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better spit",
+        "medium": "upgraded corrosive spit",
+        "hard": "execute a powerful corrosive spit"
+      },
+      "description": "Apply 3 Exposed and 3 Ink Burn.",
+      "effects": [
+        {
+          "type": "exposed",
+          "amount": 3
+        },
+        {
+          "type": "ink_burn",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "caltrops",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "caltrops",
+      "medium": "caltrops",
+      "hard": "execute a caltrops"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 3 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 3
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#3c3a06",
+      "secondaryColor": "#e99db0",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better caltrops",
+        "medium": "upgraded caltrops",
+        "hard": "execute a powerful caltrops"
+      },
+      "description": "Gain 5 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "toxic_dart",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "dart",
+      "medium": "toxic dart",
+      "hard": "execute a toxic dart"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Apply 5 Ink Burn.",
+    "effects": [
+      {
+        "type": "ink_burn",
+        "amount": 5
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#ab9dfb",
+      "secondaryColor": "#912d3e",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better dart",
+        "medium": "upgraded toxic dart",
+        "hard": "execute a powerful toxic dart"
+      },
+      "description": "Apply 8 Ink Burn.",
+      "effects": [
+        {
+          "type": "ink_burn",
+          "amount": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "cleave",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 2,
+    "target": "all_enemies",
+    "names": {
+      "easy": "cleave",
+      "medium": "cleave",
+      "hard": "execute a cleave"
+    },
+    "connectors": {
+      "easy": "all",
+      "medium": "upon all",
+      "hard": "sweeping across all"
+    },
+    "description": "Deal 8 damage to all enemies.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 8,
+        "target": "all_enemies"
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#0be1d9",
+      "secondaryColor": "#f76a9a",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better cleave",
+        "medium": "upgraded cleave",
+        "hard": "execute a powerful cleave"
+      },
+      "description": "Deal 12 damage to all enemies.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 12,
+          "target": "all_enemies"
+        }
+      ]
+    }
+  },
+  {
+    "id": "meteor_smash",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 3,
+    "target": "enemy",
+    "names": {
+      "easy": "smash",
+      "medium": "meteor smash",
+      "hard": "execute a meteor smash"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 25 damage.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 25
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#5afa30",
+      "secondaryColor": "#f6e105",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better smash",
+        "medium": "upgraded meteor smash",
+        "hard": "execute a powerful meteor smash"
+      },
+      "description": "Deal 32 damage.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 32
+        }
+      ]
+    }
+  },
+  {
+    "id": "warcry",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "warcry",
+      "medium": "warcry",
+      "hard": "execute a warcry"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 1 card. Gain 2 Bold.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "bold",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#86710b",
+      "secondaryColor": "#09c89d",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better warcry",
+        "medium": "upgraded warcry",
+        "hard": "execute a powerful warcry"
+      },
+      "description": "Draw 2 cards. Gain 3 Bold.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 2
+        },
+        {
+          "type": "bold",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "quick_slash",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 0,
+    "target": "enemy",
+    "names": {
+      "easy": "slash",
+      "medium": "quick slash",
+      "hard": "perform a quick slash"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 4 damage.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 4
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#ddc5cb",
+      "secondaryColor": "#a12cf3",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better slash",
+        "medium": "upgraded quick slash",
+        "hard": "perform a powerful quick slash"
+      },
+      "description": "Deal 6 damage.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "outmaneuver",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "outmaneuver",
+      "medium": "outmaneuver",
+      "hard": "execute a outmaneuver"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Next turn, gain 2 Energy.",
+    "effects": [
+      {
+        "type": "energy",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#adcdd7",
+      "secondaryColor": "#9a8782",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better outmaneuver",
+        "medium": "upgraded outmaneuver",
+        "hard": "execute a powerful outmaneuver"
+      },
+      "description": "Next turn, gain 3 Energy.",
+      "effects": [
+        {
+          "type": "energy",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "panic_button",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "button",
+      "medium": "panic button",
+      "hard": "execute a panic button"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 10 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 10
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#111463",
+      "secondaryColor": "#75f8ec",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better button",
+        "medium": "upgraded panic button",
+        "hard": "execute a powerful panic button"
+      },
+      "description": "Gain 14 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 14
+        }
+      ]
+    }
+  },
+  {
+    "id": "draining_touch",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "touch",
+      "medium": "draining touch",
+      "hard": "execute a draining touch"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 8 damage. Heal 4 HP.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 8
+      },
+      {
+        "type": "heal",
+        "amount": 4
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#33f98e",
+      "secondaryColor": "#89c173",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better touch",
+        "medium": "upgraded draining touch",
+        "hard": "execute a powerful draining touch"
+      },
+      "description": "Deal 12 damage. Heal 6 HP.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 12
+        },
+        {
+          "type": "heal",
+          "amount": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "thunder_strike",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "strike",
+      "medium": "thunder strike",
+      "hard": "deliver a thunder strike"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 14 damage. Apply 2 Exposed.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 14
+      },
+      {
+        "type": "exposed",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#c9b199",
+      "secondaryColor": "#f3fb48",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better strike",
+        "medium": "upgraded thunder strike",
+        "hard": "deliver a powerful thunder strike"
+      },
+      "description": "Deal 18 damage. Apply 3 Exposed.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 18
+        },
+        {
+          "type": "exposed",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "concentrate",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "concentrate",
+      "medium": "concentrate",
+      "hard": "execute a concentrate"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 2 Energy.",
+    "effects": [
+      {
+        "type": "energy",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#19d002",
+      "secondaryColor": "#68c3cc",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better concentrate",
+        "medium": "upgraded concentrate",
+        "hard": "execute a powerful concentrate"
+      },
+      "description": "Gain 3 Energy.",
+      "effects": [
+        {
+          "type": "energy",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "expertise",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "expertise",
+      "medium": "expertise",
+      "hard": "execute a expertise"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw until you have 6 cards.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 6
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#8b19b1",
+      "secondaryColor": "#5a514f",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better expertise",
+        "medium": "upgraded expertise",
+        "hard": "execute a powerful expertise"
+      },
+      "description": "Draw until you have 8 cards.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "iron_skin",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "skin",
+      "medium": "iron skin",
+      "hard": "execute a iron skin"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 6 Ward and 1 Bold.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 6
+      },
+      {
+        "type": "bold",
+        "amount": 1
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#3bca9f",
+      "secondaryColor": "#4c47f9",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better skin",
+        "medium": "upgraded iron skin",
+        "hard": "execute a powerful iron skin"
+      },
+      "description": "Gain 9 Ward and 2 Bold.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 9
+        },
+        {
+          "type": "bold",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "piercing_stab",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "stab",
+      "medium": "piercing stab",
+      "hard": "execute a piercing stab"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 6 damage. Apply 1 Exposed.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 6
+      },
+      {
+        "type": "exposed",
+        "amount": 1
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#e96429",
+      "secondaryColor": "#86a824",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better stab",
+        "medium": "upgraded piercing stab",
+        "hard": "execute a powerful piercing stab"
+      },
+      "description": "Deal 8 damage. Apply 2 Exposed.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 8
+        },
+        {
+          "type": "exposed",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "ink_spill",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "spill",
+      "medium": "ink spill",
+      "hard": "execute a ink spill"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Apply 4 Ink Burn.",
+    "effects": [
+      {
+        "type": "ink_burn",
+        "amount": 4
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#ed6c03",
+      "secondaryColor": "#f00b72",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better spill",
+        "medium": "upgraded ink spill",
+        "hard": "execute a powerful ink spill"
+      },
+      "description": "Apply 7 Ink Burn.",
+      "effects": [
+        {
+          "type": "ink_burn",
+          "amount": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "wild_swing",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "swing",
+      "medium": "wild swing",
+      "hard": "execute a wild swing"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 10 damage. Deal 2 damage to yourself.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 10
+      },
+      {
+        "type": "self_damage",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#4465d9",
+      "secondaryColor": "#42c72b",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better swing",
+        "medium": "upgraded wild swing",
+        "hard": "execute a powerful wild swing"
+      },
+      "description": "Deal 14 damage. Deal 2 damage to yourself.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 14
+        },
+        {
+          "type": "self_damage",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "berserk",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "berserk",
+      "medium": "berserk",
+      "hard": "execute a berserk"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 1 Energy.",
+    "effects": [
+      {
+        "type": "energy",
+        "amount": 1
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#ed05dc",
+      "secondaryColor": "#30dd14",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better berserk",
+        "medium": "upgraded berserk",
+        "hard": "execute a powerful berserk"
+      },
+      "description": "Gain 2 Energy.",
+      "effects": [
+        {
+          "type": "energy",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "echo_form",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 3,
+    "target": "self",
+    "names": {
+      "easy": "form",
+      "medium": "echo form",
+      "hard": "assume a echo form"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 1 Energy per turn.",
+    "effects": [
+      {
+        "type": "energy",
+        "amount": 1
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#600f0c",
+      "secondaryColor": "#f99bd4",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better form",
+        "medium": "upgraded echo form",
+        "hard": "assume a powerful echo form"
+      },
+      "description": "Gain 2 Energy per turn.",
+      "effects": [
+        {
+          "type": "energy",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "blunt_force",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "force",
+      "medium": "blunt force",
+      "hard": "execute a blunt force"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 12 damage. Apply 2 Faded.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 12
+      },
+      {
+        "type": "faded",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#22ae01",
+      "secondaryColor": "#05422f",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better force",
+        "medium": "upgraded blunt force",
+        "hard": "execute a powerful blunt force"
+      },
+      "description": "Deal 16 damage. Apply 3 Faded.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 16
+        },
+        {
+          "type": "faded",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "sweeping_blow",
+    "rarity": "uncommon",
+    "type": "attack",
+    "cost": 1,
+    "target": "all_enemies",
+    "names": {
+      "easy": "blow",
+      "medium": "sweeping blow",
+      "hard": "execute a sweeping blow"
+    },
+    "connectors": {
+      "easy": "all",
+      "medium": "upon all",
+      "hard": "sweeping across all"
+    },
+    "description": "Deal 5 damage to all enemies.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 5,
+        "target": "all_enemies"
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#d03fec",
+      "secondaryColor": "#0ea333",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better blow",
+        "medium": "upgraded sweeping blow",
+        "hard": "execute a powerful sweeping blow"
+      },
+      "description": "Deal 8 damage to all enemies.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 8,
+          "target": "all_enemies"
+        }
+      ]
+    }
+  },
+  {
+    "id": "accuracy",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "accuracy",
+      "medium": "accuracy",
+      "hard": "execute a accuracy"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 3 Bold.",
+    "effects": [
+      {
+        "type": "bold",
+        "amount": 3
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#967ef7",
+      "secondaryColor": "#d33407",
+      "shape": "thorn"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better accuracy",
+        "medium": "upgraded accuracy",
+        "hard": "execute a powerful accuracy"
+      },
+      "description": "Gain 4 Bold.",
+      "effects": [
+        {
+          "type": "bold",
+          "amount": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "wraith_form",
+    "rarity": "uncommon",
+    "type": "power",
+    "cost": 3,
+    "target": "self",
+    "names": {
+      "easy": "form",
+      "medium": "wraith form",
+      "hard": "assume a wraith form"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 3 Faded.",
+    "effects": [
+      {
+        "type": "faded",
+        "amount": 3
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#4df599",
+      "secondaryColor": "#059402",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better form",
+        "medium": "upgraded wraith form",
+        "hard": "assume a powerful wraith form"
+      },
+      "description": "Gain 4 Faded.",
+      "effects": [
+        {
+          "type": "faded",
+          "amount": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "juggernaut",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "juggernaut",
+      "medium": "juggernaut",
+      "hard": "execute a juggernaut"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Deal 5 damage.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 5
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#5d7ba2",
+      "secondaryColor": "#162e41",
+      "shape": "thorn"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better juggernaut",
+        "medium": "upgraded juggernaut",
+        "hard": "execute a powerful juggernaut"
+      },
+      "description": "Deal 7 damage.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "sunder",
+    "rarity": "rare",
+    "type": "attack",
+    "cost": 3,
+    "target": "enemy",
+    "names": {
+      "easy": "sunder",
+      "medium": "sunder",
+      "hard": "execute a sunder"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Deal 24 damage. Gain 2 Energy.",
+    "effects": [
+      {
+        "type": "damage",
+        "amount": 24
+      },
+      {
+        "type": "energy",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#11a54d",
+      "secondaryColor": "#bf2d12",
+      "shape": "spiky"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better sunder",
+        "medium": "upgraded sunder",
+        "hard": "execute a powerful sunder"
+      },
+      "description": "Deal 32 damage. Gain 2 Energy.",
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 32
+        },
+        {
+          "type": "energy",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "smoke_bomb",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "bomb",
+      "medium": "smoke bomb",
+      "hard": "execute a smoke bomb"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "directly against"
+    },
+    "description": "Gain 5 Ward. Apply 1 Faded.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 5
+      },
+      {
+        "type": "faded",
+        "amount": 1
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#af5bf1",
+      "secondaryColor": "#db79b6",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better bomb",
+        "medium": "upgraded smoke bomb",
+        "hard": "execute a powerful smoke bomb"
+      },
+      "description": "Gain 8 Ward. Apply 2 Faded.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 8
+        },
+        {
+          "type": "faded",
+          "amount": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "tactics",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "tactics",
+      "medium": "tactics",
+      "hard": "execute a tactics"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 1 card. Gain 1 Energy.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "energy",
+        "amount": 1
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#13b3b0",
+      "secondaryColor": "#b41d85",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better tactics",
+        "medium": "upgraded tactics",
+        "hard": "execute a powerful tactics"
+      },
+      "description": "Draw 2 cards. Gain 1 Energy.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 2
+        },
+        {
+          "type": "energy",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "entrench",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "entrench",
+      "medium": "entrench",
+      "hard": "execute a entrench"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Double your current Ward.",
+    "effects": [
+      {
+        "type": "double_ward",
+        "amount": 1
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#b69725",
+      "secondaryColor": "#44eaeb",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better entrench",
+        "medium": "upgraded entrench",
+        "hard": "execute a powerful entrench"
+      },
+      "description": "Double your current Ward.",
+      "effects": [
+        {
+          "type": "double_ward",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "catalyst",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "catalyst",
+      "medium": "catalyst",
+      "hard": "execute a catalyst"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Double Ink Burn on an enemy.",
+    "effects": [
+      {
+        "type": "double_ink_burn",
+        "amount": 1
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#b4d701",
+      "secondaryColor": "#9b6070",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better catalyst",
+        "medium": "upgraded catalyst",
+        "hard": "execute a powerful catalyst"
+      },
+      "description": "Double Ink Burn on an enemy.",
+      "effects": [
+        {
+          "type": "double_ink_burn",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "empower",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "empower",
+      "medium": "empower",
+      "hard": "execute a empower"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 2 Bold.",
+    "effects": [
+      {
+        "type": "bold",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#9f5bb0",
+      "secondaryColor": "#3767c1",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better empower",
+        "medium": "upgraded empower",
+        "hard": "execute a powerful empower"
+      },
+      "description": "Gain 3 Bold.",
+      "effects": [
+        {
+          "type": "bold",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "bandaging",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "bandaging",
+      "medium": "bandaging",
+      "hard": "execute a bandaging"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Heal 4 HP.",
+    "effects": [
+      {
+        "type": "heal",
+        "amount": 4
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#9b609b",
+      "secondaryColor": "#9d2128",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better bandaging",
+        "medium": "upgraded bandaging",
+        "hard": "execute a powerful bandaging"
+      },
+      "description": "Heal 6 HP.",
+      "effects": [
+        {
+          "type": "heal",
+          "amount": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "meditate",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "meditate",
+      "medium": "meditate",
+      "hard": "execute a meditate"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 2 Energy.",
+    "effects": [
+      {
+        "type": "energy",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#622e2d",
+      "secondaryColor": "#67a53a",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better meditate",
+        "medium": "upgraded meditate",
+        "hard": "execute a powerful meditate"
+      },
+      "description": "Gain 3 Energy.",
+      "effects": [
+        {
+          "type": "energy",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "calculated_gamble",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "gamble",
+      "medium": "calculated gamble",
+      "hard": "execute a calculated gamble"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Discard your hand. Draw that many cards.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 5
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#e848e1",
+      "secondaryColor": "#ad4509",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better gamble",
+        "medium": "upgraded calculated gamble",
+        "hard": "execute a powerful calculated gamble"
+      },
+      "description": "Discard your hand. Draw that many cards (up to 7).",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "acrobatics",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "acrobatics",
+      "medium": "acrobatics",
+      "hard": "execute a acrobatics"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 3 cards. Discard 1.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 3
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#4ec904",
+      "secondaryColor": "#4e1a0e",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better acrobatics",
+        "medium": "upgraded acrobatics",
+        "hard": "execute a powerful acrobatics"
+      },
+      "description": "Draw 4 cards. Discard 1.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "dodge",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "dodge",
+      "medium": "dodge",
+      "hard": "execute a dodge"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 3 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 3
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#8bc8fa",
+      "secondaryColor": "#dfdb01",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better dodge",
+        "medium": "upgraded dodge",
+        "hard": "execute a powerful dodge"
+      },
+      "description": "Gain 5 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "deflect",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "deflect",
+      "medium": "deflect",
+      "hard": "execute a deflect"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 4 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 4
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#b2b4d3",
+      "secondaryColor": "#8000f5",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better deflect",
+        "medium": "upgraded deflect",
+        "hard": "execute a powerful deflect"
+      },
+      "description": "Gain 7 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "deep_breath",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "breath",
+      "medium": "deep breath",
+      "hard": "execute a deep breath"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Draw 2 cards.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 2
+      }
+    ],
+    "burnDraft": false,
+    "art": {
+      "primaryColor": "#db00bd",
+      "secondaryColor": "#73a5e0",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better breath",
+        "medium": "upgraded deep breath",
+        "hard": "execute a powerful deep breath"
+      },
+      "description": "Draw 3 cards.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "inflame",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "inflame",
+      "medium": "inflame",
+      "hard": "execute a inflame"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 2 Bold.",
+    "effects": [
+      {
+        "type": "bold",
+        "amount": 2
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#37decf",
+      "secondaryColor": "#dbc496",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better inflame",
+        "medium": "upgraded inflame",
+        "hard": "execute a powerful inflame"
+      },
+      "description": "Gain 3 Bold.",
+      "effects": [
+        {
+          "type": "bold",
+          "amount": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "feel_no_pain",
+    "rarity": "rare",
+    "type": "power",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "pain",
+      "medium": "feel no pain",
+      "hard": "execute a feel no pain"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "upon",
+      "hard": "channeled upon"
+    },
+    "description": "Gain 3 Ward.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 3
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#986afd",
+      "secondaryColor": "#37bd45",
+      "shape": "crown"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "better pain",
+        "medium": "upgraded feel no pain",
+        "hard": "execute a powerful feel no pain"
+      },
+      "description": "Gain 4 Ward.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 4
+        }
       ]
     }
   }

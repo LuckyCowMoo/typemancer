@@ -40,5 +40,472 @@
         "effects": {}
       }
     ]
+  },
+  {
+    "id": "silent_choir",
+    "title": "The Silent Choir",
+    "narrative": "You stumble upon a circle of statuesque figures. Their mouths are magically fused shut, yet they hold tattered sheet music, their eyes pleading for someone to read the notes aloud.",
+    "choices": [
+      {
+        "id": "transcribe_song",
+        "phrases": {
+          "easy": "write song",
+          "medium": "transcribe the notes",
+          "hard": "carefully transcribe the forbidden melody onto parchment"
+        },
+        "outcomeText": "As your pen traces the notes, a phantom harmony fills the air, mending your wounds.",
+        "effects": {
+          "hpChange": 15
+        }
+      },
+      {
+        "id": "steal_music",
+        "phrases": {
+          "easy": "take sheet",
+          "medium": "steal the sheet music",
+          "hard": "snatch the ancient sheet music from their frozen hands"
+        },
+        "outcomeText": "You take the rare composition. You can sell it later, but the figures weep silent tears of ink.",
+        "effects": {
+          "goldChange": 50,
+          "hpChange": -2
+        }
+      }
+    ]
+  },
+  {
+    "id": "burning_library",
+    "title": "Pyre of Words",
+    "narrative": "A group of the Evil Wizard's ink-golems are tossing precious bound books into a roaring green fire. The scent of burning knowledge fills the air.",
+    "choices": [
+      {
+        "id": "dive_in",
+        "phrases": {
+          "easy": "save book",
+          "medium": "dive into the fire",
+          "hard": "brave the emerald flames to rescue a tome"
+        },
+        "outcomeText": "You plunge your hand into the fire, retrieving a powerful manuscript at the cost of severe burns.",
+        "effects": {
+          "hpChange": -10,
+          "gainRandomCard": true,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "distract_golems",
+        "phrases": {
+          "easy": "distract foes",
+          "medium": "throw a rock",
+          "hard": "hurl a heavy stone to distract the burning golems"
+        },
+        "outcomeText": "The golems lumber away, leaving behind a partially burned spellbook you manage to salvage.",
+        "effects": {
+          "gainRandomCard": true
+        }
+      },
+      {
+        "id": "walk_past",
+        "phrases": {
+          "easy": "ignore fire",
+          "medium": "sneak past them",
+          "hard": "silently creep past the tragic burning library"
+        },
+        "outcomeText": "You avoid the flames and the guards, moving on with a heavy heart.",
+        "effects": {}
+      }
+    ]
+  },
+  {
+    "id": "smuggler_of_words",
+    "title": "The Synonym Smuggler",
+    "narrative": "A cloaked figure pssts at you from a dark alley. They open their coat to reveal prohibited dictionaries and thesauruses dangling from the lining.",
+    "choices": [
+      {
+        "id": "buy_relic",
+        "phrases": {
+          "easy": "buy book",
+          "medium": "purchase a dictionary",
+          "hard": "trade your gold for an illegal antique dictionary"
+        },
+        "outcomeText": "You hand over your coins, receiving a heavy, leather-bound volume radiating archaic power.",
+        "effects": {
+          "goldChange": -50,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "rob_smuggler",
+        "phrases": {
+          "easy": "rob him",
+          "medium": "threaten the smuggler",
+          "hard": "draw your weapon and demand the forbidden texts"
+        },
+        "outcomeText": "The smuggler throws an ink-bomb in your face and flees, but drops some coins in the panic.",
+        "effects": {
+          "hpChange": -5,
+          "goldChange": 30
+        }
+      }
+    ]
+  },
+  {
+    "id": "cursed_gramophone",
+    "title": "The Last Gramophone",
+    "narrative": "In an abandoned parlor, a rusted gramophone plays a scratched record. It is the last known recording of a human voice, and its melancholic tune is fading.",
+    "choices": [
+      {
+        "id": "repair_machine",
+        "phrases": {
+          "easy": "fix gears",
+          "medium": "repair the gramophone",
+          "hard": "delicately repair the rusted gears of the machine"
+        },
+        "outcomeText": "The voice rings out clear for a moment, filling you with renewed vigor and permanent resolve.",
+        "effects": {
+          "maxHpChange": 5,
+          "hpChange": 5
+        }
+      },
+      {
+        "id": "smash_record",
+        "phrases": {
+          "easy": "smash it",
+          "medium": "break the record",
+          "hard": "shatter the haunted record to end the sad song"
+        },
+        "outcomeText": "The shattered vinyl reveals a hidden compartment containing forgotten treasure.",
+        "effects": {
+          "gainRandomRelic": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "graffiti_wall",
+    "title": "The Wall of Defiance",
+    "narrative": "You find a crumbling brick wall covered in glowing graffiti. Citizens have etched their forbidden thoughts and protests against the Wizard here.",
+    "choices": [
+      {
+        "id": "add_graffiti",
+        "phrases": {
+          "easy": "write words",
+          "medium": "add your signature",
+          "hard": "etch your own words of rebellion onto the wall"
+        },
+        "outcomeText": "Writing your truth bolsters your spirit, though the magical backlash stings your mind.",
+        "effects": {
+          "maxHpChange": 3,
+          "hpChange": -3
+        }
+      },
+      {
+        "id": "study_spells",
+        "phrases": {
+          "easy": "read spells",
+          "medium": "study the writings",
+          "hard": "carefully study the glowing rebellious incantations"
+        },
+        "outcomeText": "You learn a new technique hidden within the overlapping scrawls.",
+        "effects": {
+          "gainRandomCard": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "torn_pages_wind",
+    "title": "Flock of Pages",
+    "narrative": "A sudden gale sweeps through the canyon, carrying a flock of enchanted paper pages that flutter like trapped white birds.",
+    "choices": [
+      {
+        "id": "catch_pages",
+        "phrases": {
+          "easy": "catch them",
+          "medium": "grab the pages",
+          "hard": "leap up to snatch the fluttering magical pages"
+        },
+        "outcomeText": "You catch a handful of pages. Most are blank, but one contains a powerful new concept.",
+        "effects": {
+          "gainRandomCard": true
+        }
+      },
+      {
+        "id": "let_them_go",
+        "phrases": {
+          "easy": "let go",
+          "medium": "watch them fly",
+          "hard": "stand still and watch the paper birds fly away"
+        },
+        "outcomeText": "One page lands gently on your shoulder, dissolving into healing warmth.",
+        "effects": {
+          "hpChange": 10
+        }
+      }
+    ]
+  },
+  {
+    "id": "miming_beggar",
+    "title": "The Desperate Mime",
+    "narrative": "A beggar in tattered clothes approaches you. Unable to speak, they perform frantic, elaborate mimes, pointing to their stomach and your gold.",
+    "choices": [
+      {
+        "id": "give_gold",
+        "phrases": {
+          "easy": "give gold",
+          "medium": "toss some coins",
+          "hard": "generously offer your gold to the starving mime"
+        },
+        "outcomeText": "The beggar bows deeply and hands you a strange, glowing trinket from their pocket in gratitude.",
+        "effects": {
+          "goldChange": -25,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "ignore_beggar",
+        "phrases": {
+          "easy": "ignore him",
+          "medium": "walk past him",
+          "hard": "coldly ignore the beggar and continue your journey"
+        },
+        "outcomeText": "You walk past. You feel a pang of guilt, but your purse remains heavy.",
+        "effects": {}
+      }
+    ]
+  },
+  {
+    "id": "broken_instrument",
+    "title": "The Ink-String Lute",
+    "narrative": "Lying in the dirt is a beautiful lute. Its wooden body is intact, but the strings are made of liquid ink that drips slowly into the soil.",
+    "choices": [
+      {
+        "id": "pluck_strings",
+        "phrases": {
+          "easy": "play lute",
+          "medium": "pluck a string",
+          "hard": "carefully pluck the dripping ink strings of the lute"
+        },
+        "outcomeText": "A dissonant, sharp chord rings out, slicing your skin but sharpening your mind. You upgrade a card.",
+        "effects": {
+          "hpChange": -5,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "salvage_wood",
+        "phrases": {
+          "easy": "take wood",
+          "medium": "break the lute",
+          "hard": "dismantle the wooden instrument to sell for parts"
+        },
+        "outcomeText": "You break the instrument down. The rare wood fetches a decent price.",
+        "effects": {
+          "goldChange": 40
+        }
+      }
+    ]
+  },
+  {
+    "id": "whispering_echo_cave",
+    "title": "Cave of Echoes",
+    "narrative": "You enter a cavern where spoken words were once stored. Now, it only echoes the scratching of pens and the rustle of turning pages.",
+    "choices": [
+      {
+        "id": "shout_into_cave",
+        "phrases": {
+          "easy": "try shouting",
+          "medium": "yell into the dark",
+          "hard": "force a hoarse shout into the echoing cavern depths"
+        },
+        "outcomeText": "The cave violently rejects the sound, tearing at your life force, but spitting out an ancient relic.",
+        "effects": {
+          "hpChange": -15,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "write_in_dust",
+        "phrases": {
+          "easy": "write words",
+          "medium": "trace in the dust",
+          "hard": "silently trace a message into the thick cave dust"
+        },
+        "outcomeText": "The dust swirls and forms a pile of coins, rewarding your silent respect.",
+        "effects": {
+          "goldChange": 50
+        }
+      }
+    ]
+  },
+  {
+    "id": "gagged_statue",
+    "title": "The Gagged Idol",
+    "narrative": "A towering marble statue of a legendary opera singer stands in the courtyard, her mouth bound by a heavy iron gag fastened with a rusted padlock.",
+    "choices": [
+      {
+        "id": "break_padlock",
+        "phrases": {
+          "easy": "break lock",
+          "medium": "smash the padlock",
+          "hard": "strike the rusted padlock with all your might"
+        },
+        "outcomeText": "The lock breaks. A trapped aria bursts forth, shattering glass and deafening you slightly, but leaving behind a powerful boon.",
+        "effects": {
+          "hpChange": -8,
+          "maxHpChange": 6
+        }
+      },
+      {
+        "id": "pray_statue",
+        "phrases": {
+          "easy": "pray softly",
+          "medium": "kneel and pray",
+          "hard": "kneel in silent reverence before the tragic statue"
+        },
+        "outcomeText": "A soothing aura washes over you, healing your wounds.",
+        "effects": {
+          "hpChange": 15
+        }
+      }
+    ]
+  },
+  {
+    "id": "ink_blood_fountain",
+    "title": "The Obsidian Fountain",
+    "narrative": "A grand plaza features a fountain that once sprayed crystal water. Now, thick, dark ink burbles from the spout, staining the surrounding stones.",
+    "choices": [
+      {
+        "id": "drink_ink",
+        "phrases": {
+          "easy": "drink ink",
+          "medium": "taste the fluid",
+          "hard": "cup your hands and drink the dark obsidian ink"
+        },
+        "outcomeText": "It tastes of bitter iron and lost words. You feel sickened, but your deck is purged of a weakness.",
+        "effects": {
+          "hpChange": -7,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "wash_weapon",
+        "phrases": {
+          "easy": "wash pen",
+          "medium": "clean your weapon",
+          "hard": "douse your writing implements in the dark fountain"
+        },
+        "outcomeText": "The ink hones your tools. A card in your deck is upgraded.",
+        "effects": {
+          "upgradeRandomCard": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "lost_love_letters",
+    "title": "The Hollow Tree",
+    "narrative": "Inside the hollow trunk of a dead oak tree, you find a bundled stack of unsent love letters, preserved perfectly despite the decay around them.",
+    "choices": [
+      {
+        "id": "read_letters",
+        "phrases": {
+          "easy": "read them",
+          "medium": "open the letters",
+          "hard": "carefully untie the ribbon and read the letters"
+        },
+        "outcomeText": "The passionate prose warms your cold heart, restoring your vitality.",
+        "effects": {
+          "hpChange": 20
+        }
+      },
+      {
+        "id": "burn_for_warmth",
+        "phrases": {
+          "easy": "burn them",
+          "medium": "start a fire",
+          "hard": "use the precious letters to start a warm campfire"
+        },
+        "outcomeText": "The magical paper burns bright and long. You feel permanently strengthened, but you lose a piece of your humanity.",
+        "effects": {
+          "maxHpChange": 4,
+          "removeRandomCard": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "wizard_proclamation",
+    "title": "The Floating Edict",
+    "narrative": "A massive, glowing parchment floats in the middle of the road, magically projecting the Wizard's latest decree: 'ALL HUMMING IS PUNISHABLE BY ERASURE.'",
+    "choices": [
+      {
+        "id": "deface_edict",
+        "phrases": {
+          "easy": "cross out",
+          "medium": "deface the sign",
+          "hard": "boldly strike through the wizard's floating decree"
+        },
+        "outcomeText": "Your pen clashes with the magic. The edict shatters into gold coins, though the magical explosion hurts.",
+        "effects": {
+          "hpChange": -10,
+          "goldChange": 75
+        }
+      },
+      {
+        "id": "study_magic",
+        "phrases": {
+          "easy": "study magic",
+          "medium": "analyze the spell",
+          "hard": "carefully analyze the glowing enchantment on the parchment"
+        },
+        "outcomeText": "You reverse-engineer the spell, gaining a new card for your deck.",
+        "effects": {
+          "gainRandomCard": true
+        }
+      },
+      {
+        "id": "walk_around",
+        "phrases": {
+          "easy": "go around",
+          "medium": "avoid the edict",
+          "hard": "carefully step around the dangerous glowing parchment"
+        },
+        "outcomeText": "You sensibly avoid the trap and continue your journey unharmed.",
+        "effects": {}
+      }
+    ]
+  },
+  {
+    "id": "stolen_vocal_cords",
+    "title": "The Glowing Jar",
+    "narrative": "Resting on an abandoned merchant's cart is a glass jar containing a pulsating, golden energy that looks strikingly like a pair of vocal cords.",
+    "choices": [
+      {
+        "id": "absorb_energy",
+        "phrases": {
+          "easy": "break jar",
+          "medium": "absorb the light",
+          "hard": "shatter the glass and inhale the golden energy"
+        },
+        "outcomeText": "A fleeting moment of song fills your mind! Your maximum health increases significantly, though you drop some gold in your daze.",
+        "effects": {
+          "maxHpChange": 8,
+          "goldChange": -30
+        }
+      },
+      {
+        "id": "sell_jar",
+        "phrases": {
+          "easy": "take jar",
+          "medium": "steal the jar",
+          "hard": "carefully place the valuable jar into your satchel"
+        },
+        "outcomeText": "You don't dare open it, but you know someone who will pay handsomely for it.",
+        "effects": {
+          "goldChange": 80
+        }
+      }
+    ]
   }
 ]

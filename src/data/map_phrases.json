@@ -1,61 +1,358 @@
 {
   "directions": {
     "left": {
-      "easy": ["left"],
-      "medium": ["left path", "west trail", "left road"],
-      "hard": ["take the left path", "follow the winding western trail", "venture down the left fork"]
+      "easy": [
+        "left",
+        "go left",
+        "turn left",
+        "path left",
+        "head left",
+        "walk left",
+        "take left",
+        "move left"
+      ],
+      "medium": [
+        "left path",
+        "west trail",
+        "left road",
+        "western route",
+        "fork left",
+        "bear left",
+        "take the left",
+        "head westward"
+      ],
+      "hard": [
+        "take the left path",
+        "follow the winding western trail",
+        "venture down the left fork",
+        "proceed along the leftward route",
+        "navigate the western passage",
+        "choose the path to the left",
+        "embark on the leftward journey",
+        "steer towards the western road"
+      ]
     },
     "middle": {
-      "easy": ["middle"],
-      "medium": ["middle path", "center road", "straight path"],
-      "hard": ["march straight up the middle path", "follow the central stone road", "advance along the center ridge"]
+      "easy": [
+        "middle",
+        "go middle",
+        "straight",
+        "go straight",
+        "center",
+        "head center",
+        "walk straight",
+        "move center"
+      ],
+      "medium": [
+        "middle path",
+        "center road",
+        "straight path",
+        "central route",
+        "head straight",
+        "keep middle",
+        "take the center",
+        "forward path"
+      ],
+      "hard": [
+        "march straight up the middle path",
+        "follow the central stone road",
+        "advance along the center ridge",
+        "proceed directly down the middle",
+        "navigate the central causeway",
+        "choose the straight and narrow path",
+        "embark on the central journey",
+        "steer straight ahead on the road"
+      ]
     },
     "right": {
-      "easy": ["right"],
-      "medium": ["right path", "east trail", "right road"],
-      "hard": ["take the right path", "follow the overgrown eastern trail", "climb the right hillside path"]
+      "easy": [
+        "right",
+        "go right",
+        "turn right",
+        "path right",
+        "head right",
+        "walk right",
+        "take right",
+        "move right"
+      ],
+      "medium": [
+        "right path",
+        "east trail",
+        "right road",
+        "eastern route",
+        "fork right",
+        "bear right",
+        "take the right",
+        "head eastward"
+      ],
+      "hard": [
+        "take the right path",
+        "follow the overgrown eastern trail",
+        "climb the right hillside path",
+        "proceed along the rightward route",
+        "navigate the eastern passage",
+        "choose the path to the right",
+        "embark on the rightward journey",
+        "steer towards the eastern road"
+      ]
     },
     "single": {
-      "easy": ["forward"],
-      "medium": ["onward", "ahead"],
-      "hard": ["press onward", "march straight ahead"]
+      "easy": [
+        "forward",
+        "onward",
+        "ahead",
+        "go on",
+        "advance",
+        "proceed",
+        "next",
+        "continue"
+      ],
+      "medium": [
+        "move forward",
+        "press onward",
+        "straight ahead",
+        "keep going",
+        "advance now",
+        "proceed ahead",
+        "next path",
+        "continue on"
+      ],
+      "hard": [
+        "press onward into the unknown",
+        "march straight ahead without fear",
+        "continue forward along the trail",
+        "advance steadily towards the destination",
+        "proceed onwards to the next challenge",
+        "keep moving forward on the path",
+        "forge ahead into the darkness",
+        "journey onward down the single road"
+      ]
     }
   },
   "destinations": {
     "battle": {
-      "easy": ["battle", "fight", "foes"],
-      "medium": ["monster patrol", "enemy ambush", "hostile clearing"],
-      "hard": ["towards the prowling monster patrol", "into the shadowy enemy ambush", "towards the guarded forest clearing"]
+      "easy": [
+        "battle",
+        "fight",
+        "foes",
+        "combat",
+        "enemies",
+        "attack",
+        "brawl",
+        "clash"
+      ],
+      "medium": [
+        "monster patrol",
+        "enemy ambush",
+        "hostile clearing",
+        "combat zone",
+        "foe encounter",
+        "battle grounds",
+        "fight ahead",
+        "dangerous foes"
+      ],
+      "hard": [
+        "towards the prowling monster patrol",
+        "into the shadowy enemy ambush",
+        "towards the guarded forest clearing",
+        "prepare for a fierce battle ahead",
+        "march into the hostile combat zone",
+        "face the dangerous foes in the clearing",
+        "engage the wandering monster patrol",
+        "step into the deadly enemy ambush"
+      ]
     },
     "elite": {
-      "easy": ["elite", "champion", "danger"],
-      "medium": ["elite guardian", "deadly champion", "fierce warlord"],
-      "hard": ["towards the deadly elite guardian", "to challenge the towering warlord", "into the lair of the fierce champion"]
+      "easy": [
+        "elite",
+        "champion",
+        "danger",
+        "boss",
+        "tough",
+        "hard",
+        "deadly",
+        "fierce"
+      ],
+      "medium": [
+        "elite guardian",
+        "deadly champion",
+        "fierce warlord",
+        "tough foe",
+        "dangerous enemy",
+        "powerful monster",
+        "formidable foe",
+        "brutal fight"
+      ],
+      "hard": [
+        "towards the deadly elite guardian",
+        "to challenge the towering warlord",
+        "into the lair of the fierce champion",
+        "prepare to face the formidable elite",
+        "march towards the dangerous enemy champion",
+        "engage the powerful monster in combat",
+        "step into the arena with the warlord",
+        "confront the brutal elite guardian"
+      ]
     },
     "campfire": {
-      "easy": ["campfire", "rest", "fire"],
-      "medium": ["warm campsite", "quiet bonfire", "safe hearth"],
-      "hard": ["towards the warm flickering campsite", "to rest beside the sheltered bonfire", "towards the peaceful traveler hearth"]
+      "easy": [
+        "campfire",
+        "rest",
+        "fire",
+        "camp",
+        "heal",
+        "warm",
+        "safe",
+        "peace"
+      ],
+      "medium": [
+        "warm campsite",
+        "quiet bonfire",
+        "safe hearth",
+        "rest stop",
+        "healing fire",
+        "peaceful camp",
+        "warm hearth",
+        "safe retreat"
+      ],
+      "hard": [
+        "towards the warm flickering campsite",
+        "to rest beside the sheltered bonfire",
+        "towards the peaceful traveler hearth",
+        "seek refuge at the quiet rest stop",
+        "find solace by the healing fire",
+        "relax at the peaceful woodland camp",
+        "warm yourself by the safe hearth",
+        "retreat to the comforting campfire"
+      ]
     },
     "merchant": {
-      "easy": ["merchant", "shop", "trader"],
-      "medium": ["wandering merchant", "arcane bookshop", "scribes market"],
-      "hard": ["towards the wandering merchant wagon", "to browse the arcane roadside bookshop", "towards the lantern lit scribes market"]
+      "easy": [
+        "merchant",
+        "shop",
+        "trader",
+        "buy",
+        "store",
+        "market",
+        "sell",
+        "goods"
+      ],
+      "medium": [
+        "wandering merchant",
+        "arcane bookshop",
+        "scribes market",
+        "trader tent",
+        "traveling shop",
+        "goods market",
+        "merchant cart",
+        "hidden shop"
+      ],
+      "hard": [
+        "towards the wandering merchant wagon",
+        "to browse the arcane roadside bookshop",
+        "towards the lantern lit scribes market",
+        "visit the traveling trader tent",
+        "explore the hidden goods market",
+        "approach the colorful merchant cart",
+        "seek out the hidden woodland shop",
+        "peruse the wares at the scribes market"
+      ]
     },
     "treasure": {
-      "easy": ["treasure", "chest", "vault"],
-      "medium": ["treasure chest", "ancient vault", "gilded cache"],
-      "hard": ["towards the gleaming treasure chest", "to unlock the ancient stone relic vault", "towards the forgotten gilded cache"]
+      "easy": [
+        "treasure",
+        "chest",
+        "vault",
+        "loot",
+        "gold",
+        "prize",
+        "reward",
+        "cache"
+      ],
+      "medium": [
+        "treasure chest",
+        "ancient vault",
+        "gilded cache",
+        "hidden loot",
+        "golden prize",
+        "secret reward",
+        "locked chest",
+        "buried treasure"
+      ],
+      "hard": [
+        "towards the gleaming treasure chest",
+        "to unlock the ancient stone relic vault",
+        "towards the forgotten gilded cache",
+        "discover the hidden loot stash",
+        "claim the golden prize within the vault",
+        "uncover the secret reward in the cache",
+        "open the heavily locked treasure chest",
+        "dig up the buried treasure trove"
+      ]
     },
     "mystery": {
-      "easy": ["mystery", "unknown", "event"],
-      "medium": ["strange crossroads", "mysterious shrine", "whispering fog"],
-      "hard": ["into the swirling mysterious fog", "towards the enigmatic roadside shrine", "to investigate the strange crossroads"]
+      "easy": [
+        "mystery",
+        "unknown",
+        "event",
+        "strange",
+        "weird",
+        "curious",
+        "odd",
+        "secret"
+      ],
+      "medium": [
+        "strange crossroads",
+        "mysterious shrine",
+        "whispering fog",
+        "unknown event",
+        "curious encounter",
+        "secret path",
+        "odd happening",
+        "weird anomaly"
+      ],
+      "hard": [
+        "into the swirling mysterious fog",
+        "towards the enigmatic roadside shrine",
+        "to investigate the strange crossroads",
+        "explore the unknown event ahead",
+        "delve into the curious woodland encounter",
+        "follow the secret path to the mystery",
+        "witness the odd happening in the clearing",
+        "examine the weird anomaly on the road"
+      ]
     },
     "boss": {
-      "easy": ["boss", "wizard", "tower"],
-      "medium": ["evil wizard", "silence tower", "citadel gate"],
-      "hard": ["towards the throne of the evil wizard", "to storm the spire of eternal silence", "towards the grand citadel sanctuary"]
+      "easy": [
+        "boss",
+        "wizard",
+        "tower",
+        "end",
+        "final",
+        "evil",
+        "doom",
+        "spire"
+      ],
+      "medium": [
+        "evil wizard",
+        "silence tower",
+        "citadel gate",
+        "final boss",
+        "doom spire",
+        "dark wizard",
+        "end tower",
+        "boss fight"
+      ],
+      "hard": [
+        "towards the throne of the evil wizard",
+        "to storm the spire of eternal silence",
+        "towards the grand citadel sanctuary",
+        "confront the final boss in the tower",
+        "ascend the doom spire to face the wizard",
+        "battle the dark wizard at the citadel gate",
+        "reach the end tower and defeat the evil",
+        "prepare for the ultimate boss fight ahead"
+      ]
     }
   }
 }
