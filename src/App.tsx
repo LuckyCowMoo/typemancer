@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
+import { CardBanner } from './components/CardBanner';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
 import { ScrollableMap } from './components/ScrollableMap';
 import type {
@@ -91,16 +92,29 @@ interface ShopInventory {
 
 export interface CombatProjectile {
   id: string;
-  from: 'player' | number; // player or enemy slot index (0, 1, 2)
+  from: 'player' | number;
   to: 'player' | number;
   color: string;
 }
 
 export interface FloatingCombatPopup {
   id: string;
-  target: 'player' | string; // 'player' or enemy instanceId
+  target: 'player' | string;
   text: string;
   color: string;
+}
+
+export interface InkParticleBurst {
+  id: string;
+  x: number;
+  y: number;
+  particles: {
+    dx: number;
+    dy: number;
+    size: number;
+    color: string;
+    rot: number;
+  }[];
 }
 
 const DEFAULT_SETTINGS: GameSettings = {
@@ -130,24 +144,20 @@ const INITIAL_METRICS = (): RunMetrics => ({
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export function App() {
-  // Settings & Overlay state
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS);
   const [overlay, setOverlay] = useState<ModalOverlay>('none');
   const [extraHardAvailable, setExtraHardAvailable] = useState<boolean>(() => isExtraHardUnlocked());
 
-  // Main Screen, Tutorial & Intro Flow
   const [screen, setScreen] = useState<GameScreen>('main_menu');
   const [tutorialStep, setTutorialStep] = useState<number>(0);
   const [introStep, setIntroStep] = useState<IntroStep>('ask_name');
 
-  // Inspected Status / Entity / Dictionary States
   const [inspectedEntity, setInspectedEntity] = useState<ActiveEnemy | 'player' | null>(null);
   const [highlightedStatusId, setHighlightedStatusId] = useState<string | null>(null);
   const [dictionaryQuery, setDictionaryQuery] = useState<string>('');
   const [dictionaryLoading, setDictionaryLoading] = useState<boolean>(false);
   const [dictionaryData, setDictionaryData] = useState<DictionaryResult | null>(null);
 
-  // Player & Run State
   const [playerName, setPlayerName] = useState<string>('Scribe');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const phraseDiff = useMemo(() => getPhraseDifficulty(difficulty), [difficulty]);
@@ -159,14 +169,12 @@ export function App() {
   const [relicIds, setRelicIds] = useState<string[]>(['magical_typewriter']);
   const [metrics, setMetrics] = useState<RunMetrics>(() => INITIAL_METRICS());
 
-  // Map State (24 Floors + Scroll Offset)
   const [mapFloors, setMapFloors] = useState<MapNode[][]>(() => generateProceduralMap());
   const [currentFloor, setCurrentFloor] = useState<number>(1);
   const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
   const [activeNodeType, setActiveNodeType] = useState<'battle' | 'elite' | 'boss'>('battle');
-  const [mapScrollOffset, setMapScrollOffset] = useState<number>(2000);
+  const [mapScrollOffset, setMapScrollOffset] = useState<number>(3600);
 
-  // Combat State
   const [energy, setEnergy] = useState<number>(3);
   const [maxEnergy, setMaxEnergy] = useState<number>(3);
   const [playerWard, setPlayerWard] = useState<number>(0);
@@ -185,8 +193,8 @@ export function App() {
   const [isAnimatingTurn, setIsAnimatingTurn] = useState<boolean>(false);
   const [activeProjectile, setActiveProjectile] = useState<CombatProjectile | null>(null);
   const [floatingPopups, setFloatingPopups] = useState<FloatingCombatPopup[]>([]);
+  const [particleBursts, setParticleBursts] = useState<InkParticleBurst[]>([]);
 
-  // Non-Combat Encounter States
   const [rewardCards, setRewardCards] = useState<CardInstance[]>([]);
   const [rewardRelics, setRewardRelics] = useState<RelicDefinition[]>([]);
   const [rewardGoldClaimed, setRewardGoldClaimed] = useState<number>(0);
@@ -196,11 +204,33 @@ export function App() {
   const [activeEvent, setActiveEvent] = useState<MysteryEventDefinition | null>(null);
   const [eventOutcomeText, setEventOutcomeText] = useState<string | null>(null);
 
-  // Typing Console & Forgiving WPM Timer State
   const [typedInput, setTypedInput] = useState<string>('');
   const [actionStartTime, setActionStartTime] = useState<number | null>(null);
   const [actionCharAccum, setActionCharAccum] = useState<number>(0);
   const [liveWpm, setLiveWpm] = useState<number>(40);
+
+  /**
+   * Spawns a tactile ink-splatter / parchment-spark particle burst whenever an action is confirmed!
+   */
+  const triggerActionParticles = useCallback((xPct: number = 50, yPct: number = 88) => {
+    const id = nextUid('burst');
+    const colors = ['#137547', '#bc5215', '#102a3a', '#d97706', '#ffd166'];
+    const particles = Array.from({ length: 24 }, (_, idx) => {
+      const angle = (Math.PI * 2 * idx) / 24 + (Math.random() - 0.5) * 0.35;
+      const dist = 36 + Math.random() * 115;
+      return {
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist - 22,
+        size: 5 + Math.random() * 7,
+        color: colors[idx % colors.length],
+        rot: Math.floor(Math.random() * 360),
+      };
+    });
+    setParticleBursts((prev) => [...prev, { id, x: xPct, y: yPct, particles }]);
+    window.setTimeout(() => {
+      setParticleBursts((prev) => prev.filter((b) => b.id !== id));
+    }, 750);
+  }, []);
 
   const spawnPopup = useCallback((target: 'player' | string, text: string, color: string) => {
     const id = nextUid('popup');
@@ -220,7 +250,6 @@ export function App() {
     []
   );
 
-  // Tick live WPM meter while typing on Extra Hard
   useEffect(() => {
     if (difficulty !== 'extra_hard' || !actionStartTime || typedInput.trim().length === 0) {
       setLiveWpm(40);
@@ -304,7 +333,6 @@ export function App() {
     []
   );
 
-  // Start a Battle Encounter
   const startBattle = useCallback(
     (floorNum: number, nodeType: 'battle' | 'elite' | 'boss', currentDeck: CardInstance[], currentRelics: string[]) => {
       setActiveNodeType(nodeType);
@@ -373,7 +401,6 @@ export function App() {
     [drawCards, phraseDiff, resetTypingBuffer]
   );
 
-  // Trigger Victory after defeating all enemies in a fight
   const handleCombatVictory = useCallback(
     (survivingHp: number) => {
       if (currentFloor >= 24 || activeNodeType === 'boss') {
@@ -421,7 +448,6 @@ export function App() {
     [activeNodeType, currentFloor, difficulty, maxHp, relicIds, resetTypingBuffer]
   );
 
-  // Execute a selected card with sequential projectile & popup animations
   const executeCardPlay = useCallback(
     async (cardInst: CardInstance, targetEnemy: ActiveEnemy | null, speedMult: number) => {
       const resolved = resolveCardInstance(cardInst, phraseDiff);
@@ -430,6 +456,7 @@ export function App() {
         return;
       }
 
+      triggerActionParticles(50, 86);
       setIsAnimatingTurn(true);
       setSelectedCard(null);
       resetTypingBuffer(true);
@@ -451,7 +478,6 @@ export function App() {
         return Math.max(1, Math.round(raw * speedMult));
       };
 
-      // Launch projectile animation if targeting an enemy
       if (resolved.target === 'enemy' || resolved.target === 'all_enemies') {
         const targetIdx = targetEnemy
           ? Math.max(0, nextEnemies.findIndex((e) => e.instanceId === targetEnemy.instanceId))
@@ -677,15 +703,16 @@ export function App() {
       resetTypingBuffer,
       settings,
       spawnPopup,
+      triggerActionParticles,
       triggerProjectile,
     ]
   );
 
-  // End Player Turn & Sequentially Animate Each Enemy Action One by One
   const executeEndTurn = useCallback(async () => {
     if (isAnimatingTurn) return;
     setIsAnimatingTurn(true);
     soundEngine.playConfirm(settings);
+    triggerActionParticles(50, 86);
     setSelectedCard(null);
     resetTypingBuffer(true);
 
@@ -712,7 +739,6 @@ export function App() {
       const en = workingEnemies[idx];
       if (en.hp <= 0) continue;
 
-      // 1. Tick Ink Burn at start of this enemy's turn
       if (en.statuses.ink_burn > 0) {
         const burnDmg = en.statuses.ink_burn;
         en.hp = Math.max(0, en.hp - burnDmg);
@@ -728,13 +754,11 @@ export function App() {
         continue;
       }
 
-      // Reset enemy Ward before its action
       if (en.ward > 0) {
         en.ward = 0;
         spawnPopup(en.instanceId, `Ward wore off`, '#64748b');
       }
 
-      // 2. Animate and Execute Enemy Move sequentially
       const move = en.currentMove;
       if (move.damage && move.damage > 0) {
         const hits = move.hits || 1;
@@ -798,7 +822,6 @@ export function App() {
         });
       }
 
-      // Decrement enemy temporary debuffs & show wearing off
       const woreOffList: string[] = [];
       if (en.statuses.faded > 0) {
         en.statuses.faded -= 1;
@@ -838,7 +861,6 @@ export function App() {
       return;
     }
 
-    // Player Ink Burn tick
     if (nextPlayerStats.ink_burn > 0) {
       const pBurn = nextPlayerStats.ink_burn;
       nextPlayerHp = Math.max(0, nextPlayerHp - pBurn);
@@ -855,7 +877,6 @@ export function App() {
       return;
     }
 
-    // Decrement player temporary debuffs at start of new turn & show summary popup
     const playerWoreOff: string[] = [];
     if (nextPlayerStats.faded > 0) {
       nextPlayerStats.faded -= 1;
@@ -923,12 +944,13 @@ export function App() {
     resetTypingBuffer,
     settings,
     spawnPopup,
+    triggerActionParticles,
     triggerProjectile,
   ]);
 
-  // Enter a chosen Map Node
   const enterMapNode = useCallback(
     (node: MapNode) => {
+      triggerActionParticles(50, 75);
       setCurrentNodeId(node.id);
       setMapFloors((prev) =>
         prev.map((row) =>
@@ -1010,6 +1032,7 @@ export function App() {
       relicIds,
       resetTypingBuffer,
       startBattle,
+      triggerActionParticles,
     ]
   );
 
@@ -1050,13 +1073,18 @@ export function App() {
     );
   }, [difficulty, handCandidates, screen, selectedCard, typedInput]);
 
-  const highlightedCardIds = useMemo(() => {
-    if (!typedInput.trim() || selectedCard) return new Set<string>();
+  const { highlightedCardIds, enterReadyCardId } = useMemo(() => {
+    if (!typedInput.trim() || selectedCard) {
+      return { highlightedCardIds: new Set<string>(), enterReadyCardId: null as string | null };
+    }
     const matches = evaluatedHand.filter((m) => m.isPrefixMatch);
-    return new Set(matches.map((m) => m.item.item.instanceId));
+    const top = evaluatedHand[0];
+    return {
+      highlightedCardIds: new Set(matches.map((m) => m.item.item.instanceId)),
+      enterReadyCardId: top && top.isValidConfirm ? top.item.item.instanceId : null,
+    };
   }, [evaluatedHand, selectedCard, typedInput]);
 
-  // Only show card inspector in center when narrowed down to 1 card or selected
   const inspectedCard = useMemo(() => {
     if (selectedCard) {
       return resolveCardInstance(selectedCard, phraseDiff);
@@ -1078,14 +1106,34 @@ export function App() {
     );
   }, [difficulty, enemies, screen, typedInput]);
 
-  const highlightedEnemyIds = useMemo(() => {
-    if (!selectedCard || !typedInput.trim()) return new Set<string>();
+  const { highlightedEnemyIds, enterReadyEnemyId } = useMemo(() => {
+    if (!typedInput.trim()) {
+      return { highlightedEnemyIds: new Set<string>(), enterReadyEnemyId: null as string | null };
+    }
     const matches = evaluatedEnemies.filter((m) => m.isPrefixMatch);
-    return new Set(matches.map((m) => m.item.instanceId));
-  }, [evaluatedEnemies, selectedCard, typedInput]);
+    const top = evaluatedEnemies[0];
+    return {
+      highlightedEnemyIds: new Set(matches.map((m) => m.item.instanceId)),
+      enterReadyEnemyId: top && top.isValidConfirm ? top.item.instanceId : null,
+    };
+  }, [evaluatedEnemies, typedInput]);
+
+  // Helper to check highlight & enter-ready state on any generic option phrase (Menu, Campfire, Mystery, etc.)
+  const getPhraseHighlightState = useCallback(
+    (phrase: string, checkDiff: Difficulty = difficulty): { isHighlighted: boolean; isEnterReady: boolean } => {
+      if (!typedInput.trim()) return { isHighlighted: false, isEnterReady: false };
+      const res = evaluateCandidates(typedInput, [{ item: phrase, phrase }], checkDiff)[0];
+      return {
+        isHighlighted: Boolean(res?.isPrefixMatch),
+        isEnterReady: Boolean(res?.isValidConfirm),
+      };
+    },
+    [difficulty, typedInput]
+  );
 
   const startNewRun = useCallback(
     (chosenName: string, chosenDiff: Difficulty) => {
+      triggerActionParticles(50, 82);
       const freshDeck = createStarterDeck();
       const freshMap = generateProceduralMap();
       setPlayerName(chosenName);
@@ -1102,7 +1150,7 @@ export function App() {
       resetTypingBuffer(true);
       setScreen('map');
     },
-    [resetTypingBuffer]
+    [resetTypingBuffer, triggerActionParticles]
   );
 
   const restoreFromSavePayload = useCallback(
@@ -1110,6 +1158,7 @@ export function App() {
       const payload = decodeSaveCode(rawCode);
       if (!payload) return false;
 
+      triggerActionParticles(50, 82);
       setPlayerName(payload.name);
       setDifficulty(payload.diff);
       setCurrentFloor(payload.floor);
@@ -1131,20 +1180,20 @@ export function App() {
       setScreen('map');
       return true;
     },
-    [resetTypingBuffer]
+    [resetTypingBuffer, triggerActionParticles]
   );
 
-  // Handle pressing Enter on any screen
   const handleEnterSubmit = useCallback(() => {
     if (isAnimatingTurn) return;
     const raw = typedInput.trim();
     const norm = normalizeText(raw);
 
-    // 0. Check if user typed `<word>?` to look up a word's meaning!
+    // 0. Live Word Dictionary Lookup (`<word>?`)
     if (raw.endsWith('?') && raw.length > 1) {
       const queryWord = raw.slice(0, -1).trim();
       if (queryWord.length > 0 && !queryWord.includes(' ')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 88);
         setDictionaryQuery(queryWord);
         setDictionaryLoading(true);
         setDictionaryData(null);
@@ -1158,13 +1207,14 @@ export function App() {
       }
     }
 
-    // 1. Check Modal Overlay Commands first
+    // 1. Modal Overlay Commands
     if (overlay !== 'none') {
       if (
         !raw ||
         matchCommand(raw, ['back', 'return', 'close', 'exit', 'cancel', 'resume', 'done'], 'easy')
       ) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 85);
         setOverlay('none');
         setHighlightedStatusId(null);
         setInspectedEntity(null);
@@ -1176,54 +1226,63 @@ export function App() {
         if (matchCommand(raw, ['mute', 'unmute', 'toggle mute'], 'easy')) {
           setSettings((s) => ({ ...s, muted: !s.muted }));
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['typewriter', 'mechanical typewriter'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'mechanical_typewriter' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'mechanical_typewriter' });
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['telegraph', 'vintage telegraph'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'vintage_telegraph' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'vintage_telegraph' });
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['quill', 'arcane quill'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'arcane_quill' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'arcane_quill' });
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['chalk', 'soft chalk'], 'easy')) {
           setSettings((s) => ({ ...s, typingSound: 'soft_chalk' }));
           soundEngine.playConfirm({ ...settings, typingSound: 'soft_chalk' });
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['bell', 'carriage bell'], 'easy')) {
           setSettings((s) => ({ ...s, confirmSound: 'carriage_bell' }));
           soundEngine.playConfirm({ ...settings, confirmSound: 'carriage_bell' });
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['chime', 'spell chime'], 'easy')) {
           setSettings((s) => ({ ...s, confirmSound: 'spell_chime' }));
           soundEngine.playConfirm({ ...settings, confirmSound: 'spell_chime' });
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['stamp', 'heavy stamp'], 'easy')) {
           setSettings((s) => ({ ...s, confirmSound: 'heavy_stamp' }));
           soundEngine.playConfirm({ ...settings, confirmSound: 'heavy_stamp' });
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
         if (matchCommand(raw, ['contrast', 'high contrast'], 'easy')) {
           setSettings((s) => ({ ...s, highContrast: !s.highContrast }));
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 85);
           resetTypingBuffer(false);
           return;
         }
@@ -1241,21 +1300,24 @@ export function App() {
       return;
     }
 
-    // 2. Universal Meta-Commands across all screens
+    // 2. Universal Meta-Commands
     if (matchCommand(raw, ['help', 'commands', 'what can i type'], 'easy')) {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setOverlay('help');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['options', 'settings', 'audio', 'sound'], 'easy')) {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setOverlay('options');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['mute'], 'easy')) {
       setSettings((s) => ({ ...s, muted: true }));
+      triggerActionParticles(50, 88);
       resetTypingBuffer(false);
       return;
     }
@@ -1263,19 +1325,18 @@ export function App() {
       const next = { ...settings, muted: false };
       setSettings(next);
       soundEngine.playConfirm(next);
+      triggerActionParticles(50, 88);
       resetTypingBuffer(false);
       return;
     }
-    if (
-      matchCommand(raw, ['status effects', 'statuses', 'status', 'effects'], 'easy')
-    ) {
+    if (matchCommand(raw, ['status effects', 'statuses', 'status', 'effects'], 'easy')) {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setHighlightedStatusId(null);
       setOverlay('status_effects');
       resetTypingBuffer(false);
       return;
     }
-    // Check if the user typed the name of a specific status effect (when not matching a card in hand)
     for (const st of STATUS_DEFINITIONS) {
       if (matchCommand(raw, [st.name, `inspect ${st.name}`], 'easy')) {
         const collidesWithHandCard =
@@ -1285,6 +1346,7 @@ export function App() {
           normalizeText(evaluatedHand[0].phrase) === norm;
         if (!collidesWithHandCard) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 88);
           setHighlightedStatusId(st.id);
           setOverlay('status_effects');
           resetTypingBuffer(false);
@@ -1299,18 +1361,21 @@ export function App() {
       screen !== 'peasant_intro'
     ) {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setOverlay('deck');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['view discard', 'discard', 'discard pile'], 'easy') && screen === 'battle') {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setOverlay('discard');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['view burn', 'burn draft', 'burned'], 'easy') && screen === 'battle') {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setOverlay('burn_draft');
       resetTypingBuffer(false);
       return;
@@ -1321,12 +1386,14 @@ export function App() {
       screen !== 'peasant_intro'
     ) {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setOverlay('relics');
       resetTypingBuffer(false);
       return;
     }
     if (matchCommand(raw, ['save', 'save code', 'export save'], 'easy')) {
       soundEngine.playConfirm(settings);
+      triggerActionParticles(50, 88);
       setOverlay('save');
       resetTypingBuffer(false);
       return;
@@ -1336,6 +1403,7 @@ export function App() {
     if (screen === 'main_menu') {
       if (matchCommand(raw, ['new run', 'new', 'start', 'play'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         setIntroStep('ask_name');
         setScreen('peasant_intro');
         resetTypingBuffer(true);
@@ -1343,6 +1411,7 @@ export function App() {
       }
       if (matchCommand(raw, ['tutorial', 'learn', 'how to play'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         setTutorialStep(0);
         setScreen('tutorial');
         resetTypingBuffer(true);
@@ -1357,6 +1426,7 @@ export function App() {
           return;
         }
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         setIntroStep('load_save');
         setScreen('peasant_intro');
         resetTypingBuffer(true);
@@ -1370,28 +1440,32 @@ export function App() {
       return;
     }
 
-    // 4. INTERACTIVE TUTORIAL
+    // 4. TUTORIAL
     if (screen === 'tutorial') {
       if (matchCommand(raw, ['back', 'exit', 'menu', 'skip'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 80);
         setScreen('main_menu');
         resetTypingBuffer(true);
         return;
       }
       if (tutorialStep === 0 && matchCommand(raw, ['strike'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 75);
         setTutorialStep(1);
         resetTypingBuffer(true);
         return;
       }
       if (tutorialStep === 1 && matchCommand(raw, ['goblin scout', 'goblin'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 75);
         setTutorialStep(2);
         resetTypingBuffer(true);
         return;
       }
       if (tutorialStep === 2 && (!norm || matchCommand(raw, ['new run', 'start', 'menu', 'done'], 'easy'))) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 75);
         setIntroStep('ask_name');
         setScreen('peasant_intro');
         resetTypingBuffer(true);
@@ -1401,7 +1475,7 @@ export function App() {
       return;
     }
 
-    // 5. PEASANT OPENING SEQUENCE
+    // 5. PEASANT INTRO
     if (screen === 'peasant_intro') {
       if (introStep === 'ask_name') {
         if (matchCommand(raw, ['back', 'menu', 'return'], 'easy')) {
@@ -1419,6 +1493,7 @@ export function App() {
           return;
         }
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 78);
         setPlayerName(raw.slice(0, 28));
         setIntroStep('ask_difficulty');
         resetTypingBuffer(true);
@@ -1507,7 +1582,6 @@ export function App() {
         return;
       }
 
-      // STEP 1: Selecting a card from hand OR inspecting an entity by typing its name!
       if (!selectedCard) {
         const bestCard = evaluatedHand[0];
         if (bestCard && bestCard.isValidConfirm) {
@@ -1522,16 +1596,17 @@ export function App() {
           }
 
           soundEngine.playConfirm(settings);
+          triggerActionParticles(18, 52);
           setSelectedCard(chosenInst);
           setActionCharAccum((prev) => prev + resolved.name.length);
           setTypedInput('');
           return;
         }
 
-        // Check if player typed an enemy's name (or "player" / their own name) to inspect it!
         const bestEnemyInspect = evaluatedEnemies[0];
         if (bestEnemyInspect && bestEnemyInspect.isValidConfirm) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(75, 50);
           setInspectedEntity(bestEnemyInspect.item);
           setOverlay('entity_inspect');
           resetTypingBuffer(false);
@@ -1539,6 +1614,7 @@ export function App() {
         }
         if (matchCommand(raw, ['player', 'myself', playerName], 'easy')) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(35, 50);
           setInspectedEntity('player');
           setOverlay('entity_inspect');
           resetTypingBuffer(false);
@@ -1549,7 +1625,6 @@ export function App() {
         return;
       }
 
-      // STEP 2: Card is selected -> confirm self/all_enemies on Enter, or match target enemy name
       const resolvedSelected = resolveCardInstance(selectedCard, phraseDiff);
       if (resolvedSelected.target === 'self' || resolvedSelected.target === 'all_enemies') {
         if (!norm || matchCommand(raw, ['confirm', 'cast', 'yes', resolvedSelected.connector], 'easy')) {
@@ -1578,6 +1653,7 @@ export function App() {
     if (screen === 'reward') {
       if (matchCommand(raw, ['skip', 'continue', 'next', 'leave', 'pass'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 82);
         advanceToMapNextFloor();
         return;
       }
@@ -1590,6 +1666,7 @@ export function App() {
         const evalCards = evaluateCandidates(raw, cardCands, difficulty);
         if (evalCards[0] && evalCards[0].isValidConfirm) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 65);
           const picked = evalCards[0].item;
           setDeck((d) => [...d, picked]);
           setRewardCards([]);
@@ -1609,6 +1686,7 @@ export function App() {
         const evalRelics = evaluateCandidates(raw, relicCands, difficulty);
         if (evalRelics[0] && evalRelics[0].isValidConfirm) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 65);
           const pickedRelic = evalRelics[0].item;
           setRelicIds((ids) => [...ids, pickedRelic.id]);
           if (pickedRelic.trigger === 'passive_max_hp' && pickedRelic.effectType === 'max_hp') {
@@ -1633,6 +1711,7 @@ export function App() {
       if (campfireSubMode === 'choose') {
         if (matchCommand(raw, ['rest', 'sleep', 'heal', 'rest by the fire'], difficulty)) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 65);
           let healAmt = Math.max(10, Math.round(maxHp * 0.3));
           relicIds.forEach((id) => {
             const r = getRelicDefinition(id);
@@ -1644,6 +1723,7 @@ export function App() {
         }
         if (matchCommand(raw, ['revise', 'edit', 'upgrade', 'smith', 'revise a card'], difficulty)) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 65);
           setCampfireSubMode('revise_select');
           resetTypingBuffer(true);
           return;
@@ -1671,6 +1751,7 @@ export function App() {
         const evalUp = evaluateCandidates(raw, cands, difficulty);
         if (evalUp[0] && evalUp[0].isValidConfirm) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 65);
           const targetInst = evalUp[0].item;
           setDeck((prev) =>
             prev.map((c) =>
@@ -1685,7 +1766,7 @@ export function App() {
       }
     }
 
-    // 10. MERCHANT / BOOKSHOP
+    // 10. MERCHANT
     if (screen === 'merchant' && shopInventory) {
       if (shopSubMode === 'remove_select') {
         if (matchCommand(raw, ['back', 'return', 'cancel'], 'easy')) {
@@ -1700,6 +1781,7 @@ export function App() {
         const evalRem = evaluateCandidates(raw, cands, difficulty);
         if (evalRem[0] && evalRem[0].isValidConfirm) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 65);
           const toRemove = evalRem[0].item;
           setDeck((prev) => prev.filter((c) => c.instanceId !== toRemove.instanceId));
           setGold((g) => g - shopInventory.removeServicePrice);
@@ -1714,6 +1796,7 @@ export function App() {
 
       if (matchCommand(raw, ['leave', 'exit', 'continue', 'skip', 'back'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 82);
         advanceToMapNextFloor();
         return;
       }
@@ -1724,6 +1807,7 @@ export function App() {
           return;
         }
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         setShopSubMode('remove_select');
         resetTypingBuffer(true);
         return;
@@ -1745,6 +1829,7 @@ export function App() {
           return;
         }
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         setGold((g) => g - entry.price);
         setDeck((d) => [...d, entry.instance]);
         setShopInventory({
@@ -1773,6 +1858,7 @@ export function App() {
           return;
         }
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         setGold((g) => g - entry.price);
         setRelicIds((ids) => [...ids, entry.relic.id]);
         setShopInventory({
@@ -1803,6 +1889,7 @@ export function App() {
       );
       if (evalRelics[0] && evalRelics[0].isValidConfirm) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         const picked = evalRelics[0].item;
         setRelicIds((ids) => [...ids, picked.id]);
         if (picked.trigger === 'passive_max_hp' && picked.effectType === 'max_hp') {
@@ -1816,11 +1903,12 @@ export function App() {
       return;
     }
 
-    // 12. MYSTERY ENCOUNTER (?)
+    // 12. MYSTERY ENCOUNTER
     if (screen === 'mystery' && activeEvent) {
       if (eventOutcomeText !== null) {
         if (!norm || matchCommand(raw, ['continue', 'onward', 'next', 'leave'], 'easy')) {
           soundEngine.playConfirm(settings);
+          triggerActionParticles(50, 75);
           advanceToMapNextFloor();
           return;
         }
@@ -1835,6 +1923,7 @@ export function App() {
       );
       if (evalChoices[0] && evalChoices[0].isValidConfirm) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 65);
         const choice = evalChoices[0].item;
         const eff = choice.effects;
 
@@ -1884,6 +1973,7 @@ export function App() {
     if (screen === 'game_over' || screen === 'victory') {
       if (matchCommand(raw, ['new run', 'restart', 'play again', 'again', 'start', 'menu'], 'easy')) {
         soundEngine.playConfirm(settings);
+        triggerActionParticles(50, 75);
         setScreen('main_menu');
         resetTypingBuffer(true);
         return;
@@ -1925,11 +2015,11 @@ export function App() {
     shopSubMode,
     spawnPopup,
     startNewRun,
+    triggerActionParticles,
     tutorialStep,
     typedInput,
   ]);
 
-  // Global Keyboard Listener (Supports Map Scrolling via ArrowUp/Down & PageUp/Down)
   const handleEnterRef = useRef(handleEnterSubmit);
   useEffect(() => {
     handleEnterRef.current = handleEnterSubmit;
@@ -1941,26 +2031,25 @@ export function App() {
         return;
       }
 
-      // Map scrolling via ArrowUp / ArrowDown / PageUp / PageDown
       if (screen === 'map' && overlay === 'none') {
         if (e.key === 'ArrowUp') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.max(0, prev - 130));
+          setMapScrollOffset((prev) => Math.max(0, prev - 160));
           return;
         }
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.min(2800, prev + 130));
+          setMapScrollOffset((prev) => Math.min(4800, prev + 160));
           return;
         }
         if (e.key === 'PageUp') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.max(0, prev - 380));
+          setMapScrollOffset((prev) => Math.max(0, prev - 420));
           return;
         }
         if (e.key === 'PageDown') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.min(2800, prev + 380));
+          setMapScrollOffset((prev) => Math.min(4800, prev + 420));
           return;
         }
       }
@@ -2063,7 +2152,6 @@ export function App() {
     [currentFloor, deck, difficulty, gold, hp, maxHp, metrics, playerName, relicIds]
   );
 
-  // Reusable Relic Icon Bar (Shows only icons; type "relics" to inspect names & descriptions)
   const renderRelicIconsBar = () => (
     <div className="relic-icons-bar" aria-label="Collected Relics">
       {relicIds.map((rId, idx) => {
@@ -2084,44 +2172,56 @@ export function App() {
 
   return (
     <div className={`typemancer-viewport ${settings.highContrast ? 'high-contrast' : ''}`}>
+      {/* GLOBAL INK & PARCHMENT ACTION PARTICLE BURSTS */}
+      <div className="particles-overlay-layer" aria-hidden="true">
+        {particleBursts.map((burst) => (
+          <div
+            key={burst.id}
+            className="particle-burst-origin"
+            style={{ left: `${burst.x}%`, top: `${burst.y}%` }}
+          >
+            {burst.particles.map((p, idx) => (
+              <span
+                key={idx}
+                className="ink-particle-dot"
+                style={
+                  {
+                    '--dx': `${p.dx}px`,
+                    '--dy': `${p.dy}px`,
+                    '--rot': `${p.rot}deg`,
+                    width: `${p.size}px`,
+                    height: `${p.size}px`,
+                    backgroundColor: p.color,
+                  } as React.CSSProperties
+                }
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+
       {/* ==================== BATTLE SCENE ==================== */}
       {screen === 'battle' && (
         <div className="battle-layout">
-          {/* LEFT COLUMN: Stacked Cards with 1:1 Image Frame on Left, Name+Cost on Top, Description on Right */}
+          {/* LEFT COLUMN: Stacked Paper Card Banners */}
           <aside className="cards-column" aria-label="Player Hand">
             <div className="cards-stack">
-              {handCandidates.map(({ item, phrase, resolved }, idx) => {
+              {handCandidates.map(({ item, resolved }, idx) => {
                 const isSelected = selectedCard?.instanceId === item.instanceId;
-                const isHighlighted = highlightedCardIds.has(item.instanceId) || isSelected;
+                const isHighlighted = highlightedCardIds.has(item.instanceId);
+                const isEnterReady = enterReadyCardId === item.instanceId;
                 const canAfford = energy >= resolved.cost;
                 return (
-                  <div
+                  <CardBanner
                     key={item.instanceId}
-                    className={`card-tab ${idx % 2 === 0 ? 'card-tab-light' : 'card-tab-dark'} ${
-                      isHighlighted ? 'card-tab-highlighted' : ''
-                    } ${isSelected ? 'card-tab-selected' : ''} ${!canAfford ? 'card-tab-unaffordable' : ''}`}
-                  >
-                    <div className="card-tab-inner">
-                      {/* 1:1 Square Image Slot on Left */}
-                      <div className="card-art-square">
-                        {resolved.art.spriteUrl ? (
-                          <img src={resolved.art.spriteUrl} alt="" />
-                        ) : null}
-                      </div>
-
-                      {/* Right Half: Name & Cost along Top, Description beneath */}
-                      <div className="card-info-right">
-                        <div className="card-tab-header">
-                          <span className="card-tab-name">
-                            {phrase}
-                            {item.upgraded ? ' +' : ''}
-                          </span>
-                          <span className="card-cost-pill">{resolved.cost}</span>
-                        </div>
-                        <div className="card-tab-sub">{resolved.description}</div>
-                      </div>
-                    </div>
-                  </div>
+                    instance={item}
+                    phraseDiff={phraseDiff}
+                    index={idx}
+                    isHighlighted={isHighlighted}
+                    isEnterCandidate={isEnterReady}
+                    isSelected={isSelected}
+                    isUnaffordable={!canAfford}
+                  />
                 );
               })}
             </div>
@@ -2136,7 +2236,6 @@ export function App() {
 
           {/* RIGHT MAIN AREA */}
           <main className="battle-main">
-            {/* Minimal Uncluttered Top Bar: Relic Icons + Clean Hint */}
             <header className="minimal-top-bar">
               {renderRelicIconsBar()}
               <div className="minimal-command-hint">
@@ -2144,9 +2243,7 @@ export function App() {
               </div>
             </header>
 
-            {/* ARENA: Player on Left, Optional Single-Card Inspector in Center, Enemies on Right */}
             <section className="arena-stage">
-              {/* Animated Projectile Ball */}
               {activeProjectile && (
                 <div
                   key={activeProjectile.id}
@@ -2160,7 +2257,7 @@ export function App() {
               )}
 
               {/* Player Entity */}
-              <div className="player-spot">
+              <div className="player-spot paper-sway-slow">
                 <div className="entity-name-label">{playerName}</div>
                 <div className="hp-bar-frame player-hp-bar">
                   <div
@@ -2172,7 +2269,6 @@ export function App() {
                   </span>
                 </div>
 
-                {/* Floating Popups over Player */}
                 <div className="floating-popups-anchor">
                   {floatingPopups
                     .filter((p) => p.target === 'player')
@@ -2205,10 +2301,10 @@ export function App() {
                 </div>
               </div>
 
-              {/* Center Area: Empty unless 1 card is narrowed down for inspection */}
+              {/* Center Area: Single-Card Inspector */}
               <div className="arena-center-inspector">
                 {inspectedCard && (
-                  <div className="inspected-card-panel">
+                  <div className="inspected-card-panel paper-sheet-float">
                     <div className="inspected-card-badge">
                       {inspectedCard.rarity.toUpperCase()} {inspectedCard.type.toUpperCase()} · {inspectedCard.cost} Energy
                     </div>
@@ -2228,12 +2324,13 @@ export function App() {
               <div className="enemies-formation">
                 {enemies.map((enemy, index) => {
                   const isTargetHighlighted = highlightedEnemyIds.has(enemy.instanceId);
+                  const isTargetEnterReady = enterReadyEnemyId === enemy.instanceId;
                   return (
                     <div
                       key={enemy.instanceId}
                       className={`enemy-spot enemy-slot-${index} ${
                         isTargetHighlighted ? 'enemy-spot-highlighted' : ''
-                      }`}
+                      } ${isTargetEnterReady ? 'enemy-spot-enter-ready' : ''}`}
                     >
                       <div className="entity-name-label enemy-name-label">{enemy.displayName}</div>
                       <div className="hp-bar-frame enemy-hp-bar">
@@ -2248,7 +2345,6 @@ export function App() {
                         </span>
                       </div>
 
-                      {/* Floating Popups over Enemy */}
                       <div className="floating-popups-anchor">
                         {floatingPopups
                           .filter((p) => p.target === enemy.instanceId)
@@ -2267,7 +2363,7 @@ export function App() {
                         art={enemy.art}
                         width={68}
                         height={132}
-                        isHighlighted={isTargetHighlighted}
+                        isHighlighted={isTargetHighlighted || isTargetEnterReady}
                       />
                       <IntentBadge
                         intent={enemy.currentMove.intent}
@@ -2289,7 +2385,7 @@ export function App() {
               </div>
             </section>
 
-            {/* MIDDLE ROW: Energy Box + Area for Stats (WPM Speed Meter ONLY shown on Extra Hard) */}
+            {/* MIDDLE ROW: Energy Box + Area for Stats */}
             <section className="battle-stats-row">
               <div className="energy-box">
                 <div className="energy-value">
@@ -2317,7 +2413,6 @@ export function App() {
                   </div>
                 </div>
 
-                {/* Extra Hard Mode Speed Effectiveness Meter (Hidden on Easy/Medium/Hard) */}
                 {difficulty === 'extra_hard' && (
                   <div className="wpm-meter-container">
                     <div className="wpm-meter-labels">
@@ -2339,7 +2434,7 @@ export function App() {
               </div>
             </section>
 
-            {/* BOTTOM ROW: Clean Typing Bar (Just a blinking cursor when empty) */}
+            {/* BOTTOM ROW: Clean Typing Bar */}
             <section className="typing-console-box">
               <div className="typing-sentence-display">
                 {selectedCardResolved ? (
@@ -2365,15 +2460,14 @@ export function App() {
 
       {/* ==================== NON-BATTLE SCREENS ==================== */}
       {screen !== 'battle' && (
-        <div className="narrative-screen-layout">
-          {/* Minimal Uncluttered Top Bar */}
+        <div className={`narrative-screen-layout ${screen === 'map' ? 'map-fullscreen-mode' : ''}`}>
+          {/* Minimal Floating Top Bar */}
           <header className="minimal-top-bar">
             {screen !== 'main_menu' && screen !== 'tutorial' && screen !== 'peasant_intro' ? (
               <div className="minimal-run-status">
                 {renderRelicIconsBar()}
                 <span className="minimal-stat-chip">HP {hp}/{maxHp}</span>
                 <span className="minimal-stat-chip">Gold {gold}</span>
-                <span className="minimal-stat-chip">Floor {currentFloor}/24</span>
               </div>
             ) : (
               <div />
@@ -2385,32 +2479,52 @@ export function App() {
 
           {/* Main Content Stage */}
           <main className="narrative-stage">
-            {/* 0. CLEAN MAIN MENU */}
+            {/* 0. PAPER MAIN MENU WITH 2-TIER HIGHLIGHTING */}
             {screen === 'main_menu' && (
-              <div className="clean-menu-card">
+              <div className="clean-menu-card paper-sheet-float">
                 <h1 className="clean-menu-title">TYPEMANCER</h1>
                 <div className="clean-menu-options">
-                  <div className="clean-menu-option">new run</div>
-                  <div className="clean-menu-option">tutorial</div>
-                  <div className="clean-menu-option">load</div>
-                  <div className="clean-menu-option">options</div>
+                  {(['new run', 'tutorial', 'load', 'options'] as const).map((opt, idx) => {
+                    const st = getPhraseHighlightState(opt, 'easy');
+                    return (
+                      <div
+                        key={opt}
+                        className={`clean-menu-option ${
+                          st.isHighlighted ? 'option-highlighted' : ''
+                        } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                        style={{ animationDelay: `${idx * 0.25}s` }}
+                      >
+                        {opt}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* 0.5 SHORT INTERACTIVE TUTORIAL */}
             {screen === 'tutorial' && (
-              <div className="story-card">
+              <div className="story-card paper-sheet-float">
                 <h1 className="story-title">How to Play Typemancer</h1>
                 {tutorialStep === 0 && (
                   <div className="prompt-panel">
                     <h2>Step 1 of 3 — Casting a Card</h2>
                     <p>
-                      In Typemancer, your keyboard controls everything. To select a card in battle,
-                      type its name and press <code>Enter</code>.
+                      In Typemancer, your keyboard controls everything. Notice how options glow warm amber as you start typing, then turn <strong>emerald green and enlarge</strong> when pressing <code>Enter</code> will select them!
                     </p>
                     <p>Try selecting the basic attack card now by typing:</p>
-                    <div className="phrase-to-type">strike</div>
+                    {(() => {
+                      const st = getPhraseHighlightState('strike', 'easy');
+                      return (
+                        <div
+                          className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
+                            st.isEnterReady ? 'option-enter-ready' : ''
+                          }`}
+                        >
+                          <div className="phrase-to-type">strike</div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
                 {tutorialStep === 1 && (
@@ -2421,7 +2535,18 @@ export function App() {
                       <em> "strike" -at- ...</em>
                     </p>
                     <p>Finish the sentence by typing the target enemy's name:</p>
-                    <div className="phrase-to-type">goblin scout</div>
+                    {(() => {
+                      const st = getPhraseHighlightState('goblin scout', 'easy');
+                      return (
+                        <div
+                          className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
+                            st.isEnterReady ? 'option-enter-ready' : ''
+                          }`}
+                        >
+                          <div className="phrase-to-type">goblin scout</div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
                 {tutorialStep === 2 && (
@@ -2432,7 +2557,18 @@ export function App() {
                       <li>Type an enemy's name or status effect name (like <code>ward</code> or <code>ink burn</code>) to inspect what it does.</li>
                       <li>Unsure what an English word means? Type the word followed by <code>?</code> (for example <code>pavilion?</code>) to look up its definition!</li>
                     </ul>
-                    <div className="phrase-to-type">new run</div>
+                    {(() => {
+                      const st = getPhraseHighlightState('new run', 'easy');
+                      return (
+                        <div
+                          className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
+                            st.isEnterReady ? 'option-enter-ready' : ''
+                          }`}
+                        >
+                          <div className="phrase-to-type">new run</div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
@@ -2440,7 +2576,7 @@ export function App() {
 
             {/* 1. OPENING SEQUENCE: THE PEASANT & THE TYPEWRITER */}
             {screen === 'peasant_intro' && (
-              <div className="story-card">
+              <div className="story-card paper-sheet-float">
                 <p className="story-paragraph">
                   In this dystopian world, an Evil Wizard has taken away the beauty of speech and song.
                   All must write to each other to do anything—until you find a magical relic: a <strong>TYPEWRITER!</strong>
@@ -2471,27 +2607,33 @@ export function App() {
                       "{playerName}, how difficult do you expect this journey to be?"
                     </p>
                     <div className="choice-list">
-                      <div className="choice-item">
-                        <div className="phrase-to-type">easy</div>
-                      </div>
-                      <div className="choice-item">
-                        <div className="phrase-to-type">a fair challenge</div>
-                      </div>
-                      <div className="choice-item">
-                        <div className="phrase-to-type">i expect this quest to be a grueling endeavour</div>
-                      </div>
-                      {extraHardAvailable && (
-                        <div className="choice-item">
-                          <div className="phrase-to-type">my fingers move faster than lightning itself</div>
-                        </div>
-                      )}
+                      {[
+                        'easy',
+                        'a fair challenge',
+                        'i expect this quest to be a grueling endeavour',
+                        ...(extraHardAvailable
+                          ? ['my fingers move faster than lightning itself']
+                          : []),
+                      ].map((phrase) => {
+                        const st = getPhraseHighlightState(phrase, 'easy');
+                        return (
+                          <div
+                            key={phrase}
+                            className={`choice-item ${
+                              st.isHighlighted ? 'option-highlighted' : ''
+                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                          >
+                            <div className="phrase-to-type">{phrase}</div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* 2. SCROLLABLE 24-FLOOR PROCEDURAL MAP */}
+            {/* 2. FULL-SCREEN SCROLLABLE 24-FLOOR PROCEDURAL MAP */}
             {screen === 'map' && (
               <ScrollableMap
                 mapFloors={mapFloors}
@@ -2508,23 +2650,22 @@ export function App() {
 
             {/* 3. POST-BATTLE REWARDS */}
             {screen === 'reward' && (
-              <div className="story-card">
+              <div className="story-card paper-sheet-float">
                 <h2 className="story-title">Rewards (+{rewardGoldClaimed} Gold) — or type (skip)</h2>
                 {rewardCards.length > 0 && (
-                  <div className="reward-cards-grid">
-                    {rewardCards.map((inst) => {
+                  <div className="deck-banner-grid">
+                    {rewardCards.map((inst, idx) => {
                       const res = resolveCardInstance(inst, phraseDiff);
+                      const st = getPhraseHighlightState(res.name, difficulty);
                       return (
-                        <div key={inst.instanceId} className="structured-card-box">
-                          <div className="card-art-square" />
-                          <div className="card-info-right">
-                            <div className="card-tab-header">
-                              <span className="phrase-to-type">{res.name}</span>
-                              <span className="card-cost-pill">{res.cost}</span>
-                            </div>
-                            <div className="card-tab-sub">{res.description}</div>
-                          </div>
-                        </div>
+                        <CardBanner
+                          key={inst.instanceId}
+                          instance={inst}
+                          phraseDiff={phraseDiff}
+                          index={idx}
+                          isHighlighted={st.isHighlighted}
+                          isEnterCandidate={st.isEnterReady}
+                        />
                       );
                     })}
                   </div>
@@ -2532,17 +2673,25 @@ export function App() {
 
                 {rewardRelics.length > 0 && (
                   <div className="reward-cards-grid">
-                    {rewardRelics.map((rel) => (
-                      <div key={rel.id} className="structured-card-box">
-                        <div className="card-art-square">
-                          {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
+                    {rewardRelics.map((rel) => {
+                      const st = getPhraseHighlightState(rel.names[phraseDiff], difficulty);
+                      return (
+                        <div
+                          key={rel.id}
+                          className={`structured-card-box ${
+                            st.isHighlighted ? 'option-highlighted' : ''
+                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                        >
+                          <div className="card-art-square">
+                            {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
+                          </div>
+                          <div className="card-info-right">
+                            <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
+                            <div className="card-tab-sub">{rel.description}</div>
+                          </div>
                         </div>
-                        <div className="card-info-right">
-                          <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
-                          <div className="card-tab-sub">{rel.description}</div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -2550,36 +2699,46 @@ export function App() {
 
             {/* 4. CAMPFIRE */}
             {screen === 'campfire' && (
-              <div className="story-card">
+              <div className="story-card paper-sheet-float">
                 <h2 className="story-title">Campfire</h2>
                 {campfireSubMode === 'choose' ? (
                   <div className="choice-list">
-                    <div className="choice-item">
-                      <div className="phrase-to-type">rest</div>
-                      <div>Heal 30% Max HP</div>
-                    </div>
-                    <div className="choice-item">
-                      <div className="phrase-to-type">revise</div>
-                      <div>Upgrade a card in your deck</div>
-                    </div>
+                    {[
+                      { cmd: 'rest', desc: 'Heal 30% Max HP' },
+                      { cmd: 'revise', desc: 'Upgrade a card in your deck' },
+                    ].map((item) => {
+                      const st = getPhraseHighlightState(item.cmd, difficulty);
+                      return (
+                        <div
+                          key={item.cmd}
+                          className={`choice-item ${
+                            st.isHighlighted ? 'option-highlighted' : ''
+                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                        >
+                          <div className="phrase-to-type">{item.cmd}</div>
+                          <div>{item.desc}</div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
-                  <div className="reward-cards-grid">
+                  <div className="deck-banner-grid">
                     {deck
                       .filter((c) => !c.upgraded)
-                      .map((inst) => {
+                      .map((inst, idx) => {
                         const baseRes = resolveCardInstance(inst, phraseDiff);
                         const upRes = resolveCardInstance({ ...inst, upgraded: true }, phraseDiff);
+                        const st = getPhraseHighlightState(baseRes.name, difficulty);
                         return (
-                          <div key={inst.instanceId} className="structured-card-box">
-                            <div className="card-art-square" />
-                            <div className="card-info-right">
-                              <div className="phrase-to-type">{baseRes.name}</div>
-                              <div className="card-tab-sub">
-                                → {upRes.name} ({upRes.description})
-                              </div>
-                            </div>
-                          </div>
+                          <CardBanner
+                            key={inst.instanceId}
+                            instance={inst}
+                            phraseDiff={phraseDiff}
+                            index={idx}
+                            isHighlighted={st.isHighlighted}
+                            isEnterCandidate={st.isEnterReady}
+                            subtitleOverride={`Upgrades to: ${upRes.name} (${upRes.description})`}
+                          />
                         );
                       })}
                   </div>
@@ -2589,65 +2748,74 @@ export function App() {
 
             {/* 5. MERCHANT */}
             {screen === 'merchant' && shopInventory && (
-              <div className="story-card">
+              <div className="story-card paper-sheet-float">
                 <h2 className="story-title">
                   Merchant ({gold} Gold) — type item name, (burn card [{shopInventory.removeServicePrice}g]), or (leave)
                 </h2>
                 {shopSubMode === 'browse' ? (
                   <>
-                    <div className="reward-cards-grid">
-                      {shopInventory.cards.map(({ instance, price, sold }) => {
+                    <div className="deck-banner-grid">
+                      {shopInventory.cards.map(({ instance, price, sold }, idx) => {
                         const res = resolveCardInstance(instance, phraseDiff);
+                        const st = !sold
+                          ? getPhraseHighlightState(res.name, difficulty)
+                          : { isHighlighted: false, isEnterReady: false };
                         return (
-                          <div
+                          <CardBanner
                             key={instance.instanceId}
-                            className={`structured-card-box ${sold ? 'choice-locked' : ''}`}
-                          >
-                            <div className="card-art-square" />
-                            <div className="card-info-right">
-                              <div className="card-tab-header">
-                                <span className="phrase-to-type">{res.name}</span>
-                                <span className="card-cost-pill">{sold ? 'SOLD' : `${price}g`}</span>
-                              </div>
-                              <div className="card-tab-sub">{res.description}</div>
-                            </div>
-                          </div>
+                            instance={instance}
+                            phraseDiff={phraseDiff}
+                            index={idx}
+                            isHighlighted={st.isHighlighted}
+                            isEnterCandidate={st.isEnterReady}
+                            isUnaffordable={sold || gold < price}
+                            priceBadge={sold ? 'SOLD' : `${price}g`}
+                          />
                         );
                       })}
                     </div>
 
                     <div className="reward-cards-grid">
-                      {shopInventory.relics.map(({ relic, price, sold }) => (
-                        <div
-                          key={relic.id}
-                          className={`structured-card-box ${sold ? 'choice-locked' : ''}`}
-                        >
-                          <div className="card-art-square">
-                            {relic.art.spriteUrl && <img src={relic.art.spriteUrl} alt="" />}
-                          </div>
-                          <div className="card-info-right">
-                            <div className="card-tab-header">
-                              <span className="phrase-to-type">{relic.names[phraseDiff]}</span>
-                              <span className="card-cost-pill">{sold ? 'SOLD' : `${price}g`}</span>
+                      {shopInventory.relics.map(({ relic, price, sold }) => {
+                        const st = !sold
+                          ? getPhraseHighlightState(relic.names[phraseDiff], difficulty)
+                          : { isHighlighted: false, isEnterReady: false };
+                        return (
+                          <div
+                            key={relic.id}
+                            className={`structured-card-box ${sold ? 'choice-locked' : ''} ${
+                              st.isHighlighted ? 'option-highlighted' : ''
+                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                          >
+                            <div className="card-art-square">
+                              {relic.art.spriteUrl && <img src={relic.art.spriteUrl} alt="" />}
                             </div>
-                            <div className="card-tab-sub">{relic.description}</div>
+                            <div className="card-info-right">
+                              <div className="card-tab-header">
+                                <span className="phrase-to-type">{relic.names[phraseDiff]}</span>
+                                <span className="card-cost-pill">{sold ? 'SOLD' : `${price}g`}</span>
+                              </div>
+                              <div className="card-tab-sub">{relic.description}</div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </>
                 ) : (
-                  <div className="reward-cards-grid">
-                    {deck.map((inst) => {
+                  <div className="deck-banner-grid">
+                    {deck.map((inst, idx) => {
                       const res = resolveCardInstance(inst, phraseDiff);
+                      const st = getPhraseHighlightState(res.name, difficulty);
                       return (
-                        <div key={inst.instanceId} className="structured-card-box">
-                          <div className="card-art-square" />
-                          <div className="card-info-right">
-                            <div className="phrase-to-type">{res.name}</div>
-                            <div className="card-tab-sub">{res.description}</div>
-                          </div>
-                        </div>
+                        <CardBanner
+                          key={inst.instanceId}
+                          instance={inst}
+                          phraseDiff={phraseDiff}
+                          index={idx}
+                          isHighlighted={st.isHighlighted}
+                          isEnterCandidate={st.isEnterReady}
+                        />
                       );
                     })}
                   </div>
@@ -2657,36 +2825,53 @@ export function App() {
 
             {/* 6. TREASURE VAULT */}
             {screen === 'treasure' && (
-              <div className="story-card">
+              <div className="story-card paper-sheet-float">
                 <h2 className="story-title">Treasure Chest — Choose 1 of 3 Relics or type (skip)</h2>
                 <div className="reward-cards-grid">
-                  {rewardRelics.map((rel) => (
-                    <div key={rel.id} className="structured-card-box">
-                      <div className="card-art-square">
-                        {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
+                  {rewardRelics.map((rel) => {
+                    const st = getPhraseHighlightState(rel.names[phraseDiff], difficulty);
+                    return (
+                      <div
+                        key={rel.id}
+                        className={`structured-card-box ${
+                          st.isHighlighted ? 'option-highlighted' : ''
+                        } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                      >
+                        <div className="card-art-square">
+                          {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
+                        </div>
+                        <div className="card-info-right">
+                          <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
+                          <div className="card-tab-sub">{rel.description}</div>
+                        </div>
                       </div>
-                      <div className="card-info-right">
-                        <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
-                        <div className="card-tab-sub">{rel.description}</div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* 7. MYSTERY ENCOUNTER */}
             {screen === 'mystery' && activeEvent && (
-              <div className="story-card">
+              <div className="story-card paper-sheet-float">
                 <h2 className="story-title">{activeEvent.title}</h2>
                 <p className="story-paragraph">{activeEvent.narrative}</p>
                 {eventOutcomeText === null ? (
                   <div className="choice-list">
-                    {activeEvent.choices.map((ch) => (
-                      <div key={ch.id} className="choice-item">
-                        <div className="phrase-to-type">{ch.phrases[phraseDiff]}</div>
-                      </div>
-                    ))}
+                    {activeEvent.choices.map((ch) => {
+                      const phrase = ch.phrases[phraseDiff];
+                      const st = getPhraseHighlightState(phrase, difficulty);
+                      return (
+                        <div
+                          key={ch.id}
+                          className={`choice-item ${
+                            st.isHighlighted ? 'option-highlighted' : ''
+                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                        >
+                          <div className="phrase-to-type">{phrase}</div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="prompt-panel">
@@ -2699,7 +2884,7 @@ export function App() {
 
             {/* 8. END-OF-RUN TYPING & COMBAT REPORT CARD */}
             {(screen === 'game_over' || screen === 'victory') && (
-              <div className="story-card report-card">
+              <div className="story-card report-card paper-sheet-float">
                 <h2 className="story-title">
                   {screen === 'victory' ? 'Victory! Report Card' : 'Run Report Card'}
                 </h2>
@@ -2735,7 +2920,7 @@ export function App() {
             )}
           </main>
 
-          {/* Clean Bottom Typing Console (Only a blinking cursor when empty) */}
+          {/* Clean Bottom Typing Console */}
           <footer className="typing-console-box narrative-console">
             <div className="typing-sentence-display">
               <span className="sentence-live-input">
@@ -2750,7 +2935,7 @@ export function App() {
       {/* ==================== KEYBOARD-CONTROLLED MODAL OVERLAYS ==================== */}
       {overlay !== 'none' && (
         <div className="keyboard-modal-backdrop">
-          <div className="keyboard-modal-card">
+          <div className="keyboard-modal-card paper-sheet-float">
             {overlay === 'help' && (
               <>
                 <h2>Commands</h2>
@@ -2935,53 +3120,51 @@ export function App() {
               </>
             )}
 
+            {/* VIEW DECK / DISCARD / BURNED: Same size & format as Battle Side-Column Cards, with Rarity & Upgraded tags! */}
             {overlay === 'deck' && (
               <>
-                <h2>Deck ({deck.length})</h2>
-                <div className="modal-grid">
-                  {deck.map((inst) => {
-                    const res = resolveCardInstance(inst, phraseDiff);
-                    return (
-                      <div key={inst.instanceId} className="modal-item-chip">
-                        <strong>
-                          [{res.cost}] {res.name}
-                        </strong>
-                        <div>{res.description}</div>
-                      </div>
-                    );
-                  })}
+                <h2>Deck ({deck.length} Cards)</h2>
+                <div className="deck-banner-grid">
+                  {deck.map((inst, idx) => (
+                    <CardBanner
+                      key={inst.instanceId}
+                      instance={inst}
+                      phraseDiff={phraseDiff}
+                      index={idx}
+                    />
+                  ))}
                 </div>
               </>
             )}
 
             {overlay === 'discard' && (
               <>
-                <h2>Discard Pile ({discardPile.length})</h2>
-                <div className="modal-grid">
-                  {discardPile.map((inst) => {
-                    const res = resolveCardInstance(inst, phraseDiff);
-                    return (
-                      <div key={inst.instanceId} className="modal-item-chip">
-                        <strong>{res.name}</strong> — {res.description}
-                      </div>
-                    );
-                  })}
+                <h2>Discard Pile ({discardPile.length} Cards)</h2>
+                <div className="deck-banner-grid">
+                  {discardPile.map((inst, idx) => (
+                    <CardBanner
+                      key={inst.instanceId}
+                      instance={inst}
+                      phraseDiff={phraseDiff}
+                      index={idx}
+                    />
+                  ))}
                 </div>
               </>
             )}
 
             {overlay === 'burn_draft' && (
               <>
-                <h2>Burned Drafts ({burnDraftPile.length})</h2>
-                <div className="modal-grid">
-                  {burnDraftPile.map((inst) => {
-                    const res = resolveCardInstance(inst, phraseDiff);
-                    return (
-                      <div key={inst.instanceId} className="modal-item-chip">
-                        <strong>{res.name}</strong> — {res.description}
-                      </div>
-                    );
-                  })}
+                <h2>Burned Drafts ({burnDraftPile.length} Cards)</h2>
+                <div className="deck-banner-grid">
+                  {burnDraftPile.map((inst, idx) => (
+                    <CardBanner
+                      key={inst.instanceId}
+                      instance={inst}
+                      phraseDiff={phraseDiff}
+                      index={idx}
+                    />
+                  ))}
                 </div>
               </>
             )}
