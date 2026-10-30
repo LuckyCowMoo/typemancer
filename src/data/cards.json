@@ -1,0 +1,154 @@
+[
+  {
+    "id": "ink_strike",
+    "rarity": "starter",
+    "type": "attack",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "strike",
+      "medium": "ink strike",
+      "hard": "strike with an iron nib"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "aiming squarely at"
+    },
+    "description": "Deal 6 damage.",
+    "effects": [
+      { "type": "damage", "amount": 6 }
+    ],
+    "art": {
+      "primaryColor": "#c85a32",
+      "secondaryColor": "#f4a261",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "sharp strike",
+        "medium": "sharpened ink strike",
+        "hard": "strike with a razor sharp iron nib"
+      },
+      "description": "Deal 9 damage.",
+      "effects": [
+        { "type": "damage", "amount": 9 }
+      ]
+    }
+  },
+  {
+    "id": "page_ward",
+    "rarity": "starter",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "ward",
+      "medium": "page ward",
+      "hard": "raise a barrier of parchment"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to shield my body from harm"
+    },
+    "description": "Gain 5 Ward.",
+    "effects": [
+      { "type": "ward", "amount": 5 }
+    ],
+    "art": {
+      "primaryColor": "#1d5c78",
+      "secondaryColor": "#4ea8de",
+      "shape": "shield"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "strong ward",
+        "medium": "reinforced page ward",
+        "hard": "raise a thick barrier of vellum"
+      },
+      "description": "Gain 8 Ward.",
+      "effects": [
+        { "type": "ward", "amount": 8 }
+      ]
+    }
+  },
+  {
+    "id": "boulder_barrage",
+    "rarity": "starter",
+    "type": "attack",
+    "cost": 2,
+    "target": "enemy",
+    "names": {
+      "easy": "rock",
+      "medium": "boulder barrage",
+      "hard": "launch a devastating boulder barrage"
+    },
+    "connectors": {
+      "easy": "at",
+      "medium": "towards",
+      "hard": "crushing down towards"
+    },
+    "description": "Deal 8 damage and apply 2 Exposed.",
+    "effects": [
+      { "type": "damage", "amount": 8 },
+      { "type": "exposed", "amount": 2 }
+    ],
+    "art": {
+      "primaryColor": "#b54823",
+      "secondaryColor": "#e76f51",
+      "shape": "hexagon"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "polished rock",
+        "medium": "heavy boulder barrage",
+        "hard": "launch a cataclysmic granite barrage"
+      },
+      "description": "Deal 11 damage and apply 3 Exposed.",
+      "effects": [
+        { "type": "damage", "amount": 11 },
+        { "type": "exposed", "amount": 3 }
+      ]
+    }
+  },
+  {
+    "id": "blotting_cloud",
+    "rarity": "starter",
+    "type": "skill",
+    "cost": 1,
+    "target": "enemy",
+    "names": {
+      "easy": "blot",
+      "medium": "blotting cloud",
+      "hard": "splatter a blinding cloud of ink"
+    },
+    "connectors": {
+      "easy": "on",
+      "medium": "across",
+      "hard": "directly into the eyes of"
+    },
+    "description": "Apply 2 Faded and 3 Ink Burn.",
+    "effects": [
+      { "type": "faded", "amount": 2 },
+      { "type": "ink_burn", "amount": 3 }
+    ],
+    "art": {
+      "primaryColor": "#5e35b1",
+      "secondaryColor": "#9575cd",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "dark blot",
+        "medium": "dense blotting cloud",
+        "hard": "splatter a suffocating cloud of dark ink"
+      },
+      "description": "Apply 3 Faded and 5 Ink Burn.",
+      "effects": [
+        { "type": "faded", "amount": 3 },
+        { "type": "ink_burn", "amount": 5 }
+      ]
+    }
+  }
+]

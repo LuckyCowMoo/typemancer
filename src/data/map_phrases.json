@@ -1,0 +1,61 @@
+{
+  "directions": {
+    "left": {
+      "easy": ["left"],
+      "medium": ["left path", "west trail", "left road"],
+      "hard": ["take the left path", "follow the winding western trail", "venture down the left fork"]
+    },
+    "middle": {
+      "easy": ["middle"],
+      "medium": ["middle path", "center road", "straight path"],
+      "hard": ["march straight up the middle path", "follow the central stone road", "advance along the center ridge"]
+    },
+    "right": {
+      "easy": ["right"],
+      "medium": ["right path", "east trail", "right road"],
+      "hard": ["take the right path", "follow the overgrown eastern trail", "climb the right hillside path"]
+    },
+    "single": {
+      "easy": ["forward"],
+      "medium": ["onward", "ahead"],
+      "hard": ["press onward", "march straight ahead"]
+    }
+  },
+  "destinations": {
+    "battle": {
+      "easy": ["battle", "fight", "foes"],
+      "medium": ["monster patrol", "enemy ambush", "hostile clearing"],
+      "hard": ["towards the prowling monster patrol", "into the shadowy enemy ambush", "towards the guarded forest clearing"]
+    },
+    "elite": {
+      "easy": ["elite", "champion", "danger"],
+      "medium": ["elite guardian", "deadly champion", "fierce warlord"],
+      "hard": ["towards the deadly elite guardian", "to challenge the towering warlord", "into the lair of the fierce champion"]
+    },
+    "campfire": {
+      "easy": ["campfire", "rest", "fire"],
+      "medium": ["warm campsite", "quiet bonfire", "safe hearth"],
+      "hard": ["towards the warm flickering campsite", "to rest beside the sheltered bonfire", "towards the peaceful traveler hearth"]
+    },
+    "merchant": {
+      "easy": ["merchant", "shop", "trader"],
+      "medium": ["wandering merchant", "arcane bookshop", "scribes market"],
+      "hard": ["towards the wandering merchant wagon", "to browse the arcane roadside bookshop", "towards the lantern lit scribes market"]
+    },
+    "treasure": {
+      "easy": ["treasure", "chest", "vault"],
+      "medium": ["treasure chest", "ancient vault", "gilded cache"],
+      "hard": ["towards the gleaming treasure chest", "to unlock the ancient stone relic vault", "towards the forgotten gilded cache"]
+    },
+    "mystery": {
+      "easy": ["mystery", "unknown", "event"],
+      "medium": ["strange crossroads", "mysterious shrine", "whispering fog"],
+      "hard": ["into the swirling mysterious fog", "towards the enigmatic roadside shrine", "to investigate the strange crossroads"]
+    },
+    "boss": {
+      "easy": ["boss", "wizard", "tower"],
+      "medium": ["evil wizard", "silence tower", "citadel gate"],
+      "hard": ["towards the throne of the evil wizard", "to storm the spire of eternal silence", "towards the grand citadel sanctuary"]
+    }
+  }
+}

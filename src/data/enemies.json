@@ -1,0 +1,118 @@
+[
+  {
+    "id": "goblin_skirmisher",
+    "faction": "goblins",
+    "role": "glass_cannon",
+    "tier": 1,
+    "minHp": 22,
+    "maxHp": 28,
+    "namePools": {
+      "easy": ["goblin fighter", "goblin scout", "goblin rogue", "goblin raider"],
+      "medium": ["goblin skirmisher", "goblin cutthroat", "goblin ambusher", "goblin prowler"],
+      "hard": ["vicious goblin skirmisher", "cunning goblin cutthroat", "nimble goblin ambusher", "reckless goblin raider"]
+    },
+    "art": {
+      "primaryColor": "#6a1b5d",
+      "secondaryColor": "#ab47bc",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "quick_slash",
+        "name": "Quick Slash",
+        "intent": "attack",
+        "weight": 60,
+        "damage": 7
+      },
+      {
+        "id": "twin_daggers",
+        "name": "Twin Daggers",
+        "intent": "multi_attack",
+        "weight": 40,
+        "damage": 4,
+        "hits": 2
+      }
+    ]
+  },
+  {
+    "id": "goblin_medic",
+    "faction": "goblins",
+    "role": "support",
+    "tier": 1,
+    "minHp": 24,
+    "maxHp": 30,
+    "namePools": {
+      "easy": ["goblin medic", "goblin healer", "goblin shaman", "goblin herbalist"],
+      "medium": ["goblin field medic", "goblin stitcher", "goblin brewmaster", "goblin mender"],
+      "hard": ["frantic goblin field medic", "cackling goblin apothecary", "chanting goblin witchdoctor", "crafty goblin herbalist"]
+    },
+    "art": {
+      "primaryColor": "#d864c9",
+      "secondaryColor": "#f48fb1",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "patch_up",
+        "name": "Patch Up Allies",
+        "intent": "heal",
+        "weight": 50,
+        "heal": 6
+      },
+      {
+        "id": "war_chant",
+        "name": "War Chant",
+        "intent": "buff",
+        "weight": 30,
+        "statusEffects": [
+          { "status": "bold", "amount": 2, "target": "all_allies" }
+        ]
+      },
+      {
+        "id": "syringe_poke",
+        "name": "Rusty Poke",
+        "intent": "attack_debuff",
+        "weight": 20,
+        "damage": 5,
+        "statusEffects": [
+          { "status": "faded", "amount": 1, "target": "player" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "goblin_captain",
+    "faction": "goblins",
+    "role": "tank",
+    "tier": 2,
+    "minHp": 40,
+    "maxHp": 48,
+    "namePools": {
+      "easy": ["goblin captain", "goblin brute", "goblin chief", "goblin guard"],
+      "medium": ["goblin berserker", "goblin barbarian", "goblin commissar", "goblin enforcer"],
+      "hard": ["the goblin commissar", "the raging goblin berserker", "the ruthless goblin barbarian", "the ironclad goblin warlord"]
+    },
+    "art": {
+      "primaryColor": "#4a1238",
+      "secondaryColor": "#880e4f",
+      "shape": "capsule"
+    },
+    "moves": [
+      {
+        "id": "cleave",
+        "name": "Heavy Cleave",
+        "intent": "attack",
+        "weight": 50,
+        "damage": 10
+      },
+      {
+        "id": "shield_order",
+        "name": "Rallying Guard",
+        "intent": "attack_defend",
+        "weight": 50,
+        "damage": 6,
+        "ward": 7
+      }
+    ]
+  }
+]

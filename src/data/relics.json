@@ -1,0 +1,21 @@
+[
+  {
+    "id": "magical_typewriter",
+    "rarity": "starter",
+    "names": {
+      "easy": "typewriter",
+      "medium": "magical typewriter",
+      "hard": "the ancient brass typewriter"
+    },
+    "description": "At the start of each combat, gain 4 Ward and draw 1 additional card.",
+    "trigger": "combat_start",
+    "effectType": "ward",
+    "amount": 4,
+    "art": {
+      "primaryColor": "#d4a373",
+      "secondaryColor": "#faedcd",
+      "shape": "hexagon"
+    },
+    "price": 150
+  }
+]

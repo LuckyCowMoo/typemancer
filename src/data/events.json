@@ -1,0 +1,44 @@
+[
+  {
+    "id": "glowing_inkwell",
+    "title": "The Whispering Inkwell",
+    "narrative": "Set upon a moss-covered pedestal sits an obsidian inkwell swirling with luminescent violet ink. The pages in your satchel flutter eagerly toward it.",
+    "choices": [
+      {
+        "id": "dip_ribbon",
+        "phrases": {
+          "easy": "dip ink",
+          "medium": "soak typewriter ribbon",
+          "hard": "submerge your typewriter ribbon in the violet ink"
+        },
+        "outcomeText": "Your ribbon absorbs the volatile magic! A card in your deck is permanently revised, though the fumes singe your fingers.",
+        "effects": {
+          "hpChange": -6,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "bottle_ink",
+        "phrases": {
+          "easy": "take gold",
+          "medium": "sell the ink bottle",
+          "hard": "carefully cork the inkwell to trade for coins"
+        },
+        "outcomeText": "You seal the vessel and trade it to a passing courier for a pouch of gold.",
+        "effects": {
+          "goldChange": 65
+        }
+      },
+      {
+        "id": "leave_inkwell",
+        "phrases": {
+          "easy": "leave",
+          "medium": "walk away safely",
+          "hard": "step away from the strange pedestal unharmed"
+        },
+        "outcomeText": "You decide not to risk your fingers and continue climbing toward the tower.",
+        "effects": {}
+      }
+    ]
+  }
+]
