@@ -192,8 +192,10 @@ export type MapNodeType = 'battle' | 'elite' | 'campfire' | 'merchant' | 'treasu
 
 export interface MapNode {
   id: string;
-  floor: number; // 1 to 24
-  column: number; // 0, 1, 2
+  floor: number; // 1 to totalFloors (22..26)
+  column: number; // Left-to-right index within the layer
+  xRatio?: number; // Continuous horizontal ratio in [0.13, 0.87]
+  yOffset?: number; // Continuous vertical offset in px [-85, +85]
   type: MapNodeType;
   nextNodeIds: string[];
   completed: boolean;

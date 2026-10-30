@@ -454,7 +454,7 @@ export function App() {
 
   const handleCombatVictory = useCallback(
     (survivingHp: number) => {
-      if (currentFloor >= 24 || activeNodeType === 'boss') {
+      if (currentFloor >= mapFloors.length || activeNodeType === 'boss') {
         if (difficulty === 'hard' || difficulty === 'extra_hard') {
           setExtraHardUnlocked(true);
           setExtraHardAvailable(true);
@@ -496,7 +496,7 @@ export function App() {
       resetTypingBuffer(true);
       setScreen('reward');
     },
-    [activeNodeType, currentFloor, difficulty, maxHp, relicIds, resetTypingBuffer]
+    [activeNodeType, currentFloor, difficulty, mapFloors.length, maxHp, relicIds, resetTypingBuffer]
   );
 
   const executeCardPlay = useCallback(
@@ -1251,11 +1251,11 @@ export function App() {
 
   const advanceToMapNextFloor = useCallback(() => {
     soundEngine.playMapOpen(settings);
-    const nextF = Math.min(24, currentFloor + 1);
+    const nextF = Math.min(mapFloors.length, currentFloor + 1);
     setCurrentFloor(nextF);
     resetTypingBuffer(true);
     setScreen('map');
-  }, [currentFloor, resetTypingBuffer, settings]);
+  }, [currentFloor, mapFloors.length, resetTypingBuffer, settings]);
 
   const availableMapNodes = useMemo(() => {
     const floorRow = mapFloors[currentFloor - 1] || [];
@@ -2374,6 +2374,7 @@ export function App() {
       }
 
       if (screen === 'map' && overlay === 'none') {
+        const maxScroll = Math.max(5000, mapFloors.length * 340 + 400);
         if (e.key === 'ArrowUp') {
           e.preventDefault();
           setMapScrollOffset((prev) => Math.max(0, prev - 160));
@@ -2381,7 +2382,7 @@ export function App() {
         }
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.min(8600, prev + 160));
+          setMapScrollOffset((prev) => Math.min(maxScroll, prev + 160));
           return;
         }
         if (e.key === 'PageUp') {
@@ -2391,7 +2392,7 @@ export function App() {
         }
         if (e.key === 'PageDown') {
           e.preventDefault();
-          setMapScrollOffset((prev) => Math.min(8600, prev + 420));
+          setMapScrollOffset((prev) => Math.min(maxScroll, prev + 420));
           return;
         }
       }
@@ -3205,7 +3206,7 @@ export function App() {
               </div>
             )}
 
-            {/* 2. FULL-SCREEN SCROLLABLE 24-FLOOR PROCEDURAL MAP */}
+            {/* 2. FULL-SCREEN SCROLLABLE PROCEDURAL MAP */}
             {screen === 'map' && (
               <ScrollableMap
                 mapFloors={mapFloors}
@@ -3492,7 +3493,7 @@ export function App() {
                   <div className="report-box">
                     <h3>Game Performance</h3>
                     <ul>
-                      <li>Floor Reached: {currentFloor} / 24</li>
+                      <li>Floor Reached: {currentFloor} / {mapFloors.length}</li>
                       <li>Damage Dealt: {metrics.totalDamageDealt}</li>
                       <li>Enemies Defeated: {metrics.enemiesDefeated}</li>
                       <li>Run Time: {Math.max(1, Math.floor((Date.now() - metrics.startTimeMs) / 1000))}s</li>

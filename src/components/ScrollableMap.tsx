@@ -81,10 +81,20 @@ const MAP_WIDTH = 1440;
  * Columns are spread across 1440px and vertical spacing is expanded to 340px
  * so winding multi-word phrases never collide or overlap.
  */
-function getNodePosition(node: MapNode, rowLength: number): { x: number; y: number } {
-  const totalFloors = 24;
+function getNodePosition(
+  node: MapNode,
+  rowLength: number,
+  totalFloors: number
+): { x: number; y: number } {
   const invertedRow = totalFloors - node.floor;
   const baseY = 140 + invertedRow * ROW_HEIGHT;
+
+  if (typeof node.xRatio === 'number' && typeof node.yOffset === 'number') {
+    return {
+      x: MAP_WIDTH * node.xRatio,
+      y: baseY + node.yOffset,
+    };
+  }
 
   const seedX = (node.floor * 53 + node.column * 97) % 41;
   const seedY = (node.floor * 71 + node.column * 31) % 43;
@@ -277,10 +287,11 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
   setScrollOffset,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const totalHeight = 24 * ROW_HEIGHT + 360;
+  const totalFloors = mapFloors.length || 24;
+  const totalHeight = totalFloors * ROW_HEIGHT + 360;
 
   useEffect(() => {
-    const invertedRow = 24 - currentFloor;
+    const invertedRow = totalFloors - currentFloor;
     const targetY = 140 + invertedRow * ROW_HEIGHT;
     const viewHeight = containerRef.current?.clientHeight || window.innerHeight;
     const idealScroll = Math.max(
@@ -288,7 +299,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
       Math.min(totalHeight - viewHeight, targetY - viewHeight * 0.62)
     );
     setScrollOffset(idealScroll);
-  }, [currentFloor, setScrollOffset, totalHeight]);
+  }, [currentFloor, setScrollOffset, totalFloors, totalHeight]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -303,12 +314,12 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
     const map = new Map<string, { x: number; y: number; node: MapNode }>();
     mapFloors.forEach((row) => {
       row.forEach((node) => {
-        const pos = getNodePosition(node, row.length);
+        const pos = getNodePosition(node, row.length, totalFloors);
         map.set(node.id, { ...pos, node });
       });
     });
     return map;
-  }, [mapFloors]);
+  }, [mapFloors, totalFloors]);
 
   const availableIdSet = useMemo(
     () => new Set(availableNodes.map((n) => n.id)),
@@ -332,7 +343,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
   }, [availableNodes, difficulty, phraseDiff, typedInput]);
 
   // Precompute synthetic starting point below Floor 1 when on Floor 1
-  const startOrigin = { x: MAP_WIDTH * 0.5, y: 140 + 24 * ROW_HEIGHT };
+  const startOrigin = { x: MAP_WIDTH * 0.5, y: 140 + totalFloors * ROW_HEIGHT };
 
   return (
     <div className="fullscreen-map-container" ref={containerRef}>
@@ -394,7 +405,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                 toPos.x,
                 toPos.y,
                 idx + 11,
-                idx - 1
+                Math.sign(toPos.x - startOrigin.x) * (Math.abs(toPos.x - startOrigin.x) > 120 ? 1 : 0)
               );
               return (
                 <React.Fragment key={`guide_group_${targetNode.id}`}>
@@ -430,7 +441,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                     toPos.x,
                     toPos.y,
                     node.floor * 13 + idx * 7,
-                    toPos.node.column - node.column
+                    Math.sign(toPos.x - fromPos.x) * (Math.abs(toPos.x - fromPos.x) > 120 ? 1 : 0)
                   );
                   return (
                     <React.Fragment key={`guide_group_${nextId}`}>
@@ -467,7 +478,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
               toPos.x,
               toPos.y,
               idx + 11,
-              idx - 1
+              Math.sign(toPos.x - startOrigin.x) * (Math.abs(toPos.x - startOrigin.x) > 120 ? 1 : 0)
             );
             const phrase = targetNode.phrases[phraseDiff];
             const { topLine, bottomLine } = splitPhraseForRoad(phrase);
@@ -576,7 +587,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                   toPos.x,
                   toPos.y,
                   node.floor * 13 + idx * 7,
-                  toPos.node.column - node.column
+                  Math.sign(toPos.x - fromPos.x) * (Math.abs(toPos.x - fromPos.x) > 120 ? 1 : 0)
                 );
                 const phrase = toPos.node.phrases[phraseDiff];
                 const { topLine, bottomLine } = splitPhraseForRoad(phrase);

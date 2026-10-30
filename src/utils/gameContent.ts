@@ -311,14 +311,253 @@ export function generateEncounter(
 }
 
 /**
- * Generates a 24-floor procedural map (~150% the length of a 15-floor Slay the Spire act).
- * Includes Battles, Elites, Campfires, Merchants, Treasure Chests (Floor 8 & 16),
- * Mystery (?) Encounters, a Mid-Act Guardian on Floor 12, and the Evil Wizard Boss on Floor 24.
+ * Generates an organic 24 ± 2 floor procedural map (22 to 26 floors).
+ * Features continuous horizontal (xRatio) and vertical (yOffset) scatter,
+ * 1-4 encounters per layer, guaranteed planar non-crossing roads, and
+ * 100% reachability from floor 1 to the final Evil Wizard boss.
  */
 export function generateProceduralMap(): MapNode[][] {
-  const TOTAL_FLOORS = 24;
+  const TOTAL_FLOORS = 22 + Math.floor(Math.random() * 5); // 22, 23, 24, 25, or 26
   const floors: MapNode[][] = [];
 
+  // Pick two distinct natural treasure floors in the first and second thirds of the run
+  const treasureFloor1 = 7 + Math.floor(Math.random() * 4); // 7, 8, 9, or 10
+  const treasureFloor2 = 15 + Math.floor(Math.random() * 4); // 15, 16, 17, or 18
+
+  // Helper to choose node type organically for a layer
+  const chooseOrganicNodeType = (
+    f: number,
+    isTreasureNode: boolean,
+    usedTypes: Set<MapNodeType>
+  ): MapNodeType => {
+    if (f === 1) return 'battle';
+    if (f === TOTAL_FLOORS) return 'boss';
+    if (isTreasureNode) return 'treasure';
+
+    if (f === TOTAL_FLOORS - 1) {
+      if (!usedTypes.has('campfire')) return 'campfire';
+      return Math.random() < 0.5 ? 'battle' : 'merchant';
+    }
+
+    const roll = Math.random();
+    let picked: MapNodeType;
+    if (f >= 5) {
+      if (roll < 0.38) picked = 'battle';
+      else if (roll < 0.60) picked = 'mystery';
+      else if (roll < 0.74) picked = 'campfire';
+      else if (roll < 0.86) picked = 'merchant';
+      else picked = 'elite';
+    } else {
+      if (roll < 0.44) picked = 'battle';
+      else if (roll < 0.70) picked = 'mystery';
+      else if (roll < 0.86) picked = 'campfire';
+      else picked = 'merchant';
+    }
+
+    // Avoid duplicate special types on the same layer when possible
+    const specialTypes: MapNodeType[] = ['campfire', 'merchant', 'elite', 'treasure'];
+    if (specialTypes.includes(picked) && usedTypes.has(picked)) {
+      picked = Math.random() < 0.65 ? 'battle' : 'mystery';
+    }
+    return picked;
+  };
+
+  // Stage 1: Scatter Encounters Across the Forest
+  for (let f = 1; f <= TOTAL_FLOORS; f++) {
+    let count: number;
+    if (f === TOTAL_FLOORS) {
+      count = 1;
+    } else if (f === 1) {
+      count = pickRandom([2, 3, 3, 4]);
+    } else {
+      const prevCount = floors[f - 2].length;
+      if (prevCount > 1 && f < TOTAL_FLOORS - 1 && Math.random() < 0.12) {
+        count = 1;
+      } else {
+        const roll = Math.random();
+        if (roll < 0.38) count = 2;
+        else if (roll < 0.80) count = 3;
+        else count = 4;
+      }
+    }
+
+    const row: MapNode[] = [];
+    const usedTypes = new Set<MapNodeType>();
+    const isTreasureFloor = f === treasureFloor1 || f === treasureFloor2;
+    const treasureCol = isTreasureFloor ? Math.floor(Math.random() * count) : -1;
+
+    if (f === TOTAL_FLOORS) {
+      const xRatio = 0.46 + Math.random() * 0.08;
+      const yOffset = 0;
+      row.push({
+        id: `floor_${f}_col_0`,
+        floor: f,
+        column: 0,
+        xRatio,
+        yOffset,
+        type: 'boss',
+        nextNodeIds: [],
+        completed: false,
+        phrases: { easy: '', medium: '', hard: '' }, // assigned in Step C
+      });
+    } else if (count === 1) {
+      const xRatio = 0.28 + Math.random() * 0.44;
+      let yOffset = (Math.random() - 0.5) * 90;
+      if (f > 1) {
+        const prevFloor = floors[f - 2];
+        prevFloor.forEach((pn) => {
+          const pxr = pn.xRatio ?? 0.5;
+          const pyo = pn.yOffset ?? 0;
+          if (Math.abs(pxr - xRatio) < 0.18) {
+            if (yOffset > 90 + pyo) {
+              yOffset = 90 + pyo;
+            }
+          }
+        });
+      }
+      yOffset = Math.max(-85, Math.min(85, yOffset));
+
+      const nType = chooseOrganicNodeType(f, treasureCol === 0, usedTypes);
+      usedTypes.add(nType);
+
+      row.push({
+        id: `floor_${f}_col_0`,
+        floor: f,
+        column: 0,
+        xRatio,
+        yOffset,
+        type: nType,
+        nextNodeIds: [],
+        completed: false,
+        phrases: { easy: '', medium: '', hard: '' },
+      });
+    } else {
+      const sectorW = 0.74 / count;
+      for (let c = 0; c < count; c++) {
+        let xRatio =
+          0.13 + c * sectorW + 0.02 + Math.random() * (sectorW - 0.04);
+        if (c > 0 && row[c - 1].xRatio !== undefined) {
+          if (xRatio < row[c - 1].xRatio! + 0.16) {
+            xRatio = Math.min(0.87, row[c - 1].xRatio! + 0.16);
+          }
+        }
+        xRatio = Math.max(0.13, Math.min(0.87, xRatio));
+
+        let yOffset = (Math.random() - 0.5) * 150;
+        if (f > 1) {
+          const prevFloor = floors[f - 2];
+          prevFloor.forEach((pn) => {
+            const pxr = pn.xRatio ?? 0.5;
+            const pyo = pn.yOffset ?? 0;
+            if (Math.abs(pxr - xRatio) < 0.18) {
+              if (yOffset > 90 + pyo) {
+                yOffset = 90 + pyo;
+              }
+            }
+          });
+        }
+        yOffset = Math.max(-85, Math.min(85, yOffset));
+
+        const nType = chooseOrganicNodeType(f, treasureCol === c, usedTypes);
+        usedTypes.add(nType);
+
+        row.push({
+          id: `floor_${f}_col_${c}`,
+          floor: f,
+          column: c,
+          xRatio,
+          yOffset,
+          type: nType,
+          nextNodeIds: [],
+          completed: false,
+          phrases: { easy: '', medium: '', hard: '' },
+        });
+      }
+    }
+
+    floors.push(row);
+  }
+
+  // Stage 2: Draw the Roads Between Placed Encounters (Planar + 100% Reachable)
+  for (let i = 0; i < floors.length - 1; i++) {
+    const curr = floors[i];
+    const next = floors[i + 1];
+    const M = curr.length;
+    const N = next.length;
+
+    const edges: [number, number][] = [];
+
+    const canAddPlanar = (u: number, v: number): boolean => {
+      if (edges.some(([eu, ev]) => eu === u && ev === v)) return false;
+      return !edges.some(([u2, v2]) => (u2 < u && v2 > v) || (u2 > u && v2 < v));
+    };
+
+    // Step A: Guarantee 100% in-degree >= 1 and out-degree >= 1 via monotonic walk
+    let u = 0;
+    let v = 0;
+    edges.push([0, 0]);
+
+    while (u < M - 1 || v < N - 1) {
+      if (u === M - 1) {
+        v++;
+      } else if (v === N - 1) {
+        u++;
+      } else {
+        const distStepU = Math.abs((curr[u + 1].xRatio ?? 0.5) - (next[v].xRatio ?? 0.5));
+        const distStepV = Math.abs((curr[u].xRatio ?? 0.5) - (next[v + 1].xRatio ?? 0.5));
+
+        if ((u + 1) / M < (v + 1) / N - 0.15 || (distStepU < distStepV && Math.random() < 0.6)) {
+          u++;
+        } else if ((v + 1) / N < (u + 1) / M - 0.15 || (distStepV < distStepU && Math.random() < 0.6)) {
+          v++;
+        } else if (Math.random() < 0.45) {
+          u++;
+          v++;
+        } else {
+          if (distStepU <= distStepV) {
+            u++;
+          } else {
+            v++;
+          }
+        }
+      }
+      if (!edges.some(([eu, ev]) => eu === u && ev === v)) {
+        edges.push([u, v]);
+      }
+    }
+
+    // Step B: Add natural extra nearby cross-roads without crossing
+    for (let uIdx = 0; uIdx < M; uIdx++) {
+      const currentOut = edges.filter(([eu]) => eu === uIdx);
+      if (currentOut.length < 2 && N > 1) {
+        const candidates: { v: number; dist: number }[] = [];
+        for (let vIdx = 0; vIdx < N; vIdx++) {
+          if (canAddPlanar(uIdx, vIdx)) {
+            const diffX = Math.abs((curr[uIdx].xRatio ?? 0.5) - (next[vIdx].xRatio ?? 0.5));
+            if (diffX < 0.38) {
+              const uY = (curr[uIdx].yOffset ?? 0) / 1440;
+              const vY = (next[vIdx].yOffset ?? 0) / 1440;
+              const dist = Math.hypot(diffX, uY - vY);
+              candidates.push({ v: vIdx, dist });
+            }
+          }
+        }
+        if (candidates.length > 0 && Math.random() < 0.60) {
+          candidates.sort((a, b) => a.dist - b.dist);
+          edges.push([uIdx, candidates[0].v]);
+        }
+      }
+    }
+
+    // Assign nextNodeIds
+    for (let uIdx = 0; uIdx < M; uIdx++) {
+      curr[uIdx].nextNodeIds = edges
+        .filter(([eu]) => eu === uIdx)
+        .map(([, ev]) => next[ev].id);
+    }
+  }
+
+  // Step C: Assign distinct direction-aware phrases to each node
   const buildPhrase = (
     dirKey: 'left' | 'middle' | 'right' | 'single',
     nodeType: MapNodeType
@@ -328,7 +567,6 @@ export function generateProceduralMap(): MapNode[][] {
 
     const easyDest = pickRandom(destPools.easy);
     const easyDir = pickRandom(dirPools.easy);
-    // On easy, keep it super punchy (e.g. "left battle" or "campfire")
     const easyPhrase = dirKey === 'single' ? easyDest : `${easyDir} ${easyDest}`;
 
     const medDir = pickRandom(dirPools.medium);
@@ -347,101 +585,38 @@ export function generateProceduralMap(): MapNode[][] {
     };
   };
 
-  const chooseNodeType = (floorNum: number, colIndex: number): MapNodeType => {
-    if (floorNum === 1) return 'battle';
-    if (floorNum === 8 || floorNum === 16) return 'treasure';
-    if (floorNum === 11 || floorNum === 23) return 'campfire';
-    if (floorNum === 24) return 'boss';
+  floors.forEach((row) => {
+    const usedEasy = new Set<string>();
+    const usedMedium = new Set<string>();
+    const usedHard = new Set<string>();
 
-    const roll = Math.random();
-    if (floorNum >= 5 && floorNum % 4 === 0 && colIndex === 1) {
-      return 'campfire';
-    }
-    if (floorNum >= 6 && roll < 0.16) return 'elite';
-    if (roll < 0.34) return 'mystery';
-    if (roll < 0.48) return 'campfire';
-    if (roll < 0.60) return 'merchant';
-    return 'battle';
-  };
-
-  for (let f = 1; f <= TOTAL_FLOORS; f++) {
-    if (f === 24 || f === 8 || f === 16) {
-      const nodeType: MapNodeType = f === 24 ? 'boss' : 'treasure';
-      floors.push([
-        {
-          id: `floor_${f}_col_0`,
-          floor: f,
-          column: 1,
-          type: nodeType,
-          nextNodeIds: [],
-          completed: false,
-          phrases: buildPhrase('single', nodeType),
-        },
-      ]);
-      continue;
-    }
-
-    // 2 or 3 branching paths per floor
-    const count = f === 1 ? 3 : Math.random() < 0.65 ? 3 : 2;
-    const row: MapNode[] = [];
-    const usedTypesOnRow = new Set<MapNodeType>();
-
-    for (let c = 0; c < count; c++) {
-      let nType = chooseNodeType(f, c);
-      // Try to vary node types across the same row so students have meaningful tactical choices
-      if (usedTypesOnRow.has(nType) && f > 1 && f !== 11 && f !== 23) {
-        const alternatives: MapNodeType[] = ['battle', 'mystery', 'campfire', 'merchant', 'elite'];
-        const unused = alternatives.filter(
-          (t) => !usedTypesOnRow.has(t) && (f >= 6 || t !== 'elite')
-        );
-        if (unused.length > 0) nType = pickRandom(unused);
-      }
-      usedTypesOnRow.add(nType);
-
-      const dirKey: 'left' | 'middle' | 'right' =
-        count === 2
-          ? c === 0
-            ? 'left'
-            : 'right'
-          : c === 0
+    row.forEach((node) => {
+      const dirKey: 'left' | 'middle' | 'right' | 'single' =
+        row.length === 1
+          ? 'single'
+          : (node.xRatio ?? 0.5) < 0.38
           ? 'left'
-          : c === 1
-          ? 'middle'
-          : 'right';
+          : (node.xRatio ?? 0.5) > 0.62
+          ? 'right'
+          : 'middle';
 
-      row.push({
-        id: `floor_${f}_col_${c}`,
-        floor: f,
-        column: c,
-        type: nType,
-        nextNodeIds: [],
-        completed: false,
-        phrases: buildPhrase(dirKey, nType),
-      });
-    }
-
-    floors.push(row);
-  }
-
-  // Connect each floor's nodes to the next floor
-  for (let i = 0; i < floors.length - 1; i++) {
-    const currentRow = floors[i];
-    const nextRow = floors[i + 1];
-
-    currentRow.forEach((node, idx) => {
-      if (nextRow.length === 1) {
-        node.nextNodeIds = [nextRow[0].id];
-      } else {
-        const primaryIdx = Math.min(idx, nextRow.length - 1);
-        node.nextNodeIds.push(nextRow[primaryIdx].id);
-        // Add a branching neighbor so paths interweave like Slay the Spire
-        const neighborIdx = primaryIdx + 1 < nextRow.length ? primaryIdx + 1 : Math.max(0, primaryIdx - 1);
-        if (!node.nextNodeIds.includes(nextRow[neighborIdx].id)) {
-          node.nextNodeIds.push(nextRow[neighborIdx].id);
+      let phrases = buildPhrase(dirKey, node.type);
+      for (let attempt = 0; attempt < 8; attempt++) {
+        if (
+          !usedEasy.has(phrases.easy) &&
+          !usedMedium.has(phrases.medium) &&
+          !usedHard.has(phrases.hard)
+        ) {
+          break;
         }
+        phrases = buildPhrase(dirKey, node.type);
       }
+      usedEasy.add(phrases.easy);
+      usedMedium.add(phrases.medium);
+      usedHard.add(phrases.hard);
+      node.phrases = phrases;
     });
-  }
+  });
 
   return floors;
 }
