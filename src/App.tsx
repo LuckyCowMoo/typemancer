@@ -2863,11 +2863,11 @@ export function App() {
                     primaryColor: '#165b7d',
                     secondaryColor: '#2980b9',
                     shape: 'capsule',
-                    spriteUrl: './assets/entities/player.svg',
-                    flip: true,
+                    spriteUrl: './assets/entities/player.png',
+                    flip: false,
                   }}
-                  width={112}
-                  height={200}
+                  width={128}
+                  height={128}
                 />
                 <div className="status-pills-row">
                   {playerWard > 0 && <span className="status-pill ward-pill">Ward {playerWard}</span>}
@@ -2950,8 +2950,8 @@ export function App() {
 
                       <EntitySprite
                         art={enemy.art}
-                        width={68}
-                        height={132}
+                        width={enemy.faction === 'boss' ? 112 : 96}
+                        height={enemy.faction === 'boss' ? 112 : 96}
                         isHighlighted={isTargetHighlighted || isTargetEnterReady}
                       />
                       <IntentBadge
@@ -3537,7 +3537,7 @@ export function App() {
                   <li><code>relics</code> — View names and descriptions of your collected relics</li>
                   <li><code>view deck</code> / <code>view discard</code> — View cards</li>
                   <li><code>options</code> / <code>save</code> — Audio settings or Save Code</li>
-                  <li>Art: icons by Lorc, Delapouite &amp; contributors at game-icons.net (CC BY 3.0)</li>
+                  <li>Art: Dungeon Crawl Stone Soup 32×32 tileset (OpenGameArt, CC0)</li>
                 </ul>
               </>
             )}

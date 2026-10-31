@@ -33,7 +33,7 @@
       "primaryColor": "#3f6b2a",
       "secondaryColor": "#7aa84f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/goblin_skirmisher.svg"
+      "spriteUrl": "./assets/entities/goblin_skirmisher.png"
     },
     "moves": [
       {
@@ -87,8 +87,7 @@
       "primaryColor": "#3f6b2a",
       "secondaryColor": "#7aa84f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/goblin_archer.svg",
-      "flip": true
+      "spriteUrl": "./assets/entities/goblin_archer.png"
     },
     "moves": [
       {
@@ -142,7 +141,7 @@
       "primaryColor": "#3f6b2a",
       "secondaryColor": "#7aa84f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/goblin_drummer.svg"
+      "spriteUrl": "./assets/entities/goblin_drummer.png"
     },
     "moves": [
       {
@@ -201,7 +200,7 @@
       "primaryColor": "#3f6b2a",
       "secondaryColor": "#7aa84f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/goblin_brute.svg"
+      "spriteUrl": "./assets/entities/goblin_brute.png"
     },
     "moves": [
       {
@@ -255,7 +254,7 @@
       "primaryColor": "#3f6b2a",
       "secondaryColor": "#7aa84f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/goblin_shaman.svg"
+      "spriteUrl": "./assets/entities/goblin_shaman.png"
     },
     "moves": [
       {
@@ -314,8 +313,7 @@
       "primaryColor": "#3f6b2a",
       "secondaryColor": "#7aa84f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/goblin_assassin.svg",
-      "flip": true
+      "spriteUrl": "./assets/entities/goblin_assassin.png"
     },
     "moves": [
       {
@@ -369,7 +367,7 @@
       "primaryColor": "#3f6b2a",
       "secondaryColor": "#7aa84f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/goblin_warlord.svg"
+      "spriteUrl": "./assets/entities/goblin_warlord.png"
     },
     "moves": [
       {
@@ -428,7 +426,7 @@
       "primaryColor": "#5b5248",
       "secondaryColor": "#9a8f80",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/rock_pebble.svg"
+      "spriteUrl": "./assets/entities/rock_pebble.png"
     },
     "moves": [
       {
@@ -481,8 +479,7 @@
       "primaryColor": "#5b5248",
       "secondaryColor": "#9a8f80",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/rock_roller.svg",
-      "flip": true
+      "spriteUrl": "./assets/entities/rock_roller.png"
     },
     "moves": [
       {
@@ -536,7 +533,7 @@
       "primaryColor": "#5b5248",
       "secondaryColor": "#9a8f80",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/rock_shield.svg"
+      "spriteUrl": "./assets/entities/rock_shield.png"
     },
     "moves": [
       {
@@ -589,7 +586,7 @@
       "primaryColor": "#5b5248",
       "secondaryColor": "#9a8f80",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/rock_crusher.svg"
+      "spriteUrl": "./assets/entities/rock_crusher.png"
     },
     "moves": [
       {
@@ -642,7 +639,7 @@
       "primaryColor": "#5b5248",
       "secondaryColor": "#9a8f80",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/rock_golem.svg"
+      "spriteUrl": "./assets/entities/rock_golem.png"
     },
     "moves": [
       {
@@ -696,7 +693,7 @@
       "primaryColor": "#5b5248",
       "secondaryColor": "#9a8f80",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/rock_titan.svg"
+      "spriteUrl": "./assets/entities/rock_titan.png"
     },
     "moves": [
       {
@@ -749,7 +746,7 @@
       "primaryColor": "#5b5248",
       "secondaryColor": "#9a8f80",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/rock_elemental.svg"
+      "spriteUrl": "./assets/entities/rock_elemental.png"
     },
     "moves": [
       {
@@ -802,7 +799,7 @@
       "primaryColor": "#6b1f4a",
       "secondaryColor": "#b0457e",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_weed.svg"
+      "spriteUrl": "./assets/entities/evil_weed.png"
     },
     "moves": [
       {
@@ -861,7 +858,7 @@
       "primaryColor": "#6b1f4a",
       "secondaryColor": "#b0457e",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_spore.svg"
+      "spriteUrl": "./assets/entities/evil_spore.png"
     },
     "moves": [
       {
@@ -920,7 +917,7 @@
       "primaryColor": "#6b1f4a",
       "secondaryColor": "#b0457e",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_flower.svg"
+      "spriteUrl": "./assets/entities/evil_flower.png"
     },
     "moves": [
       {
@@ -979,7 +976,7 @@
       "primaryColor": "#6b1f4a",
       "secondaryColor": "#b0457e",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_tree.svg"
+      "spriteUrl": "./assets/entities/evil_tree.png"
     },
     "moves": [
       {
@@ -1032,8 +1029,7 @@
       "primaryColor": "#6b1f4a",
       "secondaryColor": "#b0457e",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_flytrap.svg",
-      "flip": true
+      "spriteUrl": "./assets/entities/evil_flytrap.png"
     },
     "moves": [
       {
@@ -1093,7 +1089,7 @@
       "primaryColor": "#6b1f4a",
       "secondaryColor": "#b0457e",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_treant.svg"
+      "spriteUrl": "./assets/entities/evil_treant.png"
     },
     "moves": [
       {
@@ -1157,8 +1153,7 @@
       "primaryColor": "#6b1f4a",
       "secondaryColor": "#b0457e",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_mandragora.svg",
-      "flip": true
+      "spriteUrl": "./assets/entities/evil_mandragora.png"
     },
     "moves": [
       {
@@ -1218,7 +1213,7 @@
       "primaryColor": "#4a0d1f",
       "secondaryColor": "#a3243f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/boss_goblin_king.svg"
+      "spriteUrl": "./assets/entities/boss_goblin_king.png"
     },
     "moves": [
       {
@@ -1285,7 +1280,7 @@
       "primaryColor": "#4a0d1f",
       "secondaryColor": "#a3243f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/boss_rock_mountain.svg"
+      "spriteUrl": "./assets/entities/boss_rock_mountain.png"
     },
     "moves": [
       {
@@ -1338,7 +1333,7 @@
       "primaryColor": "#4a0d1f",
       "secondaryColor": "#a3243f",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/boss_evil_world_tree.svg"
+      "spriteUrl": "./assets/entities/boss_evil_world_tree.png"
     },
     "moves": [
       {
@@ -1409,7 +1404,7 @@
       "primaryColor": "#2d1b4e",
       "secondaryColor": "#6d3fb0",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/the_evil_wizard.svg"
+      "spriteUrl": "./assets/entities/the_evil_wizard.png"
     },
     "moves": [
       {

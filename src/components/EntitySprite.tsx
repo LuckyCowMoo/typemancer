@@ -15,39 +15,32 @@ interface SpriteProps {
  */
 export const EntitySprite: React.FC<SpriteProps> = ({
   art,
-  width = 86,
-  height = 148,
+  width = 96,
+  height = 96,
   isHighlighted = false,
   className = '',
 }) => {
   const isFlipped = Boolean(art.flip);
 
   if (art.spriteUrl) {
-    const transform = isHighlighted
-      ? (isFlipped ? 'scaleX(-1) scale(1.06)' : 'scale(1.06)')
-      : (isFlipped ? 'scaleX(-1)' : 'none');
-    const filter = isHighlighted
-      ? 'drop-shadow(0 0 10px rgba(255, 209, 102, 0.9))'
-      : 'drop-shadow(0 3px 0 rgba(43, 30, 22, 0.35))';
+    const scaleVal = isHighlighted ? 1.1 : 1;
+    const flipScale = isFlipped ? `scaleX(-1) scale(${scaleVal})` : `scale(${scaleVal})`;
 
     return (
-      <div
+      <img
+        src={art.spriteUrl}
+        alt=""
         className={className}
         style={{
           width,
           height,
-          maskImage: `url(${art.spriteUrl})`,
-          WebkitMaskImage: `url(${art.spriteUrl})`,
-          maskSize: 'contain',
-          WebkitMaskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          WebkitMaskRepeat: 'no-repeat',
-          maskPosition: 'center bottom',
-          WebkitMaskPosition: 'center bottom',
-          background: `linear-gradient(to bottom, ${art.secondaryColor || art.primaryColor}, ${art.primaryColor})`,
-          filter,
-          transform,
-          transition: 'transform 0.15s ease, filter 0.15s ease',
+          objectFit: 'contain',
+          imageRendering: 'pixelated',
+          filter: isHighlighted
+            ? 'drop-shadow(0 0 10px rgba(255, 209, 102, 0.95)) drop-shadow(0 4px 4px rgba(43, 30, 22, 0.35))'
+            : 'drop-shadow(0 4px 4px rgba(43, 30, 22, 0.32))',
+          transition: 'transform 0.16s ease, filter 0.16s ease',
+          transform: flipScale,
         }}
       />
     );
