@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   BattleEnvironmentDefinition,
   CardDefinition,
@@ -136,6 +136,21 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
   const [selectedRelicIdx, setSelectedRelicIdx] = useState<number>(0);
   const [selectedEnvIdx, setSelectedEnvIdx] = useState<number>(0);
   const [selectedEventIdx, setSelectedEventIdx] = useState<number>(0);
+
+  const detailPaneRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (detailPaneRef.current) {
+      detailPaneRef.current.scrollTop = 0;
+    }
+  }, [
+    activeTab,
+    selectedEnemyIdx,
+    selectedCardIdx,
+    selectedRelicIdx,
+    selectedEnvIdx,
+    selectedEventIdx,
+  ]);
 
   // Sprite Picker Modal state
   const [spriteManifest, setSpriteManifest] = useState<SpriteManifestEntry[]>([]);
@@ -665,7 +680,36 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             </div>
           </aside>
 
-          <main className="dev-detail-pane">
+          <main className="dev-detail-pane" ref={detailPaneRef}>
+            <div className="dev-section-header">
+              <h2>
+                ✏️ Editing Enemy #{selectedEnemyIdx + 1} of {enemiesList.length}:{' '}
+                <span style={{ color: '#bc5215' }}>
+                  {activeEnemy.namePools.easy[0] || activeEnemy.id}
+                </span>
+              </h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedEnemyIdx <= 0}
+                  onClick={() => setSelectedEnemyIdx((i) => Math.max(0, i - 1))}
+                >
+                  ◀ Prev Enemy
+                </button>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedEnemyIdx >= enemiesList.length - 1}
+                  onClick={() =>
+                    setSelectedEnemyIdx((i) => Math.min(enemiesList.length - 1, i + 1))
+                  }
+                >
+                  Next Enemy ▶
+                </button>
+              </div>
+            </div>
+
             {/* Top Hero Card: Big Sprite Preview + Basic Stats */}
             <div className="dev-hero-panel">
               <div className="dev-sprite-preview-box">
@@ -1127,7 +1171,33 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             </div>
           </aside>
 
-          <main className="dev-detail-pane">
+          <main className="dev-detail-pane" ref={detailPaneRef}>
+            <div className="dev-section-header">
+              <h2>
+                ✏️ Editing Card #{selectedCardIdx + 1} of {cardsList.length}:{' '}
+                <span style={{ color: '#bc5215' }}>{activeCard.names.easy}</span>
+              </h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedCardIdx <= 0}
+                  onClick={() => setSelectedCardIdx((i) => Math.max(0, i - 1))}
+                >
+                  ◀ Prev Card
+                </button>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedCardIdx >= cardsList.length - 1}
+                  onClick={() =>
+                    setSelectedCardIdx((i) => Math.min(cardsList.length - 1, i + 1))
+                  }
+                >
+                  Next Card ▶
+                </button>
+              </div>
+            </div>
             <div className="dev-hero-panel">
               <div className="dev-sprite-preview-box">
                 {activeCard.art.spriteUrl ? (
@@ -1460,7 +1530,33 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             </div>
           </aside>
 
-          <main className="dev-detail-pane">
+          <main className="dev-detail-pane" ref={detailPaneRef}>
+            <div className="dev-section-header">
+              <h2>
+                ✏️ Editing Relic #{selectedRelicIdx + 1} of {relicsList.length}:{' '}
+                <span style={{ color: '#bc5215' }}>{activeRelic.names.easy}</span>
+              </h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedRelicIdx <= 0}
+                  onClick={() => setSelectedRelicIdx((i) => Math.max(0, i - 1))}
+                >
+                  ◀ Prev Relic
+                </button>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedRelicIdx >= relicsList.length - 1}
+                  onClick={() =>
+                    setSelectedRelicIdx((i) => Math.min(relicsList.length - 1, i + 1))
+                  }
+                >
+                  Next Relic ▶
+                </button>
+              </div>
+            </div>
             <div className="dev-hero-panel">
               <div className="dev-sprite-preview-box">
                 {activeRelic.art.spriteUrl && (
@@ -1649,7 +1745,33 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             </div>
           </aside>
 
-          <main className="dev-detail-pane">
+          <main className="dev-detail-pane" ref={detailPaneRef}>
+            <div className="dev-section-header">
+              <h2>
+                ✏️ Editing Environment #{selectedEnvIdx + 1} of {environmentsList.length}:{' '}
+                <span style={{ color: '#bc5215' }}>{activeEnv.name}</span>
+              </h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedEnvIdx <= 0}
+                  onClick={() => setSelectedEnvIdx((i) => Math.max(0, i - 1))}
+                >
+                  ◀ Prev Environment
+                </button>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  disabled={selectedEnvIdx >= environmentsList.length - 1}
+                  onClick={() =>
+                    setSelectedEnvIdx((i) => Math.min(environmentsList.length - 1, i + 1))
+                  }
+                >
+                  Next Environment ▶
+                </button>
+              </div>
+            </div>
             <div className="dev-hero-panel">
               <div className="dev-sprite-preview-box">
                 {activeEnv.art.spriteUrl && (
@@ -1935,7 +2057,13 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             </div>
           </aside>
 
-          <main className="dev-detail-pane">
+          <main className="dev-detail-pane" ref={detailPaneRef}>
+            <div className="dev-section-header">
+              <h2>
+                ✏️ Editing Mystery Event #{selectedEventIdx + 1} of {eventsList.length}:{' '}
+                <span style={{ color: '#bc5215' }}>{activeEvent.title}</span>
+              </h2>
+            </div>
             <section className="dev-section-card">
               <div className="dev-fields-grid">
                 <label className="dev-field">

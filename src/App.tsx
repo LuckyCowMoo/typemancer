@@ -2750,6 +2750,7 @@ export function App() {
           <span
             key={cmd}
             data-cmd={cmd}
+            onClick={cmd === 'editor' ? () => setDevEditorOpen(true) : undefined}
             className={`top-cmd-box ${st.isHighlighted ? 'top-cmd-highlighted' : ''} ${
               st.isEnterReady ? 'top-cmd-enter-ready' : ''
             }`}
@@ -3205,6 +3206,7 @@ export function App() {
                     return (
                       <div
                         key={opt}
+                        onClick={opt === 'editor' ? () => setDevEditorOpen(true) : undefined}
                         className={`clean-menu-option ${
                           st.isHighlighted ? 'option-highlighted' : ''
                         } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
