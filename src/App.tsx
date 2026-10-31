@@ -2863,6 +2863,8 @@ export function App() {
                     primaryColor: '#165b7d',
                     secondaryColor: '#2980b9',
                     shape: 'capsule',
+                    spriteUrl: './assets/entities/player.svg',
+                    flip: true,
                   }}
                   width={112}
                   height={200}
@@ -3535,6 +3537,7 @@ export function App() {
                   <li><code>relics</code> — View names and descriptions of your collected relics</li>
                   <li><code>view deck</code> / <code>view discard</code> — View cards</li>
                   <li><code>options</code> / <code>save</code> — Audio settings or Save Code</li>
+                  <li>Art: icons by Lorc, Delapouite &amp; contributors at game-icons.net (CC BY 3.0)</li>
                 </ul>
               </>
             )}

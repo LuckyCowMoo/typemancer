@@ -66,6 +66,7 @@ export interface ArtPlaceholder {
   shape: 'capsule' | 'hexagon' | 'diamond' | 'shield' | 'scroll' | 'spiky' | 'thorn' | 'crown';
   icon?: string;
   spriteUrl?: string; // Drop-in path for non-AI custom art later
+  flip?: boolean;
 }
 
 export interface CardUpgradeData {
