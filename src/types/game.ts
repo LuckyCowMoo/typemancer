@@ -272,3 +272,37 @@ export interface GameSettings {
   confirmSound: ConfirmSoundProfile;
   highContrast: boolean;
 }
+
+export interface BattleEnvironmentModifiers {
+  /** Extra Ward/block added to ALL player Ward cards/powers AND enemy Ward moves (e.g., +2 in Rocky Desert) */
+  wardBonus?: number;
+  /** Extra max Energy per turn for the player (e.g., +1 in Flowing Riverbank) */
+  energyBonus?: number;
+  /** Extra attack damage added to enemy attacks when energy/tempo is boosted (or general enemy damage modifier) */
+  enemyDamageBonus?: number;
+  /** Extra stacks added whenever ANY status effect (Bold, Faded, Exposed, Ink Burn) is applied by player OR enemies */
+  statusBonus?: number;
+  /** Flat bonus attack damage for BOTH player attacks and enemy attacks */
+  damageBonus?: number;
+  /** Extra HP restored whenever player OR enemies heal */
+  healBonus?: number;
+  /** Ward automatically granted to BOTH player and all enemies at the start of each round */
+  turnStartWardAll?: number;
+  /** Ink Burn automatically applied to BOTH player and all enemies at the end of each round */
+  turnEndInkBurnAll?: number;
+  /** Extra cards drawn by the player each turn */
+  drawBonus?: number;
+}
+
+export interface BattleEnvironmentDefinition {
+  id: string;
+  name: string;
+  description: string;
+  backgroundTint: string;
+  accentColor: string;
+  minFloor?: number;
+  maxFloor?: number;
+  weight?: number;
+  art: ArtPlaceholder;
+  modifiers: BattleEnvironmentModifiers;
+}

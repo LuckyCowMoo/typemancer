@@ -1,5 +1,6 @@
 import type {
   ActiveEnemy,
+  BattleEnvironmentDefinition,
   CardDefinition,
   CardEffect,
   CardInstance,
@@ -18,13 +19,32 @@ import cardsRaw from '../data/cards.json';
 import enemiesRaw from '../data/enemies.json';
 import relicsRaw from '../data/relics.json';
 import eventsRaw from '../data/events.json';
+import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
 
 export const CARDS_CATALOG: CardDefinition[] = cardsRaw as unknown as CardDefinition[];
 export const ENEMIES_CATALOG: EnemyDefinition[] = enemiesRaw as unknown as EnemyDefinition[];
 export const RELICS_CATALOG: RelicDefinition[] = relicsRaw as unknown as RelicDefinition[];
 export const EVENTS_CATALOG: MysteryEventDefinition[] = eventsRaw as unknown as MysteryEventDefinition[];
+export const ENVIRONMENTS_CATALOG: BattleEnvironmentDefinition[] =
+  environmentsRaw as unknown as BattleEnvironmentDefinition[];
 export const MAP_PHRASES: MapPhrasesCatalog = mapPhrasesRaw as unknown as MapPhrasesCatalog;
+
+export function chooseBattleEnvironment(floor: number): BattleEnvironmentDefinition {
+  const eligible = ENVIRONMENTS_CATALOG.filter(
+    (env) =>
+      (env.minFloor === undefined || floor >= env.minFloor) &&
+      (env.maxFloor === undefined || floor <= env.maxFloor)
+  );
+  const pool = eligible.length > 0 ? eligible : ENVIRONMENTS_CATALOG;
+  const totalWeight = pool.reduce((sum, env) => sum + (env.weight ?? 10), 0);
+  let roll = Math.random() * totalWeight;
+  for (const env of pool) {
+    roll -= env.weight ?? 10;
+    if (roll <= 0) return env;
+  }
+  return pool[0];
+}
 
 let uidCounter = 1;
 export function nextUid(prefix: string = 'id'): string {

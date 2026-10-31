@@ -1,0 +1,174 @@
+[
+  {
+    "id": "rocky_desert",
+    "name": "Rocky Desert",
+    "description": "Jagged sandstone outcrops provide natural cover: ALL Ward (block) gained by you and by enemies is increased by +2.",
+    "backgroundTint": "rgba(217, 160, 91, 0.14)",
+    "accentColor": "#b45309",
+    "minFloor": 1,
+    "maxFloor": 26,
+    "weight": 14,
+    "art": {
+      "primaryColor": "#b45309",
+      "secondaryColor": "#f59e0b",
+      "shape": "shield",
+      "spriteUrl": "./assets/entities/rock_pebble.png"
+    },
+    "modifiers": {
+      "wardBonus": 2
+    }
+  },
+  {
+    "id": "flowing_riverbank",
+    "name": "Flowing Riverbank",
+    "description": "Rushing currents accelerate the battle: You gain +1 Energy each turn, and enemies surge with the tide (+2 Attack Damage).",
+    "backgroundTint": "rgba(14, 116, 144, 0.12)",
+    "accentColor": "#0e7490",
+    "minFloor": 1,
+    "maxFloor": 26,
+    "weight": 13,
+    "art": {
+      "primaryColor": "#0e7490",
+      "secondaryColor": "#38bdf8",
+      "shape": "capsule",
+      "spriteUrl": "./assets/relics/Ac_Necklace02.png"
+    },
+    "modifiers": {
+      "energyBonus": 1,
+      "enemyDamageBonus": 2
+    }
+  },
+  {
+    "id": "magical_forest_clearing",
+    "name": "Magical Forest Clearing",
+    "description": "Leyline pollen amplifies every enchantment: ALL Status Effects (Bold, Faded, Exposed, Ink Burn) applied by you OR enemies gain +1 extra stack.",
+    "backgroundTint": "rgba(21, 128, 61, 0.12)",
+    "accentColor": "#15803d",
+    "minFloor": 1,
+    "maxFloor": 26,
+    "weight": 14,
+    "art": {
+      "primaryColor": "#15803d",
+      "secondaryColor": "#4ade80",
+      "shape": "thorn",
+      "spriteUrl": "./assets/entities/evil_flower.png"
+    },
+    "modifiers": {
+      "statusBonus": 1
+    }
+  },
+  {
+    "id": "volcanic_caldera",
+    "name": "Volcanic Caldera",
+    "description": "Scorching updrafts temper every strike: ALL attacks dealt by you AND by enemies deal +2 damage.",
+    "backgroundTint": "rgba(185, 28, 28, 0.12)",
+    "accentColor": "#b91c1c",
+    "minFloor": 4,
+    "maxFloor": 26,
+    "weight": 11,
+    "art": {
+      "primaryColor": "#b91c1c",
+      "secondaryColor": "#f87171",
+      "shape": "spiky",
+      "spriteUrl": "./assets/relics/Ac_Ring02.png"
+    },
+    "modifiers": {
+      "damageBonus": 2
+    }
+  },
+  {
+    "id": "crystal_bastion",
+    "name": "Crystal Bastion",
+    "description": "Resonant quartz pillars project a barrier at the start of every round: Both you AND all enemies gain +3 Ward at turn start.",
+    "backgroundTint": "rgba(29, 78, 216, 0.10)",
+    "accentColor": "#1d4ed8",
+    "minFloor": 2,
+    "maxFloor": 26,
+    "weight": 11,
+    "art": {
+      "primaryColor": "#1d4ed8",
+      "secondaryColor": "#60a5fa",
+      "shape": "hexagon",
+      "spriteUrl": "./assets/entities/rock_titan.png"
+    },
+    "modifiers": {
+      "turnStartWardAll": 3
+    }
+  },
+  {
+    "id": "fuming_ink_marsh",
+    "name": "Fuming Ink Marsh",
+    "description": "Boiling geysers of toxic ink coat the arena: Both you AND all enemies suffer +1 Ink Burn at the end of every round.",
+    "backgroundTint": "rgba(109, 40, 217, 0.11)",
+    "accentColor": "#6d28d9",
+    "minFloor": 5,
+    "maxFloor": 26,
+    "weight": 10,
+    "art": {
+      "primaryColor": "#6d28d9",
+      "secondaryColor": "#a78bfa",
+      "shape": "scroll",
+      "spriteUrl": "./assets/entities/evil_spore.png"
+    },
+    "modifiers": {
+      "turnEndInkBurnAll": 1
+    }
+  },
+  {
+    "id": "sunlit_sanctuary",
+    "name": "Sunlit Sanctuary",
+    "description": "Warm golden rays mend wounds and fortify armor: All Healing is increased by +3 and all Ward gained is increased by +1 for both sides.",
+    "backgroundTint": "rgba(202, 138, 4, 0.12)",
+    "accentColor": "#a16207",
+    "minFloor": 1,
+    "maxFloor": 26,
+    "weight": 10,
+    "art": {
+      "primaryColor": "#a16207",
+      "secondaryColor": "#facc15",
+      "shape": "crown",
+      "spriteUrl": "./assets/relics/Ac_Medal01.png"
+    },
+    "modifiers": {
+      "healBonus": 3,
+      "wardBonus": 1
+    }
+  },
+  {
+    "id": "whispering_library_ruins",
+    "name": "Whispering Library Ruins",
+    "description": "Fluttering pages swirl through the ruins: You draw +1 extra card each turn, while enemies channel ancient lore (+1 Status Effect potency).",
+    "backgroundTint": "rgba(15, 118, 110, 0.11)",
+    "accentColor": "#0f766e",
+    "minFloor": 3,
+    "maxFloor": 26,
+    "weight": 11,
+    "art": {
+      "primaryColor": "#0f766e",
+      "secondaryColor": "#2dd4bf",
+      "shape": "scroll",
+      "spriteUrl": "./assets/entities/player.png"
+    },
+    "modifiers": {
+      "drawBonus": 1,
+      "statusBonus": 1
+    }
+  },
+  {
+    "id": " calm_parchment_meadow",
+    "name": "Calm Parchment Meadow",
+    "description": "A still, quiet clearing where no environmental hazards interfere with the duel.",
+    "backgroundTint": "rgba(234, 223, 206, 0.0)",
+    "accentColor": "#4b5563",
+    "minFloor": 1,
+    "maxFloor": 26,
+    "weight": 10,
+    "art": {
+      "primaryColor": "#4b5563",
+      "secondaryColor": "#9ca3af",
+      "shape": "capsule",
+      "spriteUrl": "./assets/entities/evil_weed.png"
+    },
+    "modifiers": {}
+  }
+]

@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import { CardBanner } from './components/CardBanner';
+import { DevJsonEditor } from './components/DevJsonEditor';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
 import { MAP_NODE_STYLES, ScrollableMap } from './components/ScrollableMap';
 import type {
   ActiveEnemy,
   ActivePower,
+  BattleEnvironmentDefinition,
   CardInstance,
   Difficulty,
   GameSettings,
@@ -19,9 +21,11 @@ import type {
   StatusState,
 } from './types/game';
 import {
+  chooseBattleEnvironment,
   chooseEnemyMove,
   createStarterDeck,
   ENEMIES_CATALOG,
+  ENVIRONMENTS_CATALOG,
   EVENTS_CATALOG,
   generateCardRewards,
   generateEncounter,
@@ -194,6 +198,14 @@ export function App() {
   const [burnDraftPile, setBurnDraftPile] = useState<CardInstance[]>([]);
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
   const [activePowers, setActivePowers] = useState<ActivePower[]>([]);
+  const [activeEnvironment, setActiveEnvironment] = useState<BattleEnvironmentDefinition>(
+    () => ENVIRONMENTS_CATALOG[0]
+  );
+  const [devEditorOpen, setDevEditorOpen] = useState<boolean>(
+    () =>
+      typeof window !== 'undefined' &&
+      (window.location.search.includes('editor') || window.location.hash.includes('editor'))
+  );
   const [handAnimState, setHandAnimState] = useState<'idle' | 'discarding' | 'drawing'>('idle');
   const [selectedCard, setSelectedCard] = useState<CardInstance | null>(null);
   const [isAnimatingTurn, setIsAnimatingTurn] = useState<boolean>(false);
@@ -420,7 +432,23 @@ export function App() {
         bonusDraw += 1;
       }
 
-      const baseTurnEnergy = 3 + bonusEnergy;
+      const chosenEnv = chooseBattleEnvironment(floorNum);
+      setActiveEnvironment(chosenEnv);
+      const envMod = chosenEnv.modifiers || {};
+      if (envMod.energyBonus) {
+        bonusEnergy += envMod.energyBonus;
+      }
+      if (envMod.drawBonus) {
+        bonusDraw += envMod.drawBonus;
+      }
+      if (envMod.turnStartWardAll) {
+        startWard += envMod.turnStartWardAll;
+        spawnedEnemies.forEach((e) => {
+          e.ward += envMod.turnStartWardAll!;
+        });
+      }
+
+      const baseTurnEnergy = Math.max(1, 3 + bonusEnergy);
       setMaxEnergy(baseTurnEnergy);
       setEnergy(baseTurnEnergy);
       setPlayerWard(startWard);
@@ -549,8 +577,10 @@ export function App() {
         await triggerProjectile('player', targetIdx, resolved.art.primaryColor || '#bc5215');
       }
 
+      const envMod = activeEnvironment?.modifiers || {};
+
       const dealHitToEnemy = (enemyObj: ActiveEnemy, baseDamage: number) => {
-        let dmg = scaleAmount(baseDamage) + nextPlayerStatuses.bold;
+        let dmg = scaleAmount(baseDamage) + nextPlayerStatuses.bold + (envMod.damageBonus ?? 0);
         if (nextPlayerStatuses.faded > 0) {
           dmg = Math.floor(dmg * 0.75);
         }
@@ -605,7 +635,7 @@ export function App() {
             break;
           }
           case 'ward': {
-            const gained = scaleAmount(eff.amount);
+            const gained = Math.max(0, scaleAmount(eff.amount) + (envMod.wardBonus ?? 0));
             nextWard += gained;
             soundEngine.playWardBlock(settings);
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
@@ -620,20 +650,23 @@ export function App() {
             break;
           }
           case 'gain_ward_per_card_in_hand': {
-            const gained = scaleAmount(eff.amount) * Math.max(0, hand.length - 1);
+            const gained = Math.max(
+              0,
+              scaleAmount(eff.amount) * Math.max(0, hand.length - 1) + (envMod.wardBonus ?? 0)
+            );
             nextWard += gained;
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
             setMetrics((m) => ({ ...m, totalWardGained: m.totalWardGained + gained }));
             break;
           }
           case 'bold': {
-            const amt = scaleAmount(eff.amount);
+            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
             nextPlayerStatuses.bold += amt;
             spawnPopup('player', `+${amt} Bold`, '#d97706');
             break;
           }
           case 'faded': {
-            const amt = scaleAmount(eff.amount);
+            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
             targetList.forEach((en) => {
               en.statuses.faded += amt;
               spawnPopup(en.instanceId, `+${amt} Faded`, '#64748b');
@@ -641,7 +674,7 @@ export function App() {
             break;
           }
           case 'exposed': {
-            const amt = scaleAmount(eff.amount);
+            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
             targetList.forEach((en) => {
               en.statuses.exposed += amt;
               spawnPopup(en.instanceId, `+${amt} Exposed`, '#be123c');
@@ -649,7 +682,7 @@ export function App() {
             break;
           }
           case 'ink_burn': {
-            const amt = scaleAmount(eff.amount);
+            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
             targetList.forEach((en) => {
               en.statuses.ink_burn += amt;
               spawnPopup(en.instanceId, `+${amt} Ink Burn`, '#6d28d9');
@@ -673,7 +706,7 @@ export function App() {
             break;
           }
           case 'heal': {
-            const healAmt = scaleAmount(eff.amount);
+            const healAmt = Math.max(0, scaleAmount(eff.amount) + (envMod.healBonus ?? 0));
             nextHp = Math.min(maxHp, nextHp + healAmt);
             spawnPopup('player', `+${healAmt} HP`, '#3a8918');
             break;
@@ -820,6 +853,7 @@ export function App() {
       }
     },
     [
+      activeEnvironment,
       activePowers,
       burnDraftPile,
       difficulty,
@@ -853,6 +887,8 @@ export function App() {
     setSelectedCard(null);
     resetTypingBuffer(true);
 
+    const envMod = activeEnvironment?.modifiers || {};
+
     // Animate unused cards returning to the deck/discard at the end of turn!
     const discardedHand = [...discardPile, ...hand];
     if (hand.length > 0) {
@@ -882,6 +918,27 @@ export function App() {
     let totalBlockedSummary = 0;
     let totalHpLostSummary = 0;
     const workingEnemies = enemies.map((e) => ({ ...e, statuses: { ...e.statuses } }));
+
+    // Environment turn-end Ink Burn hazard (symmetrical: hits all enemies AND the player!)
+    if (envMod.turnEndInkBurnAll && envMod.turnEndInkBurnAll > 0) {
+      workingEnemies.forEach((en) => {
+        if (en.hp > 0) {
+          en.statuses.ink_burn += envMod.turnEndInkBurnAll!;
+          spawnPopup(
+            en.instanceId,
+            `+${envMod.turnEndInkBurnAll} Ink Burn (${activeEnvironment.name})`,
+            '#6d28d9'
+          );
+        }
+      });
+      nextPlayerStats.ink_burn += envMod.turnEndInkBurnAll;
+      spawnPopup(
+        'player',
+        `+${envMod.turnEndInkBurnAll} Ink Burn (${activeEnvironment.name})`,
+        '#6d28d9'
+      );
+      await delay(220);
+    }
 
     // Trigger end-of-player-turn active powers (Ink Burn all each turn, Damage all each turn)
     for (const pwr of activePowers) {
@@ -939,7 +996,11 @@ export function App() {
         const hits = move.hits || 1;
         for (let h = 0; h < hits; h++) {
           await triggerProjectile(idx, 'player', '#b84a14');
-          let dmg = move.damage + en.statuses.bold;
+          let dmg =
+            move.damage +
+            en.statuses.bold +
+            (envMod.damageBonus ?? 0) +
+            (envMod.enemyDamageBonus ?? 0);
           if (en.statuses.faded > 0) dmg = Math.floor(dmg * 0.75);
           if (nextPlayerStats.exposed > 0) dmg = Math.floor(dmg * 1.5);
           dmg = Math.max(0, dmg);
@@ -969,28 +1030,31 @@ export function App() {
       }
 
       if (move.ward && move.ward > 0) {
-        en.ward += move.ward;
-        spawnPopup(en.instanceId, `+${move.ward} Ward`, '#1d6fa5');
+        const enemyWardGained = Math.max(0, move.ward + (envMod.wardBonus ?? 0));
+        en.ward += enemyWardGained;
+        spawnPopup(en.instanceId, `+${enemyWardGained} Ward`, '#1d6fa5');
       }
 
       if (move.heal && move.heal > 0) {
-        en.hp = Math.min(en.maxHp, en.hp + move.heal);
-        spawnPopup(en.instanceId, `+${move.heal} HP`, '#3a8918');
+        const enemyHealAmt = Math.max(0, move.heal + (envMod.healBonus ?? 0));
+        en.hp = Math.min(en.maxHp, en.hp + enemyHealAmt);
+        spawnPopup(en.instanceId, `+${enemyHealAmt} HP`, '#3a8918');
       }
 
       if (move.statusEffects) {
         move.statusEffects.forEach((se) => {
+          const effAmt = Math.max(1, se.amount + (envMod.statusBonus ?? 0));
           if (se.target === 'player') {
-            nextPlayerStats[se.status] += se.amount;
-            spawnPopup('player', `+${se.amount} ${se.status.replace('_', ' ')}`, '#6d28d9');
+            nextPlayerStats[se.status] += effAmt;
+            spawnPopup('player', `+${effAmt} ${se.status.replace('_', ' ')}`, '#6d28d9');
           } else if (se.target === 'self') {
-            en.statuses[se.status] += se.amount;
-            spawnPopup(en.instanceId, `+${se.amount} ${se.status.replace('_', ' ')}`, '#d97706');
+            en.statuses[se.status] += effAmt;
+            spawnPopup(en.instanceId, `+${effAmt} ${se.status.replace('_', ' ')}`, '#d97706');
           } else if (se.target === 'all_allies') {
             workingEnemies.forEach((ally) => {
               if (ally.hp > 0) {
-                ally.statuses[se.status] += se.amount;
-                spawnPopup(ally.instanceId, `+${se.amount} ${se.status.replace('_', ' ')}`, '#d97706');
+                ally.statuses[se.status] += effAmt;
+                spawnPopup(ally.instanceId, `+${effAmt} ${se.status.replace('_', ' ')}`, '#d97706');
               }
             });
           }
@@ -1070,7 +1134,12 @@ export function App() {
       spawnPopup('player', `Turn Summary: ${parts.join(' · ')}`, '#102a3a');
     }
 
-    let newTurnWard = 0;
+    let newTurnWard = envMod.turnStartWardAll ?? 0;
+    if (envMod.turnStartWardAll && envMod.turnStartWardAll > 0) {
+      survivingEnemies.forEach((en) => {
+        en.ward += envMod.turnStartWardAll!;
+      });
+    }
     let newTurnEnergy = maxEnergy;
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
@@ -1079,7 +1148,7 @@ export function App() {
       }
     });
 
-    let turnDrawCount = 5;
+    let turnDrawCount = 5 + (envMod.drawBonus ?? 0);
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
       if (rel && rel.trigger === 'passive_draw' && rel.effectType === 'draw') {
@@ -1111,7 +1180,7 @@ export function App() {
     });
 
     const { nextHand, nextDraw, nextDiscard } = drawCards(
-      Math.min(10, turnDrawCount),
+      Math.min(10, Math.max(1, turnDrawCount)),
       [],
       drawPile,
       discardedHand
@@ -1130,6 +1199,7 @@ export function App() {
     window.setTimeout(() => setHandAnimState('idle'), 420);
     setIsAnimatingTurn(false);
   }, [
+    activeEnvironment,
     activePowers,
     discardPile,
     drawCards,
@@ -1611,6 +1681,19 @@ export function App() {
       soundEngine.playPageTurn(settings);
       triggerElementParticles('[data-cmd="save"]', ['#137547', '#102a3a', '#ffd166'], 86, 4);
       setOverlay('save');
+      resetTypingBuffer(false);
+      return;
+    }
+    if (
+      matchCommand(
+        raw,
+        ['editor', 'dev editor', 'edit json', 'json editor', 'sprite editor', 'edit'],
+        'easy'
+      )
+    ) {
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles(undefined, ['#137547', '#d97706', '#ffd166'], 50, 50);
+      setDevEditorOpen(true);
       resetTypingBuffer(false);
       return;
     }
@@ -2369,6 +2452,9 @@ export function App() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (devEditorOpen) {
+        return;
+      }
       if (e.ctrlKey || e.altKey || e.metaKey) {
         return;
       }
@@ -2445,6 +2531,7 @@ export function App() {
     };
 
     const onPaste = (e: ClipboardEvent) => {
+      if (devEditorOpen) return;
       const text = e.clipboardData?.getData('text');
       if (text) {
         e.preventDefault();
@@ -2458,7 +2545,7 @@ export function App() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('paste', onPaste);
     };
-  }, [actionStartTime, overlay, resetTypingBuffer, screen, selectedCard, settings]);
+  }, [actionStartTime, devEditorOpen, overlay, resetTypingBuffer, screen, selectedCard, settings]);
 
   const selectedCardResolved = useMemo(
     () => (selectedCard ? resolveCardInstance(selectedCard, phraseDiff) : null),
@@ -2492,7 +2579,7 @@ export function App() {
       }
     } else {
       if (screen === 'main_menu') {
-        pool.push('new run', 'tutorial', 'load', 'options', 'help');
+        pool.push('new run', 'tutorial', 'load', 'options', 'editor', 'help');
       } else if (screen === 'tutorial') {
         if (tutorialStep === 0) pool.push('strike');
         if (tutorialStep === 1) pool.push('goblin scout');
@@ -2566,7 +2653,7 @@ export function App() {
         pool.push('new run');
       }
 
-      pool.push('help', 'options', 'save', 'relics', 'view deck', 'status effects');
+      pool.push('help', 'options', 'save', 'relics', 'view deck', 'status effects', 'editor');
       STATUS_DEFINITIONS.forEach((st) => pool.push(st.name));
     }
 
@@ -2815,10 +2902,39 @@ export function App() {
                 'view deck',
                 'help',
                 'options',
+                'editor',
               ])}
             </header>
 
-            <section className="arena-stage">
+            <section
+              className="arena-stage"
+              style={
+                activeEnvironment?.backgroundTint
+                  ? { backgroundColor: activeEnvironment.backgroundTint }
+                  : undefined
+              }
+            >
+              {activeEnvironment && (
+                <div
+                  className="battle-environment-banner"
+                  style={{
+                    borderColor: activeEnvironment.art.primaryColor || '#b89a67',
+                  }}
+                >
+                  {activeEnvironment.art.spriteUrl && (
+                    <img
+                      src={activeEnvironment.art.spriteUrl}
+                      alt=""
+                      className="battle-environment-icon"
+                    />
+                  )}
+                  <div className="battle-environment-info">
+                    <span className="battle-environment-name">{activeEnvironment.name}</span>
+                    <span className="battle-environment-desc">{activeEnvironment.description}</span>
+                  </div>
+                </div>
+              )}
+
               {activeProjectile && (
                 <div
                   key={activeProjectile.id}
@@ -2956,10 +3072,35 @@ export function App() {
                       />
                       <IntentBadge
                         intent={enemy.currentMove.intent}
-                        damage={enemy.currentMove.damage}
+                        damage={
+                          enemy.currentMove.damage
+                            ? Math.max(
+                                0,
+                                enemy.currentMove.damage +
+                                  (activeEnvironment?.modifiers?.damageBonus ?? 0) +
+                                  (activeEnvironment?.modifiers?.enemyDamageBonus ?? 0)
+                              )
+                            : undefined
+                        }
                         hits={enemy.currentMove.hits}
-                        ward={enemy.currentMove.ward}
-                        heal={enemy.currentMove.heal}
+                        ward={
+                          enemy.currentMove.ward
+                            ? Math.max(
+                                0,
+                                enemy.currentMove.ward +
+                                  (activeEnvironment?.modifiers?.wardBonus ?? 0)
+                              )
+                            : undefined
+                        }
+                        heal={
+                          enemy.currentMove.heal
+                            ? Math.max(
+                                0,
+                                enemy.currentMove.heal +
+                                  (activeEnvironment?.modifiers?.healBonus ?? 0)
+                              )
+                            : undefined
+                        }
                       />
                       <div className="status-pills-row">
                         {enemy.ward > 0 && <span className="status-pill ward-pill">Ward {enemy.ward}</span>}
@@ -3049,7 +3190,7 @@ export function App() {
             ) : (
               <div />
             )}
-            {renderCommandPills(['help', 'options', 'save', 'relics', 'view deck'])}
+            {renderCommandPills(['help', 'options', 'save', 'relics', 'view deck', 'editor'])}
           </header>
 
           {/* Main Content Stage */}
@@ -3059,7 +3200,7 @@ export function App() {
               <div className="clean-menu-card paper-sheet-float">
                 <h1 className="clean-menu-title">TYPEMANCER</h1>
                 <div className="clean-menu-options">
-                  {(['new run', 'tutorial', 'load', 'options'] as const).map((opt, idx) => {
+                  {(['new run', 'tutorial', 'load', 'options', 'editor'] as const).map((opt, idx) => {
                     const st = getPhraseHighlightState(opt, 'easy');
                     return (
                       <div
@@ -3799,6 +3940,9 @@ export function App() {
           </div>
         </div>
       )}
+
+      {/* DEVELOPER JSON & SPRITE EDITOR GUI */}
+      {devEditorOpen && <DevJsonEditor onClose={() => setDevEditorOpen(false)} />}
     </div>
   );
 }

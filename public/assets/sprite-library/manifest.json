@@ -1,0 +1,5444 @@
+[
+  {
+    "id": "dcss-monsters/goblin_new.png",
+    "name": "goblin new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/goblin_new.png"
+  },
+  {
+    "id": "dcss-monsters/hobgoblin_new.png",
+    "name": "hobgoblin new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/hobgoblin_new.png"
+  },
+  {
+    "id": "dcss-monsters/kobold_new.png",
+    "name": "kobold new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/kobold_new.png"
+  },
+  {
+    "id": "dcss-monsters/big_kobold_new.png",
+    "name": "big kobold new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/big_kobold_new.png"
+  },
+  {
+    "id": "dcss-monsters/kobold_demonologist.png",
+    "name": "kobold demonologist",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/kobold_demonologist.png"
+  },
+  {
+    "id": "dcss-monsters/orc_new.png",
+    "name": "orc new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orc_new.png"
+  },
+  {
+    "id": "dcss-monsters/orc_warrior_new.png",
+    "name": "orc warrior new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orc_warrior_new.png"
+  },
+  {
+    "id": "dcss-monsters/orc_knight_new.png",
+    "name": "orc knight new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orc_knight_new.png"
+  },
+  {
+    "id": "dcss-monsters/orc_priest_new.png",
+    "name": "orc priest new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orc_priest_new.png"
+  },
+  {
+    "id": "dcss-monsters/orc_high_priest_new.png",
+    "name": "orc high priest new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orc_high_priest_new.png"
+  },
+  {
+    "id": "dcss-monsters/orc_sorcerer_new.png",
+    "name": "orc sorcerer new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orc_sorcerer_new.png"
+  },
+  {
+    "id": "dcss-monsters/orc_wizard_new.png",
+    "name": "orc wizard new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orc_wizard_new.png"
+  },
+  {
+    "id": "dcss-monsters/deformed_orc.png",
+    "name": "deformed orc",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/deformed_orc.png"
+  },
+  {
+    "id": "dcss-monsters/troll.png",
+    "name": "troll",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/troll.png"
+  },
+  {
+    "id": "dcss-monsters/deep_troll.png",
+    "name": "deep troll",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/deep_troll.png"
+  },
+  {
+    "id": "dcss-monsters/iron_troll.png",
+    "name": "iron troll",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/iron_troll.png"
+  },
+  {
+    "id": "dcss-monsters/rock_troll.png",
+    "name": "rock troll",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/rock_troll.png"
+  },
+  {
+    "id": "dcss-monsters/deep_troll_berserker.png",
+    "name": "deep troll berserker",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/deep_troll_berserker.png"
+  },
+  {
+    "id": "dcss-monsters/deep_troll_earth_mage.png",
+    "name": "deep troll earth mage",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/deep_troll_earth_mage.png"
+  },
+  {
+    "id": "dcss-monsters/deep_troll_shaman.png",
+    "name": "deep troll shaman",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/deep_troll_shaman.png"
+  },
+  {
+    "id": "dcss-monsters/ogre_new.png",
+    "name": "ogre new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/ogre_new.png"
+  },
+  {
+    "id": "dcss-monsters/ogre_mage_new.png",
+    "name": "ogre mage new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/ogre_mage_new.png"
+  },
+  {
+    "id": "dcss-monsters/two_headed_ogre_new.png",
+    "name": "two headed ogre new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/two_headed_ogre_new.png"
+  },
+  {
+    "id": "dcss-monsters/gnoll_new.png",
+    "name": "gnoll new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/gnoll_new.png"
+  },
+  {
+    "id": "dcss-monsters/gnoll_sergeant.png",
+    "name": "gnoll sergeant",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/gnoll_sergeant.png"
+  },
+  {
+    "id": "dcss-monsters/gnoll_shaman.png",
+    "name": "gnoll shaman",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/gnoll_shaman.png"
+  },
+  {
+    "id": "dcss-monsters/minotaur.png",
+    "name": "minotaur",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/minotaur.png"
+  },
+  {
+    "id": "dcss-monsters/centaur.png",
+    "name": "centaur",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/centaur.png"
+  },
+  {
+    "id": "dcss-monsters/centaur_warrior.png",
+    "name": "centaur warrior",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/centaur_warrior.png"
+  },
+  {
+    "id": "dcss-monsters/yaktaur_new.png",
+    "name": "yaktaur new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/yaktaur_new.png"
+  },
+  {
+    "id": "dcss-monsters/yaktaur_captain_new.png",
+    "name": "yaktaur captain new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/yaktaur_captain_new.png"
+  },
+  {
+    "id": "dcss-monsters/naga.png",
+    "name": "naga",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/naga.png"
+  },
+  {
+    "id": "dcss-monsters/greater_naga.png",
+    "name": "greater naga",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/greater_naga.png"
+  },
+  {
+    "id": "dcss-monsters/guardian_naga.png",
+    "name": "guardian naga",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/guardian_naga.png"
+  },
+  {
+    "id": "dcss-monsters/salamander.png",
+    "name": "salamander",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/salamander.png"
+  },
+  {
+    "id": "dcss-monsters/salamander_stormcaller.png",
+    "name": "salamander stormcaller",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/salamander_stormcaller.png"
+  },
+  {
+    "id": "dcss-monsters/hill_giant_new.png",
+    "name": "hill giant new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/hill_giant_new.png"
+  },
+  {
+    "id": "dcss-monsters/fire_giant_new.png",
+    "name": "fire giant new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/fire_giant_new.png"
+  },
+  {
+    "id": "dcss-monsters/frost_giant_new.png",
+    "name": "frost giant new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/frost_giant_new.png"
+  },
+  {
+    "id": "dcss-monsters/stone_giant_new.png",
+    "name": "stone giant new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/stone_giant_new.png"
+  },
+  {
+    "id": "dcss-monsters/titan_new.png",
+    "name": "titan new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/titan_new.png"
+  },
+  {
+    "id": "dcss-monsters/cyclops_new.png",
+    "name": "cyclops new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/cyclops_new.png"
+  },
+  {
+    "id": "dcss-monsters/ettin_new.png",
+    "name": "ettin new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/ettin_new.png"
+  },
+  {
+    "id": "dcss-monsters/golden_dragon.png",
+    "name": "golden dragon",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/golden_dragon.png"
+  },
+  {
+    "id": "dcss-monsters/death_drake.png",
+    "name": "death drake",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/death_drake.png"
+  },
+  {
+    "id": "dcss-monsters/fire_drake.png",
+    "name": "fire drake",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/fire_drake.png"
+  },
+  {
+    "id": "dcss-monsters/forest_drake.png",
+    "name": "forest drake",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/forest_drake.png"
+  },
+  {
+    "id": "dcss-monsters/swamp_drake.png",
+    "name": "swamp drake",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/swamp_drake.png"
+  },
+  {
+    "id": "dcss-monsters/lindwurm.png",
+    "name": "lindwurm",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/lindwurm.png"
+  },
+  {
+    "id": "dcss-monsters/warg.png",
+    "name": "warg",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/warg.png"
+  },
+  {
+    "id": "dcss-monsters/wolf.png",
+    "name": "wolf",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/wolf.png"
+  },
+  {
+    "id": "dcss-monsters/hell_hound.png",
+    "name": "hell hound",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/hell_hound.png"
+  },
+  {
+    "id": "dcss-monsters/grizzly_bear.png",
+    "name": "grizzly bear",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/grizzly_bear.png"
+  },
+  {
+    "id": "dcss-monsters/polar_bear.png",
+    "name": "polar bear",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/polar_bear.png"
+  },
+  {
+    "id": "dcss-monsters/black_bear.png",
+    "name": "black bear",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/black_bear.png"
+  },
+  {
+    "id": "dcss-monsters/griffon.png",
+    "name": "griffon",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/griffon.png"
+  },
+  {
+    "id": "dcss-monsters/harpy.png",
+    "name": "harpy",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/harpy.png"
+  },
+  {
+    "id": "dcss-monsters/sphinx_new.png",
+    "name": "sphinx new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/sphinx_new.png"
+  },
+  {
+    "id": "dcss-monsters/hippogriff_new.png",
+    "name": "hippogriff new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/hippogriff_new.png"
+  },
+  {
+    "id": "dcss-monsters/ice_beast.png",
+    "name": "ice beast",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/ice_beast.png"
+  },
+  {
+    "id": "dcss-monsters/boulder_beetle.png",
+    "name": "boulder beetle",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/boulder_beetle.png"
+  },
+  {
+    "id": "dcss-monsters/boring_beetle.png",
+    "name": "boring beetle",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/boring_beetle.png"
+  },
+  {
+    "id": "dcss-monsters/giant_beetle.png",
+    "name": "giant beetle",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/giant_beetle.png"
+  },
+  {
+    "id": "dcss-monsters/queen_bee.png",
+    "name": "queen bee",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/queen_bee.png"
+  },
+  {
+    "id": "dcss-monsters/killer_bee.png",
+    "name": "killer bee",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/killer_bee.png"
+  },
+  {
+    "id": "dcss-monsters/red_wasp.png",
+    "name": "red wasp",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/red_wasp.png"
+  },
+  {
+    "id": "dcss-monsters/yellow_wasp.png",
+    "name": "yellow wasp",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/yellow_wasp.png"
+  },
+  {
+    "id": "dcss-monsters/wolf_spider.png",
+    "name": "wolf spider",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/wolf_spider.png"
+  },
+  {
+    "id": "dcss-monsters/tarantella.png",
+    "name": "tarantella",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/tarantella.png"
+  },
+  {
+    "id": "dcss-monsters/jumping_spider.png",
+    "name": "jumping spider",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/jumping_spider.png"
+  },
+  {
+    "id": "dcss-monsters/redback.png",
+    "name": "redback",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/redback.png"
+  },
+  {
+    "id": "dcss-monsters/giant_scorpion.png",
+    "name": "giant scorpion",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/giant_scorpion.png"
+  },
+  {
+    "id": "dcss-monsters/black_mamba.png",
+    "name": "black mamba",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/black_mamba.png"
+  },
+  {
+    "id": "dcss-monsters/viper.png",
+    "name": "viper",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/viper.png"
+  },
+  {
+    "id": "dcss-monsters/anaconda.png",
+    "name": "anaconda",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/anaconda.png"
+  },
+  {
+    "id": "dcss-monsters/crocodile.png",
+    "name": "crocodile",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/crocodile.png"
+  },
+  {
+    "id": "dcss-monsters/alligator.png",
+    "name": "alligator",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/alligator.png"
+  },
+  {
+    "id": "dcss-monsters/snapping_turtle.png",
+    "name": "snapping turtle",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/snapping_turtle.png"
+  },
+  {
+    "id": "dcss-monsters/spiny_frog.png",
+    "name": "spiny frog",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/spiny_frog.png"
+  },
+  {
+    "id": "dcss-monsters/blink_frog.png",
+    "name": "blink frog",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/blink_frog.png"
+  },
+  {
+    "id": "dcss-monsters/elephant.png",
+    "name": "elephant",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/elephant.png"
+  },
+  {
+    "id": "dcss-monsters/death_yak.png",
+    "name": "death yak",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/death_yak.png"
+  },
+  {
+    "id": "dcss-monsters/ancient_lich_new.png",
+    "name": "ancient lich new",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/ancient_lich_new.png"
+  },
+  {
+    "id": "dcss-monsters/lich.png",
+    "name": "lich",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/lich.png"
+  },
+  {
+    "id": "dcss-monsters/vampire.png",
+    "name": "vampire",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/vampire.png"
+  },
+  {
+    "id": "dcss-monsters/vampire_knight.png",
+    "name": "vampire knight",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/vampire_knight.png"
+  },
+  {
+    "id": "dcss-monsters/vampire_mage.png",
+    "name": "vampire mage",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/vampire_mage.png"
+  },
+  {
+    "id": "dcss-monsters/skeletal_warrior.png",
+    "name": "skeletal warrior",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/skeletal_warrior.png"
+  },
+  {
+    "id": "dcss-monsters/mummy.png",
+    "name": "mummy",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/mummy.png"
+  },
+  {
+    "id": "dcss-monsters/mummy_priest.png",
+    "name": "mummy priest",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/mummy_priest.png"
+  },
+  {
+    "id": "dcss-monsters/ghoul.png",
+    "name": "ghoul",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/ghoul.png"
+  },
+  {
+    "id": "dcss-monsters/balrug.png",
+    "name": "balrug",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/balrug.png"
+  },
+  {
+    "id": "dcss-monsters/cacodemon.png",
+    "name": "cacodemon",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/cacodemon.png"
+  },
+  {
+    "id": "dcss-monsters/executioner.png",
+    "name": "executioner",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/executioner.png"
+  },
+  {
+    "id": "dcss-monsters/hellion.png",
+    "name": "hellion",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/hellion.png"
+  },
+  {
+    "id": "dcss-monsters/lorocyproca.png",
+    "name": "lorocyproca",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/lorocyproca.png"
+  },
+  {
+    "id": "dcss-monsters/orange_demon.png",
+    "name": "orange demon",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/orange_demon.png"
+  },
+  {
+    "id": "dcss-monsters/reaper.png",
+    "name": "reaper",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/reaper.png"
+  },
+  {
+    "id": "dcss-monsters/rust_devil.png",
+    "name": "rust devil",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/rust_devil.png"
+  },
+  {
+    "id": "dcss-monsters/shadow_demon.png",
+    "name": "shadow demon",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/shadow_demon.png"
+  },
+  {
+    "id": "dcss-monsters/sun_demon.png",
+    "name": "sun demon",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/sun_demon.png"
+  },
+  {
+    "id": "dcss-monsters/tormentor.png",
+    "name": "tormentor",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/tormentor.png"
+  },
+  {
+    "id": "dcss-monsters/white_imp.png",
+    "name": "white imp",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/white_imp.png"
+  },
+  {
+    "id": "dcss-monsters/iron_imp.png",
+    "name": "iron imp",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/iron_imp.png"
+  },
+  {
+    "id": "dcss-monsters/shadow_imp.png",
+    "name": "shadow imp",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/shadow_imp.png"
+  },
+  {
+    "id": "dcss-monsters/quasit.png",
+    "name": "quasit",
+    "pack": "DCSS Monsters",
+    "url": "./assets/sprite-library/dcss-monsters/quasit.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/orc_warlord.png",
+    "name": "orc warlord",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/orc_warlord.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/antaeus.png",
+    "name": "antaeus",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/antaeus.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/boris_new.png",
+    "name": "boris new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/boris_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/saint_roka_new.png",
+    "name": "saint roka new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/saint_roka_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/roxanne_new.png",
+    "name": "roxanne new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/roxanne_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/menkaure.png",
+    "name": "menkaure",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/menkaure.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/asmodeus.png",
+    "name": "asmodeus",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/asmodeus.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/cerebov.png",
+    "name": "cerebov",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/cerebov.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/dispater.png",
+    "name": "dispater",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/dispater.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/ereshkigal.png",
+    "name": "ereshkigal",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/ereshkigal.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/iron_giant.png",
+    "name": "iron giant",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/iron_giant.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/lernaean_hydra.png",
+    "name": "lernaean hydra",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/lernaean_hydra.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/royal_jelly.png",
+    "name": "royal jelly",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/royal_jelly.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/leshy.png",
+    "name": "leshy",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/leshy.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/sonja_new.png",
+    "name": "sonja new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/sonja_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/urug_new.png",
+    "name": "urug new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/urug_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/blork_the_orc_new.png",
+    "name": "blork the orc new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/blork_the_orc_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/sigmund_new.png",
+    "name": "sigmund new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/sigmund_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/edmund_new.png",
+    "name": "edmund new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/edmund_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/jessica_new.png",
+    "name": "jessica new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/jessica_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/agnes_new.png",
+    "name": "agnes new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/agnes_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/aizul_new.png",
+    "name": "aizul new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/aizul_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/azrael.png",
+    "name": "azrael",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/azrael.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/crazy_yiuf.png",
+    "name": "crazy yiuf",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/crazy_yiuf.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/dissolution_new.png",
+    "name": "dissolution new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/dissolution_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/donald_new.png",
+    "name": "donald new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/donald_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/duane.png",
+    "name": "duane",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/duane.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/enchantress.png",
+    "name": "enchantress",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/enchantress.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/erica_new.png",
+    "name": "erica new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/erica_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/erolcha_new.png",
+    "name": "erolcha new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/erolcha_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/eustachio_new.png",
+    "name": "eustachio new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/eustachio_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/fannar.png",
+    "name": "fannar",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/fannar.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/frances.png",
+    "name": "frances",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/frances.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/francis.png",
+    "name": "francis",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/francis.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/frederick_new.png",
+    "name": "frederick new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/frederick_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/gastronok_new.png",
+    "name": "gastronok new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/gastronok_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/geryon_new.png",
+    "name": "geryon new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/geryon_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/gloorx_vloq.png",
+    "name": "gloorx vloq",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/gloorx_vloq.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/grinder_new.png",
+    "name": "grinder new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/grinder_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/grum.png",
+    "name": "grum",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/grum.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/harold.png",
+    "name": "harold",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/harold.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/ignacio.png",
+    "name": "ignacio",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/ignacio.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/ijyb_new.png",
+    "name": "ijyb new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/ijyb_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/ilsuiw_new.png",
+    "name": "ilsuiw new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/ilsuiw_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/jessica_new.png",
+    "name": "jessica new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/jessica_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/jorgrun.png",
+    "name": "jorgrun",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/jorgrun.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/jormungandr.png",
+    "name": "jormungandr",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/jormungandr.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/jory.png",
+    "name": "jory",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/jory.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/joseph_new.png",
+    "name": "joseph new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/joseph_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/josephine_new.png",
+    "name": "josephine new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/josephine_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/jozef.png",
+    "name": "jozef",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/jozef.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/kirke_new.png",
+    "name": "kirke new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/kirke_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/lamia.png",
+    "name": "lamia",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/lamia.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/lom_lobon.png",
+    "name": "lom lobon",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/lom_lobon.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/louise.png",
+    "name": "louise",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/louise.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/mara.png",
+    "name": "mara",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/mara.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/margery_new.png",
+    "name": "margery new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/margery_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/maud_new.png",
+    "name": "maud new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/maud_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/maurice_new.png",
+    "name": "maurice new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/maurice_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/mennas.png",
+    "name": "mennas",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/mennas.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/michael.png",
+    "name": "michael",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/michael.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/mnoleg.png",
+    "name": "mnoleg",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/mnoleg.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/murray.png",
+    "name": "murray",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/murray.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/natasha.png",
+    "name": "natasha",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/natasha.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/nellie_new.png",
+    "name": "nellie new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/nellie_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/nergalle_new.png",
+    "name": "nergalle new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/nergalle_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/nessos_new.png",
+    "name": "nessos new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/nessos_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/norbert.png",
+    "name": "norbert",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/norbert.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/norris.png",
+    "name": "norris",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/norris.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/polyphemus_new.png",
+    "name": "polyphemus new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/polyphemus_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/prince_ribbit.png",
+    "name": "prince ribbit",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/prince_ribbit.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/psyche_new.png",
+    "name": "psyche new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/psyche_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/purgy_new.png",
+    "name": "purgy new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/purgy_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/robin.png",
+    "name": "robin",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/robin.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/rupert_new.png",
+    "name": "rupert new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/rupert_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/serpent_of_hell.png",
+    "name": "serpent of hell",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/serpent_of_hell.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/snorg_new.png",
+    "name": "snorg new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/snorg_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/sojobo.png",
+    "name": "sojobo",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/sojobo.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/terence_new.png",
+    "name": "terence new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/terence_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/tiamat.png",
+    "name": "tiamat",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/tiamat.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/vashnia.png",
+    "name": "vashnia",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/vashnia.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/wiglaf_new.png",
+    "name": "wiglaf new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/wiglaf_new.png"
+  },
+  {
+    "id": "dcss-uniques-bosses/xtahua_new.png",
+    "name": "xtahua new",
+    "pack": "DCSS Uniques & Bosses",
+    "url": "./assets/sprite-library/dcss-uniques-bosses/xtahua_new.png"
+  },
+  {
+    "id": "dcss-plants-golems/plant.png",
+    "name": "plant",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/plant.png"
+  },
+  {
+    "id": "dcss-plants-golems/plant_crypt.png",
+    "name": "plant crypt",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/plant_crypt.png"
+  },
+  {
+    "id": "dcss-plants-golems/plant_demonic.png",
+    "name": "plant demonic",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/plant_demonic.png"
+  },
+  {
+    "id": "dcss-plants-golems/briar_patch.png",
+    "name": "briar patch",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/briar_patch.png"
+  },
+  {
+    "id": "dcss-plants-golems/bush_2.png",
+    "name": "bush 2",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/bush_2.png"
+  },
+  {
+    "id": "dcss-plants-golems/bush_3.png",
+    "name": "bush 3",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/bush_3.png"
+  },
+  {
+    "id": "dcss-plants-golems/bush_4.png",
+    "name": "bush 4",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/bush_4.png"
+  },
+  {
+    "id": "dcss-plants-golems/deathcap.png",
+    "name": "deathcap",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/deathcap.png"
+  },
+  {
+    "id": "dcss-plants-golems/giant_spore.png",
+    "name": "giant spore",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/giant_spore.png"
+  },
+  {
+    "id": "dcss-plants-golems/hyperactive_ballistomycete.png",
+    "name": "hyperactive ballistomycete",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/hyperactive_ballistomycete.png"
+  },
+  {
+    "id": "dcss-plants-golems/oklob_plant.png",
+    "name": "oklob plant",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/oklob_plant.png"
+  },
+  {
+    "id": "dcss-plants-golems/thorn_hunter.png",
+    "name": "thorn hunter",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/thorn_hunter.png"
+  },
+  {
+    "id": "dcss-plants-golems/thorn_lotus.png",
+    "name": "thorn lotus",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/thorn_lotus.png"
+  },
+  {
+    "id": "dcss-plants-golems/treant.png",
+    "name": "treant",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/treant.png"
+  },
+  {
+    "id": "dcss-plants-golems/vine_stalker.png",
+    "name": "vine stalker",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/vine_stalker.png"
+  },
+  {
+    "id": "dcss-plants-golems/wandering_mushroom_new.png",
+    "name": "wandering mushroom new",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/wandering_mushroom_new.png"
+  },
+  {
+    "id": "dcss-plants-golems/stone_golem.png",
+    "name": "stone golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/stone_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/iron_golem.png",
+    "name": "iron golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/iron_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/clay_golem.png",
+    "name": "clay golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/clay_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/crystal_golem.png",
+    "name": "crystal golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/crystal_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/earth_elemental.png",
+    "name": "earth elemental",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/earth_elemental.png"
+  },
+  {
+    "id": "dcss-plants-golems/electric_golem.png",
+    "name": "electric golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/electric_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/fire_elemental.png",
+    "name": "fire elemental",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/fire_elemental.png"
+  },
+  {
+    "id": "dcss-plants-golems/water_elemental.png",
+    "name": "water elemental",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/water_elemental.png"
+  },
+  {
+    "id": "dcss-plants-golems/air_elemental.png",
+    "name": "air elemental",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/air_elemental.png"
+  },
+  {
+    "id": "dcss-plants-golems/iron_elemental.png",
+    "name": "iron elemental",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/iron_elemental.png"
+  },
+  {
+    "id": "dcss-plants-golems/gargoyle.png",
+    "name": "gargoyle",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/gargoyle.png"
+  },
+  {
+    "id": "dcss-plants-golems/metal_gargoyle.png",
+    "name": "metal gargoyle",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/metal_gargoyle.png"
+  },
+  {
+    "id": "dcss-plants-golems/molten_gargoyle.png",
+    "name": "molten gargoyle",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/molten_gargoyle.png"
+  },
+  {
+    "id": "dcss-plants-golems/guardian_golem.png",
+    "name": "guardian golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/guardian_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/flesh_golem.png",
+    "name": "flesh golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/flesh_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/toenail_golem.png",
+    "name": "toenail golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/toenail_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/wood_golem.png",
+    "name": "wood golem",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/wood_golem.png"
+  },
+  {
+    "id": "dcss-plants-golems/orb_of_fire.png",
+    "name": "orb of fire",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/orb_of_fire.png"
+  },
+  {
+    "id": "dcss-plants-golems/ball_lightning.png",
+    "name": "ball lightning",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/ball_lightning.png"
+  },
+  {
+    "id": "dcss-plants-golems/statue_base.png",
+    "name": "statue base",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/statue_base.png"
+  },
+  {
+    "id": "dcss-plants-golems/ice_statue.png",
+    "name": "ice statue",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/ice_statue.png"
+  },
+  {
+    "id": "dcss-plants-golems/orange_crystal_statue.png",
+    "name": "orange crystal statue",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/orange_crystal_statue.png"
+  },
+  {
+    "id": "dcss-plants-golems/silver_statue.png",
+    "name": "silver statue",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/silver_statue.png"
+  },
+  {
+    "id": "dcss-plants-golems/firespitter_statue.png",
+    "name": "firespitter statue",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/firespitter_statue.png"
+  },
+  {
+    "id": "dcss-plants-golems/wucad_mu_statue.png",
+    "name": "wucad mu statue",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/wucad_mu_statue.png"
+  },
+  {
+    "id": "dcss-plants-golems/training_dummy.png",
+    "name": "training dummy",
+    "pack": "DCSS Plants & Golems",
+    "url": "./assets/sprite-library/dcss-plants-golems/training_dummy.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/wizard.png",
+    "name": "wizard",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/wizard.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/human_new.png",
+    "name": "human new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/human_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/elf_new.png",
+    "name": "elf new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/elf_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/dwarf_new.png",
+    "name": "dwarf new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/dwarf_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/halfling_new.png",
+    "name": "halfling new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/halfling_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/gnome.png",
+    "name": "gnome",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/gnome.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_dwarf.png",
+    "name": "deep dwarf",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_dwarf.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_dwarf_artificer.png",
+    "name": "deep dwarf artificer",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_dwarf_artificer.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_dwarf_berserker.png",
+    "name": "deep dwarf berserker",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_dwarf_berserker.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_dwarf_death_knight.png",
+    "name": "deep dwarf death knight",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_dwarf_death_knight.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_annihilator.png",
+    "name": "deep elf annihilator",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_annihilator.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_blademaster.png",
+    "name": "deep elf blademaster",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_blademaster.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_conjurer.png",
+    "name": "deep elf conjurer",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_conjurer.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_death_mage.png",
+    "name": "deep elf death mage",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_death_mage.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_demonologist.png",
+    "name": "deep elf demonologist",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_demonologist.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_fighter_new.png",
+    "name": "deep elf fighter new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_fighter_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_high_priest.png",
+    "name": "deep elf high priest",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_high_priest.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_knight_new.png",
+    "name": "deep elf knight new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_knight_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_mage.png",
+    "name": "deep elf mage",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_mage.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_master_archer.png",
+    "name": "deep elf master archer",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_master_archer.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_priest.png",
+    "name": "deep elf priest",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_priest.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_soldier.png",
+    "name": "deep elf soldier",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_soldier.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_sorcerer.png",
+    "name": "deep elf sorcerer",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_sorcerer.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/deep_elf_summoner.png",
+    "name": "deep elf summoner",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/deep_elf_summoner.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/necromancer_new.png",
+    "name": "necromancer new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/necromancer_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/death_knight.png",
+    "name": "death knight",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/death_knight.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/hell_knight_new.png",
+    "name": "hell knight new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/hell_knight_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/ironbrand_convoker.png",
+    "name": "ironbrand convoker",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/ironbrand_convoker.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/ironheart_preserver.png",
+    "name": "ironheart preserver",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/ironheart_preserver.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/merfolk.png",
+    "name": "merfolk",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/merfolk.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/merfolk_aquamancer_new.png",
+    "name": "merfolk aquamancer new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/merfolk_aquamancer_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/merfolk_avatar.png",
+    "name": "merfolk avatar",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/merfolk_avatar.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/merfolk_fighter.png",
+    "name": "merfolk fighter",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/merfolk_fighter.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/merfolk_impaler_new.png",
+    "name": "merfolk impaler new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/merfolk_impaler_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/merfolk_javelineer_new.png",
+    "name": "merfolk javelineer new",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/merfolk_javelineer_new.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/naga_mage.png",
+    "name": "naga mage",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/naga_mage.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/naga_ritualist.png",
+    "name": "naga ritualist",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/naga_ritualist.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/naga_sharpshooter.png",
+    "name": "naga sharpshooter",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/naga_sharpshooter.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/naga_warrior.png",
+    "name": "naga warrior",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/naga_warrior.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/salamander_firebrand.png",
+    "name": "salamander firebrand",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/salamander_firebrand.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/salamander_mystic.png",
+    "name": "salamander mystic",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/salamander_mystic.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/spriggan_berserker.png",
+    "name": "spriggan berserker",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/spriggan_berserker.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/spriggan_enchanter.png",
+    "name": "spriggan enchanter",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/spriggan_enchanter.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/spriggan_rider.png",
+    "name": "spriggan rider",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/spriggan_rider.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/tengu.png",
+    "name": "tengu",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/tengu.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/tengu_conjurer.png",
+    "name": "tengu conjurer",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/tengu_conjurer.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/tengu_reaver.png",
+    "name": "tengu reaver",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/tengu_reaver.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/tengu_warrior.png",
+    "name": "tengu warrior",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/tengu_warrior.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/water_nymph.png",
+    "name": "water nymph",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/water_nymph.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/dryad.png",
+    "name": "dryad",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/dryad.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/satyr.png",
+    "name": "satyr",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/satyr.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/faun.png",
+    "name": "faun",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/faun.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/slave_freed.png",
+    "name": "slave freed",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/slave_freed.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/angel.png",
+    "name": "angel",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/angel.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/daeva.png",
+    "name": "daeva",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/daeva.png"
+  },
+  {
+    "id": "dcss-heroes-wizards/grand_avatar.png",
+    "name": "grand avatar",
+    "pack": "DCSS Heroes & Wizards",
+    "url": "./assets/sprite-library/dcss-heroes-wizards/grand_avatar.png"
+  },
+  {
+    "id": "dcss-spells-env/mangrove_1.png",
+    "name": "mangrove 1",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/mangrove_1.png"
+  },
+  {
+    "id": "dcss-spells-env/mangrove_2.png",
+    "name": "mangrove 2",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/mangrove_2.png"
+  },
+  {
+    "id": "dcss-spells-env/mangrove_3.png",
+    "name": "mangrove 3",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/mangrove_3.png"
+  },
+  {
+    "id": "dcss-spells-env/tree_1_lightred.png",
+    "name": "tree 1 lightred",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/tree_1_lightred.png"
+  },
+  {
+    "id": "dcss-spells-env/tree_1_red.png",
+    "name": "tree 1 red",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/tree_1_red.png"
+  },
+  {
+    "id": "dcss-spells-env/tree_1_yellow.png",
+    "name": "tree 1 yellow",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/tree_1_yellow.png"
+  },
+  {
+    "id": "dcss-spells-env/tree_2_lightred.png",
+    "name": "tree 2 lightred",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/tree_2_lightred.png"
+  },
+  {
+    "id": "dcss-spells-env/tree_2_red.png",
+    "name": "tree 2 red",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/tree_2_red.png"
+  },
+  {
+    "id": "dcss-spells-env/tree_2_yellow.png",
+    "name": "tree 2 yellow",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/tree_2_yellow.png"
+  },
+  {
+    "id": "dcss-spells-env/dngn_stone_arch.png",
+    "name": "dngn stone arch",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/dngn_stone_arch.png"
+  },
+  {
+    "id": "dcss-spells-env/stone_stairs_down.png",
+    "name": "stone stairs down",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/stone_stairs_down.png"
+  },
+  {
+    "id": "dcss-spells-env/stone_stairs_up.png",
+    "name": "stone stairs up",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/stone_stairs_up.png"
+  },
+  {
+    "id": "dcss-spells-env/dngn_altar_vehumet.png",
+    "name": "dngn altar vehumet",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/dngn_altar_vehumet.png"
+  },
+  {
+    "id": "dcss-spells-env/dngn_altar_sif_muna.png",
+    "name": "dngn altar sif muna",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/dngn_altar_sif_muna.png"
+  },
+  {
+    "id": "dcss-spells-env/dngn_altar_nemelex_xobeh.png",
+    "name": "dngn altar nemelex xobeh",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/dngn_altar_nemelex_xobeh.png"
+  },
+  {
+    "id": "dcss-spells-env/deep_water.png",
+    "name": "deep water",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/deep_water.png"
+  },
+  {
+    "id": "dcss-spells-env/shallow_water.png",
+    "name": "shallow water",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/shallow_water.png"
+  },
+  {
+    "id": "dcss-spells-env/statue_ancient_hero.png",
+    "name": "statue ancient hero",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/statue_ancient_hero.png"
+  },
+  {
+    "id": "dcss-spells-env/statue_dragon.png",
+    "name": "statue dragon",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/statue_dragon.png"
+  },
+  {
+    "id": "dcss-spells-env/scroll.png",
+    "name": "scroll",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/scroll.png"
+  },
+  {
+    "id": "dcss-spells-env/chain_lightning.png",
+    "name": "chain lightning",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/chain_lightning.png"
+  },
+  {
+    "id": "dcss-spells-env/lightning_bolt.png",
+    "name": "lightning bolt",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/lightning_bolt.png"
+  },
+  {
+    "id": "dcss-spells-env/airstrike.png",
+    "name": "airstrike",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/airstrike.png"
+  },
+  {
+    "id": "dcss-spells-env/shock.png",
+    "name": "shock",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/shock.png"
+  },
+  {
+    "id": "dcss-spells-env/fireball.png",
+    "name": "fireball",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/fireball.png"
+  },
+  {
+    "id": "dcss-spells-env/fire_storm.png",
+    "name": "fire storm",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/fire_storm.png"
+  },
+  {
+    "id": "dcss-spells-env/bolt_of_fire.png",
+    "name": "bolt of fire",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/bolt_of_fire.png"
+  },
+  {
+    "id": "dcss-spells-env/ring_of_flames.png",
+    "name": "ring of flames",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/ring_of_flames.png"
+  },
+  {
+    "id": "dcss-spells-env/ignite_poison.png",
+    "name": "ignite poison",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/ignite_poison.png"
+  },
+  {
+    "id": "dcss-spells-env/bolt_of_cold.png",
+    "name": "bolt of cold",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/bolt_of_cold.png"
+  },
+  {
+    "id": "dcss-spells-env/freeze.png",
+    "name": "freeze",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/freeze.png"
+  },
+  {
+    "id": "dcss-spells-env/freezing_cloud.png",
+    "name": "freezing cloud",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/freezing_cloud.png"
+  },
+  {
+    "id": "dcss-spells-env/ice_storm.png",
+    "name": "ice storm",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/ice_storm.png"
+  },
+  {
+    "id": "dcss-spells-env/ozocubus_armour.png",
+    "name": "ozocubus armour",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/ozocubus_armour.png"
+  },
+  {
+    "id": "dcss-spells-env/shatter.png",
+    "name": "shatter",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/shatter.png"
+  },
+  {
+    "id": "dcss-spells-env/iron_shot.png",
+    "name": "iron shot",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/iron_shot.png"
+  },
+  {
+    "id": "dcss-spells-env/stone_arrow.png",
+    "name": "stone arrow",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/stone_arrow.png"
+  },
+  {
+    "id": "dcss-spells-env/stoneskin.png",
+    "name": "stoneskin",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/stoneskin.png"
+  },
+  {
+    "id": "dcss-spells-env/blink.png",
+    "name": "blink",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/blink.png"
+  },
+  {
+    "id": "dcss-spells-env/controlled_blink.png",
+    "name": "controlled blink",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/controlled_blink.png"
+  },
+  {
+    "id": "dcss-spells-env/controlled_teleport.png",
+    "name": "controlled teleport",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/controlled_teleport.png"
+  },
+  {
+    "id": "dcss-spells-env/portal.png",
+    "name": "portal",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/portal.png"
+  },
+  {
+    "id": "dcss-spells-env/animate_dead.png",
+    "name": "animate dead",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/animate_dead.png"
+  },
+  {
+    "id": "dcss-spells-env/vampiric_draining.png",
+    "name": "vampiric draining",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/vampiric_draining.png"
+  },
+  {
+    "id": "dcss-spells-env/deaths_door.png",
+    "name": "deaths door",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/deaths_door.png"
+  },
+  {
+    "id": "dcss-spells-env/summon_demon.png",
+    "name": "summon demon",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/summon_demon.png"
+  },
+  {
+    "id": "dcss-spells-env/summon_elemental.png",
+    "name": "summon elemental",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/summon_elemental.png"
+  },
+  {
+    "id": "dcss-spells-env/call_imp.png",
+    "name": "call imp",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/call_imp.png"
+  },
+  {
+    "id": "dcss-spells-env/magic_dart.png",
+    "name": "magic dart",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/magic_dart.png"
+  },
+  {
+    "id": "dcss-spells-env/orb_of_destruction.png",
+    "name": "orb of destruction",
+    "pack": "DCSS Spells & Environment",
+    "url": "./assets/sprite-library/dcss-spells-env/orb_of_destruction.png"
+  },
+  {
+    "id": "ravenmore/ArmorT1.png",
+    "name": "ArmorT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/ArmorT1.png"
+  },
+  {
+    "id": "ravenmore/ArmorT2.png",
+    "name": "ArmorT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/ArmorT2.png"
+  },
+  {
+    "id": "ravenmore/AxeDoubleT1.png",
+    "name": "AxeDoubleT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/AxeDoubleT1.png"
+  },
+  {
+    "id": "ravenmore/AxeDoubleT2.png",
+    "name": "AxeDoubleT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/AxeDoubleT2.png"
+  },
+  {
+    "id": "ravenmore/AxeT1.png",
+    "name": "AxeT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/AxeT1.png"
+  },
+  {
+    "id": "ravenmore/AxeT2.png",
+    "name": "AxeT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/AxeT2.png"
+  },
+  {
+    "id": "ravenmore/Backpack.png",
+    "name": "Backpack",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/Backpack.png"
+  },
+  {
+    "id": "ravenmore/BowT1.png",
+    "name": "BowT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/BowT1.png"
+  },
+  {
+    "id": "ravenmore/BowT2.png",
+    "name": "BowT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/BowT2.png"
+  },
+  {
+    "id": "ravenmore/Coin.png",
+    "name": "Coin",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/Coin.png"
+  },
+  {
+    "id": "ravenmore/DaggerT1.png",
+    "name": "DaggerT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/DaggerT1.png"
+  },
+  {
+    "id": "ravenmore/DaggerT2.png",
+    "name": "DaggerT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/DaggerT2.png"
+  },
+  {
+    "id": "ravenmore/FrameRound.png",
+    "name": "FrameRound",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/FrameRound.png"
+  },
+  {
+    "id": "ravenmore/FrameSquare.png",
+    "name": "FrameSquare",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/FrameSquare.png"
+  },
+  {
+    "id": "ravenmore/GemBlue.png",
+    "name": "GemBlue",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/GemBlue.png"
+  },
+  {
+    "id": "ravenmore/GemGreen.png",
+    "name": "GemGreen",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/GemGreen.png"
+  },
+  {
+    "id": "ravenmore/GemRed.png",
+    "name": "GemRed",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/GemRed.png"
+  },
+  {
+    "id": "ravenmore/GemYellow.png",
+    "name": "GemYellow",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/GemYellow.png"
+  },
+  {
+    "id": "ravenmore/HammerT1.png",
+    "name": "HammerT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/HammerT1.png"
+  },
+  {
+    "id": "ravenmore/HammerT2.png",
+    "name": "HammerT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/HammerT2.png"
+  },
+  {
+    "id": "ravenmore/HeartEmpty.png",
+    "name": "HeartEmpty",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/HeartEmpty.png"
+  },
+  {
+    "id": "ravenmore/HeartFull.png",
+    "name": "HeartFull",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/HeartFull.png"
+  },
+  {
+    "id": "ravenmore/HeartHalf.png",
+    "name": "HeartHalf",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/HeartHalf.png"
+  },
+  {
+    "id": "ravenmore/HelmetT1.png",
+    "name": "HelmetT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/HelmetT1.png"
+  },
+  {
+    "id": "ravenmore/HelmetT2.png",
+    "name": "HelmetT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/HelmetT2.png"
+  },
+  {
+    "id": "ravenmore/Letter.png",
+    "name": "Letter",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/Letter.png"
+  },
+  {
+    "id": "ravenmore/Map.png",
+    "name": "Map",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/Map.png"
+  },
+  {
+    "id": "ravenmore/PotionBlue.png",
+    "name": "PotionBlue",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/PotionBlue.png"
+  },
+  {
+    "id": "ravenmore/PotionGreen.png",
+    "name": "PotionGreen",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/PotionGreen.png"
+  },
+  {
+    "id": "ravenmore/PotionRed.png",
+    "name": "PotionRed",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/PotionRed.png"
+  },
+  {
+    "id": "ravenmore/PotionYellow.png",
+    "name": "PotionYellow",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/PotionYellow.png"
+  },
+  {
+    "id": "ravenmore/Scroll.png",
+    "name": "Scroll",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/Scroll.png"
+  },
+  {
+    "id": "ravenmore/ShieldLargeT1.png",
+    "name": "ShieldLargeT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/ShieldLargeT1.png"
+  },
+  {
+    "id": "ravenmore/ShieldLargeT2.png",
+    "name": "ShieldLargeT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/ShieldLargeT2.png"
+  },
+  {
+    "id": "ravenmore/ShieldSmallT1.png",
+    "name": "ShieldSmallT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/ShieldSmallT1.png"
+  },
+  {
+    "id": "ravenmore/ShieldSmallT2.png",
+    "name": "ShieldSmallT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/ShieldSmallT2.png"
+  },
+  {
+    "id": "ravenmore/SpearT1.png",
+    "name": "SpearT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/SpearT1.png"
+  },
+  {
+    "id": "ravenmore/SpearT2.png",
+    "name": "SpearT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/SpearT2.png"
+  },
+  {
+    "id": "ravenmore/SwordT1.png",
+    "name": "SwordT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/SwordT1.png"
+  },
+  {
+    "id": "ravenmore/SwordT2.png",
+    "name": "SwordT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/SwordT2.png"
+  },
+  {
+    "id": "ravenmore/SwordWood.png",
+    "name": "SwordWood",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/SwordWood.png"
+  },
+  {
+    "id": "ravenmore/TomeBlue.png",
+    "name": "TomeBlue",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/TomeBlue.png"
+  },
+  {
+    "id": "ravenmore/TomeGreen.png",
+    "name": "TomeGreen",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/TomeGreen.png"
+  },
+  {
+    "id": "ravenmore/TomeRed.png",
+    "name": "TomeRed",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/TomeRed.png"
+  },
+  {
+    "id": "ravenmore/TomeYellow.png",
+    "name": "TomeYellow",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/TomeYellow.png"
+  },
+  {
+    "id": "ravenmore/WandT1.png",
+    "name": "WandT1",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/WandT1.png"
+  },
+  {
+    "id": "ravenmore/WandT2.png",
+    "name": "WandT2",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/WandT2.png"
+  },
+  {
+    "id": "ravenmore/X.png",
+    "name": "X",
+    "pack": "Ravenmore 64x64",
+    "url": "./assets/sprite-library/ravenmore/X.png"
+  },
+  {
+    "id": "entities/boss_evil_world_tree.png",
+    "name": "boss evil world tree",
+    "pack": "Current Entities",
+    "url": "./assets/entities/boss_evil_world_tree.png"
+  },
+  {
+    "id": "entities/boss_goblin_king.png",
+    "name": "boss goblin king",
+    "pack": "Current Entities",
+    "url": "./assets/entities/boss_goblin_king.png"
+  },
+  {
+    "id": "entities/boss_rock_mountain.png",
+    "name": "boss rock mountain",
+    "pack": "Current Entities",
+    "url": "./assets/entities/boss_rock_mountain.png"
+  },
+  {
+    "id": "entities/evil_flower.png",
+    "name": "evil flower",
+    "pack": "Current Entities",
+    "url": "./assets/entities/evil_flower.png"
+  },
+  {
+    "id": "entities/evil_flytrap.png",
+    "name": "evil flytrap",
+    "pack": "Current Entities",
+    "url": "./assets/entities/evil_flytrap.png"
+  },
+  {
+    "id": "entities/evil_mandragora.png",
+    "name": "evil mandragora",
+    "pack": "Current Entities",
+    "url": "./assets/entities/evil_mandragora.png"
+  },
+  {
+    "id": "entities/evil_spore.png",
+    "name": "evil spore",
+    "pack": "Current Entities",
+    "url": "./assets/entities/evil_spore.png"
+  },
+  {
+    "id": "entities/evil_treant.png",
+    "name": "evil treant",
+    "pack": "Current Entities",
+    "url": "./assets/entities/evil_treant.png"
+  },
+  {
+    "id": "entities/evil_tree.png",
+    "name": "evil tree",
+    "pack": "Current Entities",
+    "url": "./assets/entities/evil_tree.png"
+  },
+  {
+    "id": "entities/evil_weed.png",
+    "name": "evil weed",
+    "pack": "Current Entities",
+    "url": "./assets/entities/evil_weed.png"
+  },
+  {
+    "id": "entities/goblin_archer.png",
+    "name": "goblin archer",
+    "pack": "Current Entities",
+    "url": "./assets/entities/goblin_archer.png"
+  },
+  {
+    "id": "entities/goblin_assassin.png",
+    "name": "goblin assassin",
+    "pack": "Current Entities",
+    "url": "./assets/entities/goblin_assassin.png"
+  },
+  {
+    "id": "entities/goblin_brute.png",
+    "name": "goblin brute",
+    "pack": "Current Entities",
+    "url": "./assets/entities/goblin_brute.png"
+  },
+  {
+    "id": "entities/goblin_drummer.png",
+    "name": "goblin drummer",
+    "pack": "Current Entities",
+    "url": "./assets/entities/goblin_drummer.png"
+  },
+  {
+    "id": "entities/goblin_shaman.png",
+    "name": "goblin shaman",
+    "pack": "Current Entities",
+    "url": "./assets/entities/goblin_shaman.png"
+  },
+  {
+    "id": "entities/goblin_skirmisher.png",
+    "name": "goblin skirmisher",
+    "pack": "Current Entities",
+    "url": "./assets/entities/goblin_skirmisher.png"
+  },
+  {
+    "id": "entities/goblin_warlord.png",
+    "name": "goblin warlord",
+    "pack": "Current Entities",
+    "url": "./assets/entities/goblin_warlord.png"
+  },
+  {
+    "id": "entities/player.png",
+    "name": "player",
+    "pack": "Current Entities",
+    "url": "./assets/entities/player.png"
+  },
+  {
+    "id": "entities/rock_crusher.png",
+    "name": "rock crusher",
+    "pack": "Current Entities",
+    "url": "./assets/entities/rock_crusher.png"
+  },
+  {
+    "id": "entities/rock_elemental.png",
+    "name": "rock elemental",
+    "pack": "Current Entities",
+    "url": "./assets/entities/rock_elemental.png"
+  },
+  {
+    "id": "entities/rock_golem.png",
+    "name": "rock golem",
+    "pack": "Current Entities",
+    "url": "./assets/entities/rock_golem.png"
+  },
+  {
+    "id": "entities/rock_pebble.png",
+    "name": "rock pebble",
+    "pack": "Current Entities",
+    "url": "./assets/entities/rock_pebble.png"
+  },
+  {
+    "id": "entities/rock_roller.png",
+    "name": "rock roller",
+    "pack": "Current Entities",
+    "url": "./assets/entities/rock_roller.png"
+  },
+  {
+    "id": "entities/rock_shield.png",
+    "name": "rock shield",
+    "pack": "Current Entities",
+    "url": "./assets/entities/rock_shield.png"
+  },
+  {
+    "id": "entities/rock_titan.png",
+    "name": "rock titan",
+    "pack": "Current Entities",
+    "url": "./assets/entities/rock_titan.png"
+  },
+  {
+    "id": "entities/the_evil_wizard.png",
+    "name": "the evil wizard",
+    "pack": "Current Entities",
+    "url": "./assets/entities/the_evil_wizard.png"
+  },
+  {
+    "id": "relics/Ac_Medal01.png",
+    "name": "Ac Medal01",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Medal01.png"
+  },
+  {
+    "id": "relics/Ac_Medal02.png",
+    "name": "Ac Medal02",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Medal02.png"
+  },
+  {
+    "id": "relics/Ac_Medal03.png",
+    "name": "Ac Medal03",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Medal03.png"
+  },
+  {
+    "id": "relics/Ac_Medal04.png",
+    "name": "Ac Medal04",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Medal04.png"
+  },
+  {
+    "id": "relics/Ac_Necklace01.png",
+    "name": "Ac Necklace01",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace01.png"
+  },
+  {
+    "id": "relics/Ac_Necklace02.png",
+    "name": "Ac Necklace02",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace02.png"
+  },
+  {
+    "id": "relics/Ac_Necklace03.png",
+    "name": "Ac Necklace03",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace03.png"
+  },
+  {
+    "id": "relics/Ac_Necklace04.png",
+    "name": "Ac Necklace04",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace04.png"
+  },
+  {
+    "id": "relics/Ac_Necklace05.png",
+    "name": "Ac Necklace05",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace05.png"
+  },
+  {
+    "id": "relics/Ac_Necklace06.png",
+    "name": "Ac Necklace06",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace06.png"
+  },
+  {
+    "id": "relics/Ac_Necklace07.png",
+    "name": "Ac Necklace07",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace07.png"
+  },
+  {
+    "id": "relics/Ac_Necklace08.png",
+    "name": "Ac Necklace08",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Necklace08.png"
+  },
+  {
+    "id": "relics/Ac_Ring01.png",
+    "name": "Ac Ring01",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Ring01.png"
+  },
+  {
+    "id": "relics/Ac_Ring02.png",
+    "name": "Ac Ring02",
+    "pack": "Relics",
+    "url": "./assets/relics/Ac_Ring02.png"
+  },
+  {
+    "id": "relics/A_Armor04.png",
+    "name": "A Armor04",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Armor04.png"
+  },
+  {
+    "id": "relics/A_Armor05.png",
+    "name": "A Armor05",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Armor05.png"
+  },
+  {
+    "id": "relics/A_Armour01.png",
+    "name": "A Armour01",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Armour01.png"
+  },
+  {
+    "id": "relics/A_Armour02.png",
+    "name": "A Armour02",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Armour02.png"
+  },
+  {
+    "id": "relics/A_Armour03.png",
+    "name": "A Armour03",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Armour03.png"
+  },
+  {
+    "id": "relics/A_Clothing01.png",
+    "name": "A Clothing01",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Clothing01.png"
+  },
+  {
+    "id": "relics/A_Clothing02.png",
+    "name": "A Clothing02",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Clothing02.png"
+  },
+  {
+    "id": "relics/A_Shoes01.png",
+    "name": "A Shoes01",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Shoes01.png"
+  },
+  {
+    "id": "relics/A_Shoes02.png",
+    "name": "A Shoes02",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Shoes02.png"
+  },
+  {
+    "id": "relics/A_Shoes03.png",
+    "name": "A Shoes03",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Shoes03.png"
+  },
+  {
+    "id": "relics/A_Shoes04.png",
+    "name": "A Shoes04",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Shoes04.png"
+  },
+  {
+    "id": "relics/A_Shoes05.png",
+    "name": "A Shoes05",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Shoes05.png"
+  },
+  {
+    "id": "relics/A_Shoes06.png",
+    "name": "A Shoes06",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Shoes06.png"
+  },
+  {
+    "id": "relics/A_Shoes07.png",
+    "name": "A Shoes07",
+    "pack": "Relics",
+    "url": "./assets/relics/A_Shoes07.png"
+  },
+  {
+    "id": "relics/C_Elm01.png",
+    "name": "C Elm01",
+    "pack": "Relics",
+    "url": "./assets/relics/C_Elm01.png"
+  },
+  {
+    "id": "relics/C_Elm03.png",
+    "name": "C Elm03",
+    "pack": "Relics",
+    "url": "./assets/relics/C_Elm03.png"
+  },
+  {
+    "id": "relics/C_Elm04.png",
+    "name": "C Elm04",
+    "pack": "Relics",
+    "url": "./assets/relics/C_Elm04.png"
+  },
+  {
+    "id": "relics/C_Hat01.png",
+    "name": "C Hat01",
+    "pack": "Relics",
+    "url": "./assets/relics/C_Hat01.png"
+  },
+  {
+    "id": "relics/C_Hat02.png",
+    "name": "C Hat02",
+    "pack": "Relics",
+    "url": "./assets/relics/C_Hat02.png"
+  },
+  {
+    "id": "relics/E_Bones02.png",
+    "name": "E Bones02",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Bones02.png"
+  },
+  {
+    "id": "relics/E_Bones03.png",
+    "name": "E Bones03",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Bones03.png"
+  },
+  {
+    "id": "relics/E_Gold01.png",
+    "name": "E Gold01",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Gold01.png"
+  },
+  {
+    "id": "relics/E_Gold02.png",
+    "name": "E Gold02",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Gold02.png"
+  },
+  {
+    "id": "relics/E_Metal01.png",
+    "name": "E Metal01",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal01.png"
+  },
+  {
+    "id": "relics/E_Metal02.png",
+    "name": "E Metal02",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal02.png"
+  },
+  {
+    "id": "relics/E_Metal03.png",
+    "name": "E Metal03",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal03.png"
+  },
+  {
+    "id": "relics/E_Metal04.png",
+    "name": "E Metal04",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal04.png"
+  },
+  {
+    "id": "relics/E_Metal05.png",
+    "name": "E Metal05",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal05.png"
+  },
+  {
+    "id": "relics/E_Metal06.png",
+    "name": "E Metal06",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal06.png"
+  },
+  {
+    "id": "relics/E_Metal07.png",
+    "name": "E Metal07",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal07.png"
+  },
+  {
+    "id": "relics/E_Metal08.png",
+    "name": "E Metal08",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal08.png"
+  },
+  {
+    "id": "relics/E_Metal09.png",
+    "name": "E Metal09",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Metal09.png"
+  },
+  {
+    "id": "relics/E_Wood01.png",
+    "name": "E Wood01",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Wood01.png"
+  },
+  {
+    "id": "relics/E_Wood02.png",
+    "name": "E Wood02",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Wood02.png"
+  },
+  {
+    "id": "relics/E_Wood03.png",
+    "name": "E Wood03",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Wood03.png"
+  },
+  {
+    "id": "relics/E_Wood04.png",
+    "name": "E Wood04",
+    "pack": "Relics",
+    "url": "./assets/relics/E_Wood04.png"
+  },
+  {
+    "id": "relics/I_Agate.png",
+    "name": "I Agate",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Agate.png"
+  },
+  {
+    "id": "relics/I_Amethist.png",
+    "name": "I Amethist",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Amethist.png"
+  },
+  {
+    "id": "relics/I_Antidote.png",
+    "name": "I Antidote",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Antidote.png"
+  },
+  {
+    "id": "relics/I_BatWing.png",
+    "name": "I BatWing",
+    "pack": "Relics",
+    "url": "./assets/relics/I_BatWing.png"
+  },
+  {
+    "id": "relics/I_BirdsBeak.png",
+    "name": "I BirdsBeak",
+    "pack": "Relics",
+    "url": "./assets/relics/I_BirdsBeak.png"
+  },
+  {
+    "id": "relics/I_Bone.png",
+    "name": "I Bone",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Bone.png"
+  },
+  {
+    "id": "relics/I_Book.png",
+    "name": "I Book",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Book.png"
+  },
+  {
+    "id": "relics/I_Bottle01.png",
+    "name": "I Bottle01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Bottle01.png"
+  },
+  {
+    "id": "relics/I_Bottle02.png",
+    "name": "I Bottle02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Bottle02.png"
+  },
+  {
+    "id": "relics/I_Bottle03.png",
+    "name": "I Bottle03",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Bottle03.png"
+  },
+  {
+    "id": "relics/I_Bottle04.png",
+    "name": "I Bottle04",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Bottle04.png"
+  },
+  {
+    "id": "relics/I_BronzeBar.png",
+    "name": "I BronzeBar",
+    "pack": "Relics",
+    "url": "./assets/relics/I_BronzeBar.png"
+  },
+  {
+    "id": "relics/I_BronzeCoin.png",
+    "name": "I BronzeCoin",
+    "pack": "Relics",
+    "url": "./assets/relics/I_BronzeCoin.png"
+  },
+  {
+    "id": "relics/I_Cannon01.png",
+    "name": "I Cannon01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Cannon01.png"
+  },
+  {
+    "id": "relics/I_Cannon02.png",
+    "name": "I Cannon02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Cannon02.png"
+  },
+  {
+    "id": "relics/I_Cannon03.png",
+    "name": "I Cannon03",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Cannon03.png"
+  },
+  {
+    "id": "relics/I_Cannon04.png",
+    "name": "I Cannon04",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Cannon04.png"
+  },
+  {
+    "id": "relics/I_Cannon05.png",
+    "name": "I Cannon05",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Cannon05.png"
+  },
+  {
+    "id": "relics/I_Chest01.png",
+    "name": "I Chest01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Chest01.png"
+  },
+  {
+    "id": "relics/I_Chest02.png",
+    "name": "I Chest02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Chest02.png"
+  },
+  {
+    "id": "relics/I_Clock.png",
+    "name": "I Clock",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Clock.png"
+  },
+  {
+    "id": "relics/I_Clover.png",
+    "name": "I Clover",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Clover.png"
+  },
+  {
+    "id": "relics/I_Coal.png",
+    "name": "I Coal",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Coal.png"
+  },
+  {
+    "id": "relics/I_Crystal01.png",
+    "name": "I Crystal01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Crystal01.png"
+  },
+  {
+    "id": "relics/I_Crystal02.png",
+    "name": "I Crystal02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Crystal02.png"
+  },
+  {
+    "id": "relics/I_Crystal03.png",
+    "name": "I Crystal03",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Crystal03.png"
+  },
+  {
+    "id": "relics/I_C_Banana.png",
+    "name": "I C Banana",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Banana.png"
+  },
+  {
+    "id": "relics/I_C_Bread.png",
+    "name": "I C Bread",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Bread.png"
+  },
+  {
+    "id": "relics/I_C_Carrot.png",
+    "name": "I C Carrot",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Carrot.png"
+  },
+  {
+    "id": "relics/I_C_Cheese.png",
+    "name": "I C Cheese",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Cheese.png"
+  },
+  {
+    "id": "relics/I_C_Cherry.png",
+    "name": "I C Cherry",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Cherry.png"
+  },
+  {
+    "id": "relics/I_C_Fish.png",
+    "name": "I C Fish",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Fish.png"
+  },
+  {
+    "id": "relics/I_C_Grapes.png",
+    "name": "I C Grapes",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Grapes.png"
+  },
+  {
+    "id": "relics/I_C_GreenGrapes.png",
+    "name": "I C GreenGrapes",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_GreenGrapes.png"
+  },
+  {
+    "id": "relics/I_C_GreenPepper.png",
+    "name": "I C GreenPepper",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_GreenPepper.png"
+  },
+  {
+    "id": "relics/I_C_Lemon.png",
+    "name": "I C Lemon",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Lemon.png"
+  },
+  {
+    "id": "relics/I_C_Meat.png",
+    "name": "I C Meat",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Meat.png"
+  },
+  {
+    "id": "relics/I_C_Mulberry.png",
+    "name": "I C Mulberry",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Mulberry.png"
+  },
+  {
+    "id": "relics/I_C_Mushroom.png",
+    "name": "I C Mushroom",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Mushroom.png"
+  },
+  {
+    "id": "relics/I_C_Nut.png",
+    "name": "I C Nut",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Nut.png"
+  },
+  {
+    "id": "relics/I_C_Orange.png",
+    "name": "I C Orange",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Orange.png"
+  },
+  {
+    "id": "relics/I_C_Pear.png",
+    "name": "I C Pear",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Pear.png"
+  },
+  {
+    "id": "relics/I_C_Pie.png",
+    "name": "I C Pie",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Pie.png"
+  },
+  {
+    "id": "relics/I_C_Pineapple.png",
+    "name": "I C Pineapple",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Pineapple.png"
+  },
+  {
+    "id": "relics/I_C_Radish.png",
+    "name": "I C Radish",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Radish.png"
+  },
+  {
+    "id": "relics/I_C_RawFish.png",
+    "name": "I C RawFish",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_RawFish.png"
+  },
+  {
+    "id": "relics/I_C_RawMeat.png",
+    "name": "I C RawMeat",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_RawMeat.png"
+  },
+  {
+    "id": "relics/I_C_RedPepper.png",
+    "name": "I C RedPepper",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_RedPepper.png"
+  },
+  {
+    "id": "relics/I_C_Strawberry.png",
+    "name": "I C Strawberry",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Strawberry.png"
+  },
+  {
+    "id": "relics/I_C_Watermellon.png",
+    "name": "I C Watermellon",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_Watermellon.png"
+  },
+  {
+    "id": "relics/I_C_YellowPepper.png",
+    "name": "I C YellowPepper",
+    "pack": "Relics",
+    "url": "./assets/relics/I_C_YellowPepper.png"
+  },
+  {
+    "id": "relics/I_Diamond.png",
+    "name": "I Diamond",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Diamond.png"
+  },
+  {
+    "id": "relics/I_Eye.png",
+    "name": "I Eye",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Eye.png"
+  },
+  {
+    "id": "relics/I_Fabric.png",
+    "name": "I Fabric",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Fabric.png"
+  },
+  {
+    "id": "relics/I_Fang.png",
+    "name": "I Fang",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Fang.png"
+  },
+  {
+    "id": "relics/I_Feather01.png",
+    "name": "I Feather01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Feather01.png"
+  },
+  {
+    "id": "relics/I_Feather02.png",
+    "name": "I Feather02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Feather02.png"
+  },
+  {
+    "id": "relics/I_FishTail.png",
+    "name": "I FishTail",
+    "pack": "Relics",
+    "url": "./assets/relics/I_FishTail.png"
+  },
+  {
+    "id": "relics/I_FoxTail.png",
+    "name": "I FoxTail",
+    "pack": "Relics",
+    "url": "./assets/relics/I_FoxTail.png"
+  },
+  {
+    "id": "relics/I_FrogLeg.png",
+    "name": "I FrogLeg",
+    "pack": "Relics",
+    "url": "./assets/relics/I_FrogLeg.png"
+  },
+  {
+    "id": "relics/I_GoldBar.png",
+    "name": "I GoldBar",
+    "pack": "Relics",
+    "url": "./assets/relics/I_GoldBar.png"
+  },
+  {
+    "id": "relics/I_GoldCoin.png",
+    "name": "I GoldCoin",
+    "pack": "Relics",
+    "url": "./assets/relics/I_GoldCoin.png"
+  },
+  {
+    "id": "relics/I_Ink.png",
+    "name": "I Ink",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Ink.png"
+  },
+  {
+    "id": "relics/I_IronBall.png",
+    "name": "I IronBall",
+    "pack": "Relics",
+    "url": "./assets/relics/I_IronBall.png"
+  },
+  {
+    "id": "relics/I_Jade.png",
+    "name": "I Jade",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Jade.png"
+  },
+  {
+    "id": "relics/I_Key01.png",
+    "name": "I Key01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Key01.png"
+  },
+  {
+    "id": "relics/I_Key02.png",
+    "name": "I Key02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Key02.png"
+  },
+  {
+    "id": "relics/I_Key03.png",
+    "name": "I Key03",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Key03.png"
+  },
+  {
+    "id": "relics/I_Key04.png",
+    "name": "I Key04",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Key04.png"
+  },
+  {
+    "id": "relics/I_Key05.png",
+    "name": "I Key05",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Key05.png"
+  },
+  {
+    "id": "relics/I_Key06.png",
+    "name": "I Key06",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Key06.png"
+  },
+  {
+    "id": "relics/I_Key07.png",
+    "name": "I Key07",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Key07.png"
+  },
+  {
+    "id": "relics/I_Leaf.png",
+    "name": "I Leaf",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Leaf.png"
+  },
+  {
+    "id": "relics/I_Map.png",
+    "name": "I Map",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Map.png"
+  },
+  {
+    "id": "relics/I_Mirror.png",
+    "name": "I Mirror",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Mirror.png"
+  },
+  {
+    "id": "relics/I_Opal.png",
+    "name": "I Opal",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Opal.png"
+  },
+  {
+    "id": "relics/I_RabbitPaw.png",
+    "name": "I RabbitPaw",
+    "pack": "Relics",
+    "url": "./assets/relics/I_RabbitPaw.png"
+  },
+  {
+    "id": "relics/I_Rock01.png",
+    "name": "I Rock01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Rock01.png"
+  },
+  {
+    "id": "relics/I_Rock02.png",
+    "name": "I Rock02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Rock02.png"
+  },
+  {
+    "id": "relics/I_Rock03.png",
+    "name": "I Rock03",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Rock03.png"
+  },
+  {
+    "id": "relics/I_Rock04.png",
+    "name": "I Rock04",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Rock04.png"
+  },
+  {
+    "id": "relics/I_Rock05.png",
+    "name": "I Rock05",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Rock05.png"
+  },
+  {
+    "id": "relics/I_Ruby.png",
+    "name": "I Ruby",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Ruby.png"
+  },
+  {
+    "id": "relics/I_Sapphire.png",
+    "name": "I Sapphire",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Sapphire.png"
+  },
+  {
+    "id": "relics/I_ScorpionClaw.png",
+    "name": "I ScorpionClaw",
+    "pack": "Relics",
+    "url": "./assets/relics/I_ScorpionClaw.png"
+  },
+  {
+    "id": "relics/I_Scroll.png",
+    "name": "I Scroll",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Scroll.png"
+  },
+  {
+    "id": "relics/I_Scroll02.png",
+    "name": "I Scroll02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Scroll02.png"
+  },
+  {
+    "id": "relics/I_SilverBar.png",
+    "name": "I SilverBar",
+    "pack": "Relics",
+    "url": "./assets/relics/I_SilverBar.png"
+  },
+  {
+    "id": "relics/I_SilverCoin.png",
+    "name": "I SilverCoin",
+    "pack": "Relics",
+    "url": "./assets/relics/I_SilverCoin.png"
+  },
+  {
+    "id": "relics/I_SnailShell.png",
+    "name": "I SnailShell",
+    "pack": "Relics",
+    "url": "./assets/relics/I_SnailShell.png"
+  },
+  {
+    "id": "relics/I_SolidShell.png",
+    "name": "I SolidShell",
+    "pack": "Relics",
+    "url": "./assets/relics/I_SolidShell.png"
+  },
+  {
+    "id": "relics/I_Telescope.png",
+    "name": "I Telescope",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Telescope.png"
+  },
+  {
+    "id": "relics/I_Tentacle.png",
+    "name": "I Tentacle",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Tentacle.png"
+  },
+  {
+    "id": "relics/I_Torch01.png",
+    "name": "I Torch01",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Torch01.png"
+  },
+  {
+    "id": "relics/I_Torch02.png",
+    "name": "I Torch02",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Torch02.png"
+  },
+  {
+    "id": "relics/I_Water.png",
+    "name": "I Water",
+    "pack": "Relics",
+    "url": "./assets/relics/I_Water.png"
+  },
+  {
+    "id": "relics/I_WolfFur.png",
+    "name": "I WolfFur",
+    "pack": "Relics",
+    "url": "./assets/relics/I_WolfFur.png"
+  },
+  {
+    "id": "relics/P_Blue01.png",
+    "name": "P Blue01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue01.png"
+  },
+  {
+    "id": "relics/P_Blue02.png",
+    "name": "P Blue02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue02.png"
+  },
+  {
+    "id": "relics/P_Blue03.png",
+    "name": "P Blue03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue03.png"
+  },
+  {
+    "id": "relics/P_Blue04.png",
+    "name": "P Blue04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue04.png"
+  },
+  {
+    "id": "relics/P_Blue05.png",
+    "name": "P Blue05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue05.png"
+  },
+  {
+    "id": "relics/P_Blue06.png",
+    "name": "P Blue06",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue06.png"
+  },
+  {
+    "id": "relics/P_Blue07.png",
+    "name": "P Blue07",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue07.png"
+  },
+  {
+    "id": "relics/P_Blue08.png",
+    "name": "P Blue08",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Blue08.png"
+  },
+  {
+    "id": "relics/P_Green01.png",
+    "name": "P Green01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Green01.png"
+  },
+  {
+    "id": "relics/P_Green02.png",
+    "name": "P Green02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Green02.png"
+  },
+  {
+    "id": "relics/P_Green03.png",
+    "name": "P Green03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Green03.png"
+  },
+  {
+    "id": "relics/P_Green04.png",
+    "name": "P Green04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Green04.png"
+  },
+  {
+    "id": "relics/P_Green05.png",
+    "name": "P Green05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Green05.png"
+  },
+  {
+    "id": "relics/P_Green06.png",
+    "name": "P Green06",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Green06.png"
+  },
+  {
+    "id": "relics/P_Medicine01.png",
+    "name": "P Medicine01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine01.png"
+  },
+  {
+    "id": "relics/P_Medicine02.png",
+    "name": "P Medicine02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine02.png"
+  },
+  {
+    "id": "relics/P_Medicine03.png",
+    "name": "P Medicine03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine03.png"
+  },
+  {
+    "id": "relics/P_Medicine04.png",
+    "name": "P Medicine04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine04.png"
+  },
+  {
+    "id": "relics/P_Medicine05.png",
+    "name": "P Medicine05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine05.png"
+  },
+  {
+    "id": "relics/P_Medicine06.png",
+    "name": "P Medicine06",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine06.png"
+  },
+  {
+    "id": "relics/P_Medicine07.png",
+    "name": "P Medicine07",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine07.png"
+  },
+  {
+    "id": "relics/P_Medicine08.png",
+    "name": "P Medicine08",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine08.png"
+  },
+  {
+    "id": "relics/P_Medicine09.png",
+    "name": "P Medicine09",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Medicine09.png"
+  },
+  {
+    "id": "relics/P_Orange01.png",
+    "name": "P Orange01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Orange01.png"
+  },
+  {
+    "id": "relics/P_Orange02.png",
+    "name": "P Orange02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Orange02.png"
+  },
+  {
+    "id": "relics/P_Orange03.png",
+    "name": "P Orange03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Orange03.png"
+  },
+  {
+    "id": "relics/P_Orange04.png",
+    "name": "P Orange04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Orange04.png"
+  },
+  {
+    "id": "relics/P_Orange05.png",
+    "name": "P Orange05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Orange05.png"
+  },
+  {
+    "id": "relics/P_Orange06.png",
+    "name": "P Orange06",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Orange06.png"
+  },
+  {
+    "id": "relics/P_Pink01.png",
+    "name": "P Pink01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink01.png"
+  },
+  {
+    "id": "relics/P_Pink02.png",
+    "name": "P Pink02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink02.png"
+  },
+  {
+    "id": "relics/P_Pink03.png",
+    "name": "P Pink03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink03.png"
+  },
+  {
+    "id": "relics/P_Pink04.png",
+    "name": "P Pink04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink04.png"
+  },
+  {
+    "id": "relics/P_Pink05.png",
+    "name": "P Pink05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink05.png"
+  },
+  {
+    "id": "relics/P_Pink06.png",
+    "name": "P Pink06",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink06.png"
+  },
+  {
+    "id": "relics/P_Pink07.png",
+    "name": "P Pink07",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink07.png"
+  },
+  {
+    "id": "relics/P_Pink08.png",
+    "name": "P Pink08",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Pink08.png"
+  },
+  {
+    "id": "relics/P_Red01.png",
+    "name": "P Red01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Red01.png"
+  },
+  {
+    "id": "relics/P_Red02.png",
+    "name": "P Red02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Red02.png"
+  },
+  {
+    "id": "relics/P_Red03.png",
+    "name": "P Red03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Red03.png"
+  },
+  {
+    "id": "relics/P_Red04.png",
+    "name": "P Red04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Red04.png"
+  },
+  {
+    "id": "relics/P_Red05.png",
+    "name": "P Red05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Red05.png"
+  },
+  {
+    "id": "relics/P_Red06.png",
+    "name": "P Red06",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Red06.png"
+  },
+  {
+    "id": "relics/P_Red07.png",
+    "name": "P Red07",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Red07.png"
+  },
+  {
+    "id": "relics/P_White01.png",
+    "name": "P White01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_White01.png"
+  },
+  {
+    "id": "relics/P_White02.png",
+    "name": "P White02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_White02.png"
+  },
+  {
+    "id": "relics/P_White03.png",
+    "name": "P White03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_White03.png"
+  },
+  {
+    "id": "relics/P_White04.png",
+    "name": "P White04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_White04.png"
+  },
+  {
+    "id": "relics/P_White05.png",
+    "name": "P White05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_White05.png"
+  },
+  {
+    "id": "relics/P_Yellow01.png",
+    "name": "P Yellow01",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow01.png"
+  },
+  {
+    "id": "relics/P_Yellow02.png",
+    "name": "P Yellow02",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow02.png"
+  },
+  {
+    "id": "relics/P_Yellow03.png",
+    "name": "P Yellow03",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow03.png"
+  },
+  {
+    "id": "relics/P_Yellow04.png",
+    "name": "P Yellow04",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow04.png"
+  },
+  {
+    "id": "relics/P_Yellow05.png",
+    "name": "P Yellow05",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow05.png"
+  },
+  {
+    "id": "relics/P_Yellow06.png",
+    "name": "P Yellow06",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow06.png"
+  },
+  {
+    "id": "relics/P_Yellow07.png",
+    "name": "P Yellow07",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow07.png"
+  },
+  {
+    "id": "relics/P_Yellow08.png",
+    "name": "P Yellow08",
+    "pack": "Relics",
+    "url": "./assets/relics/P_Yellow08.png"
+  },
+  {
+    "id": "relics/S_Axe01.png",
+    "name": "S Axe01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Axe01.png"
+  },
+  {
+    "id": "relics/S_Axe02.png",
+    "name": "S Axe02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Axe02.png"
+  },
+  {
+    "id": "relics/S_Axe03.png",
+    "name": "S Axe03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Axe03.png"
+  },
+  {
+    "id": "relics/S_Axe04.png",
+    "name": "S Axe04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Axe04.png"
+  },
+  {
+    "id": "relics/S_Axe05.png",
+    "name": "S Axe05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Axe05.png"
+  },
+  {
+    "id": "relics/S_Axe06.png",
+    "name": "S Axe06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Axe06.png"
+  },
+  {
+    "id": "relics/S_Axe07.png",
+    "name": "S Axe07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Axe07.png"
+  },
+  {
+    "id": "relics/S_Bow01.png",
+    "name": "S Bow01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow01.png"
+  },
+  {
+    "id": "relics/S_Bow02.png",
+    "name": "S Bow02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow02.png"
+  },
+  {
+    "id": "relics/S_Bow03.png",
+    "name": "S Bow03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow03.png"
+  },
+  {
+    "id": "relics/S_Bow04.png",
+    "name": "S Bow04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow04.png"
+  },
+  {
+    "id": "relics/S_Bow05.png",
+    "name": "S Bow05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow05.png"
+  },
+  {
+    "id": "relics/S_Bow06.png",
+    "name": "S Bow06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow06.png"
+  },
+  {
+    "id": "relics/S_Bow07.png",
+    "name": "S Bow07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow07.png"
+  },
+  {
+    "id": "relics/S_Bow08.png",
+    "name": "S Bow08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow08.png"
+  },
+  {
+    "id": "relics/S_Bow09.png",
+    "name": "S Bow09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow09.png"
+  },
+  {
+    "id": "relics/S_Bow10.png",
+    "name": "S Bow10",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow10.png"
+  },
+  {
+    "id": "relics/S_Bow11.png",
+    "name": "S Bow11",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow11.png"
+  },
+  {
+    "id": "relics/S_Bow12.png",
+    "name": "S Bow12",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow12.png"
+  },
+  {
+    "id": "relics/S_Bow13.png",
+    "name": "S Bow13",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow13.png"
+  },
+  {
+    "id": "relics/S_Bow14.png",
+    "name": "S Bow14",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Bow14.png"
+  },
+  {
+    "id": "relics/S_Buff01.png",
+    "name": "S Buff01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff01.png"
+  },
+  {
+    "id": "relics/S_Buff02.png",
+    "name": "S Buff02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff02.png"
+  },
+  {
+    "id": "relics/S_Buff03.png",
+    "name": "S Buff03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff03.png"
+  },
+  {
+    "id": "relics/S_Buff04.png",
+    "name": "S Buff04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff04.png"
+  },
+  {
+    "id": "relics/S_Buff05.png",
+    "name": "S Buff05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff05.png"
+  },
+  {
+    "id": "relics/S_Buff06.png",
+    "name": "S Buff06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff06.png"
+  },
+  {
+    "id": "relics/S_Buff07.png",
+    "name": "S Buff07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff07.png"
+  },
+  {
+    "id": "relics/S_Buff08.png",
+    "name": "S Buff08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff08.png"
+  },
+  {
+    "id": "relics/S_Buff09.png",
+    "name": "S Buff09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff09.png"
+  },
+  {
+    "id": "relics/S_Buff10.png",
+    "name": "S Buff10",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff10.png"
+  },
+  {
+    "id": "relics/S_Buff11.png",
+    "name": "S Buff11",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff11.png"
+  },
+  {
+    "id": "relics/S_Buff12.png",
+    "name": "S Buff12",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff12.png"
+  },
+  {
+    "id": "relics/S_Buff13.png",
+    "name": "S Buff13",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff13.png"
+  },
+  {
+    "id": "relics/S_Buff14.png",
+    "name": "S Buff14",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Buff14.png"
+  },
+  {
+    "id": "relics/S_Dagger02.png",
+    "name": "S Dagger02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Dagger02.png"
+  },
+  {
+    "id": "relics/S_Dagger03.png",
+    "name": "S Dagger03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Dagger03.png"
+  },
+  {
+    "id": "relics/S_Dagger04.png",
+    "name": "S Dagger04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Dagger04.png"
+  },
+  {
+    "id": "relics/S_Dagger05.png",
+    "name": "S Dagger05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Dagger05.png"
+  },
+  {
+    "id": "relics/S_Dagger06.png",
+    "name": "S Dagger06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Dagger06.png"
+  },
+  {
+    "id": "relics/S_Earth01.png",
+    "name": "S Earth01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Earth01.png"
+  },
+  {
+    "id": "relics/S_Earth02.png",
+    "name": "S Earth02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Earth02.png"
+  },
+  {
+    "id": "relics/S_Earth03.png",
+    "name": "S Earth03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Earth03.png"
+  },
+  {
+    "id": "relics/S_Earth04.png",
+    "name": "S Earth04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Earth04.png"
+  },
+  {
+    "id": "relics/S_Earth05.png",
+    "name": "S Earth05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Earth05.png"
+  },
+  {
+    "id": "relics/S_Earth06.png",
+    "name": "S Earth06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Earth06.png"
+  },
+  {
+    "id": "relics/S_Earth07.png",
+    "name": "S Earth07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Earth07.png"
+  },
+  {
+    "id": "relics/S_Fire01.png",
+    "name": "S Fire01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire01.png"
+  },
+  {
+    "id": "relics/S_Fire02.png",
+    "name": "S Fire02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire02.png"
+  },
+  {
+    "id": "relics/S_Fire03.png",
+    "name": "S Fire03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire03.png"
+  },
+  {
+    "id": "relics/S_Fire04.png",
+    "name": "S Fire04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire04.png"
+  },
+  {
+    "id": "relics/S_Fire05.png",
+    "name": "S Fire05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire05.png"
+  },
+  {
+    "id": "relics/S_Fire06.png",
+    "name": "S Fire06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire06.png"
+  },
+  {
+    "id": "relics/S_Fire07.png",
+    "name": "S Fire07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire07.png"
+  },
+  {
+    "id": "relics/S_Fire08.png",
+    "name": "S Fire08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Fire08.png"
+  },
+  {
+    "id": "relics/S_Holy01.png",
+    "name": "S Holy01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy01.png"
+  },
+  {
+    "id": "relics/S_Holy02.png",
+    "name": "S Holy02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy02.png"
+  },
+  {
+    "id": "relics/S_Holy03.png",
+    "name": "S Holy03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy03.png"
+  },
+  {
+    "id": "relics/S_Holy04.png",
+    "name": "S Holy04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy04.png"
+  },
+  {
+    "id": "relics/S_Holy05.png",
+    "name": "S Holy05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy05.png"
+  },
+  {
+    "id": "relics/S_Holy06.png",
+    "name": "S Holy06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy06.png"
+  },
+  {
+    "id": "relics/S_Holy07.png",
+    "name": "S Holy07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy07.png"
+  },
+  {
+    "id": "relics/S_Holy08.png",
+    "name": "S Holy08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy08.png"
+  },
+  {
+    "id": "relics/S_Holy09.png",
+    "name": "S Holy09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy09.png"
+  },
+  {
+    "id": "relics/S_Holy10.png",
+    "name": "S Holy10",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Holy10.png"
+  },
+  {
+    "id": "relics/S_Ice01.png",
+    "name": "S Ice01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice01.png"
+  },
+  {
+    "id": "relics/S_Ice02.png",
+    "name": "S Ice02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice02.png"
+  },
+  {
+    "id": "relics/S_Ice03.png",
+    "name": "S Ice03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice03.png"
+  },
+  {
+    "id": "relics/S_Ice04.png",
+    "name": "S Ice04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice04.png"
+  },
+  {
+    "id": "relics/S_Ice05.png",
+    "name": "S Ice05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice05.png"
+  },
+  {
+    "id": "relics/S_Ice06.png",
+    "name": "S Ice06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice06.png"
+  },
+  {
+    "id": "relics/S_Ice07.png",
+    "name": "S Ice07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice07.png"
+  },
+  {
+    "id": "relics/S_Ice08.png",
+    "name": "S Ice08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice08.png"
+  },
+  {
+    "id": "relics/S_Ice09.png",
+    "name": "S Ice09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Ice09.png"
+  },
+  {
+    "id": "relics/S_Light01.png",
+    "name": "S Light01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Light01.png"
+  },
+  {
+    "id": "relics/S_Light02.png",
+    "name": "S Light02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Light02.png"
+  },
+  {
+    "id": "relics/S_Light03.png",
+    "name": "S Light03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Light03.png"
+  },
+  {
+    "id": "relics/S_Light04.png",
+    "name": "S Light04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Light04.png"
+  },
+  {
+    "id": "relics/S_Magic01.png",
+    "name": "S Magic01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic01.png"
+  },
+  {
+    "id": "relics/S_Magic02.png",
+    "name": "S Magic02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic02.png"
+  },
+  {
+    "id": "relics/S_Magic03.png",
+    "name": "S Magic03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic03.png"
+  },
+  {
+    "id": "relics/S_Magic04.png",
+    "name": "S Magic04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic04.png"
+  },
+  {
+    "id": "relics/S_Magic05.png",
+    "name": "S Magic05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic05.png"
+  },
+  {
+    "id": "relics/S_Magic06.png",
+    "name": "S Magic06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic06.png"
+  },
+  {
+    "id": "relics/S_Magic07.png",
+    "name": "S Magic07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic07.png"
+  },
+  {
+    "id": "relics/S_Magic08.png",
+    "name": "S Magic08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic08.png"
+  },
+  {
+    "id": "relics/S_Magic09.png",
+    "name": "S Magic09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic09.png"
+  },
+  {
+    "id": "relics/S_Magic10.png",
+    "name": "S Magic10",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic10.png"
+  },
+  {
+    "id": "relics/S_Magic11.png",
+    "name": "S Magic11",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Magic11.png"
+  },
+  {
+    "id": "relics/S_Physic01.png",
+    "name": "S Physic01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Physic01.png"
+  },
+  {
+    "id": "relics/S_Physic02.png",
+    "name": "S Physic02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Physic02.png"
+  },
+  {
+    "id": "relics/S_Poison01.png",
+    "name": "S Poison01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison01.png"
+  },
+  {
+    "id": "relics/S_Poison02.png",
+    "name": "S Poison02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison02.png"
+  },
+  {
+    "id": "relics/S_Poison03.png",
+    "name": "S Poison03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison03.png"
+  },
+  {
+    "id": "relics/S_Poison04.png",
+    "name": "S Poison04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison04.png"
+  },
+  {
+    "id": "relics/S_Poison05.png",
+    "name": "S Poison05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison05.png"
+  },
+  {
+    "id": "relics/S_Poison06.png",
+    "name": "S Poison06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison06.png"
+  },
+  {
+    "id": "relics/S_Poison07.png",
+    "name": "S Poison07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison07.png"
+  },
+  {
+    "id": "relics/S_Poison08.png",
+    "name": "S Poison08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison08.png"
+  },
+  {
+    "id": "relics/S_Poison09.png",
+    "name": "S Poison09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Poison09.png"
+  },
+  {
+    "id": "relics/S_Shadow01.png",
+    "name": "S Shadow01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow01.png"
+  },
+  {
+    "id": "relics/S_Shadow02.png",
+    "name": "S Shadow02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow02.png"
+  },
+  {
+    "id": "relics/S_Shadow03.png",
+    "name": "S Shadow03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow03.png"
+  },
+  {
+    "id": "relics/S_Shadow04.png",
+    "name": "S Shadow04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow04.png"
+  },
+  {
+    "id": "relics/S_Shadow05.png",
+    "name": "S Shadow05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow05.png"
+  },
+  {
+    "id": "relics/S_Shadow06.png",
+    "name": "S Shadow06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow06.png"
+  },
+  {
+    "id": "relics/S_Shadow07.png",
+    "name": "S Shadow07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow07.png"
+  },
+  {
+    "id": "relics/S_Shadow08.png",
+    "name": "S Shadow08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow08.png"
+  },
+  {
+    "id": "relics/S_Shadow09.png",
+    "name": "S Shadow09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow09.png"
+  },
+  {
+    "id": "relics/S_Shadow10.png",
+    "name": "S Shadow10",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow10.png"
+  },
+  {
+    "id": "relics/S_Shadow11.png",
+    "name": "S Shadow11",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow11.png"
+  },
+  {
+    "id": "relics/S_Shadow12.png",
+    "name": "S Shadow12",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow12.png"
+  },
+  {
+    "id": "relics/S_Shadow13.png",
+    "name": "S Shadow13",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow13.png"
+  },
+  {
+    "id": "relics/S_Shadow14.png",
+    "name": "S Shadow14",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow14.png"
+  },
+  {
+    "id": "relics/S_Shadow15.png",
+    "name": "S Shadow15",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow15.png"
+  },
+  {
+    "id": "relics/S_Shadow16.png",
+    "name": "S Shadow16",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Shadow16.png"
+  },
+  {
+    "id": "relics/S_Sword01.png",
+    "name": "S Sword01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword01.png"
+  },
+  {
+    "id": "relics/S_Sword02.png",
+    "name": "S Sword02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword02.png"
+  },
+  {
+    "id": "relics/S_Sword03.png",
+    "name": "S Sword03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword03.png"
+  },
+  {
+    "id": "relics/S_Sword04.png",
+    "name": "S Sword04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword04.png"
+  },
+  {
+    "id": "relics/S_Sword05.png",
+    "name": "S Sword05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword05.png"
+  },
+  {
+    "id": "relics/S_Sword06.png",
+    "name": "S Sword06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword06.png"
+  },
+  {
+    "id": "relics/S_Sword07.png",
+    "name": "S Sword07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword07.png"
+  },
+  {
+    "id": "relics/S_Sword08.png",
+    "name": "S Sword08",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword08.png"
+  },
+  {
+    "id": "relics/S_Sword09.png",
+    "name": "S Sword09",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword09.png"
+  },
+  {
+    "id": "relics/S_Sword10.png",
+    "name": "S Sword10",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword10.png"
+  },
+  {
+    "id": "relics/S_Sword15.png",
+    "name": "S Sword15",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword15.png"
+  },
+  {
+    "id": "relics/S_Sword16.png",
+    "name": "S Sword16",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword16.png"
+  },
+  {
+    "id": "relics/S_Sword17.png",
+    "name": "S Sword17",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword17.png"
+  },
+  {
+    "id": "relics/S_Sword18.png",
+    "name": "S Sword18",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword18.png"
+  },
+  {
+    "id": "relics/S_Sword19.png",
+    "name": "S Sword19",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword19.png"
+  },
+  {
+    "id": "relics/S_Sword20.png",
+    "name": "S Sword20",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword20.png"
+  },
+  {
+    "id": "relics/S_Sword21.png",
+    "name": "S Sword21",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Sword21.png"
+  },
+  {
+    "id": "relics/S_Thunder01.png",
+    "name": "S Thunder01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Thunder01.png"
+  },
+  {
+    "id": "relics/S_Thunder02.png",
+    "name": "S Thunder02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Thunder02.png"
+  },
+  {
+    "id": "relics/S_Thunder03.png",
+    "name": "S Thunder03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Thunder03.png"
+  },
+  {
+    "id": "relics/S_Thunder04.png",
+    "name": "S Thunder04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Thunder04.png"
+  },
+  {
+    "id": "relics/S_Thunder05.png",
+    "name": "S Thunder05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Thunder05.png"
+  },
+  {
+    "id": "relics/S_Thunder06.png",
+    "name": "S Thunder06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Thunder06.png"
+  },
+  {
+    "id": "relics/S_Thunder07.png",
+    "name": "S Thunder07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Thunder07.png"
+  },
+  {
+    "id": "relics/S_Water01.png",
+    "name": "S Water01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Water01.png"
+  },
+  {
+    "id": "relics/S_Water02.png",
+    "name": "S Water02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Water02.png"
+  },
+  {
+    "id": "relics/S_Water03.png",
+    "name": "S Water03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Water03.png"
+  },
+  {
+    "id": "relics/S_Water04.png",
+    "name": "S Water04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Water04.png"
+  },
+  {
+    "id": "relics/S_Water05.png",
+    "name": "S Water05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Water05.png"
+  },
+  {
+    "id": "relics/S_Water06.png",
+    "name": "S Water06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Water06.png"
+  },
+  {
+    "id": "relics/S_Water07.png",
+    "name": "S Water07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Water07.png"
+  },
+  {
+    "id": "relics/S_Wind01.png",
+    "name": "S Wind01",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Wind01.png"
+  },
+  {
+    "id": "relics/S_Wind02.png",
+    "name": "S Wind02",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Wind02.png"
+  },
+  {
+    "id": "relics/S_Wind03.png",
+    "name": "S Wind03",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Wind03.png"
+  },
+  {
+    "id": "relics/S_Wind04.png",
+    "name": "S Wind04",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Wind04.png"
+  },
+  {
+    "id": "relics/S_Wind05.png",
+    "name": "S Wind05",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Wind05.png"
+  },
+  {
+    "id": "relics/S_Wind06.png",
+    "name": "S Wind06",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Wind06.png"
+  },
+  {
+    "id": "relics/S_Wind07.png",
+    "name": "S Wind07",
+    "pack": "Relics",
+    "url": "./assets/relics/S_Wind07.png"
+  },
+  {
+    "id": "relics/W_Axe001.png",
+    "name": "W Axe001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe001.png"
+  },
+  {
+    "id": "relics/W_Axe002.png",
+    "name": "W Axe002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe002.png"
+  },
+  {
+    "id": "relics/W_Axe003.png",
+    "name": "W Axe003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe003.png"
+  },
+  {
+    "id": "relics/W_Axe004.png",
+    "name": "W Axe004",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe004.png"
+  },
+  {
+    "id": "relics/W_Axe005.png",
+    "name": "W Axe005",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe005.png"
+  },
+  {
+    "id": "relics/W_Axe006.png",
+    "name": "W Axe006",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe006.png"
+  },
+  {
+    "id": "relics/W_Axe007.png",
+    "name": "W Axe007",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe007.png"
+  },
+  {
+    "id": "relics/W_Axe008.png",
+    "name": "W Axe008",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe008.png"
+  },
+  {
+    "id": "relics/W_Axe009.png",
+    "name": "W Axe009",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe009.png"
+  },
+  {
+    "id": "relics/W_Axe010.png",
+    "name": "W Axe010",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe010.png"
+  },
+  {
+    "id": "relics/W_Axe011.png",
+    "name": "W Axe011",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe011.png"
+  },
+  {
+    "id": "relics/W_Axe012.png",
+    "name": "W Axe012",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe012.png"
+  },
+  {
+    "id": "relics/W_Axe013.png",
+    "name": "W Axe013",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe013.png"
+  },
+  {
+    "id": "relics/W_Axe014.png",
+    "name": "W Axe014",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Axe014.png"
+  },
+  {
+    "id": "relics/W_Book01.png",
+    "name": "W Book01",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Book01.png"
+  },
+  {
+    "id": "relics/W_Book02.png",
+    "name": "W Book02",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Book02.png"
+  },
+  {
+    "id": "relics/W_Book03.png",
+    "name": "W Book03",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Book03.png"
+  },
+  {
+    "id": "relics/W_Book04.png",
+    "name": "W Book04",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Book04.png"
+  },
+  {
+    "id": "relics/W_Book05.png",
+    "name": "W Book05",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Book05.png"
+  },
+  {
+    "id": "relics/W_Book06.png",
+    "name": "W Book06",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Book06.png"
+  },
+  {
+    "id": "relics/W_Book07.png",
+    "name": "W Book07",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Book07.png"
+  },
+  {
+    "id": "relics/W_Bow01.png",
+    "name": "W Bow01",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow01.png"
+  },
+  {
+    "id": "relics/W_Bow02.png",
+    "name": "W Bow02",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow02.png"
+  },
+  {
+    "id": "relics/W_Bow03.png",
+    "name": "W Bow03",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow03.png"
+  },
+  {
+    "id": "relics/W_Bow04.png",
+    "name": "W Bow04",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow04.png"
+  },
+  {
+    "id": "relics/W_Bow05.png",
+    "name": "W Bow05",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow05.png"
+  },
+  {
+    "id": "relics/W_Bow06.png",
+    "name": "W Bow06",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow06.png"
+  },
+  {
+    "id": "relics/W_Bow07.png",
+    "name": "W Bow07",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow07.png"
+  },
+  {
+    "id": "relics/W_Bow08.png",
+    "name": "W Bow08",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow08.png"
+  },
+  {
+    "id": "relics/W_Bow09.png",
+    "name": "W Bow09",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow09.png"
+  },
+  {
+    "id": "relics/W_Bow10.png",
+    "name": "W Bow10",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow10.png"
+  },
+  {
+    "id": "relics/W_Bow11.png",
+    "name": "W Bow11",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow11.png"
+  },
+  {
+    "id": "relics/W_Bow12.png",
+    "name": "W Bow12",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow12.png"
+  },
+  {
+    "id": "relics/W_Bow13.png",
+    "name": "W Bow13",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow13.png"
+  },
+  {
+    "id": "relics/W_Bow14.png",
+    "name": "W Bow14",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow14.png"
+  },
+  {
+    "id": "relics/W_Bow15.png",
+    "name": "W Bow15",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow15.png"
+  },
+  {
+    "id": "relics/W_Bow16.png",
+    "name": "W Bow16",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow16.png"
+  },
+  {
+    "id": "relics/W_Bow17.png",
+    "name": "W Bow17",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Bow17.png"
+  },
+  {
+    "id": "relics/W_Dagger001.png",
+    "name": "W Dagger001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger001.png"
+  },
+  {
+    "id": "relics/W_Dagger002.png",
+    "name": "W Dagger002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger002.png"
+  },
+  {
+    "id": "relics/W_Dagger003.png",
+    "name": "W Dagger003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger003.png"
+  },
+  {
+    "id": "relics/W_Dagger004.png",
+    "name": "W Dagger004",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger004.png"
+  },
+  {
+    "id": "relics/W_Dagger005.png",
+    "name": "W Dagger005",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger005.png"
+  },
+  {
+    "id": "relics/W_Dagger006.png",
+    "name": "W Dagger006",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger006.png"
+  },
+  {
+    "id": "relics/W_Dagger007.png",
+    "name": "W Dagger007",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger007.png"
+  },
+  {
+    "id": "relics/W_Dagger008.png",
+    "name": "W Dagger008",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger008.png"
+  },
+  {
+    "id": "relics/W_Dagger009.png",
+    "name": "W Dagger009",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger009.png"
+  },
+  {
+    "id": "relics/W_Dagger010.png",
+    "name": "W Dagger010",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger010.png"
+  },
+  {
+    "id": "relics/W_Dagger011.png",
+    "name": "W Dagger011",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger011.png"
+  },
+  {
+    "id": "relics/W_Dagger012.png",
+    "name": "W Dagger012",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger012.png"
+  },
+  {
+    "id": "relics/W_Dagger013.png",
+    "name": "W Dagger013",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger013.png"
+  },
+  {
+    "id": "relics/W_Dagger014.png",
+    "name": "W Dagger014",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger014.png"
+  },
+  {
+    "id": "relics/W_Dagger015.png",
+    "name": "W Dagger015",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger015.png"
+  },
+  {
+    "id": "relics/W_Dagger016.png",
+    "name": "W Dagger016",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger016.png"
+  },
+  {
+    "id": "relics/W_Dagger017.png",
+    "name": "W Dagger017",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger017.png"
+  },
+  {
+    "id": "relics/W_Dagger018.png",
+    "name": "W Dagger018",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger018.png"
+  },
+  {
+    "id": "relics/W_Dagger019.png",
+    "name": "W Dagger019",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger019.png"
+  },
+  {
+    "id": "relics/W_Dagger020.png",
+    "name": "W Dagger020",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger020.png"
+  },
+  {
+    "id": "relics/W_Dagger021.png",
+    "name": "W Dagger021",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Dagger021.png"
+  },
+  {
+    "id": "relics/W_Fist001.png",
+    "name": "W Fist001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Fist001.png"
+  },
+  {
+    "id": "relics/W_Fist002.png",
+    "name": "W Fist002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Fist002.png"
+  },
+  {
+    "id": "relics/W_Fist003.png",
+    "name": "W Fist003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Fist003.png"
+  },
+  {
+    "id": "relics/W_Fist004.png",
+    "name": "W Fist004",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Fist004.png"
+  },
+  {
+    "id": "relics/W_Fist005.png",
+    "name": "W Fist005",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Fist005.png"
+  },
+  {
+    "id": "relics/W_Gold_Axe.png",
+    "name": "W Gold Axe",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gold_Axe.png"
+  },
+  {
+    "id": "relics/W_Gold_Bow.png",
+    "name": "W Gold Bow",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gold_Bow.png"
+  },
+  {
+    "id": "relics/W_Gold_Dagger.png",
+    "name": "W Gold Dagger",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gold_Dagger.png"
+  },
+  {
+    "id": "relics/W_Gold_Mace.png",
+    "name": "W Gold Mace",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gold_Mace.png"
+  },
+  {
+    "id": "relics/W_Gold_Spear.png",
+    "name": "W Gold Spear",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gold_Spear.png"
+  },
+  {
+    "id": "relics/W_Gold_Sword.png",
+    "name": "W Gold Sword",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gold_Sword.png"
+  },
+  {
+    "id": "relics/W_Gun001.png",
+    "name": "W Gun001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gun001.png"
+  },
+  {
+    "id": "relics/W_Gun002.png",
+    "name": "W Gun002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gun002.png"
+  },
+  {
+    "id": "relics/W_Gun003.png",
+    "name": "W Gun003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Gun003.png"
+  },
+  {
+    "id": "relics/W_Mace001.png",
+    "name": "W Mace001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace001.png"
+  },
+  {
+    "id": "relics/W_Mace002.png",
+    "name": "W Mace002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace002.png"
+  },
+  {
+    "id": "relics/W_Mace003.png",
+    "name": "W Mace003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace003.png"
+  },
+  {
+    "id": "relics/W_Mace004.png",
+    "name": "W Mace004",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace004.png"
+  },
+  {
+    "id": "relics/W_Mace005.png",
+    "name": "W Mace005",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace005.png"
+  },
+  {
+    "id": "relics/W_Mace006.png",
+    "name": "W Mace006",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace006.png"
+  },
+  {
+    "id": "relics/W_Mace007.png",
+    "name": "W Mace007",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace007.png"
+  },
+  {
+    "id": "relics/W_Mace008.png",
+    "name": "W Mace008",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace008.png"
+  },
+  {
+    "id": "relics/W_Mace009.png",
+    "name": "W Mace009",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace009.png"
+  },
+  {
+    "id": "relics/W_Mace010.png",
+    "name": "W Mace010",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace010.png"
+  },
+  {
+    "id": "relics/W_Mace011.png",
+    "name": "W Mace011",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace011.png"
+  },
+  {
+    "id": "relics/W_Mace012.png",
+    "name": "W Mace012",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace012.png"
+  },
+  {
+    "id": "relics/W_Mace013.png",
+    "name": "W Mace013",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace013.png"
+  },
+  {
+    "id": "relics/W_Mace014.png",
+    "name": "W Mace014",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace014.png"
+  },
+  {
+    "id": "relics/W_Mace15.png",
+    "name": "W Mace15",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace15.png"
+  },
+  {
+    "id": "relics/W_Mace16.png",
+    "name": "W Mace16",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Mace16.png"
+  },
+  {
+    "id": "relics/W_Spear001.png",
+    "name": "W Spear001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear001.png"
+  },
+  {
+    "id": "relics/W_Spear002.png",
+    "name": "W Spear002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear002.png"
+  },
+  {
+    "id": "relics/W_Spear003.png",
+    "name": "W Spear003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear003.png"
+  },
+  {
+    "id": "relics/W_Spear004.png",
+    "name": "W Spear004",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear004.png"
+  },
+  {
+    "id": "relics/W_Spear005.png",
+    "name": "W Spear005",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear005.png"
+  },
+  {
+    "id": "relics/W_Spear006.png",
+    "name": "W Spear006",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear006.png"
+  },
+  {
+    "id": "relics/W_Spear007.png",
+    "name": "W Spear007",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear007.png"
+  },
+  {
+    "id": "relics/W_Spear008.png",
+    "name": "W Spear008",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear008.png"
+  },
+  {
+    "id": "relics/W_Spear009.png",
+    "name": "W Spear009",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear009.png"
+  },
+  {
+    "id": "relics/W_Spear010.png",
+    "name": "W Spear010",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear010.png"
+  },
+  {
+    "id": "relics/W_Spear011.png",
+    "name": "W Spear011",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear011.png"
+  },
+  {
+    "id": "relics/W_Spear012.png",
+    "name": "W Spear012",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear012.png"
+  },
+  {
+    "id": "relics/W_Spear013.png",
+    "name": "W Spear013",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear013.png"
+  },
+  {
+    "id": "relics/W_Spear014.png",
+    "name": "W Spear014",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Spear014.png"
+  },
+  {
+    "id": "relics/W_Staff01.png",
+    "name": "W Staff01",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff01.png"
+  },
+  {
+    "id": "relics/W_Staff02.png",
+    "name": "W Staff02",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff02.png"
+  },
+  {
+    "id": "relics/W_Staff03.png",
+    "name": "W Staff03",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff03.png"
+  },
+  {
+    "id": "relics/W_Staff04.png",
+    "name": "W Staff04",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff04.png"
+  },
+  {
+    "id": "relics/W_Staff05.png",
+    "name": "W Staff05",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff05.png"
+  },
+  {
+    "id": "relics/W_Staff06.png",
+    "name": "W Staff06",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff06.png"
+  },
+  {
+    "id": "relics/W_Staff07.png",
+    "name": "W Staff07",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff07.png"
+  },
+  {
+    "id": "relics/W_Staff08.png",
+    "name": "W Staff08",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Staff08.png"
+  },
+  {
+    "id": "relics/W_Sword001.png",
+    "name": "W Sword001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword001.png"
+  },
+  {
+    "id": "relics/W_Sword002.png",
+    "name": "W Sword002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword002.png"
+  },
+  {
+    "id": "relics/W_Sword003.png",
+    "name": "W Sword003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword003.png"
+  },
+  {
+    "id": "relics/W_Sword004.png",
+    "name": "W Sword004",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword004.png"
+  },
+  {
+    "id": "relics/W_Sword005.png",
+    "name": "W Sword005",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword005.png"
+  },
+  {
+    "id": "relics/W_Sword006.png",
+    "name": "W Sword006",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword006.png"
+  },
+  {
+    "id": "relics/W_Sword007.png",
+    "name": "W Sword007",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword007.png"
+  },
+  {
+    "id": "relics/W_Sword008.png",
+    "name": "W Sword008",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword008.png"
+  },
+  {
+    "id": "relics/W_Sword009.png",
+    "name": "W Sword009",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword009.png"
+  },
+  {
+    "id": "relics/W_Sword010.png",
+    "name": "W Sword010",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword010.png"
+  },
+  {
+    "id": "relics/W_Sword011.png",
+    "name": "W Sword011",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword011.png"
+  },
+  {
+    "id": "relics/W_Sword012.png",
+    "name": "W Sword012",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword012.png"
+  },
+  {
+    "id": "relics/W_Sword013.png",
+    "name": "W Sword013",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword013.png"
+  },
+  {
+    "id": "relics/W_Sword014.png",
+    "name": "W Sword014",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword014.png"
+  },
+  {
+    "id": "relics/W_Sword015.png",
+    "name": "W Sword015",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword015.png"
+  },
+  {
+    "id": "relics/W_Sword016.png",
+    "name": "W Sword016",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword016.png"
+  },
+  {
+    "id": "relics/W_Sword017.png",
+    "name": "W Sword017",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword017.png"
+  },
+  {
+    "id": "relics/W_Sword018.png",
+    "name": "W Sword018",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword018.png"
+  },
+  {
+    "id": "relics/W_Sword019.png",
+    "name": "W Sword019",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword019.png"
+  },
+  {
+    "id": "relics/W_Sword020.png",
+    "name": "W Sword020",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword020.png"
+  },
+  {
+    "id": "relics/W_Sword021.png",
+    "name": "W Sword021",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword021.png"
+  },
+  {
+    "id": "relics/W_Sword022.png",
+    "name": "W Sword022",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Sword022.png"
+  },
+  {
+    "id": "relics/W_Throw001.png",
+    "name": "W Throw001",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Throw001.png"
+  },
+  {
+    "id": "relics/W_Throw002.png",
+    "name": "W Throw002",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Throw002.png"
+  },
+  {
+    "id": "relics/W_Throw003.png",
+    "name": "W Throw003",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Throw003.png"
+  },
+  {
+    "id": "relics/W_Throw004.png",
+    "name": "W Throw004",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Throw004.png"
+  },
+  {
+    "id": "relics/W_Throw05.png",
+    "name": "W Throw05",
+    "pack": "Relics",
+    "url": "./assets/relics/W_Throw05.png"
+  }
+]
