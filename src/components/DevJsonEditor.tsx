@@ -60,6 +60,10 @@ const ALL_EFFECT_TYPES: EffectType[] = [
   'double_ward',
   'double_ink_burn',
   'gain_ward_per_card_in_hand',
+  'discard',
+  'discard_random',
+  'plated_armor',
+  'thorns',
   'power_ward_each_turn',
   'power_bold_each_turn',
   'power_draw_each_turn',
@@ -1272,7 +1276,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                   fontWeight: 800,
                                 }}
                               >
-                                {card.names.easy} ({card.cost}⚡)
+                                {card.names.easy} ({card.xCost || card.cost === -1 ? 'X' : card.cost}⚡)
                               </div>
                               <div
                                 className="dev-list-sub"
@@ -1475,6 +1479,14 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                     <option value="all_enemies">all_enemies</option>
                     <option value="self">self</option>
                   </select>
+                </label>
+                <label className="dev-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(activeCard.xCost)}
+                    onChange={(e) => updateActiveCard((c) => ({ ...c, xCost: e.target.checked }))}
+                  />
+                  X Energy Cost (⚡)
                 </label>
                 <label className="dev-checkbox-label">
                   <input
@@ -1709,6 +1721,19 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                       }));
                     }}
                   />
+                </label>
+                <label className="dev-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(activeCard.upgrade?.xCost)}
+                    onChange={(e) =>
+                      updateActiveCard((c) => ({
+                        ...c,
+                        upgrade: { ...ensureUpgrade(c), xCost: e.target.checked },
+                      }))
+                    }
+                  />
+                  Upgraded X Energy Cost
                 </label>
               </div>
 

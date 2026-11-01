@@ -101,6 +101,7 @@ export function resolveCardInstance(
   name: string;
   connector: string;
   cost: number;
+  xCost?: boolean;
   type: CardDefinition['type'];
   rarity: CardDefinition['rarity'];
   target: CardDefinition['target'];
@@ -110,6 +111,11 @@ export function resolveCardInstance(
   art: CardDefinition['art'];
 } {
   const def = getCardDefinition(instance.cardId);
+  const isXCost =
+    instance.upgraded && def.upgrade && def.upgrade.xCost !== undefined
+      ? def.upgrade.xCost
+      : Boolean(def.xCost);
+
   if (instance.upgraded && def.upgrade) {
     const upEffects = def.upgrade.effects || def.effects;
     return {
@@ -120,7 +126,12 @@ export function resolveCardInstance(
       connector:
         (def.upgrade.connectors && def.upgrade.connectors[phraseDiff]) ||
         def.connectors[phraseDiff],
-      cost: def.upgrade.cost !== undefined ? def.upgrade.cost : def.cost,
+      cost: isXCost
+        ? -1
+        : def.upgrade.cost !== undefined
+        ? def.upgrade.cost
+        : def.cost,
+      xCost: isXCost,
       type: def.type,
       rarity: def.rarity,
       target: deriveEffectiveTarget(def.target, upEffects),
@@ -140,7 +151,8 @@ export function resolveCardInstance(
     upgraded: false,
     name: def.names[phraseDiff],
     connector: def.connectors[phraseDiff],
-    cost: def.cost,
+    cost: isXCost ? -1 : def.cost,
+    xCost: isXCost,
     type: def.type,
     rarity: def.rarity,
     target: deriveEffectiveTarget(def.target, def.effects),
@@ -257,6 +269,8 @@ export function generateEncounter(
         faded: 0,
         exposed: 0,
         ink_burn: 0,
+        plated_armor: 0,
+        thorns: 0,
       },
       currentMove: chooseEnemyMove(def.moves),
       art: def.art,

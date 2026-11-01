@@ -32,6 +32,10 @@ export type EffectType =
   | 'double_ward'
   | 'double_ink_burn'
   | 'gain_ward_per_card_in_hand'
+  | 'discard'
+  | 'discard_random'
+  | 'plated_armor'
+  | 'thorns'
   // ---- Persistent "rest of this combat" powers (stack if played more than once) ----
   | 'power_ward_each_turn' // Gain X Ward at the start of each of your turns
   | 'power_bold_each_turn' // Gain X Bold at the start of each of your turns
@@ -74,6 +78,7 @@ export interface CardUpgradeData {
   names: DifficultyStrings;
   connectors?: DifficultyStrings;
   cost?: number;
+  xCost?: boolean;
   description: string;
   effects: CardEffect[];
   burnDraft?: boolean;
@@ -84,6 +89,7 @@ export interface CardDefinition {
   rarity: CardRarity;
   type: CardType;
   cost: number;
+  xCost?: boolean;
   target: CardTarget;
   names: DifficultyStrings;
   connectors: DifficultyStrings;
@@ -147,6 +153,8 @@ export interface StatusState {
   faded: number;
   exposed: number;
   ink_burn: number;
+  plated_armor: number;
+  thorns: number;
 }
 
 export interface ActiveEnemy {

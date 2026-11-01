@@ -299,7 +299,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         }}
         title="Energy Cost"
       >
-        {resolved.cost}
+        {resolved.cost === -1 || (resolved as any).xCost ? 'X' : resolved.cost}
       </div>
 
       {/* Left side: Large 1:1 Square with rounded corners (86x86, radius 14px, #e9ecef) */}

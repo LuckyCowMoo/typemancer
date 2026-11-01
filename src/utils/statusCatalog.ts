@@ -1,7 +1,7 @@
 import type { ActiveEnemy } from '../types/game';
 
 export interface StatusInfo {
-  id: 'ward' | 'bold' | 'faded' | 'exposed' | 'ink_burn' | 'burn_draft';
+  id: 'ward' | 'bold' | 'faded' | 'exposed' | 'ink_burn' | 'burn_draft' | 'plated_armor' | 'thorns';
   name: string;
   aliases: string[];
   color: string;
@@ -50,6 +50,20 @@ export const STATUS_DEFINITIONS: StatusInfo[] = [
     aliases: ['burn draft', 'exhaust', 'burned'],
     color: '#b91c1c',
     summary: 'Removed from your deck for the remainder of the current battle when played.',
+  },
+  {
+    id: 'plated_armor',
+    name: 'Plated Armor',
+    aliases: ['plated armor', 'plated', 'plate', 'plates'],
+    color: '#2563eb',
+    summary: 'At the start of your turn, gain Ward equal to stacks, then decreases by 1.',
+  },
+  {
+    id: 'thorns',
+    name: 'Thorns',
+    aliases: ['thorns', 'spikes', 'counter', 'retaliate'],
+    color: '#059669',
+    summary: 'When attacked, deals damage back to the attacker equal to its stacks.',
   },
 ];
 

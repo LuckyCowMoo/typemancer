@@ -208,6 +208,8 @@ export function App() {
     faded: 0,
     exposed: 0,
     ink_burn: 0,
+    plated_armor: 0,
+    thorns: 0,
   });
   const [hand, setHand] = useState<CardInstance[]>([]);
   const [drawPile, setDrawPile] = useState<CardInstance[]>([]);
@@ -503,6 +505,8 @@ export function App() {
         faded: 0,
         exposed: 0,
         ink_burn: 0,
+        plated_armor: 0,
+        thorns: 0,
       });
 
       const shuffled = shuffleArray(currentDeck);
@@ -586,10 +590,16 @@ export function App() {
   const executeCardPlay = useCallback(
     async (cardInst: CardInstance, targetEnemy: ActiveEnemy | null, speedMult: number) => {
       const resolved = resolveCardInstance(cardInst, phraseDiff);
-      if (energy < resolved.cost || isAnimatingTurn) {
+      const isXCost = Boolean((resolved as any).xCost || resolved.cost === -1);
+      if ((!isXCost && energy < resolved.cost) || isAnimatingTurn) {
         soundEngine.playError(settings);
+        if (!isXCost && energy < resolved.cost) {
+          spawnPopup('player', `Need ${resolved.cost} Energy!`, '#b84a14');
+        }
         return;
       }
+      const xMultiplier = isXCost ? Math.max(0, energy) : 1;
+      let nextEnergy = isXCost ? 0 : energy - resolved.cost;
 
       soundEngine.playCardCast(settings);
       const cardPalette = [
@@ -611,7 +621,6 @@ export function App() {
       setSelectedCard(null);
       resetTypingBuffer(true);
 
-      let nextEnergy = energy - resolved.cost;
       let nextWard = playerWard;
       let nextHp = hp;
       const nextPlayerStatuses = { ...playerStatuses };
@@ -619,6 +628,9 @@ export function App() {
         ...e,
         statuses: { ...e.statuses },
       }));
+      let nextHand = hand.filter((c) => c.instanceId !== cardInst.instanceId);
+      let nextDiscard = [...discardPile];
+      let nextBurn = [...burnDraftPile];
 
       let totalDmgDealtThisCard = 0;
       let extraDraw = 0;
@@ -663,6 +675,13 @@ export function App() {
           soundEngine.playHit(settings);
           spawnPopup(enemyObj.instanceId, `-${hpLoss} HP`, '#e63946');
         }
+
+        if (enemyObj.statuses.thorns > 0 && hpLoss > 0) {
+          const thornsDmg = enemyObj.statuses.thorns;
+          nextHp = Math.max(0, nextHp - thornsDmg);
+          spawnPopup('player', `-${thornsDmg} Thorns`, '#059669');
+          soundEngine.playHit(settings);
+        }
       };
 
       for (const eff of resolved.effects) {
@@ -684,7 +703,7 @@ export function App() {
           case 'damage': {
             for (let h = 0; h < hits; h++) {
               targetList.forEach((en) => {
-                if (en.hp > 0) dealHitToEnemy(en, eff.amount);
+                if (en.hp > 0) dealHitToEnemy(en, eff.amount * xMultiplier);
               });
               if (hits > 1 && h < hits - 1) await delay(180);
             }
@@ -692,12 +711,12 @@ export function App() {
           }
           case 'damage_per_ward': {
             targetList.forEach((en) => {
-              if (en.hp > 0) dealHitToEnemy(en, nextWard * eff.amount);
+              if (en.hp > 0) dealHitToEnemy(en, nextWard * eff.amount * xMultiplier);
             });
             break;
           }
           case 'ward': {
-            const gained = Math.max(0, scaleAmount(eff.amount) + (envMod.wardBonus ?? 0));
+            const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.wardBonus ?? 0));
             nextWard += gained;
             soundEngine.playWardBlock(settings);
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
@@ -714,7 +733,7 @@ export function App() {
           case 'gain_ward_per_card_in_hand': {
             const gained = Math.max(
               0,
-              scaleAmount(eff.amount) * Math.max(0, hand.length - 1) + (envMod.wardBonus ?? 0)
+              scaleAmount(eff.amount * xMultiplier) * Math.max(0, nextHand.length) + (envMod.wardBonus ?? 0)
             );
             nextWard += gained;
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
@@ -722,13 +741,13 @@ export function App() {
             break;
           }
           case 'bold': {
-            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
+            const amt = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.statusBonus ?? 0));
             nextPlayerStatuses.bold += amt;
             spawnPopup('player', `+${amt} Bold`, '#d97706');
             break;
           }
           case 'faded': {
-            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
+            const amt = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.statusBonus ?? 0));
             targetList.forEach((en) => {
               en.statuses.faded += amt;
               spawnPopup(en.instanceId, `+${amt} Faded`, '#64748b');
@@ -736,7 +755,7 @@ export function App() {
             break;
           }
           case 'exposed': {
-            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
+            const amt = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.statusBonus ?? 0));
             targetList.forEach((en) => {
               en.statuses.exposed += amt;
               spawnPopup(en.instanceId, `+${amt} Exposed`, '#be123c');
@@ -744,7 +763,7 @@ export function App() {
             break;
           }
           case 'ink_burn': {
-            const amt = Math.max(0, scaleAmount(eff.amount) + (envMod.statusBonus ?? 0));
+            const amt = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.statusBonus ?? 0));
             targetList.forEach((en) => {
               en.statuses.ink_burn += amt;
               spawnPopup(en.instanceId, `+${amt} Ink Burn`, '#6d28d9');
@@ -759,18 +778,77 @@ export function App() {
             break;
           }
           case 'draw': {
-            extraDraw += eff.amount;
+            extraDraw += eff.amount * xMultiplier;
             break;
           }
           case 'energy': {
-            nextEnergy += eff.amount;
-            spawnPopup('player', `+${eff.amount} Energy`, '#2a9d8f');
+            nextEnergy += eff.amount * xMultiplier;
+            spawnPopup('player', `+${eff.amount * xMultiplier} Energy`, '#2a9d8f');
             break;
           }
           case 'heal': {
-            const healAmt = Math.max(0, scaleAmount(eff.amount) + (envMod.healBonus ?? 0));
+            const healAmt = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.healBonus ?? 0));
             nextHp = Math.min(maxHp, nextHp + healAmt);
             spawnPopup('player', `+${healAmt} HP`, '#3a8918');
+            break;
+          }
+          case 'self_damage': {
+            nextHp = Math.max(1, nextHp - eff.amount);
+            spawnPopup('player', `-${eff.amount} HP`, '#e63946');
+            break;
+          }
+          case 'plated_armor': {
+            const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier));
+            if (effTarget === 'enemy' && targetEnemy) {
+              targetEnemy.statuses.plated_armor += gained;
+              spawnPopup(targetEnemy.instanceId, `+${gained} Plated Armor`, '#2563eb');
+            } else {
+              nextPlayerStatuses.plated_armor += gained;
+              spawnPopup('player', `+${gained} Plated Armor`, '#2563eb');
+            }
+            break;
+          }
+          case 'thorns': {
+            const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier));
+            if (effTarget === 'enemy' && targetEnemy) {
+              targetEnemy.statuses.thorns += gained;
+              spawnPopup(targetEnemy.instanceId, `+${gained} Thorns`, '#059669');
+            } else {
+              nextPlayerStatuses.thorns += gained;
+              spawnPopup('player', `+${gained} Thorns`, '#059669');
+            }
+            break;
+          }
+          case 'discard_random': {
+            const count = Math.max(1, eff.amount * xMultiplier);
+            const eligible = nextHand.filter((c) => c.instanceId !== cardInst.instanceId);
+            const picked = [...eligible].sort(() => 0.5 - Math.random()).slice(0, count);
+            if (picked.length > 0) {
+              const pickedIds = new Set(picked.map((p) => p.instanceId));
+              nextHand = nextHand.filter((c) => !pickedIds.has(c.instanceId));
+              nextDiscard = [...nextDiscard, ...picked];
+              soundEngine.playPageTurn(settings);
+              picked.forEach((c) => {
+                const def = getCardDefinition(c.cardId);
+                spawnPopup('player', `Discarded ${def.names[phraseDiff]}`, '#64748b');
+              });
+            }
+            break;
+          }
+          case 'discard': {
+            const count = Math.max(1, eff.amount * xMultiplier);
+            const eligible = nextHand.filter((c) => c.instanceId !== cardInst.instanceId);
+            const picked = eligible.slice(0, count);
+            if (picked.length > 0) {
+              const pickedIds = new Set(picked.map((p) => p.instanceId));
+              nextHand = nextHand.filter((c) => !pickedIds.has(c.instanceId));
+              nextDiscard = [...nextDiscard, ...picked];
+              soundEngine.playPageTurn(settings);
+              picked.forEach((c) => {
+                const def = getCardDefinition(c.cardId);
+                spawnPopup('player', `Discarded ${def.names[phraseDiff]}`, '#64748b');
+              });
+            }
             break;
           }
           case 'self_damage': {
@@ -869,9 +947,6 @@ export function App() {
       }
 
       const aliveEnemies = nextEnemies.filter((e) => e.hp > 0);
-      const remainingHand = hand.filter((c) => c.instanceId !== cardInst.instanceId);
-      const nextDiscard = [...discardPile];
-      const nextBurn = [...burnDraftPile];
 
       if (resolved.burnDraft || resolved.type === 'power') {
         soundEngine.playBurnCard(settings);
@@ -887,8 +962,8 @@ export function App() {
       }
       const drawnResult =
         extraDraw > 0
-          ? drawCards(extraDraw, remainingHand, drawPile, nextDiscard)
-          : { nextHand: remainingHand, nextDraw: drawPile, nextDiscard };
+          ? drawCards(extraDraw, nextHand, drawPile, nextDiscard)
+          : { nextHand, nextDraw: drawPile, nextDiscard };
 
       setEnergy(nextEnergy);
       setPlayerWard(nextWard);
@@ -1083,6 +1158,13 @@ export function App() {
             spawnPopup('player', `-${unblocked} HP`, '#e63946');
           }
 
+          if (nextPlayerStats.thorns > 0 && dmg > 0) {
+            const retal = nextPlayerStats.thorns;
+            en.hp = Math.max(0, en.hp - retal);
+            spawnPopup(en.instanceId, `-${retal} Thorns`, '#059669');
+            soundEngine.playHit(settings);
+          }
+
           setPlayerWard(nextPlayerWard);
           setHp(nextPlayerHp);
           await delay(320);
@@ -1202,6 +1284,20 @@ export function App() {
         en.ward += envMod.turnStartWardAll!;
       });
     }
+
+    if (nextPlayerStats.plated_armor > 0) {
+      newTurnWard += nextPlayerStats.plated_armor;
+      spawnPopup('player', `+${nextPlayerStats.plated_armor} Ward (Plated Armor)`, '#2563eb');
+      nextPlayerStats.plated_armor = Math.max(0, nextPlayerStats.plated_armor - 1);
+    }
+
+    survivingEnemies.forEach((en) => {
+      if (en.statuses.plated_armor > 0) {
+        en.ward += en.statuses.plated_armor;
+        spawnPopup(en.instanceId, `+${en.statuses.plated_armor} Ward (Plated Armor)`, '#2563eb');
+        en.statuses.plated_armor = Math.max(0, en.statuses.plated_armor - 1);
+      }
+    });
     let newTurnEnergy = maxEnergy;
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
@@ -3438,6 +3534,8 @@ export function App() {
                   {playerStatuses.faded > 0 && <span className="status-pill faded-pill">Faded {playerStatuses.faded}</span>}
                   {playerStatuses.exposed > 0 && <span className="status-pill exposed-pill">Exposed {playerStatuses.exposed}</span>}
                   {playerStatuses.ink_burn > 0 && <span className="status-pill burn-pill">Ink Burn {playerStatuses.ink_burn}</span>}
+                  {playerStatuses.plated_armor > 0 && <span className="status-pill plated-armor-pill">Plated Armor {playerStatuses.plated_armor}</span>}
+                  {playerStatuses.thorns > 0 && <span className="status-pill thorns-pill">Thorns {playerStatuses.thorns}</span>}
                   {activePowers.map((pwr) => (
                     <span key={pwr.id} className="status-pill power-active-pill" title={`${pwr.name}: Rest of combat`}>
                       ★ {pwr.label}
@@ -3568,6 +3666,8 @@ export function App() {
                         {enemy.statuses.faded > 0 && <span className="status-pill faded-pill">Faded {enemy.statuses.faded}</span>}
                         {enemy.statuses.exposed > 0 && <span className="status-pill exposed-pill">Exposed {enemy.statuses.exposed}</span>}
                         {enemy.statuses.ink_burn > 0 && <span className="status-pill burn-pill">Ink Burn {enemy.statuses.ink_burn}</span>}
+                        {enemy.statuses.plated_armor > 0 && <span className="status-pill plated-armor-pill">Plated Armor {enemy.statuses.plated_armor}</span>}
+                        {enemy.statuses.thorns > 0 && <span className="status-pill thorns-pill">Thorns {enemy.statuses.thorns}</span>}
                       </div>
                     </div>
                   );
@@ -4184,11 +4284,23 @@ export function App() {
                           <strong>Ink Burn ({playerStatuses.ink_burn}):</strong> Takes {playerStatuses.ink_burn} damage at turn end.
                         </li>
                       )}
+                      {playerStatuses.plated_armor > 0 && (
+                        <li>
+                          <strong>Plated Armor ({playerStatuses.plated_armor}):</strong> Gains {playerStatuses.plated_armor} Ward at turn start, then decreases by 1.
+                        </li>
+                      )}
+                      {playerStatuses.thorns > 0 && (
+                        <li>
+                          <strong>Thorns ({playerStatuses.thorns}):</strong> Deals {playerStatuses.thorns} damage to attackers when attacked.
+                        </li>
+                      )}
                       {playerWard === 0 &&
                         playerStatuses.bold === 0 &&
                         playerStatuses.faded === 0 &&
                         playerStatuses.exposed === 0 &&
-                        playerStatuses.ink_burn === 0 && <li>No active status effects.</li>}
+                        playerStatuses.ink_burn === 0 &&
+                        playerStatuses.plated_armor === 0 &&
+                        playerStatuses.thorns === 0 && <li>No active status effects.</li>}
                     </ul>
                   </div>
                 ) : (
@@ -4238,11 +4350,23 @@ export function App() {
                           <strong>Ink Burn ({inspectedEntity.statuses.ink_burn}):</strong> Takes {inspectedEntity.statuses.ink_burn} damage at start of its turn, then decreases by 1.
                         </li>
                       )}
+                      {inspectedEntity.statuses.plated_armor > 0 && (
+                        <li>
+                          <strong>Plated Armor ({inspectedEntity.statuses.plated_armor}):</strong> Gains {inspectedEntity.statuses.plated_armor} Ward at turn start, then decreases by 1.
+                        </li>
+                      )}
+                      {inspectedEntity.statuses.thorns > 0 && (
+                        <li>
+                          <strong>Thorns ({inspectedEntity.statuses.thorns}):</strong> Deals {inspectedEntity.statuses.thorns} damage to attackers when attacked.
+                        </li>
+                      )}
                       {inspectedEntity.ward === 0 &&
                         inspectedEntity.statuses.bold === 0 &&
                         inspectedEntity.statuses.faded === 0 &&
                         inspectedEntity.statuses.exposed === 0 &&
-                        inspectedEntity.statuses.ink_burn === 0 && <li>No active status effects.</li>}
+                        inspectedEntity.statuses.ink_burn === 0 &&
+                        inspectedEntity.statuses.plated_armor === 0 &&
+                        inspectedEntity.statuses.thorns === 0 && <li>No active status effects.</li>}
                     </ul>
                   </div>
                 )}

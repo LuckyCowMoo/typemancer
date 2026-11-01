@@ -1092,6 +1092,8 @@ body,
 .faded-pill { background: #64748b; }
 .exposed-pill { background: #be123c; }
 .burn-pill { background: #6d28d9; }
+.plated-armor-pill { background: #dbeafe; color: #1e40af; border: 1.5px solid #2563eb; }
+.thorns-pill { background: #d1fae5; color: #065f46; border: 1.5px solid #059669; }
 
 .arena-center-inspector {
   display: flex;
