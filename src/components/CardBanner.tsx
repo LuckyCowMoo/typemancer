@@ -182,7 +182,7 @@ export function sortCardsByCategoryAndRarity<T>(
  * - 292px width x 138px min-height with all 4 corners rounded (border-radius: 18px, border: 2.5px solid #0d1b22).
  * - Left side: 96x96 1:1 square with rounded corners (radius: 14px, #e9ecef background) for the card's sprite.
  * - Top-Right corner: 34x34 circular energy badge with dark background and white cost.
- * - Right column: Card title, description, and full-width bottom pill for rarity (+ upgraded / 1x burn tags).
+ * - Right column: Card title, description, and bottom pill for rarity (+ upgraded indicator).
  */
 export const CardBanner: React.FC<CardBannerProps> = ({
   instance,
@@ -212,14 +212,11 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         : shopPrice
       : priceBadge;
 
-  // Build bottom pill rarity text: starter, common, uncommon, rare + ' · +' / ' · 1x'
+  // Build bottom pill rarity text: starter, common, uncommon, rare + ' · +'
   const isUpgraded = instance.upgraded || resolved.upgraded;
   let rarityText: string = resolved.rarity;
   if (isUpgraded) {
     rarityText += ' · +';
-  }
-  if (resolved.burnDraft && resolved.type !== 'power') {
-    rarityText += ' · 1x';
   }
 
   // Dynamic font size and line height for title to allow comfortable wrapping with extra line space
