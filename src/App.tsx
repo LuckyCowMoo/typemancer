@@ -3898,156 +3898,162 @@ export function App() {
           <main className="narrative-stage">
             {/* 0. PAPER MAIN MENU WITH 2-TIER HIGHLIGHTING */}
             {screen === 'main_menu' && (
-              <div className="clean-menu-card paper-sheet-float">
-                <h1 className="clean-menu-title">TYPEMANCER</h1>
-                <div className="clean-menu-options">
-                  {(['new run', 'tutorial', 'load', 'codex', 'options', 'editor'] as const).map((opt, idx) => {
-                    const st = getPhraseHighlightState(opt, 'easy');
-                    return (
-                      <div
-                        key={opt}
-                        onClick={opt === 'editor' ? () => setDevEditorOpen(true) : undefined}
-                        className={`clean-menu-option ${
-                          st.isHighlighted ? 'option-highlighted' : ''
-                        } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                        style={{ animationDelay: `${idx * 0.25}s` }}
-                      >
-                        {opt}
-                      </div>
-                    );
-                  })}
+              <div className="cabinet-menu-frame paper-sheet-float">
+                <div className="clean-menu-card">
+                  <h1 className="clean-menu-title">TYPEMANCER</h1>
+                  <div className="clean-menu-options">
+                    {(['new run', 'tutorial', 'load', 'codex', 'options', 'editor'] as const).map((opt, idx) => {
+                      const st = getPhraseHighlightState(opt, 'easy');
+                      return (
+                        <div
+                          key={opt}
+                          onClick={opt === 'editor' ? () => setDevEditorOpen(true) : undefined}
+                          className={`clean-menu-option ${
+                            st.isHighlighted ? 'option-highlighted' : ''
+                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                          style={{ animationDelay: `${idx * 0.25}s` }}
+                        >
+                          {opt}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* 0.5 SHORT INTERACTIVE TUTORIAL */}
             {screen === 'tutorial' && (
-              <div className="story-card paper-sheet-float">
-                <h1 className="story-title">How to Play Typemancer</h1>
-                {tutorialStep === 0 && (
-                  <div className="prompt-panel">
-                    <h2>Step 1 of 3 — Casting a Card</h2>
-                    <p>
-                      In Typemancer, your keyboard controls everything. Notice how options glow warm amber as you start typing, then turn <strong>emerald green and enlarge</strong> when pressing <code>Enter</code> will select them!
-                    </p>
-                    <p>Try selecting the basic attack card now by typing:</p>
-                    {(() => {
-                      const st = getPhraseHighlightState('strike', 'easy');
-                      return (
-                        <div
-                          className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
-                            st.isEnterReady ? 'option-enter-ready' : ''
-                          }`}
-                        >
-                          <div className="phrase-to-type">strike</div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-                {tutorialStep === 1 && (
-                  <div className="prompt-panel">
-                    <h2>Step 2 of 3 — Targeting an Enemy</h2>
-                    <p>
-                      Once a card is selected, the game fills in the middle connector of the sentence:
-                      <em> "strike" -at- ...</em>
-                    </p>
-                    <p>Finish the sentence by typing the target enemy's name:</p>
-                    {(() => {
-                      const st = getPhraseHighlightState('goblin scout', 'easy');
-                      return (
-                        <div
-                          className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
-                            st.isEnterReady ? 'option-enter-ready' : ''
-                          }`}
-                        >
-                          <div className="phrase-to-type">goblin scout</div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-                {tutorialStep === 2 && (
-                  <div className="prompt-panel">
-                    <h2>Step 3 of 3 — Helpful Tips</h2>
-                    <ul className="modal-list">
-                      <li>Type <code>back</code> or <code>cancel</code> anytime to deselect a card.</li>
-                      <li>Type an enemy's name or status effect name (like <code>ward</code> or <code>ink burn</code>) to inspect what it does.</li>
-                      <li>Unsure what an English word means? Type the word followed by <code>?</code> (for example <code>pavilion?</code>) to look up its definition!</li>
-                    </ul>
-                    {(() => {
-                      const st = getPhraseHighlightState('new run', 'easy');
-                      return (
-                        <div
-                          className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
-                            st.isEnterReady ? 'option-enter-ready' : ''
-                          }`}
-                        >
-                          <div className="phrase-to-type">new run</div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card">
+                  <h1 className="story-title">How to Play Typemancer</h1>
+                  {tutorialStep === 0 && (
+                    <div className="prompt-panel">
+                      <h2>Step 1 of 3 — Casting a Card</h2>
+                      <p>
+                        In Typemancer, your keyboard controls everything. Notice how options glow warm amber as you start typing, then turn <strong>emerald green and enlarge</strong> when pressing <code>Enter</code> will select them!
+                      </p>
+                      <p>Try selecting the basic attack card now by typing:</p>
+                      {(() => {
+                        const st = getPhraseHighlightState('strike', 'easy');
+                        return (
+                          <div
+                            className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
+                              st.isEnterReady ? 'option-enter-ready' : ''
+                            }`}
+                          >
+                            <div className="phrase-to-type">strike</div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                  {tutorialStep === 1 && (
+                    <div className="prompt-panel">
+                      <h2>Step 2 of 3 — Targeting an Enemy</h2>
+                      <p>
+                        Once a card is selected, the game fills in the middle connector of the sentence:
+                        <em> "strike" -at- ...</em>
+                      </p>
+                      <p>Finish the sentence by typing the target enemy's name:</p>
+                      {(() => {
+                        const st = getPhraseHighlightState('goblin scout', 'easy');
+                        return (
+                          <div
+                            className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
+                              st.isEnterReady ? 'option-enter-ready' : ''
+                            }`}
+                          >
+                            <div className="phrase-to-type">goblin scout</div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                  {tutorialStep === 2 && (
+                    <div className="prompt-panel">
+                      <h2>Step 3 of 3 — Helpful Tips</h2>
+                      <ul className="modal-list">
+                        <li>Type <code>back</code> or <code>cancel</code> anytime to deselect a card.</li>
+                        <li>Type an enemy's name or status effect name (like <code>ward</code> or <code>ink burn</code>) to inspect what it does.</li>
+                        <li>Unsure what an English word means? Type the word followed by <code>?</code> (for example <code>pavilion?</code>) to look up its definition!</li>
+                      </ul>
+                      {(() => {
+                        const st = getPhraseHighlightState('new run', 'easy');
+                        return (
+                          <div
+                            className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
+                              st.isEnterReady ? 'option-enter-ready' : ''
+                            }`}
+                          >
+                            <div className="phrase-to-type">new run</div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             {/* 1. OPENING SEQUENCE: THE PEASANT & THE TYPEWRITER */}
             {screen === 'peasant_intro' && (
-              <div className="story-card paper-sheet-float">
-                <p className="story-paragraph">
-                  In this dystopian world, an Evil Wizard has taken away the beauty of speech and song.
-                  All must write to each other to do anything—until you find a magical relic: a <strong>TYPEWRITER!</strong>
-                  It lets you move quicker and stronger than anyone else. You decide to free the world from this fate
-                  and head towards the Wizard’s Tower.
-                </p>
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card">
+                  <p className="story-paragraph">
+                    In this dystopian world, an Evil Wizard has taken away the beauty of speech and song.
+                    All must write to each other to do anything—until you find a magical relic: a <strong>TYPEWRITER!</strong>
+                    It lets you move quicker and stronger than anyone else. You decide to free the world from this fate
+                    and head towards the Wizard’s Tower.
+                  </p>
 
-                {introStep === 'ask_name' && (
-                  <div className="prompt-panel">
-                    <p>
-                      At the edge of the forest you find a peasant. They are interested in your typewriter
-                      and ask you your name:
-                    </p>
-                    <div className="phrase-to-type">(Type your name and press Enter)</div>
-                  </div>
-                )}
-
-                {introStep === 'load_save' && (
-                  <div className="prompt-panel">
-                    <h2>Load Save Code</h2>
-                    <p>Type or paste your <code>TM1-...</code> Save Code and press Enter (or type <code>back</code>):</p>
-                  </div>
-                )}
-
-                {introStep === 'ask_difficulty' && (
-                  <div className="prompt-panel">
-                    <p>
-                      "{playerName}, how difficult do you expect this journey to be?"
-                    </p>
-                    <div className="choice-list">
-                      {[
-                        'easy',
-                        'a fair challenge',
-                        'i expect this quest to be a grueling endeavour',
-                        ...(extraHardAvailable
-                          ? ['my fingers move faster than lightning itself']
-                          : []),
-                      ].map((phrase) => {
-                        const st = getPhraseHighlightState(phrase, 'easy');
-                        return (
-                          <div
-                            key={phrase}
-                            className={`choice-item ${
-                              st.isHighlighted ? 'option-highlighted' : ''
-                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                          >
-                            <div className="phrase-to-type">{phrase}</div>
-                          </div>
-                        );
-                      })}
+                  {introStep === 'ask_name' && (
+                    <div className="prompt-panel">
+                      <p>
+                        At the edge of the forest you find a peasant. They are interested in your typewriter
+                        and ask you your name:
+                      </p>
+                      <div className="phrase-to-type">(Type your name and press Enter)</div>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {introStep === 'load_save' && (
+                    <div className="prompt-panel">
+                      <h2>Load Save Code</h2>
+                      <p>Type or paste your <code>TM1-...</code> Save Code and press Enter (or type <code>back</code>):</p>
+                    </div>
+                  )}
+
+                  {introStep === 'ask_difficulty' && (
+                    <div className="prompt-panel">
+                      <p>
+                        "{playerName}, how difficult do you expect this journey to be?"
+                      </p>
+                      <div className="choice-list">
+                        {[
+                          'easy',
+                          'a fair challenge',
+                          'i expect this quest to be a grueling endeavour',
+                          ...(extraHardAvailable
+                            ? ['my fingers move faster than lightning itself']
+                            : []),
+                        ].map((phrase) => {
+                          const st = getPhraseHighlightState(phrase, 'easy');
+                          return (
+                            <div
+                              key={phrase}
+                              className={`choice-item ${
+                                st.isHighlighted ? 'option-highlighted' : ''
+                              } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                            >
+                              <div className="phrase-to-type">{phrase}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -4068,28 +4074,247 @@ export function App() {
 
             {/* 3. POST-BATTLE REWARDS */}
             {screen === 'reward' && (
-              <div className="story-card paper-sheet-float">
-                <h2 className="story-title">Rewards (+{rewardGoldClaimed} Gold) — or type (skip)</h2>
-                {rewardCards.length > 0 && (
-                  <div className="deck-banner-grid">
-                    {rewardCards.map((inst, idx) => {
-                      const res = resolveCardInstance(inst, phraseDiff);
-                      const st = getPhraseHighlightState(res.name, difficulty);
-                      return (
-                        <CardBanner
-                          key={inst.instanceId}
-                          instance={inst}
-                          phraseDiff={phraseDiff}
-                          index={idx}
-                          isHighlighted={st.isHighlighted}
-                          isEnterCandidate={st.isEnterReady}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card">
+                  <h2 className="story-title">Rewards (+{rewardGoldClaimed} Gold) — or type (skip)</h2>
+                  {rewardCards.length > 0 && (
+                    <div className="deck-banner-grid">
+                      {rewardCards.map((inst, idx) => {
+                        const res = resolveCardInstance(inst, phraseDiff);
+                        const st = getPhraseHighlightState(res.name, difficulty);
+                        return (
+                          <CardBanner
+                            key={inst.instanceId}
+                            instance={inst}
+                            phraseDiff={phraseDiff}
+                            index={idx}
+                            isHighlighted={st.isHighlighted}
+                            isEnterCandidate={st.isEnterReady}
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
 
-                {rewardRelics.length > 0 && (
+                  {rewardRelics.length > 0 && (
+                    <div className="reward-cards-grid">
+                      {rewardRelics.map((rel) => {
+                        const st = getPhraseHighlightState(rel.names[phraseDiff], difficulty);
+                        return (
+                          <div
+                            key={rel.id}
+                            className={`structured-card-box ${
+                              st.isHighlighted ? 'option-highlighted' : ''
+                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                          >
+                            <div className="card-art-square">
+                              {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
+                            </div>
+                            <div className="card-info-right">
+                              <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
+                              <div className="card-tab-sub">{rel.description}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 4. CAMPFIRE */}
+            {screen === 'campfire' && (
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card">
+                  <h2 className="story-title">
+                    {campfireSubMode === 'choose'
+                      ? 'Campfire'
+                      : campfireSubMode === 'revise_select'
+                      ? 'Campfire — Select a Card to Revise (or type "back")'
+                      : 'Campfire — Confirm Card Revision'}
+                  </h2>
+                  {campfireSubMode === 'choose' ? (
+                    <div className="choice-list">
+                      {[
+                        { cmd: 'rest', desc: 'Heal 30% Max HP' },
+                        { cmd: 'revise', desc: 'Upgrade a card in your deck' },
+                      ].map((item) => {
+                        const st = getPhraseHighlightState(item.cmd, difficulty);
+                        return (
+                          <div
+                            key={item.cmd}
+                            className={`choice-item ${
+                              st.isHighlighted ? 'option-highlighted' : ''
+                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                          >
+                            <div className="phrase-to-type">{item.cmd}</div>
+                            <div>{item.desc}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : campfireSubMode === 'revise_confirm' && campfireSelectedCard ? (
+                    <div className="campfire-upgrade-comparison">
+                      <div className="campfire-confirm-cards-row">
+                        <div className="campfire-card-preview-box">
+                          <div className="campfire-card-preview-tag base-tag">Current Version</div>
+                          <CardBanner
+                            instance={{ ...campfireSelectedCard, upgraded: false }}
+                            phraseDiff={phraseDiff}
+                            showUpgradeDelta={false}
+                          />
+                        </div>
+                        <div className="campfire-preview-arrow-box">
+                          <div className="campfire-arrow-icon">➔</div>
+                          <div className="campfire-arrow-text">Upgrades To</div>
+                        </div>
+                        <div className="campfire-card-preview-box">
+                          <div className="campfire-card-preview-tag upgraded-tag">Upgraded Version (+)</div>
+                          <CardBanner
+                            instance={{ ...campfireSelectedCard, upgraded: true }}
+                            phraseDiff={phraseDiff}
+                            showUpgradeDelta={false}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="campfire-confirm-prompt-panel">
+                        <p className="campfire-confirm-prompt-title">
+                          Confirm upgrading <strong>{resolveCardInstance(campfireSelectedCard, phraseDiff).name}</strong>?
+                        </p>
+                        <div className="choice-list campfire-confirm-choice-list">
+                          {[
+                            { cmd: 'confirm', desc: 'Permanently upgrade & proceed to next floor' },
+                            { cmd: 'back', desc: 'Choose a different card from your deck' },
+                          ].map((item) => {
+                            const st = getPhraseHighlightState(item.cmd, difficulty);
+                            return (
+                              <div
+                                key={item.cmd}
+                                className={`choice-item ${
+                                  st.isHighlighted ? 'option-highlighted' : ''
+                                } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                              >
+                                <div className="phrase-to-type">{item.cmd}</div>
+                                <div>{item.desc}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="deck-banner-grid">
+                      {sortCardsByCategoryAndRarity(
+                        deck.filter((c) => !c.upgraded),
+                        (c) => c,
+                        phraseDiff
+                      ).map((inst, idx) => {
+                          const baseRes = resolveCardInstance(inst, phraseDiff);
+                          const st = getPhraseHighlightState(baseRes.name, difficulty);
+                          return (
+                            <CardBanner
+                              key={inst.instanceId}
+                              instance={inst}
+                              phraseDiff={phraseDiff}
+                              index={idx}
+                              isHighlighted={st.isHighlighted}
+                              isEnterCandidate={st.isEnterReady}
+                              showUpgradeDelta={true}
+                            />
+                          );
+                        })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 5. MERCHANT */}
+            {screen === 'merchant' && shopInventory && (
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card">
+                  <h2 className="story-title">
+                    Merchant ({gold} Gold) — type item name, (burn card [{shopInventory.removeServicePrice}g]), or (leave)
+                  </h2>
+                  {shopSubMode === 'browse' ? (
+                    <>
+                      <div className="shop-cards-grid-2x2">
+                        {shopInventory.cards.map(({ instance, price, sold }, idx) => {
+                          const res = resolveCardInstance(instance, phraseDiff);
+                          const st = !sold
+                            ? getPhraseHighlightState(res.name, difficulty)
+                            : { isHighlighted: false, isEnterReady: false };
+                          return (
+                            <CardBanner
+                              key={instance.instanceId}
+                              instance={instance}
+                              phraseDiff={phraseDiff}
+                              index={idx}
+                              isHighlighted={st.isHighlighted}
+                              isEnterCandidate={st.isEnterReady}
+                              isUnaffordable={sold || gold < price}
+                              priceBadge={sold ? 'SOLD' : `${price}g`}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      <div className="reward-cards-grid">
+                        {shopInventory.relics.map(({ relic, price, sold }) => {
+                          const st = !sold
+                            ? getPhraseHighlightState(relic.names[phraseDiff], difficulty)
+                            : { isHighlighted: false, isEnterReady: false };
+                          return (
+                            <div
+                              key={relic.id}
+                              className={`structured-card-box ${sold ? 'choice-locked' : ''} ${
+                                st.isHighlighted ? 'option-highlighted' : ''
+                              } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                            >
+                              <div className="card-art-square">
+                                {relic.art.spriteUrl && <img src={relic.art.spriteUrl} alt="" />}
+                              </div>
+                              <div className="card-info-right">
+                                <div className="card-tab-header">
+                                  <span className="phrase-to-type">{relic.names[phraseDiff]}</span>
+                                  <span className="card-cost-pill">{sold ? 'SOLD' : `${price}g`}</span>
+                                </div>
+                                <div className="card-tab-sub">{relic.description}</div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="deck-banner-grid">
+                      {sortCardsByCategoryAndRarity(deck, (c) => c, phraseDiff).map((inst, idx) => {
+                        const res = resolveCardInstance(inst, phraseDiff);
+                        const st = getPhraseHighlightState(res.name, difficulty);
+                        return (
+                          <CardBanner
+                            key={inst.instanceId}
+                            instance={inst}
+                            phraseDiff={phraseDiff}
+                            index={idx}
+                            isHighlighted={st.isHighlighted}
+                            isEnterCandidate={st.isEnterReady}
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 6. TREASURE VAULT */}
+            {screen === 'treasure' && (
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card">
+                  <h2 className="story-title">Treasure Chest — Choose 1 of 3 Relics or type (skip)</h2>
                   <div className="reward-cards-grid">
                     {rewardRelics.map((rel) => {
                       const st = getPhraseHighlightState(rel.names[phraseDiff], difficulty);
@@ -4111,313 +4336,106 @@ export function App() {
                       );
                     })}
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* 4. CAMPFIRE */}
-            {screen === 'campfire' && (
-              <div className="story-card paper-sheet-float">
-                <h2 className="story-title">
-                  {campfireSubMode === 'choose'
-                    ? 'Campfire'
-                    : campfireSubMode === 'revise_select'
-                    ? 'Campfire — Select a Card to Revise (or type "back")'
-                    : 'Campfire — Confirm Card Revision'}
-                </h2>
-                {campfireSubMode === 'choose' ? (
-                  <div className="choice-list">
-                    {[
-                      { cmd: 'rest', desc: 'Heal 30% Max HP' },
-                      { cmd: 'revise', desc: 'Upgrade a card in your deck' },
-                    ].map((item) => {
-                      const st = getPhraseHighlightState(item.cmd, difficulty);
-                      return (
-                        <div
-                          key={item.cmd}
-                          className={`choice-item ${
-                            st.isHighlighted ? 'option-highlighted' : ''
-                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                        >
-                          <div className="phrase-to-type">{item.cmd}</div>
-                          <div>{item.desc}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : campfireSubMode === 'revise_confirm' && campfireSelectedCard ? (
-                  <div className="campfire-upgrade-comparison">
-                    <div className="campfire-confirm-cards-row">
-                      <div className="campfire-card-preview-box">
-                        <div className="campfire-card-preview-tag base-tag">Current Version</div>
-                        <CardBanner
-                          instance={{ ...campfireSelectedCard, upgraded: false }}
-                          phraseDiff={phraseDiff}
-                          showUpgradeDelta={false}
-                        />
-                      </div>
-                      <div className="campfire-preview-arrow-box">
-                        <div className="campfire-arrow-icon">➔</div>
-                        <div className="campfire-arrow-text">Upgrades To</div>
-                      </div>
-                      <div className="campfire-card-preview-box">
-                        <div className="campfire-card-preview-tag upgraded-tag">Upgraded Version (+)</div>
-                        <CardBanner
-                          instance={{ ...campfireSelectedCard, upgraded: true }}
-                          phraseDiff={phraseDiff}
-                          showUpgradeDelta={false}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="campfire-confirm-prompt-panel">
-                      <p className="campfire-confirm-prompt-title">
-                        Confirm upgrading <strong>{resolveCardInstance(campfireSelectedCard, phraseDiff).name}</strong>?
-                      </p>
-                      <div className="choice-list campfire-confirm-choice-list">
-                        {[
-                          { cmd: 'confirm', desc: 'Permanently upgrade & proceed to next floor' },
-                          { cmd: 'back', desc: 'Choose a different card from your deck' },
-                        ].map((item) => {
-                          const st = getPhraseHighlightState(item.cmd, difficulty);
-                          return (
-                            <div
-                              key={item.cmd}
-                              className={`choice-item ${
-                                st.isHighlighted ? 'option-highlighted' : ''
-                              } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                            >
-                              <div className="phrase-to-type">{item.cmd}</div>
-                              <div>{item.desc}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="deck-banner-grid">
-                    {sortCardsByCategoryAndRarity(
-                      deck.filter((c) => !c.upgraded),
-                      (c) => c,
-                      phraseDiff
-                    ).map((inst, idx) => {
-                        const baseRes = resolveCardInstance(inst, phraseDiff);
-                        const st = getPhraseHighlightState(baseRes.name, difficulty);
-                        return (
-                          <CardBanner
-                            key={inst.instanceId}
-                            instance={inst}
-                            phraseDiff={phraseDiff}
-                            index={idx}
-                            isHighlighted={st.isHighlighted}
-                            isEnterCandidate={st.isEnterReady}
-                            showUpgradeDelta={true}
-                          />
-                        );
-                      })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 5. MERCHANT */}
-            {screen === 'merchant' && shopInventory && (
-              <div className="story-card paper-sheet-float">
-                <h2 className="story-title">
-                  Merchant ({gold} Gold) — type item name, (burn card [{shopInventory.removeServicePrice}g]), or (leave)
-                </h2>
-                {shopSubMode === 'browse' ? (
-                  <>
-                    <div className="shop-cards-grid-2x2">
-                      {shopInventory.cards.map(({ instance, price, sold }, idx) => {
-                        const res = resolveCardInstance(instance, phraseDiff);
-                        const st = !sold
-                          ? getPhraseHighlightState(res.name, difficulty)
-                          : { isHighlighted: false, isEnterReady: false };
-                        return (
-                          <CardBanner
-                            key={instance.instanceId}
-                            instance={instance}
-                            phraseDiff={phraseDiff}
-                            index={idx}
-                            isHighlighted={st.isHighlighted}
-                            isEnterCandidate={st.isEnterReady}
-                            isUnaffordable={sold || gold < price}
-                            priceBadge={sold ? 'SOLD' : `${price}g`}
-                          />
-                        );
-                      })}
-                    </div>
-
-                    <div className="reward-cards-grid">
-                      {shopInventory.relics.map(({ relic, price, sold }) => {
-                        const st = !sold
-                          ? getPhraseHighlightState(relic.names[phraseDiff], difficulty)
-                          : { isHighlighted: false, isEnterReady: false };
-                        return (
-                          <div
-                            key={relic.id}
-                            className={`structured-card-box ${sold ? 'choice-locked' : ''} ${
-                              st.isHighlighted ? 'option-highlighted' : ''
-                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                          >
-                            <div className="card-art-square">
-                              {relic.art.spriteUrl && <img src={relic.art.spriteUrl} alt="" />}
-                            </div>
-                            <div className="card-info-right">
-                              <div className="card-tab-header">
-                                <span className="phrase-to-type">{relic.names[phraseDiff]}</span>
-                                <span className="card-cost-pill">{sold ? 'SOLD' : `${price}g`}</span>
-                              </div>
-                              <div className="card-tab-sub">{relic.description}</div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                ) : (
-                  <div className="deck-banner-grid">
-                    {sortCardsByCategoryAndRarity(deck, (c) => c, phraseDiff).map((inst, idx) => {
-                      const res = resolveCardInstance(inst, phraseDiff);
-                      const st = getPhraseHighlightState(res.name, difficulty);
-                      return (
-                        <CardBanner
-                          key={inst.instanceId}
-                          instance={inst}
-                          phraseDiff={phraseDiff}
-                          index={idx}
-                          isHighlighted={st.isHighlighted}
-                          isEnterCandidate={st.isEnterReady}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 6. TREASURE VAULT */}
-            {screen === 'treasure' && (
-              <div className="story-card paper-sheet-float">
-                <h2 className="story-title">Treasure Chest — Choose 1 of 3 Relics or type (skip)</h2>
-                <div className="reward-cards-grid">
-                  {rewardRelics.map((rel) => {
-                    const st = getPhraseHighlightState(rel.names[phraseDiff], difficulty);
-                    return (
-                      <div
-                        key={rel.id}
-                        className={`structured-card-box ${
-                          st.isHighlighted ? 'option-highlighted' : ''
-                        } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                      >
-                        <div className="card-art-square">
-                          {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
-                        </div>
-                        <div className="card-info-right">
-                          <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
-                          <div className="card-tab-sub">{rel.description}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
             )}
 
             {/* 7. MYSTERY ENCOUNTER */}
             {screen === 'mystery' && activeEvent && (
-              <div className="story-card paper-sheet-float">
-                <h2 className="story-title">{activeEvent.title}</h2>
-                <p className="story-paragraph">{activeEvent.narrative}</p>
-                {pendingChanceChoice ? (
-                  <MysteryChanceWheel
-                    chance={pendingChanceChoice.chance!}
-                    choiceText={pendingChanceChoice.phrases[phraseDiff]}
-                    settings={settings}
-                    onSpinComplete={(succeeded) => {
-                      executeMysteryChoiceEffects(pendingChanceChoice, succeeded);
-                    }}
-                    triggerParticles={triggerElementParticles}
-                  />
-                ) : eventOutcomeText === null ? (
-                  <div className="choice-list">
-                    {activeEvent.choices.map((ch) => {
-                      const phrase = ch.phrases[phraseDiff];
-                      const st = getPhraseHighlightState(phrase, difficulty);
-                      return (
-                        <div
-                          key={ch.id}
-                          className={`choice-item mystery-choice-card ${
-                            st.isHighlighted ? 'option-highlighted' : ''
-                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                        >
-                          <div className="phrase-to-type">{phrase}</div>
-                          {renderMysteryChoiceOdds(ch)}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="prompt-panel mystery-outcome-panel">
-                    <div
-                      className={`mystery-outcome-summary-box ${
-                        eventRollSucceeded === false ? 'outcome-box-failed' : 'outcome-box-success'
-                      }`}
-                    >
-                      <div className="mystery-outcome-header">
-                        {eventRollSucceeded === false ? 'OUTCOME — RISK FAILED' : 'OUTCOME SUMMARY'}
-                      </div>
-                      <div className="mystery-outcome-badges">
-                        {eventOutcomeSummary.map((line, idx) => (
-                          <span key={idx} className="mystery-outcome-chip">
-                            {line}
-                          </span>
-                        ))}
-                      </div>
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card">
+                  <h2 className="story-title">{activeEvent.title}</h2>
+                  <p className="story-paragraph">{activeEvent.narrative}</p>
+                  {pendingChanceChoice ? (
+                    <MysteryChanceWheel
+                      chance={pendingChanceChoice.chance!}
+                      choiceText={pendingChanceChoice.phrases[phraseDiff]}
+                      settings={settings}
+                      onSpinComplete={(succeeded) => {
+                        executeMysteryChoiceEffects(pendingChanceChoice, succeeded);
+                      }}
+                      triggerParticles={triggerElementParticles}
+                    />
+                  ) : eventOutcomeText === null ? (
+                    <div className="choice-list">
+                      {activeEvent.choices.map((ch) => {
+                        const phrase = ch.phrases[phraseDiff];
+                        const st = getPhraseHighlightState(phrase, difficulty);
+                        return (
+                          <div
+                            key={ch.id}
+                            className={`choice-item mystery-choice-card ${
+                              st.isHighlighted ? 'option-highlighted' : ''
+                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                          >
+                            <div className="phrase-to-type">{phrase}</div>
+                            {renderMysteryChoiceOdds(ch)}
+                          </div>
+                        );
+                      })}
                     </div>
-                    <p className="mystery-outcome-narrative">{eventOutcomeText}</p>
-                    <div className="phrase-to-type">continue</div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="prompt-panel mystery-outcome-panel">
+                      <div
+                        className={`mystery-outcome-summary-box ${
+                          eventRollSucceeded === false ? 'outcome-box-failed' : 'outcome-box-success'
+                        }`}
+                      >
+                        <div className="mystery-outcome-header">
+                          {eventRollSucceeded === false ? 'OUTCOME — RISK FAILED' : 'OUTCOME SUMMARY'}
+                        </div>
+                        <div className="mystery-outcome-badges">
+                          {eventOutcomeSummary.map((line, idx) => (
+                            <span key={idx} className="mystery-outcome-chip">
+                              {line}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="mystery-outcome-narrative">{eventOutcomeText}</p>
+                      <div className="phrase-to-type">continue</div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             {/* 8. END-OF-RUN TYPING & COMBAT REPORT CARD */}
             {(screen === 'game_over' || screen === 'victory') && (
-              <div className="story-card report-card paper-sheet-float">
-                <h2 className="story-title">
-                  {screen === 'victory' ? 'Victory! Report Card' : 'Run Report Card'}
-                </h2>
+              <div className="cabinet-story-frame paper-sheet-float">
+                <div className="story-card report-card">
+                  <h2 className="story-title">
+                    {screen === 'victory' ? 'Victory! Report Card' : 'Run Report Card'}
+                  </h2>
 
-                <div className="report-columns">
-                  <div className="report-box">
-                    <h3>Typing Performance</h3>
-                    <ul>
-                      <li>Average Speed: {avgWpm} WPM</li>
-                      <li>Peak Speed: {metrics.peakWpm} WPM</li>
-                      <li>Accuracy: {accuracyPercent}%</li>
-                      <li>Characters Typed: {metrics.totalCharsTyped}</li>
-                    </ul>
+                  <div className="report-columns">
+                    <div className="report-box">
+                      <h3>Typing Performance</h3>
+                      <ul>
+                        <li>Average Speed: {avgWpm} WPM</li>
+                        <li>Peak Speed: {metrics.peakWpm} WPM</li>
+                        <li>Accuracy: {accuracyPercent}%</li>
+                        <li>Characters Typed: {metrics.totalCharsTyped}</li>
+                      </ul>
+                    </div>
+
+                    <div className="report-box">
+                      <h3>Game Performance</h3>
+                      <ul>
+                        <li>Floor Reached: {currentFloor} / {mapFloors.length}</li>
+                        <li>Damage Dealt: {metrics.totalDamageDealt}</li>
+                        <li>Enemies Defeated: {metrics.enemiesDefeated}</li>
+                        <li>Run Time: {Math.max(1, Math.floor((Date.now() - metrics.startTimeMs) / 1000))}s</li>
+                      </ul>
+                    </div>
                   </div>
 
-                  <div className="report-box">
-                    <h3>Game Performance</h3>
-                    <ul>
-                      <li>Floor Reached: {currentFloor} / {mapFloors.length}</li>
-                      <li>Damage Dealt: {metrics.totalDamageDealt}</li>
-                      <li>Enemies Defeated: {metrics.enemiesDefeated}</li>
-                      <li>Run Time: {Math.max(1, Math.floor((Date.now() - metrics.startTimeMs) / 1000))}s</li>
-                    </ul>
+                  <div className="save-code-box">
+                    <code className="save-code-string">{currentSaveCode}</code>
                   </div>
-                </div>
 
-                <div className="save-code-box">
-                  <code className="save-code-string">{currentSaveCode}</code>
+                  <div className="phrase-to-type">new run</div>
                 </div>
-
-                <div className="phrase-to-type">new run</div>
               </div>
             )}
           </main>
@@ -4468,7 +4486,8 @@ export function App() {
               }}
             />
           ) : (
-            <div className="keyboard-modal-card paper-sheet-float">
+            <div className="cabinet-modal-frame paper-sheet-float">
+              <div className="keyboard-modal-card">
             {overlay === 'help' && (
               <>
                 <h2>Commands</h2>
@@ -4803,7 +4822,8 @@ export function App() {
               <span className="top-cmd-box">back</span>{' '}
               {renderTypingInputWithCaret()}
             </div>
-          </div>
+              </div>
+            </div>
           )}
         </div>
       )}

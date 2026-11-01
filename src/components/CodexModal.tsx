@@ -393,8 +393,9 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           height: 94vh;
           max-height: 920px;
           background-color: #3b281c;
-          background-image: url('./assets/ui/cabinet_wood_pixel.png');
+          background-image: url('/assets/ui/cabinet_wood_pixel.png');
           background-repeat: repeat;
+          background-size: 96px 96px;
           image-rendering: pixelated;
           border: 4px solid #271911;
           border-radius: 16px;
