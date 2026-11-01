@@ -3473,12 +3473,12 @@ export function App() {
             {/* Hand Cards Centered in Cabinet Frame with Dynamic Stacking */}
             {(() => {
               const handCount = sortedHandCandidates.length;
-              // Base card height is ~112px. Available stack height is ~calc(100vh - 160px).
+              // Base card height is ~138px. Available stack height is ~calc(100vh - 160px).
               // When handCount is small (1 to 4 cards), overlap is 0 (or slight gap).
               // When handCount >= 5, card below overlaps bottom of card above:
               const overlap = Math.min(
-                68,
-                Math.max(0, Math.ceil((handCount * 112 - 520) / Math.max(1, handCount - 1)))
+                76,
+                Math.max(0, Math.ceil((handCount * 138 - 540) / Math.max(1, handCount - 1)))
               );
 
               return (

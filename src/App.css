@@ -420,9 +420,9 @@ body,
 .card-tab {
   position: relative;
   width: 292px;
-  height: 112px;
-  min-height: 112px;
-  max-height: 112px;
+  height: 138px;
+  min-height: 138px;
+  max-height: 138px;
   overflow: hidden;
   margin-bottom: 8px;
   padding: 7px 9px 7px 8px;
@@ -487,10 +487,10 @@ body,
 }
 
 .card-art-box {
-  width: 86px;
-  height: 86px;
-  min-width: 86px;
-  min-height: 86px;
+  width: 96px;
+  height: 96px;
+  min-width: 96px;
+  min-height: 96px;
   border-radius: 14px;
   background: #e9ecef;
   border: 2px solid #0d1b22;
@@ -516,7 +516,7 @@ body,
   justify-content: space-between;
   flex: 1;
   min-width: 0;
-  min-height: 86px;
+  min-height: 96px;
   box-sizing: border-box;
 }
 

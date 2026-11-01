@@ -178,8 +178,8 @@ export function sortCardsByCategoryAndRarity<T>(
 
 /**
  * Unified Card Banner component matching the new card design:
- * - 292px width x 112px min-height with all 4 corners rounded (border-radius: 18px, border: 2.5px solid #0d1b22).
- * - Left side: 86x86 1:1 square with rounded corners (radius: 14px, #e9ecef background) for the card's sprite.
+ * - 292px width x 138px min-height with all 4 corners rounded (border-radius: 18px, border: 2.5px solid #0d1b22).
+ * - Left side: 96x96 1:1 square with rounded corners (radius: 14px, #e9ecef background) for the card's sprite.
  * - Top-Right corner: 34x34 circular energy badge with dark background and white cost.
  * - Right column: Card title, description, and full-width bottom pill for rarity (+ upgraded / 1x burn tags).
  */
@@ -220,19 +220,17 @@ export const CardBanner: React.FC<CardBannerProps> = ({
     rarityText += ' · 1x';
   }
 
-  // Dynamic font size and line height for title to prevent card expansion on long names
+  // Dynamic font size and line height for title to allow comfortable wrapping with extra line space
   const titleLen = resolved.name.length;
   const titleFontSize =
-    titleLen <= 14
-      ? '0.96rem'
-      : titleLen <= 22
-      ? '0.86rem'
-      : titleLen <= 32
-      ? '0.78rem'
-      : titleLen <= 45
-      ? '0.72rem'
-      : '0.66rem';
-  const titleLineHeight = titleLen > 22 ? 1.12 : 1.18;
+    titleLen <= 16
+      ? '0.98rem'
+      : titleLen <= 26
+      ? '0.90rem'
+      : titleLen <= 38
+      ? '0.82rem'
+      : '0.76rem';
+  const titleLineHeight = 1.18;
 
   // Description dynamic font size if long description or campfire subtitle override
   const descText =
@@ -240,7 +238,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
     (showUpgradeDelta
       ? formatUpgradePreviewDescription(def)
       : resolved.description);
-  const descFontSize = descText.length > 70 ? '0.67rem' : '0.71rem';
+  const descFontSize = descText.length > 70 ? '0.70rem' : '0.74rem';
 
   return (
     <div
@@ -252,9 +250,9 @@ export const CardBanner: React.FC<CardBannerProps> = ({
       } rarity-${resolved.rarity} card-cat-${category} ${className}`}
       style={{
         width: 292,
-        height: 112,
-        minHeight: 112,
-        maxHeight: 112,
+        height: 138,
+        minHeight: 138,
+        maxHeight: 138,
         overflow: 'hidden',
         borderRadius: 18,
         border:
@@ -354,15 +352,15 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         )}
       </div>
 
-      {/* Left side: Large 1:1 Square with rounded corners (82x82, radius 12px, #e9ecef) */}
+      {/* Left side: Large 1:1 Square with rounded corners (96x96, radius 14px, #e9ecef) */}
       <div
         className="card-art-box card-art-square"
         style={{
-          width: 82,
-          height: 82,
-          minWidth: 82,
-          minHeight: 82,
-          borderRadius: 12,
+          width: 96,
+          height: 96,
+          minWidth: 96,
+          minHeight: 96,
+          borderRadius: 14,
           background: '#e9ecef',
           border: '2px solid #0d1b22',
           display: 'flex',
@@ -397,8 +395,8 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           justifyContent: 'space-between',
           flex: 1,
           minWidth: 0,
-          height: 82,
-          maxHeight: 82,
+          height: 108,
+          maxHeight: 108,
           boxSizing: 'border-box',
           overflow: 'hidden',
         }}
@@ -410,8 +408,8 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
-            paddingRight: displayPrice ? 88 : 38,
-            maxHeight: 30,
+            paddingRight: displayPrice ? 88 : 40,
+            maxHeight: 52,
             overflow: 'hidden',
           }}
         >
@@ -425,7 +423,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
               wordBreak: 'break-word',
               color: theme.textColor,
               display: '-webkit-box',
-              WebkitLineClamp: 2,
+              WebkitLineClamp: 3,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
             }}
