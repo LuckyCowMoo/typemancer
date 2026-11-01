@@ -164,6 +164,34 @@ class SoundEngine {
     this.playSample('ward_block.ogg', settings, 0.65, 0.06);
   }
 
+  /**
+   * Crisp mechanical flapper tick for the chance wheel as each rim knob/peg
+   * passes the top stationary pointer.
+   */
+  public playWheelTick(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    const pitch = 1180 + (Math.random() * 2 - 1) * 75;
+    osc.frequency.setValueAtTime(pitch, now);
+    osc.frequency.exponentialRampToValueAtTime(160, now + 0.022);
+
+    const vol = Math.min(1, Math.max(0, settings.volume)) * 0.38;
+    gain.gain.setValueAtTime(vol, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.025);
+  }
+
   private getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
     if (!this.ctx) {

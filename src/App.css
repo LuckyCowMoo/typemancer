@@ -1947,15 +1947,6 @@ body,
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
 }
 
-.mystery-wheel-pointer-wrapper.pointer-ticking {
-  animation: pointerTickWiggle 0.14s ease-in-out infinite alternate;
-}
-
-@keyframes pointerTickWiggle {
-  0% { transform: translateX(-50%) rotate(-3deg); }
-  100% { transform: translateX(-50%) rotate(3deg); }
-}
-
 .mystery-wheel-svg {
   filter: drop-shadow(0 6px 16px rgba(43, 30, 22, 0.28));
   user-select: none;
@@ -2531,8 +2522,8 @@ body,
 .mystery-outcome-summary-box {
   border: 2.5px solid #2b1e16;
   border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
 }
 
 .outcome-box-success {
@@ -2546,12 +2537,21 @@ body,
 }
 
 .mystery-outcome-header {
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #102a3a;
-  margin-bottom: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #162229;
+  margin-bottom: 10px;
+}
+
+.outcome-box-success .mystery-outcome-header {
+  color: #064e3b;
+}
+
+.outcome-box-failed .mystery-outcome-header {
+  color: #7f1d1d;
 }
 
 .mystery-outcome-badges {
@@ -2572,10 +2572,7 @@ body,
 }
 
 .mystery-outcome-narrative {
-  font-size: 1.06rem;
-  font-weight: 700;
-  color: #162229;
-  margin: 10px 0 12px 0;
+  display: none;
 }
 
 /* ==================== BATTLE ENVIRONMENT BANNER & POPUP ==================== */

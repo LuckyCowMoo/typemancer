@@ -1704,13 +1704,6 @@ export function App() {
         : choice.failText || choice.outcomeText;
 
       const summaryItems: string[] = [];
-      if (typeof choice.chance === 'number') {
-        summaryItems.push(
-          succeeded
-            ? `🎲 Roll Succeeded! (${choice.chance}% chance)`
-            : `🎲 Roll Failed (${choice.chance}% success chance)`
-        );
-      }
 
       if (eff.maxHpChange) {
         setMaxHp((m) => Math.max(10, m + eff.maxHpChange!));
@@ -4381,17 +4374,18 @@ export function App() {
                         }`}
                       >
                         <div className="mystery-outcome-header">
-                          {eventRollSucceeded === false ? 'OUTCOME — RISK FAILED' : 'OUTCOME SUMMARY'}
+                          {eventOutcomeText}
                         </div>
-                        <div className="mystery-outcome-badges">
-                          {eventOutcomeSummary.map((line, idx) => (
-                            <span key={idx} className="mystery-outcome-chip">
-                              {line}
-                            </span>
-                          ))}
-                        </div>
+                        {eventOutcomeSummary.length > 0 && (
+                          <div className="mystery-outcome-badges">
+                            {eventOutcomeSummary.map((line, idx) => (
+                              <span key={idx} className="mystery-outcome-chip">
+                                {line}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <p className="mystery-outcome-narrative">{eventOutcomeText}</p>
                       <div className="phrase-to-type">continue</div>
                     </div>
                   )}

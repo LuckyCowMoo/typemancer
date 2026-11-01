@@ -60,8 +60,8 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
     let delta = (thetaFinalNorm - (thetaStart % 360)) % 360;
     if (delta < 0) delta += 360;
 
-    // 5 to 7 full fast rotations + delta
-    const fullSpins = 5 + Math.floor(Math.random() * 3);
+    // 8 to 10 full smooth rotations + delta for longer, less resistant spin
+    const fullSpins = 8 + Math.floor(Math.random() * 3);
     const targetRotation = thetaStart + fullSpins * 360 + delta;
 
     return {
@@ -72,11 +72,11 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
   }, [successDegrees]);
 
   const [currentRotation, setCurrentRotation] = useState<number>(spinPlan.thetaStart);
+  const [pointerAngle, setPointerAngle] = useState<number>(0);
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [hasLanded, setHasLanded] = useState<boolean>(false);
 
-  const audioIntervalRef = useRef<number | null>(null);
-  const landTimerRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
   const completeTimerRef = useRef<number | null>(null);
   const hasStartedRef = useRef<boolean>(false);
 
@@ -86,68 +86,79 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
-  // Start spinning once on mount
+  // Start smooth physics spin on mount
   useEffect(() => {
     if (hasStartedRef.current) return;
     hasStartedRef.current = true;
 
-    let isStopped = false;
+    const SPIN_DURATION = 6200; // 6.2s smooth decelerating spin with lower resistance
+    let startTime: number | null = null;
+    let lastKnobIndex = Math.floor(spinPlan.thetaStart / 22.5);
 
-    // Audio ticks during spin
-    let tickCount = 0;
-    const maxTicks = 18;
-    const tick = () => {
-      if (isStopped) return;
-      if (tickCount < maxTicks) {
-        soundEngine.playKeystroke(settingsRef.current);
-        tickCount++;
-        // Progressive slowdown for mechanical wheel ticks
-        const delay = 60 + Math.pow(tickCount, 2.1) * 6;
-        audioIntervalRef.current = window.setTimeout(tick, delay);
+    setIsSpinning(true);
+
+    const step = (now: number) => {
+      if (startTime === null) startTime = now;
+      const elapsed = now - startTime;
+      const progress = Math.min(1, Math.max(0, elapsed / SPIN_DURATION));
+
+      // Ease-out polynomial: 1 - (1 - p)^3.4 (gradual, suspenseful deceleration)
+      const ease = 1 - Math.pow(1 - progress, 3.4);
+      const totalDelta = spinPlan.targetRotation - spinPlan.thetaStart;
+      const rot = spinPlan.thetaStart + totalDelta * ease;
+
+      // Knob crossing detection (knobs spaced every 22.5 deg along the rim)
+      const currentKnobIndex = Math.floor(rot / 22.5);
+      if (currentKnobIndex > lastKnobIndex) {
+        soundEngine.playWheelTick(settingsRef.current);
+        lastKnobIndex = currentKnobIndex;
+      }
+
+      // Pointer deflection physics:
+      // Inside each 22.5 deg sector, as knob approaches (offset 14.5 to 22.5 deg),
+      // the pointer deflects clockwise up to 14 deg, then snaps back as knob slips past.
+      const subAngle = rot % 22.5;
+      let needleDeflection = 0;
+      if (subAngle >= 14.5) {
+        needleDeflection = ((subAngle - 14.5) / 8.0) * 14;
+      } else if (subAngle < 4.0) {
+        needleDeflection = (1 - subAngle / 4.0) * -3;
+      }
+
+      setCurrentRotation(rot);
+      setPointerAngle(needleDeflection);
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      } else {
+        // Spin finished: lock precisely onto target rotation and zero out needle
+        setCurrentRotation(spinPlan.targetRotation);
+        setPointerAngle(0);
+        setIsSpinning(false);
+        setHasLanded(true);
+
+        if (spinPlan.succeeded) {
+          soundEngine.playConfirm(settingsRef.current);
+          triggerParticles?.('.mystery-wheel-stage', ['#10b981', '#ffd166', '#3b82f6', '#f59e0b']);
+        } else {
+          soundEngine.playError(settingsRef.current);
+          triggerParticles?.('.mystery-wheel-stage', ['#ef4444', '#b91c1c', '#7f1d1d']);
+        }
+
+        // Wait 3.2s on the stopped wheel before transitioning to the outcome screen
+        completeTimerRef.current = window.setTimeout(() => {
+          onSpinCompleteRef.current(spinPlan.succeeded);
+        }, 3200);
       }
     };
 
-    // Tiny timeout to allow initial render at thetaStart before triggering transition
-    const startTimer = window.setTimeout(() => {
-      if (isStopped) return;
-      setIsSpinning(true);
-      setCurrentRotation(spinPlan.targetRotation);
-      tick();
-    }, 60);
-
-    // Landing timer matching the 3.4s CSS transition
-    landTimerRef.current = window.setTimeout(() => {
-      if (isStopped) return;
-      isStopped = true;
-      setIsSpinning(false);
-      setHasLanded(true);
-
-      // Immediately clear and terminate audio ticks
-      if (audioIntervalRef.current) {
-        clearTimeout(audioIntervalRef.current);
-        audioIntervalRef.current = null;
-      }
-
-      if (spinPlan.succeeded) {
-        soundEngine.playConfirm(settingsRef.current);
-        triggerParticles?.('.mystery-wheel-stage', ['#10b981', '#ffd166', '#3b82f6', '#f59e0b']);
-      } else {
-        soundEngine.playError(settingsRef.current);
-        triggerParticles?.('.mystery-wheel-stage', ['#ef4444', '#b91c1c', '#7f1d1d']);
-      }
-
-      // Pause on the stopped wheel for 1.25s so the player clearly sees where the needle landed,
-      // then finish so the wheel disappears and is cleanly replaced by the outcome.
-      completeTimerRef.current = window.setTimeout(() => {
-        onSpinCompleteRef.current(spinPlan.succeeded);
-      }, 1250);
-    }, 3460);
+    const startTimeout = window.setTimeout(() => {
+      rafRef.current = requestAnimationFrame(step);
+    }, 80);
 
     return () => {
-      isStopped = true;
-      clearTimeout(startTimer);
-      if (landTimerRef.current) clearTimeout(landTimerRef.current);
-      if (audioIntervalRef.current) clearTimeout(audioIntervalRef.current);
+      clearTimeout(startTimeout);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
     };
   }, [spinPlan, triggerParticles]);
@@ -178,7 +189,13 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
 
       <div className="mystery-wheel-stage">
         {/* Stationary Pointer Needle at the Top */}
-        <div className={`mystery-wheel-pointer-wrapper ${isSpinning ? 'pointer-ticking' : ''}`}>
+        <div
+          className="mystery-wheel-pointer-wrapper"
+          style={{
+            transform: `translateX(-50%) rotate(${pointerAngle.toFixed(2)}deg)`,
+            transformOrigin: '50% 10px',
+          }}
+        >
           <svg width="34" height="42" viewBox="0 0 34 42" className="mystery-wheel-pointer-svg">
             <polygon
               points="17,38 4,8 30,8"
@@ -199,8 +216,7 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
           viewBox="0 0 280 280"
           className="mystery-wheel-svg"
           style={{
-            transform: `rotate(${currentRotation}deg)`,
-            transition: isSpinning ? 'transform 3.4s cubic-bezier(0.15, 0.85, 0.35, 1)' : 'none',
+            transform: `rotate(${currentRotation.toFixed(2)}deg)`,
           }}
         >
           <defs>
@@ -346,9 +362,7 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
               spinPlan.succeeded ? 'badge-success' : 'badge-failed'
             }`}
           >
-            {spinPlan.succeeded
-              ? `✨ ROLL SUCCEEDED! (${chance}% Chance)`
-              : `💥 ROLL FAILED (${100 - chance}% Risk)`}
+            {spinPlan.succeeded ? '✨ SUCCESS!' : '💥 FAILED!'}
           </span>
         )}
       </div>
