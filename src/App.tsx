@@ -243,7 +243,10 @@ export function App() {
   const [rewardCards, setRewardCards] = useState<CardInstance[]>([]);
   const [rewardRelics, setRewardRelics] = useState<RelicDefinition[]>([]);
   const [rewardGoldClaimed, setRewardGoldClaimed] = useState<number>(0);
-  const [campfireSubMode, setCampfireSubMode] = useState<'choose' | 'revise_select'>('choose');
+  const [campfireSubMode, setCampfireSubMode] = useState<
+    'choose' | 'revise_select' | 'revise_confirm'
+  >('choose');
+  const [campfireSelectedCard, setCampfireSelectedCard] = useState<CardInstance | null>(null);
   const [shopSubMode, setShopSubMode] = useState<'browse' | 'remove_select'>('browse');
   const [shopInventory, setShopInventory] = useState<ShopInventory | null>(null);
   const [activeEvent, setActiveEvent] = useState<MysteryEventDefinition | null>(null);
@@ -1472,6 +1475,7 @@ export function App() {
 
       if (node.type === 'campfire') {
         setCampfireSubMode('choose');
+        setCampfireSelectedCard(null);
         resetTypingBuffer(true);
         setScreen('campfire');
         return;
@@ -2517,6 +2521,7 @@ export function App() {
           soundEngine.playPageTurn(settings);
           triggerElementParticles(undefined, ['#d95d16', '#ffd166', '#137547'], 50, 66);
           setCampfireSubMode('revise_select');
+          setCampfireSelectedCard(null);
           resetTypingBuffer(true);
           return;
         }
@@ -2532,6 +2537,7 @@ export function App() {
       if (campfireSubMode === 'revise_select') {
         if (matchCommand(raw, ['back', 'return', 'cancel'], 'easy')) {
           setCampfireSubMode('choose');
+          setCampfireSelectedCard(null);
           resetTypingBuffer(true);
           return;
         }
@@ -2546,17 +2552,41 @@ export function App() {
         }));
         const evalUp = evaluateCandidates(raw, cands, difficulty);
         if (evalUp[0] && evalUp[0].isValidConfirm) {
-          soundEngine.playCardCast(settings);
+          soundEngine.playPageTurn(settings);
           const targetInst = evalUp[0].item;
+          setCampfireSelectedCard(targetInst);
+          setCampfireSubMode('revise_confirm');
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (campfireSubMode === 'revise_confirm') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'no'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setCampfireSubMode('revise_select');
+          setCampfireSelectedCard(null);
+          resetTypingBuffer(true);
+          return;
+        }
+        if (matchCommand(raw, ['confirm', 'upgrade', 'revise', 'yes'], difficulty)) {
+          if (!campfireSelectedCard) {
+            setCampfireSubMode('revise_select');
+            resetTypingBuffer(true);
+            return;
+          }
+          soundEngine.playCardCast(settings);
           triggerElementParticles(
-            `[data-card-id="${targetInst.instanceId}"]`,
+            undefined,
             ['#137547', '#ffd166', '#d95d16'],
-            50,
-            58
+            60,
+            75
           );
           setDeck((prev) =>
             prev.map((c) =>
-              c.instanceId === targetInst.instanceId ? { ...c, upgraded: true } : c
+              c.instanceId === campfireSelectedCard.instanceId ? { ...c, upgraded: true } : c
             )
           );
           advanceToMapNextFloor();
@@ -2863,6 +2893,7 @@ export function App() {
     availableMapNodes,
     biomePopupExpanded,
     biomePopupManual,
+    campfireSelectedCard,
     campfireSubMode,
     deck,
     difficulty,
@@ -3104,11 +3135,13 @@ export function App() {
       } else if (screen === 'campfire') {
         if (campfireSubMode === 'choose') {
           pool.push('rest', 'revise', 'skip');
-        } else {
+        } else if (campfireSubMode === 'revise_select') {
           deck
             .filter((c) => !c.upgraded)
             .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
           pool.push('back');
+        } else if (campfireSubMode === 'revise_confirm') {
+          pool.push('confirm', 'back');
         }
       } else if (screen === 'merchant' && shopInventory) {
         if (shopSubMode === 'remove_select') {
@@ -3158,6 +3191,7 @@ export function App() {
     availableMapNodes,
     biomePopupExpanded,
     biomePopupManual,
+    campfireSelectedCard,
     campfireSubMode,
     deck,
     difficulty,
@@ -4006,7 +4040,13 @@ export function App() {
             {/* 4. CAMPFIRE */}
             {screen === 'campfire' && (
               <div className="story-card paper-sheet-float">
-                <h2 className="story-title">Campfire</h2>
+                <h2 className="story-title">
+                  {campfireSubMode === 'choose'
+                    ? 'Campfire'
+                    : campfireSubMode === 'revise_select'
+                    ? 'Campfire — Select a Card to Revise (or type "back")'
+                    : 'Campfire — Confirm Card Revision'}
+                </h2>
                 {campfireSubMode === 'choose' ? (
                   <div className="choice-list">
                     {[
@@ -4026,6 +4066,56 @@ export function App() {
                         </div>
                       );
                     })}
+                  </div>
+                ) : campfireSubMode === 'revise_confirm' && campfireSelectedCard ? (
+                  <div className="campfire-upgrade-comparison">
+                    <div className="campfire-confirm-cards-row">
+                      <div className="campfire-card-preview-box">
+                        <div className="campfire-card-preview-tag base-tag">Current Version</div>
+                        <CardBanner
+                          instance={{ ...campfireSelectedCard, upgraded: false }}
+                          phraseDiff={phraseDiff}
+                          showUpgradeDelta={false}
+                        />
+                      </div>
+                      <div className="campfire-preview-arrow-box">
+                        <div className="campfire-arrow-icon">➔</div>
+                        <div className="campfire-arrow-text">Upgrades To</div>
+                      </div>
+                      <div className="campfire-card-preview-box">
+                        <div className="campfire-card-preview-tag upgraded-tag">Upgraded Version (+)</div>
+                        <CardBanner
+                          instance={{ ...campfireSelectedCard, upgraded: true }}
+                          phraseDiff={phraseDiff}
+                          showUpgradeDelta={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="campfire-confirm-prompt-panel">
+                      <p className="campfire-confirm-prompt-title">
+                        Confirm upgrading <strong>{resolveCardInstance(campfireSelectedCard, phraseDiff).name}</strong>?
+                      </p>
+                      <div className="choice-list campfire-confirm-choice-list">
+                        {[
+                          { cmd: 'confirm', desc: 'Permanently upgrade & proceed to next floor' },
+                          { cmd: 'back', desc: 'Choose a different card from your deck' },
+                        ].map((item) => {
+                          const st = getPhraseHighlightState(item.cmd, difficulty);
+                          return (
+                            <div
+                              key={item.cmd}
+                              className={`choice-item ${
+                                st.isHighlighted ? 'option-highlighted' : ''
+                              } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                            >
+                              <div className="phrase-to-type">{item.cmd}</div>
+                              <div>{item.desc}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="deck-banner-grid">

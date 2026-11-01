@@ -1689,6 +1689,110 @@ body,
   opacity: 0.48;
 }
 
+/* ==================== CAMPFIRE REVISION CONFIRMATION ==================== */
+.campfire-upgrade-comparison {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.campfire-confirm-cards-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.campfire-card-preview-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.campfire-card-preview-tag {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 14px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.campfire-card-preview-tag.base-tag {
+  background: #ede3cf;
+  color: #4b3621;
+  border: 1.5px solid #9c8265;
+}
+
+.campfire-card-preview-tag.upgraded-tag {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1.5px solid #059669;
+}
+
+.campfire-preview-arrow-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+}
+
+.campfire-arrow-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  color: #bc5215;
+  filter: drop-shadow(0 2px 4px rgba(188, 82, 21, 0.3));
+  animation: pulseArrow 1.8s ease-in-out infinite;
+}
+
+.campfire-arrow-text {
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-style: italic;
+  color: #8c521f;
+  margin-top: 4px;
+}
+
+@keyframes pulseArrow {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+.campfire-confirm-prompt-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.campfire-confirm-prompt-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #2b1e16;
+  margin: 0;
+  text-align: center;
+}
+
+.campfire-confirm-choice-list {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
 .phrase-to-type {
   font-size: 1.08rem;
   font-weight: 800;
