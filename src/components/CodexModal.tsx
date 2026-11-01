@@ -721,7 +721,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             <>
                               <div>{cardName}</div>
                               <div style={{ fontSize: '0.72rem', color: '#7c674d' }}>
-                                {c.cost}⚡ · {c.type}
+                                {c.xCost ? 'X' : c.cost}⚡ · {c.type}
                               </div>
                             </>
                           ) : (
@@ -902,7 +902,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                       <div className="inspector-description-box">
                         <div className="inspector-description-label">Card Details</div>
                         <div style={{ marginBottom: 6 }}>
-                          <strong>Cost:</strong> {c.cost} Energy (⚡)
+                          <strong>Cost:</strong> {c.xCost ? 'X (All remaining Energy)' : `${c.cost} Energy (⚡)`}
                         </div>
                         <div style={{ marginBottom: 6 }}>
                           <strong>Type:</strong> {c.type.toUpperCase()}

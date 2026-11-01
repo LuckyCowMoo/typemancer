@@ -537,11 +537,11 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Rest of combat: deal 3 damage to ALL enemies at the end of your turn.",
+    "description": "Gain 4 Thorns. Retaliates with 4 damage whenever an enemy attacks you.",
     "effects": [
       {
-        "type": "power_damage_all_each_turn",
-        "amount": 3
+        "type": "thorns",
+        "amount": 4
       }
     ],
     "art": {
@@ -555,11 +555,11 @@
         "medium": "barbed calligraphy nibs",
         "hard": "sow the ground with wickedly barbed calligraphy nibs"
       },
-      "description": "Rest of combat: deal 5 damage to ALL enemies at the end of your turn.",
+      "description": "Gain 6 Thorns. Retaliates with 6 damage whenever an enemy attacks you.",
       "effects": [
         {
-          "type": "power_damage_all_each_turn",
-          "amount": 5
+          "type": "thorns",
+          "amount": 6
         }
       ]
     }
@@ -734,11 +734,15 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Gain 6 Ward now. Rest of combat: whenever you play a card, gain 2 Ward.",
+    "description": "Gain 10 Ward and 4 Thorns. Rest of combat: whenever you play a card, gain 2 Ward.",
     "effects": [
       {
         "type": "ward",
-        "amount": 6
+        "amount": 10
+      },
+      {
+        "type": "thorns",
+        "amount": 4
       },
       {
         "type": "power_ward_on_card_play",
@@ -752,15 +756,19 @@
     },
     "upgrade": {
       "names": {
-        "easy": "titan press",
-        "medium": "world-shaking colophon",
-        "hard": "unleash the crushing momentum of a titan colophon"
+        "easy": "iron press",
+        "medium": "iron steam press",
+        "hard": "crush beneath the unyielding iron steam press"
       },
-      "description": "Gain 9 Ward now. Rest of combat: whenever you play a card, gain 3 Ward.",
+      "description": "Gain 14 Ward and 6 Thorns. Rest of combat: whenever you play a card, gain 3 Ward.",
       "effects": [
         {
           "type": "ward",
-          "amount": 9
+          "amount": 14
+        },
+        {
+          "type": "thorns",
+          "amount": 6
         },
         {
           "type": "power_ward_on_card_play",
@@ -879,15 +887,15 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Gain 7 Ward now. Rest of combat: gain 3 Ward at the start of each turn.",
+    "description": "Gain 8 Ward and 6 Plated Armor (Ward each turn, decays by 1).",
     "effects": [
       {
         "type": "ward",
-        "amount": 7
+        "amount": 8
       },
       {
-        "type": "power_ward_each_turn",
-        "amount": 3
+        "type": "plated_armor",
+        "amount": 6
       }
     ],
     "art": {
@@ -899,17 +907,17 @@
       "names": {
         "easy": "borders",
         "medium": "iron borders",
-        "hard": "hammer iron borders around every single page"
+        "hard": "hammer iron borders that grant nine plated armor"
       },
-      "description": "Gain 10 Ward now. Rest of combat: gain 5 Ward at the start of each turn.",
+      "description": "Gain 12 Ward and 9 Plated Armor (Ward each turn, decays by 1).",
       "effects": [
         {
           "type": "ward",
-          "amount": 10
+          "amount": 12
         },
         {
-          "type": "power_ward_each_turn",
-          "amount": 5
+          "type": "plated_armor",
+          "amount": 9
         }
       ]
     }
@@ -1400,7 +1408,7 @@
     "id": "prepare",
     "rarity": "common",
     "type": "skill",
-    "cost": 1,
+    "cost": 0,
     "target": "self",
     "names": {
       "easy": "index",
@@ -1412,15 +1420,15 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Gain 3 Ward and draw 2 cards.",
+    "description": "Draw 2 cards. Discard 1 card from your hand.",
     "effects": [
-      {
-        "type": "ward",
-        "amount": 3
-      },
       {
         "type": "draw",
         "amount": 2
+      },
+      {
+        "type": "discard",
+        "amount": 1
       }
     ],
     "art": {
@@ -1434,15 +1442,15 @@
         "medium": "master cross-reference",
         "hard": "consult the illuminated master cross-reference"
       },
-      "description": "Gain 5 Ward and draw 3 cards.",
+      "description": "Draw 3 cards. Discard 1 card from your hand.",
       "effects": [
-        {
-          "type": "ward",
-          "amount": 5
-        },
         {
           "type": "draw",
           "amount": 3
+        },
+        {
+          "type": "discard",
+          "amount": 1
         }
       ]
     }
@@ -1463,15 +1471,15 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 9 damage. Take 3 damage.",
+    "description": "Deal 10 damage. Discard 1 random card from your hand.",
     "effects": [
       {
         "type": "damage",
-        "amount": 9
+        "amount": 10
       },
       {
-        "type": "self_damage",
-        "amount": 3
+        "type": "discard_random",
+        "amount": 1
       }
     ],
     "art": {
@@ -1483,17 +1491,17 @@
       "names": {
         "easy": "breakneck",
         "medium": "breakneck paper charge",
-        "hard": "crash through the lines in a breakneck charge"
+        "hard": "crash through the lines in a breakneck reckless strike"
       },
-      "description": "Deal 13 damage. Take 2 damage.",
+      "description": "Deal 14 damage. Discard 1 random card from your hand.",
       "effects": [
         {
           "type": "damage",
-          "amount": 13
+          "amount": 14
         },
         {
-          "type": "self_damage",
-          "amount": 2
+          "type": "discard_random",
+          "amount": 1
         }
       ]
     }
@@ -1514,11 +1522,15 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Gain 13 Ward.",
+    "description": "Gain 8 Ward and 3 Plated Armor (Ward each turn, decays by 1).",
     "effects": [
       {
         "type": "ward",
-        "amount": 13
+        "amount": 8
+      },
+      {
+        "type": "plated_armor",
+        "amount": 3
       }
     ],
     "art": {
@@ -1528,15 +1540,19 @@
     },
     "upgrade": {
       "names": {
-        "easy": "iron clasp",
-        "medium": "iron-clasped ledger",
-        "hard": "lock your defenses behind an iron-clasped ledger"
+        "easy": "iron binding",
+        "medium": "steel corner binding",
+        "hard": "clamp immovable steel corners around your hardcover binding"
       },
-      "description": "Gain 17 Ward.",
+      "description": "Gain 11 Ward and 5 Plated Armor (Ward each turn, decays by 1).",
       "effects": [
         {
           "type": "ward",
-          "amount": 17
+          "amount": 11
+        },
+        {
+          "type": "plated_armor",
+          "amount": 5
         }
       ]
     }
@@ -1596,7 +1612,7 @@
     "id": "shadow_strike",
     "rarity": "common",
     "type": "attack",
-    "cost": 1,
+    "cost": 0,
     "target": "enemy",
     "names": {
       "easy": "shadow slash",
@@ -1608,11 +1624,11 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 9 damage.",
+    "description": "Deal 7 damage X times (scales with remaining Energy).",
     "effects": [
       {
         "type": "damage",
-        "amount": 9
+        "amount": 7
       }
     ],
     "art": {
@@ -1621,19 +1637,21 @@
       "shape": "diamond"
     },
     "upgrade": {
+      "xCost": true,
       "names": {
         "easy": "eclipse slash",
-        "medium": "eclipse pen stroke",
-        "hard": "cleave through armour with an eclipse pen stroke"
+        "medium": "eclipse needle flurry",
+        "hard": "pierce through defenses with an eclipse needle flurry"
       },
-      "description": "Deal 13 damage.",
+      "description": "Deal 10 damage X times (scales with remaining Energy).",
       "effects": [
         {
           "type": "damage",
-          "amount": 13
+          "amount": 10
         }
       ]
-    }
+    },
+    "xCost": true
   },
   {
     "id": "adrenaline",
@@ -1750,15 +1768,19 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 5 damage and apply 3 Ink Burn.",
+    "description": "Deal 7 damage. Draw 1 card and discard 1 card.",
     "effects": [
       {
         "type": "damage",
-        "amount": 5
+        "amount": 7
       },
       {
-        "type": "ink_burn",
-        "amount": 3
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "discard",
+        "amount": 1
       }
     ],
     "art": {
@@ -1770,17 +1792,21 @@
       "names": {
         "easy": "vellum gash",
         "medium": "serrated vellum gash",
-        "hard": "open a deep serrated vellum gash soaked in ink"
+        "hard": "open a deep serrated vellum gash and cycle your hand"
       },
-      "description": "Deal 7 damage and apply 5 Ink Burn.",
+      "description": "Deal 10 damage. Draw 1 card and discard 1 card.",
       "effects": [
         {
           "type": "damage",
-          "amount": 7
+          "amount": 10
         },
         {
-          "type": "ink_burn",
-          "amount": 5
+          "type": "draw",
+          "amount": 1
+        },
+        {
+          "type": "discard",
+          "amount": 1
         }
       ]
     }
@@ -1801,15 +1827,12 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 16 damage and heal 4 HP. Once per combat.",
+    "description": "Deal 8 damage 3 times (scales 3x with Bold). Once per combat.",
     "effects": [
       {
         "type": "damage",
-        "amount": 16
-      },
-      {
-        "type": "heal",
-        "amount": 4
+        "amount": 8,
+        "hits": 3
       }
     ],
     "burnDraft": true,
@@ -1822,17 +1845,14 @@
       "names": {
         "easy": "epilogue",
         "medium": "crimson epilogue",
-        "hard": "deliver the inescapable verdict of a crimson epilogue"
+        "hard": "deliver three devastating strikes of a crimson epilogue"
       },
-      "description": "Deal 22 damage and heal 6 HP. Once per combat.",
+      "description": "Deal 11 damage 3 times (scales 3x with Bold). Once per combat.",
       "effects": [
         {
           "type": "damage",
-          "amount": 22
-        },
-        {
-          "type": "heal",
-          "amount": 6
+          "amount": 11,
+          "hits": 3
         }
       ]
     }
@@ -1989,24 +2009,24 @@
     "cost": 1,
     "target": "enemy",
     "names": {
-      "easy": "sear",
-      "medium": "searing wax slash",
-      "hard": "slash with a blade coated in boiling sealing wax"
+      "easy": "quill parry",
+      "medium": "barbed quill parry",
+      "hard": "strike the enemy and raise a bristling guard of barbed quills"
     },
     "connectors": {
       "easy": "at",
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 8 damage and apply 2 Ink Burn.",
+    "description": "Deal 8 damage. Gain 3 Thorns (counter-damage when attacked).",
     "effects": [
       {
         "type": "damage",
         "amount": 8
       },
       {
-        "type": "ink_burn",
-        "amount": 2
+        "type": "thorns",
+        "amount": 3
       }
     ],
     "art": {
@@ -2016,19 +2036,19 @@
     },
     "upgrade": {
       "names": {
-        "easy": "molten sear",
-        "medium": "molten letterpress slash",
-        "hard": "cleave with the white-hot edge of a molten letterpress"
+        "easy": "razor parry",
+        "medium": "steel-barbed razor parry",
+        "hard": "impale the enemy and bristle with steel-barbed razor quills"
       },
-      "description": "Deal 11 damage and apply 4 Ink Burn.",
+      "description": "Deal 12 damage. Gain 5 Thorns (counter-damage when attacked).",
       "effects": [
         {
           "type": "damage",
-          "amount": 11
+          "amount": 12
         },
         {
-          "type": "ink_burn",
-          "amount": 4
+          "type": "thorns",
+          "amount": 5
         }
       ]
     }
@@ -2454,33 +2474,35 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Gain 12 Ward. Once per combat.",
+    "description": "Gain 7 Ward X times (scales with remaining Energy).",
     "effects": [
       {
         "type": "ward",
-        "amount": 12
+        "amount": 7
       }
     ],
-    "burnDraft": true,
+    "burnDraft": false,
     "art": {
       "primaryColor": "#1d4ed8",
       "secondaryColor": "#93c5fd",
       "shape": "shield"
     },
     "upgrade": {
+      "xCost": true,
       "names": {
         "easy": "vault lid",
         "medium": "lock the iron strongbox",
-        "hard": "seal yourself inside an iron-ribbed courier strongbox"
+        "hard": "seal yourself inside an iron-ribbed strongbox with all energy"
       },
-      "description": "Gain 17 Ward. Once per combat.",
+      "description": "Gain 10 Ward X times (scales with remaining Energy).",
       "effects": [
         {
           "type": "ward",
-          "amount": 17
+          "amount": 10
         }
       ]
-    }
+    },
+    "xCost": true
   },
   {
     "id": "draining_touch",
@@ -2609,11 +2631,11 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Take 3 damage. Gain 2 Energy. Once per combat.",
+    "description": "Discard 2 cards from your hand. Gain 2 Energy. Once per combat.",
     "effects": [
       {
-        "type": "self_damage",
-        "amount": 3
+        "type": "discard",
+        "amount": 2
       },
       {
         "type": "energy",
@@ -2629,18 +2651,18 @@
     "upgrade": {
       "names": {
         "easy": "pure focus",
-        "medium": "Laser-sharp editorial focus",
-        "hard": "channel every nerve into laser-sharp editorial focus"
+        "medium": "laser-sharp editorial focus",
+        "hard": "streamline your draft and unleash a surge of three energy"
       },
-      "description": "Take 1 damage. Gain 2 Energy. Once per combat.",
+      "description": "Discard 2 cards from your hand. Gain 3 Energy. Once per combat.",
       "effects": [
         {
-          "type": "self_damage",
-          "amount": 1
+          "type": "discard",
+          "amount": 2
         },
         {
           "type": "energy",
-          "amount": 2
+          "amount": 3
         }
       ]
     }
@@ -2850,15 +2872,15 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 13 damage. Take 2 damage.",
+    "description": "Deal 15 damage. Discard 1 card from your hand.",
     "effects": [
       {
         "type": "damage",
-        "amount": 13
+        "amount": 15
       },
       {
-        "type": "self_damage",
-        "amount": 2
+        "type": "discard",
+        "amount": 1
       }
     ],
     "art": {
@@ -2870,17 +2892,17 @@
       "names": {
         "easy": "platen crash",
         "medium": "overclocked platen crash",
-        "hard": "bring the entire steel platen crashing down in fury"
+        "hard": "bring down the steel platen with shattering force and discard a page"
       },
-      "description": "Deal 17 damage. Take 2 damage.",
+      "description": "Deal 20 damage. Discard 1 card from your hand.",
       "effects": [
         {
           "type": "damage",
-          "amount": 17
+          "amount": 20
         },
         {
-          "type": "self_damage",
-          "amount": 2
+          "type": "discard",
+          "amount": 1
         }
       ]
     }
@@ -2940,7 +2962,7 @@
     "id": "sweeping_blow",
     "rarity": "common",
     "type": "attack",
-    "cost": 1,
+    "cost": 0,
     "target": "all_enemies",
     "names": {
       "easy": "ribbon lash",
@@ -2952,11 +2974,11 @@
       "medium": "upon all",
       "hard": "sweeping across all"
     },
-    "description": "Deal 6 damage to ALL enemies.",
+    "description": "Deal 5 damage to ALL enemies X times (scales with remaining Energy).",
     "effects": [
       {
         "type": "damage",
-        "amount": 6,
+        "amount": 5,
         "target": "all_enemies"
       }
     ],
@@ -2966,20 +2988,22 @@
       "shape": "diamond"
     },
     "upgrade": {
+      "xCost": true,
       "names": {
         "easy": "razor ribbon",
         "medium": "razor-edged silk ribbon",
         "hard": "whip a razor-edged silk ribbon across every foe in sight"
       },
-      "description": "Deal 9 damage to ALL enemies.",
+      "description": "Deal 8 damage to ALL enemies X times (scales with remaining Energy).",
       "effects": [
         {
           "type": "damage",
-          "amount": 9,
+          "amount": 8,
           "target": "all_enemies"
         }
       ]
-    }
+    },
+    "xCost": true
   },
   {
     "id": "sunder",
@@ -3397,8 +3421,12 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Draw 4 cards. Once per combat.",
+    "description": "Discard 3 cards from your hand, then draw 4 cards. Once per combat.",
     "effects": [
+      {
+        "type": "discard",
+        "amount": 3
+      },
       {
         "type": "draw",
         "amount": 4
@@ -3414,17 +3442,17 @@
       "names": {
         "easy": "grand reshuffle",
         "medium": "master printer revision",
-        "hard": "pull five fresh proof-sheets straight from the press"
+        "hard": "discard two cards and pull five fresh proof-sheets straight from the press"
       },
-      "description": "Draw 5 cards and gain 3 Ward. Once per combat.",
+      "description": "Discard 2 cards from your hand, then draw 5 cards. Once per combat.",
       "effects": [
+        {
+          "type": "discard",
+          "amount": 2
+        },
         {
           "type": "draw",
           "amount": 5
-        },
-        {
-          "type": "ward",
-          "amount": 3
         }
       ]
     }
@@ -3445,11 +3473,15 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Draw 3 cards.",
+    "description": "Draw 3 cards. Discard 1 card from your hand.",
     "effects": [
       {
         "type": "draw",
         "amount": 3
+      },
+      {
+        "type": "discard",
+        "amount": 1
       }
     ],
     "art": {
@@ -3461,13 +3493,17 @@
       "names": {
         "easy": "speed read",
         "medium": "photographic page sweep",
-        "hard": "absorb four entire pages with a photographic sweep"
+        "hard": "absorb four fresh pages and discard the surplus"
       },
-      "description": "Draw 4 cards.",
+      "description": "Draw 4 cards. Discard 1 card from your hand.",
       "effects": [
         {
           "type": "draw",
           "amount": 4
+        },
+        {
+          "type": "discard",
+          "amount": 1
         }
       ]
     }
@@ -3488,11 +3524,19 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Gain 4 Ward.",
+    "description": "Gain 4 Ward. Draw 1 card and discard 1 card.",
     "effects": [
       {
         "type": "ward",
         "amount": 4
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "discard",
+        "amount": 1
       }
     ],
     "art": {
@@ -3502,15 +3546,23 @@
     },
     "upgrade": {
       "names": {
-        "easy": "hanging indent",
-        "medium": "deep hanging indent",
-        "hard": "slip untouched behind a fortified hanging indentation"
+        "easy": "feint",
+        "medium": "skilful typewriter feint",
+        "hard": "slip gracefully aside with a skilful typewriter feint"
       },
-      "description": "Gain 7 Ward.",
+      "description": "Gain 6 Ward. Draw 1 card and discard 1 card.",
       "effects": [
         {
           "type": "ward",
-          "amount": 7
+          "amount": 6
+        },
+        {
+          "type": "draw",
+          "amount": 1
+        },
+        {
+          "type": "discard",
+          "amount": 1
         }
       ]
     }
@@ -3606,7 +3658,7 @@
     "id": "final_draft",
     "rarity": "rare",
     "type": "attack",
-    "cost": 2,
+    "cost": 0,
     "target": "enemy",
     "names": {
       "easy": "final draft",
@@ -3618,11 +3670,11 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 28 damage. Once per combat.",
+    "description": "Deal 12 damage X times (scales with remaining Energy). Once per combat.",
     "effects": [
       {
         "type": "damage",
-        "amount": 28
+        "amount": 12
       }
     ],
     "burnDraft": true,
@@ -3632,19 +3684,21 @@
       "shape": "diamond"
     },
     "upgrade": {
+      "xCost": true,
       "names": {
         "easy": "magnum opus",
         "medium": "immortal magnum opus",
-        "hard": "unveil your legendary immortal magnum opus"
+        "hard": "unveil your legendary immortal magnum opus with all remaining energy"
       },
-      "description": "Deal 38 damage. Once per combat.",
+      "description": "Deal 16 damage X times (scales with remaining Energy). Once per combat.",
       "effects": [
         {
           "type": "damage",
-          "amount": 38
+          "amount": 16
         }
       ]
-    }
+    },
+    "xCost": true
   },
   {
     "id": "blank_page_sanctuary",

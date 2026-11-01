@@ -22,6 +22,8 @@ import eventsRaw from '../data/events.json';
 import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
 
+const CATALOG_SESSION_VERSION = 'v2_cards_rebalance';
+
 /**
  * Loads a catalog from sessionStorage if present (retaining user edits during the current browser session),
  * otherwise falling back to the raw JSON file bundled with the build.
@@ -29,6 +31,12 @@ import mapPhrasesRaw from '../data/map_phrases.json';
 function loadCatalogFromSession<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined' || !window.sessionStorage) return fallback;
   try {
+    const version = window.sessionStorage.getItem('typemancer_session_version');
+    if (version !== CATALOG_SESSION_VERSION) {
+      clearSessionCatalogs();
+      window.sessionStorage.setItem('typemancer_session_version', CATALOG_SESSION_VERSION);
+      return fallback;
+    }
     const raw = window.sessionStorage.getItem(`typemancer_session_${key}`);
     if (raw) {
       const parsed = JSON.parse(raw);
