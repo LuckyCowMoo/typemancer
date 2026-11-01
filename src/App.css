@@ -317,7 +317,7 @@ body,
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .cabinet-top-header {
@@ -391,7 +391,7 @@ body,
   justify-content: center;
   align-items: center;
   position: relative;
-  overflow: hidden !important;
+  overflow: visible !important;
   padding: 8px 0;
   box-sizing: border-box;
 }
@@ -412,12 +412,6 @@ body,
   color: #162229;
   box-shadow: 2px 3px 8px rgba(13, 27, 34, 0.22);
   box-sizing: border-box;
-}
-
-.card-tab:hover {
-  z-index: 100 !important;
-  transform: translateX(18px) scale(1.03);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
 }
 
 .card-corner-inlet {
@@ -559,31 +553,31 @@ body,
 /* Tier 1 Highlight: Prefix match while typing */
 .card-tab-highlighted {
   z-index: 100 !important;
-  transform: translateX(18px) scale(1.03);
+  transform: translateX(22px) scale(1.03);
   background-color: #ffd166 !important;
   color: #162229 !important;
   border-color: #b45309;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55) !important;
 }
 
 /* Tier 2 Enter-Ready Highlight: Pressing Enter right now selects this card! Different colour + slightly enlarged */
 .card-tab-enter-ready {
   z-index: 100 !important;
-  transform: translateX(20px) scale(1.05) !important;
+  transform: translateX(26px) scale(1.05) !important;
   background-color: #2ec4b6 !important;
   color: #072227 !important;
   border-color: #0b4f4a !important;
   border-width: 3px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
 }
 
 .card-tab-selected {
   z-index: 100 !important;
-  transform: translateX(20px) scale(1.05);
+  transform: translateX(26px) scale(1.05);
   background-color: #2ec4b6 !important;
   color: #072227 !important;
   border-color: #0b4f4a;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
 }
 
 .card-tab-inner {

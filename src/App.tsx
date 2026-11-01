@@ -3092,7 +3092,7 @@ export function App() {
       {screen === 'battle' && (
         <div key="scene-battle" className="battle-layout scene-page-transition">
           {/* LEFT COLUMN: Stacked Paper Card Cabinet */}
-          <aside className="cards-column" aria-label="Player Hand">
+          <aside className="cards-column" aria-label="Player Hand" onWheel={(e) => e.stopPropagation()}>
             {/* Top Cabinet Header: Energy Plaque + WPM Meter */}
             <div className="cabinet-top-header">
               <div className="cabinet-energy-plaque">
