@@ -549,6 +549,86 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
   // ==================== CARD HELPERS ====================
   const activeCard = cardsList[selectedCardIdx] || cardsList[0];
 
+  // Memoized card list sorted in the exact visual sequence of the GUI sidebar:
+  // Categorized (Attack -> Defence -> Skill -> Debuff -> Power),
+  // then sorted ascending by Rarity (Starter -> Common -> Uncommon -> Rare),
+  // and filtered by any active search query.
+  const orderedGuiCards = useMemo(() => {
+    const CARD_CATEGORY_KEYS: CardVisualCategory[] = [
+      'attack',
+      'defence',
+      'skill',
+      'debuff',
+      'power',
+    ];
+    const RARITY_ORDER: Record<string, number> = {
+      starter: 0,
+      common: 1,
+      uncommon: 2,
+      rare: 3,
+    };
+
+    const q = searchQuery.toLowerCase().trim();
+    const matched = cardsList
+      .map((card, originalIndex) => ({ card, originalIndex }))
+      .filter(({ card }) => {
+        if (!q) return true;
+        return (
+          card.id.toLowerCase().includes(q) ||
+          card.names.easy.toLowerCase().includes(q) ||
+          card.names.medium.toLowerCase().includes(q) ||
+          card.description.toLowerCase().includes(q)
+        );
+      });
+
+    const groups: Record<
+      CardVisualCategory,
+      Array<{ card: CardDefinition; originalIndex: number }>
+    > = {
+      attack: [],
+      defence: [],
+      skill: [],
+      debuff: [],
+      power: [],
+    };
+
+    for (const item of matched) {
+      const cat = getCardVisualCategory(item.card as any);
+      if (groups[cat]) {
+        groups[cat].push(item);
+      } else {
+        groups.skill.push(item);
+      }
+    }
+
+    const result: Array<{
+      card: CardDefinition;
+      originalIndex: number;
+      category: CardVisualCategory;
+    }> = [];
+
+    for (const cat of CARD_CATEGORY_KEYS) {
+      const catCards = groups[cat] || [];
+      const sorted = [...catCards].sort(
+        (a, b) =>
+          (RARITY_ORDER[a.card.rarity] ?? 99) -
+          (RARITY_ORDER[b.card.rarity] ?? 99)
+      );
+      for (const item of sorted) {
+        result.push({ ...item, category: cat });
+      }
+    }
+
+    return result;
+  }, [cardsList, searchQuery]);
+
+  const activeCardGuiIdx = useMemo(() => {
+    const idx = orderedGuiCards.findIndex(
+      (item) => item.originalIndex === selectedCardIdx
+    );
+    return idx !== -1 ? idx : 0;
+  }, [orderedGuiCards, selectedCardIdx]);
+
   const updateActiveCard = (updater: (c: CardDefinition) => CardDefinition) => {
     setCardsList((prev) =>
       prev.map((item, idx) => (idx === selectedCardIdx ? updater({ ...item }) : item))
@@ -1555,55 +1635,10 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                   'debuff',
                   'power',
                 ];
-                const RARITY_ORDER: Record<string, number> = {
-                  starter: 0,
-                  common: 1,
-                  uncommon: 2,
-                  rare: 3,
-                };
-
-                const q = searchQuery.toLowerCase().trim();
-                const matchedCards = cardsList
-                  .map((card, originalIndex) => ({ card, originalIndex }))
-                  .filter(({ card }) => {
-                    if (!q) return true;
-                    return (
-                      card.id.toLowerCase().includes(q) ||
-                      card.names.easy.toLowerCase().includes(q) ||
-                      card.names.medium.toLowerCase().includes(q) ||
-                      card.description.toLowerCase().includes(q)
-                    );
-                  });
-
-                const groups: Record<
-                  CardVisualCategory,
-                  Array<{ card: CardDefinition; originalIndex: number }>
-                > = {
-                  attack: [],
-                  defence: [],
-                  skill: [],
-                  debuff: [],
-                  power: [],
-                };
-
-                for (const item of matchedCards) {
-                  const cat = getCardVisualCategory(item.card as any);
-                  if (groups[cat]) {
-                    groups[cat].push(item);
-                  } else {
-                    groups.skill.push(item);
-                  }
-                }
 
                 return CARD_CATEGORY_KEYS.map((cat) => {
-                  const catCards = groups[cat];
-                  if (!catCards || catCards.length === 0) return null;
-
-                  const sortedCards = [...catCards].sort(
-                    (a, b) =>
-                      (RARITY_ORDER[a.card.rarity] ?? 99) -
-                      (RARITY_ORDER[b.card.rarity] ?? 99)
-                  );
+                  const catCards = orderedGuiCards.filter((item) => item.category === cat);
+                  if (catCards.length === 0) return null;
 
                   return (
                     <React.Fragment key={cat}>
@@ -1611,7 +1646,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                         <span>{CARD_CATEGORY_LABELS[cat]}</span>
                         <span className="dev-card-cat-count">{catCards.length}</span>
                       </div>
-                      {sortedCards.map(({ card, originalIndex }) => {
+                      {catCards.map(({ card, originalIndex }) => {
                         const theme = getCardColorTheme(cat, card.rarity);
                         return (
                           <button
@@ -1712,7 +1747,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
           <main className="dev-detail-pane" ref={detailPaneRef}>
             <div className="dev-section-header">
               <h2>
-                ✏️ Editing Card #{selectedCardIdx + 1} of {cardsList.length}:{' '}
+                ✏️ Editing Card #{activeCardGuiIdx + 1} of {orderedGuiCards.length}:{' '}
                 <span style={{ color: '#bc5215' }}>{activeCard.names.easy}</span>
                 {(() => {
                   const activeCat = getCardVisualCategory(activeCard as any);
@@ -1744,18 +1779,24 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                 <button
                   type="button"
                   className="dev-btn dev-btn-secondary"
-                  disabled={selectedCardIdx <= 0}
-                  onClick={() => setSelectedCardIdx((i) => Math.max(0, i - 1))}
+                  disabled={activeCardGuiIdx <= 0}
+                  onClick={() => {
+                    const prev = orderedGuiCards[activeCardGuiIdx - 1];
+                    if (prev) setSelectedCardIdx(prev.originalIndex);
+                  }}
+                  title="Navigate to previous card in the GUI list"
                 >
                   ◀ Prev Card
                 </button>
                 <button
                   type="button"
                   className="dev-btn dev-btn-secondary"
-                  disabled={selectedCardIdx >= cardsList.length - 1}
-                  onClick={() =>
-                    setSelectedCardIdx((i) => Math.min(cardsList.length - 1, i + 1))
-                  }
+                  disabled={activeCardGuiIdx >= orderedGuiCards.length - 1}
+                  onClick={() => {
+                    const next = orderedGuiCards[activeCardGuiIdx + 1];
+                    if (next) setSelectedCardIdx(next.originalIndex);
+                  }}
+                  title="Navigate to next card in the GUI list"
                 >
                   Next Card ▶
                 </button>
