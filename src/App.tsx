@@ -12,6 +12,7 @@ import type { CodexTab } from './components/CodexModal';
 import { DevJsonEditor } from './components/DevJsonEditor';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
 import { MAP_NODE_STYLES, ScrollableMap } from './components/ScrollableMap';
+import { TypingConsoleDisplay } from './components/TypingConsoleDisplay';
 import type {
   ActiveEnemy,
   ActivePower,
@@ -3285,15 +3286,11 @@ export function App() {
   };
 
   const renderTypingInputWithCaret = () => (
-    <span className="sentence-live-input">
-      {typedInput}
-      <span className="typing-caret" aria-hidden="true" />
-      {ghostAutocompleteSuffix && (
-        <span className="typing-ghost-autocomplete" aria-hidden="true">
-          {ghostAutocompleteSuffix}
-        </span>
-      )}
-    </span>
+    <TypingConsoleDisplay
+      typedInput={typedInput}
+      ghostAutocompleteSuffix={ghostAutocompleteSuffix}
+      className="modal-embedded-input"
+    />
   );
 
   const formatEffectsTokens = (eff?: MysteryEffects): string[] => {
@@ -3737,24 +3734,25 @@ export function App() {
 
             {/* BOTTOM ROW: Clean Typing Bar */}
             <section className="typing-console-box">
-              <div className="typing-sentence-display">
-                {selectedCardResolved ? (
-                  <>
-                    <span className="sentence-locked-card">"{selectedCardResolved.name}"</span>
-                    <span className="sentence-connector">
-                      {' '}
-                      -{selectedCardResolved.connector}-{' '}
-                      {(selectedCardResolved.target === 'self' ||
-                        selectedCardResolved.target === 'all_enemies') && (
-                        <span className="sentence-enter-hint">(Press Enter) </span>
-                      )}
-                    </span>
-                    {renderTypingInputWithCaret()}
-                  </>
-                ) : (
-                  renderTypingInputWithCaret()
-                )}
-              </div>
+              <TypingConsoleDisplay
+                prefix={
+                  selectedCardResolved ? (
+                    <>
+                      <span className="sentence-locked-card">"{selectedCardResolved.name}"</span>
+                      <span className="sentence-connector">
+                        {' '}
+                        -{selectedCardResolved.connector}-{' '}
+                        {(selectedCardResolved.target === 'self' ||
+                          selectedCardResolved.target === 'all_enemies') && (
+                          <span className="sentence-enter-hint">(Press Enter) </span>
+                        )}
+                      </span>
+                    </>
+                  ) : undefined
+                }
+                typedInput={typedInput}
+                ghostAutocompleteSuffix={ghostAutocompleteSuffix}
+              />
             </section>
           </main>
         </div>
@@ -4248,9 +4246,10 @@ export function App() {
 
           {/* Clean Bottom Typing Console */}
           <footer className="typing-console-box narrative-console">
-            <div className="typing-sentence-display">
-              {renderTypingInputWithCaret()}
-            </div>
+            <TypingConsoleDisplay
+              typedInput={typedInput}
+              ghostAutocompleteSuffix={ghostAutocompleteSuffix}
+            />
           </footer>
         </div>
       )}
