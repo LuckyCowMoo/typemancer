@@ -6,6 +6,7 @@ import type {
   BattleEnvironmentDefinition,
   RelicDefinition,
   CardInstance,
+  ActiveEnemy,
 } from '../types/game';
 import type { CodexDiscoveryState } from '../utils/codexEngine';
 import {
@@ -16,6 +17,8 @@ import {
 } from '../utils/gameContent';
 import { CardBanner, getCardVisualCategory } from './CardBanner';
 import { renderHighlightedCardText } from '../utils/textHighlight';
+import { IntentBadge } from './EntitySprite';
+import { describeEnemyIntentInEnglish } from '../utils/statusCatalog';
 
 export type CodexTab = 'monsters' | 'cards' | 'environments' | 'relics';
 
@@ -32,6 +35,8 @@ export interface CodexModalProps {
     diffOverride?: Difficulty
   ) => { isHighlighted: boolean; isEnterReady: boolean };
   renderTypingInputWithCaret: () => React.ReactNode;
+  activeEnemyInstance?: ActiveEnemy | null;
+  playerExposed?: number;
 }
 
 function formatFaction(faction: string): string {
@@ -60,6 +65,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
   discovery,
   getPhraseHighlightState,
   renderTypingInputWithCaret,
+  activeEnemyInstance,
+  playerExposed = 0,
 }) => {
   const gridContainerRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +76,16 @@ export const CodexModal: React.FC<CodexModalProps> = ({
       gridContainerRef.current.scrollTop = scrollOffset;
     }
   }, [scrollOffset]);
+
+  // Smooth scroll selected item into view in the grid pane
+  useEffect(() => {
+    if (selectedId && gridContainerRef.current) {
+      const el = gridContainerRef.current.querySelector('.codex-entry-card.is-selected');
+      if (el) {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }, [selectedId, activeTab]);
 
   // Tab counts
   const tabCounts = useMemo(() => {
@@ -136,7 +153,16 @@ export const CodexModal: React.FC<CodexModalProps> = ({
     if (activeTab === 'monsters') {
       if (selectedId) {
         const found = ENEMIES_CATALOG.find((e) => e.id === selectedId);
-        if (found && discovery.enemies.includes(found.id)) return found;
+        if (
+          found &&
+          (discovery.enemies.includes(found.id) || activeEnemyInstance?.enemyId === found.id)
+        ) {
+          return found;
+        }
+      }
+      if (activeEnemyInstance) {
+        const liveEnemy = ENEMIES_CATALOG.find((e) => e.id === activeEnemyInstance.enemyId);
+        if (liveEnemy) return liveEnemy;
       }
       return ENEMIES_CATALOG.find((e) => discovery.enemies.includes(e.id)) || null;
     }
@@ -162,7 +188,17 @@ export const CodexModal: React.FC<CodexModalProps> = ({
       return RELICS_CATALOG.find((r) => discovery.relics.includes(r.id)) || null;
     }
     return null;
-  }, [activeTab, selectedId, discovery]);
+  }, [activeTab, selectedId, discovery, sortedCards, activeEnemyInstance]);
+
+  // Determine whether to display the dedicated live combat status side panel
+  const showEnemyStatusSidePanel =
+    activeTab === 'monsters' &&
+    Boolean(activeEnemyInstance) &&
+    Boolean(
+      currentInspectItem &&
+        'id' in currentInspectItem &&
+        currentInspectItem.id === activeEnemyInstance?.enemyId
+    );
 
   // Helper to test if typing matches any name pool of an enemy
   const checkMonsterHighlight = (en: EnemyDefinition) => {
@@ -210,6 +246,11 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           padding: 14px;
           box-sizing: border-box;
           overflow: hidden;
+          transition: max-width 0.2s ease;
+        }
+
+        .codex-cabinet-frame.has-side-panel {
+          max-width: 1260px;
         }
 
         .codex-parchment-sheet {
@@ -317,6 +358,12 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           padding: 16px;
           border-right: 2px solid #2b1e16;
           box-sizing: border-box;
+          transition: flex 0.2s ease;
+        }
+
+        .codex-grid-pane.compact-grid {
+          flex: 1 1 32%;
+          min-width: 220px;
         }
 
         .codex-entry-grid {
@@ -416,6 +463,49 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: flex;
           flex-direction: column;
           gap: 14px;
+          transition: width 0.2s ease, flex 0.2s ease;
+        }
+
+        .codex-inspector-pane.compact-inspector {
+          flex: 0 0 340px;
+          width: 340px;
+          padding: 16px;
+          border-right: 2px solid #2b1e16;
+        }
+
+        /* Far-Right Combat Status Side Panel */
+        .codex-combat-side-pane {
+          flex: 0 0 350px;
+          width: 350px;
+          background: #faf2e4;
+          padding: 18px 16px;
+          overflow-y: auto;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          border-left: 2px solid #2b1e16;
+        }
+
+        .combat-card-section {
+          background: #ffffff;
+          border: 2px solid #2b1e16;
+          border-radius: 10px;
+          padding: 12px 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          box-shadow: 0 2px 6px rgba(43, 30, 22, 0.06);
+        }
+
+        .combat-status-badge-item {
+          background: #f8fafc;
+          border: 1.5px solid #2b1e16;
+          border-radius: 8px;
+          padding: 7px 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
         }
 
         .inspector-header {
@@ -635,7 +725,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
         }
       `}</style>
 
-      <div className="codex-cabinet-frame">
+      <div className={`codex-cabinet-frame ${showEnemyStatusSidePanel ? 'has-side-panel' : ''}`}>
         <div className="codex-parchment-sheet">
           {/* Header Bar with Tabs */}
           <div className="codex-header-bar">
@@ -671,14 +761,19 @@ export const CodexModal: React.FC<CodexModalProps> = ({
             </div>
           </div>
 
-          {/* Two-Pane Body */}
+          {/* Two/Three-Pane Body */}
           <div className="codex-main-body">
             {/* Left/Main Grid */}
-            <div className="codex-grid-pane" ref={gridContainerRef}>
+            <div
+              className={`codex-grid-pane ${showEnemyStatusSidePanel ? 'compact-grid' : ''}`}
+              ref={gridContainerRef}
+            >
               <div className="codex-entry-grid">
                 {activeTab === 'monsters' &&
                   ENEMIES_CATALOG.map((en) => {
-                    const isDiscovered = discovery.enemies.includes(en.id);
+                    const isDiscovered =
+                      discovery.enemies.includes(en.id) ||
+                      activeEnemyInstance?.enemyId === en.id;
                     const primaryName = en.namePools[phraseDiff]?.[0] || en.namePools.easy[0];
                     const highlight = isDiscovered
                       ? checkMonsterHighlight(en)
@@ -863,7 +958,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
             </div>
 
             {/* Right Inspector Panel */}
-            <div className="codex-inspector-pane">
+            <div className={`codex-inspector-pane ${showEnemyStatusSidePanel ? 'compact-inspector' : ''}`}>
               {!currentInspectItem ? (
                 <div className="inspector-empty-state">
                   <span>✨</span>
@@ -1022,6 +1117,271 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 })()
               ) : null}
             </div>
+
+            {/* Right Combat Status Side Panel (when inspecting active enemy in battle) */}
+            {showEnemyStatusSidePanel && activeEnemyInstance && (
+              <div className="codex-combat-side-pane">
+                <div className="inspector-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: '1.05rem' }}>⚔️</span>
+                    <span className="inspector-section-tag" style={{ color: '#b45309' }}>
+                      Combat Status
+                    </span>
+                  </div>
+                  <span
+                    className="inspector-meta-pill"
+                    style={{
+                      background: '#fee2e2',
+                      color: '#991b1b',
+                      borderColor: '#f87171',
+                      fontWeight: 800,
+                    }}
+                  >
+                    Active Foe
+                  </span>
+                </div>
+
+                {/* Live Vitality (HP & Ward) */}
+                <div className="combat-card-section">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontWeight: 800, fontSize: '1rem', color: '#102027' }}>
+                      {activeEnemyInstance.displayName}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.74rem',
+                        color: '#7c674d',
+                        fontWeight: 700,
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {formatFaction(activeEnemyInstance.faction)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        marginBottom: 3,
+                        color: '#162229',
+                      }}
+                    >
+                      <span>Vitality (HP)</span>
+                      <span>
+                        {activeEnemyInstance.hp} / {activeEnemyInstance.maxHp}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        width: '100%',
+                        height: 12,
+                        background: '#f1f5f9',
+                        border: '1.5px solid #2b1e16',
+                        borderRadius: 999,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${Math.max(
+                            0,
+                            Math.min(100, (activeEnemyInstance.hp / activeEnemyInstance.maxHp) * 100)
+                          )}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #ef4444, #dc2626)',
+                          transition: 'width 0.2s ease',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {activeEnemyInstance.ward > 0 && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        background: '#e0f2fe',
+                        border: '1.5px solid #0284c7',
+                        borderRadius: 6,
+                        padding: '4px 8px',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        color: '#0369a1',
+                      }}
+                    >
+                      <span>🛡️</span>
+                      <span>Ward: {activeEnemyInstance.ward} (Blocks attack damage)</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upcoming Intent */}
+                <div className="combat-card-section">
+                  <div className="inspector-description-label">Upcoming Turn Intent</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <IntentBadge
+                      intent={activeEnemyInstance.currentMove.intent}
+                      damage={activeEnemyInstance.currentMove.damage}
+                      hits={activeEnemyInstance.currentMove.hits}
+                      ward={activeEnemyInstance.currentMove.ward}
+                      heal={activeEnemyInstance.currentMove.heal}
+                    />
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#162229', lineHeight: 1.35 }}>
+                      {describeEnemyIntentInEnglish(activeEnemyInstance, playerExposed)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Status Effects */}
+                {(() => {
+                  const statusList: {
+                    id: string;
+                    name: string;
+                    icon: string;
+                    color: string;
+                    value: number;
+                    text: string;
+                  }[] = [];
+
+                  if (activeEnemyInstance.ward > 0) {
+                    statusList.push({
+                      id: 'ward',
+                      name: 'Ward',
+                      icon: '🛡️',
+                      color: '#1d6fa5',
+                      value: activeEnemyInstance.ward,
+                      text: `Prevents up to ${activeEnemyInstance.ward} attack damage this turn.`,
+                    });
+                  }
+                  if (activeEnemyInstance.statuses.bold > 0) {
+                    statusList.push({
+                      id: 'bold',
+                      name: 'Bold',
+                      icon: '⚔️',
+                      color: '#d97706',
+                      value: activeEnemyInstance.statuses.bold,
+                      text: `Attacks deal +${activeEnemyInstance.statuses.bold} extra damage.`,
+                    });
+                  }
+                  if (activeEnemyInstance.statuses.faded > 0) {
+                    statusList.push({
+                      id: 'faded',
+                      name: 'Faded',
+                      icon: '🌫️',
+                      color: '#64748b',
+                      value: activeEnemyInstance.statuses.faded,
+                      text: `Weakened: deals 25% less attack damage (${activeEnemyInstance.statuses.faded} turns left).`,
+                    });
+                  }
+                  if (activeEnemyInstance.statuses.exposed > 0) {
+                    statusList.push({
+                      id: 'exposed',
+                      name: 'Exposed',
+                      icon: '💥',
+                      color: '#be123c',
+                      value: activeEnemyInstance.statuses.exposed,
+                      text: `Vulnerable: takes 50% more damage from attacks (${activeEnemyInstance.statuses.exposed} turns left).`,
+                    });
+                  }
+                  if (activeEnemyInstance.statuses.ink_burn > 0) {
+                    statusList.push({
+                      id: 'ink_burn',
+                      name: 'Ink Burn',
+                      icon: '✒️',
+                      color: '#6d28d9',
+                      value: activeEnemyInstance.statuses.ink_burn,
+                      text: `Takes ${activeEnemyInstance.statuses.ink_burn} damage at start of turn, then decreases by 1.`,
+                    });
+                  }
+                  if (activeEnemyInstance.statuses.plated_armor > 0) {
+                    statusList.push({
+                      id: 'plated_armor',
+                      name: 'Plated Armor',
+                      icon: '🛡️',
+                      color: '#2563eb',
+                      value: activeEnemyInstance.statuses.plated_armor,
+                      text: `Gains ${activeEnemyInstance.statuses.plated_armor} Ward at turn start, then decreases by 1.`,
+                    });
+                  }
+                  if (activeEnemyInstance.statuses.thorns > 0) {
+                    statusList.push({
+                      id: 'thorns',
+                      name: 'Thorns',
+                      icon: '🌵',
+                      color: '#059669',
+                      value: activeEnemyInstance.statuses.thorns,
+                      text: `Deals ${activeEnemyInstance.statuses.thorns} counter damage when attacked.`,
+                    });
+                  }
+
+                  return (
+                    <div className="combat-card-section">
+                      <div className="inspector-description-label">
+                        Active Status Effects ({statusList.length})
+                      </div>
+
+                      {statusList.length === 0 ? (
+                        <div
+                          style={{
+                            fontSize: '0.82rem',
+                            fontStyle: 'italic',
+                            color: '#7c674d',
+                            padding: '4px 0',
+                          }}
+                        >
+                          No active status effects or afflictions.
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {statusList.map((st) => (
+                            <div
+                              key={st.id}
+                              className="combat-status-badge-item"
+                              style={{ borderColor: st.color }}
+                            >
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <span style={{ fontWeight: 800, fontSize: '0.82rem', color: st.color }}>
+                                  {st.icon} {st.name} ({st.value})
+                                </span>
+                              </div>
+                              <div style={{ fontSize: '0.74rem', color: '#334155', lineHeight: 1.35 }}>
+                                {st.text}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <div
+                  style={{
+                    background: '#eadfce',
+                    border: '1.5px solid #2b1e16',
+                    borderRadius: 8,
+                    padding: '8px 10px',
+                    fontSize: '0.76rem',
+                    fontWeight: 600,
+                    color: '#2b1e16',
+                    textAlign: 'center',
+                  }}
+                >
+                  Type <code>back</code> to return to battle, or type another foe's name.
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer Prompt Bar */}
