@@ -3119,27 +3119,49 @@ export function App() {
               )}
             </div>
 
-            {/* Hand Cards Centered in Cabinet Frame */}
-            <div className={`cards-stack hand-anim-${handAnimState}`}>
-              {sortedHandCandidates.map(({ item, resolved }, idx) => {
-                const isSelected = selectedCard?.instanceId === item.instanceId;
-                const isHighlighted = highlightedCardIds.has(item.instanceId);
-                const isEnterReady = enterReadyCardId === item.instanceId;
-                const canAfford = energy >= resolved.cost;
-                return (
-                  <CardBanner
-                    key={item.instanceId}
-                    instance={item}
-                    phraseDiff={phraseDiff}
-                    index={idx}
-                    isHighlighted={isHighlighted}
-                    isEnterCandidate={isEnterReady}
-                    isSelected={isSelected}
-                    isUnaffordable={!canAfford}
-                  />
-                );
-              })}
-            </div>
+            {/* Hand Cards Centered in Cabinet Frame with Dynamic Stacking */}
+            {(() => {
+              const handCount = sortedHandCandidates.length;
+              // Base card height is ~112px. Available stack height is ~calc(100vh - 160px).
+              // When handCount is small (1 to 4 cards), overlap is 0 (or slight gap).
+              // When handCount >= 5, card below overlaps bottom of card above:
+              const overlap = Math.min(
+                68,
+                Math.max(0, Math.ceil((handCount * 112 - 520) / Math.max(1, handCount - 1)))
+              );
+
+              return (
+                <div
+                  className={`cards-stack hand-anim-${handAnimState}`}
+                  style={{
+                    justifyContent: overlap === 0 ? 'space-evenly' : 'center',
+                  }}
+                >
+                  {sortedHandCandidates.map(({ item, resolved }, idx) => {
+                    const isSelected = selectedCard?.instanceId === item.instanceId;
+                    const isHighlighted = highlightedCardIds.has(item.instanceId);
+                    const isEnterReady = enterReadyCardId === item.instanceId;
+                    const canAfford = energy >= resolved.cost;
+                    return (
+                      <CardBanner
+                        key={item.instanceId}
+                        instance={item}
+                        phraseDiff={phraseDiff}
+                        index={idx}
+                        isHighlighted={isHighlighted}
+                        isEnterCandidate={isEnterReady}
+                        isSelected={isSelected}
+                        isUnaffordable={!canAfford}
+                        style={{
+                          marginTop: idx === 0 ? 0 : `-${overlap}px`,
+                          zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
             {/* Cabinet Footer */}
             <div className="cards-footer-box">
@@ -3235,25 +3257,27 @@ export function App() {
               {/* Player Entity */}
               <div className="player-spot paper-sway-slow" data-player-spot="true">
                 <div className="entity-name-label">{playerName}</div>
-                <div className="hp-shield-row">
-                  <div className={`hp-bar-frame player-hp-bar ${playerWard > 0 ? 'has-ward' : ''}`}>
-                    <div
-                      className="hp-bar-fill"
-                      style={{ width: `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%` }}
-                    />
-                    <span className="hp-bar-text">
-                      {hp}/{maxHp}
-                    </span>
-                  </div>
-                  {playerWard > 0 && (
-                    <div
-                      className="shield-extension-bar"
-                      style={{ width: `${Math.min(90, Math.max(34, 24 + playerWard * 3))}px` }}
-                      title={`Ward: ${playerWard}`}
-                    >
-                      <span className="shield-extension-text">🛡 {playerWard}</span>
+                <div className="hp-shield-row hp-shield-scroll">
+                  <div className="hp-shield-trough">
+                    <div className={`hp-bar-frame player-hp-bar ${playerWard > 0 ? 'has-ward' : ''}`}>
+                      <div
+                        className="hp-bar-fill"
+                        style={{ width: `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%` }}
+                      />
+                      <span className="hp-bar-text">
+                        {hp}/{maxHp}
+                      </span>
                     </div>
-                  )}
+                    {playerWard > 0 && (
+                      <div
+                        className="shield-extension-bar"
+                        style={{ width: `${Math.min(90, Math.max(34, 24 + playerWard * 3))}px` }}
+                        title={`Ward: ${playerWard}`}
+                      >
+                        <span className="shield-extension-text">🛡 {playerWard}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="floating-popups-anchor">
@@ -3334,27 +3358,29 @@ export function App() {
                       } ${isTargetEnterReady ? 'enemy-spot-enter-ready' : ''}`}
                     >
                       <div className="entity-name-label enemy-name-label">{enemy.displayName}</div>
-                      <div className="hp-shield-row">
-                        <div className={`hp-bar-frame enemy-hp-bar ${enemy.ward > 0 ? 'has-ward' : ''}`}>
-                          <div
-                            className="hp-bar-fill"
-                            style={{
-                              width: `${Math.max(0, Math.min(100, (enemy.hp / enemy.maxHp) * 100))}%`,
-                            }}
-                          />
-                          <span className="hp-bar-text">
-                            {enemy.hp}/{enemy.maxHp}
-                          </span>
-                        </div>
-                        {enemy.ward > 0 && (
-                          <div
-                            className="shield-extension-bar"
-                            style={{ width: `${Math.min(80, Math.max(30, 20 + enemy.ward * 3))}px` }}
-                            title={`Ward: ${enemy.ward}`}
-                          >
-                            <span className="shield-extension-text">🛡 {enemy.ward}</span>
+                      <div className="hp-shield-row hp-shield-scroll">
+                        <div className="hp-shield-trough">
+                          <div className={`hp-bar-frame enemy-hp-bar ${enemy.ward > 0 ? 'has-ward' : ''}`}>
+                            <div
+                              className="hp-bar-fill"
+                              style={{
+                                width: `${Math.max(0, Math.min(100, (enemy.hp / enemy.maxHp) * 100))}%`,
+                              }}
+                            />
+                            <span className="hp-bar-text">
+                              {enemy.hp}/{enemy.maxHp}
+                            </span>
                           </div>
-                        )}
+                          {enemy.ward > 0 && (
+                            <div
+                              className="shield-extension-bar"
+                              style={{ width: `${Math.min(80, Math.max(30, 20 + enemy.ward * 3))}px` }}
+                              title={`Ward: ${enemy.ward}`}
+                            >
+                              <span className="shield-extension-text">🛡 {enemy.ward}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="floating-popups-anchor">

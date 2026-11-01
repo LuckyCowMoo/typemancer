@@ -233,66 +233,65 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         backgroundColor: isFocusState ? undefined : theme.bg,
         color: isFocusState ? undefined : theme.textColor,
         transition:
-          'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease, background-color 0.16s ease',
+          'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, margin 0.18s ease, background-color 0.18s ease',
         boxShadow: '2px 3px 8px rgba(13, 27, 34, 0.22)',
         animationDelay: `${(index % 7) * 0.22}s`,
         ...style,
       }}
     >
-      {/* Top-Right Badges: Shop Price (optional) + Energy Cost Circle */}
+      {/* Top-Right: Shop Price (optional, placed to the left of the corner inlet) */}
+      {displayPrice && (
+        <span
+          className="card-price-pill"
+          style={{
+            position: 'absolute',
+            top: 5,
+            right: 50,
+            background: '#141a1f',
+            color: '#ffd166',
+            border: '1.5px solid #0d1b22',
+            borderRadius: 8,
+            padding: '2px 7px',
+            fontSize: '0.75rem',
+            fontWeight: 800,
+            lineHeight: 1.2,
+            zIndex: 6,
+          }}
+          title="Gold Price"
+        >
+          {displayPrice}
+        </span>
+      )}
+
+      {/* Top-Right: Flush Architectural Inlet Corner Piece */}
       <div
-        className="card-top-right-badges"
+        className="card-corner-inlet"
         style={{
           position: 'absolute',
-          top: 6,
-          right: 6,
+          top: -2.5,
+          right: -2.5,
+          borderTopRightRadius: 16,
+          borderBottomLeftRadius: 14,
+          borderTopLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          background: '#0d1b22',
+          color: '#ffffff',
+          border: '2.5px solid #0d1b22',
+          minWidth: 44,
+          height: 38,
+          padding: '2px 10px 4px 10px',
           display: 'flex',
           alignItems: 'center',
-          gap: 6,
-          zIndex: 3,
+          justifyContent: 'center',
+          fontSize: '1.15rem',
+          fontWeight: 900,
+          boxShadow: '-2px 2px 6px rgba(0, 0, 0, 0.35)',
+          zIndex: 5,
+          boxSizing: 'border-box',
         }}
+        title="Energy Cost"
       >
-        {displayPrice && (
-          <span
-            className="card-price-pill"
-            style={{
-              background: '#141a1f',
-              color: '#ffd166',
-              border: '1.5px solid #0d1b22',
-              borderRadius: 8,
-              padding: '2px 7px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              lineHeight: 1.2,
-            }}
-            title="Gold Price"
-          >
-            {displayPrice}
-          </span>
-        )}
-        <div
-          className="card-energy-circle"
-          style={{
-            width: 34,
-            height: 34,
-            minWidth: 34,
-            minHeight: 34,
-            borderRadius: '50%',
-            background: '#141a1f',
-            color: '#ffffff',
-            border: '2px solid #0d1b22',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '1.05rem',
-            lineHeight: 1,
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)',
-          }}
-          title="Energy Cost"
-        >
-          {resolved.cost}
-        </div>
+        {resolved.cost}
       </div>
 
       {/* Left side: Large 1:1 Square with rounded corners (86x86, radius 14px, #e9ecef) */}
@@ -349,7 +348,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
-            paddingRight: displayPrice ? 96 : 42,
+            paddingRight: displayPrice ? 96 : 46,
           }}
         >
           <span
