@@ -58,6 +58,7 @@ export interface CardEffect {
   amount: number;
   target?: 'enemy' | 'all_enemies' | 'self';
   hits?: number; // For multi-hit attacks (defaults to 1)
+  targetCount?: number; // Amount of targets per tile
 }
 
 export interface ArtPlaceholder {

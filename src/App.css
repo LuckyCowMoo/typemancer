@@ -2964,4 +2964,53 @@ body,
   text-align: center;
 }
 
+/* ==================== CARD EFFECTS 3-COLUMN GRID & TILES ==================== */
+.dev-effects-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+
+.dev-effect-tile {
+  background: #fdf8ef;
+  border: 2px solid #2b1e16;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 1px 2px 5px rgba(43, 30, 22, 0.12);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.dev-effect-tile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid rgba(43, 30, 22, 0.18);
+  padding-bottom: 5px;
+  margin-bottom: 2px;
+}
+
+.dev-effect-tile-badge {
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #1a110b;
+}
+
+.dev-effect-tile-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.dev-effect-tile-full {
+  grid-column: span 2;
+}
+
+
 

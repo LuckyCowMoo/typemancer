@@ -3,6 +3,7 @@ import type {
   BattleEnvironmentDefinition,
   CardDefinition,
   CardEffect,
+  CardUpgradeData,
   EffectType,
   EnemyDefinition,
   EnemyFaction,
@@ -110,6 +111,21 @@ const ALL_RELIC_EFFECTS: RelicDefinition['effectType'][] = [
   'faded_all',
   'wpm_boost',
 ];
+
+const ensureUpgrade = (card: CardDefinition): CardUpgradeData => {
+  return (
+    card.upgrade || {
+      names: {
+        easy: `${card.names.easy}+`,
+        medium: `${card.names.medium}+`,
+        hard: `${card.names.hard}+`,
+      },
+      description: card.description,
+      cost: card.cost,
+      effects: [...card.effects],
+    }
+  );
+};
 
 export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<EditorTab>('enemies');
@@ -1534,62 +1550,105 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                   + Add Effect
                 </button>
               </div>
-              {activeCard.effects.map((eff: CardEffect, eIdx: number) => (
-                <div key={eIdx} className="dev-subcard dev-fields-grid">
-                  <label className="dev-field">
-                    <span>Effect Type</span>
-                    <select
-                      value={eff.type}
-                      onChange={(e) => {
-                        const next = [...activeCard.effects];
-                        next[eIdx] = { ...eff, type: e.target.value as EffectType };
-                        updateActiveCard((c) => ({ ...c, effects: next }));
-                      }}
-                    >
-                      {ALL_EFFECT_TYPES.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="dev-field">
-                    <span>Amount</span>
-                    <input
-                      type="number"
-                      value={eff.amount}
-                      onChange={(e) => {
-                        const next = [...activeCard.effects];
-                        next[eIdx] = { ...eff, amount: Number(e.target.value) };
-                        updateActiveCard((c) => ({ ...c, effects: next }));
-                      }}
-                    />
-                  </label>
-                  <label className="dev-field">
-                    <span>Hits (Optional)</span>
-                    <input
-                      type="number"
-                      value={eff.hits ?? 1}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        const next = [...activeCard.effects];
-                        next[eIdx] = { ...eff, hits: val > 1 ? val : undefined };
-                        updateActiveCard((c) => ({ ...c, effects: next }));
-                      }}
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="dev-btn dev-btn-danger"
-                    onClick={() => {
-                      const next = activeCard.effects.filter((_, i) => i !== eIdx);
-                      updateActiveCard((c) => ({ ...c, effects: next }));
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
+
+              <div className="dev-effects-grid-3col">
+                {activeCard.effects.map((eff: CardEffect, eIdx: number) => (
+                  <div key={eIdx} className="dev-effect-tile">
+                    <div className="dev-effect-tile-header">
+                      <span className="dev-effect-tile-badge">Base Effect #{eIdx + 1}</span>
+                      <button
+                        type="button"
+                        className="dev-btn dev-btn-danger dev-btn-mini"
+                        onClick={() => {
+                          const next = activeCard.effects.filter((_, i) => i !== eIdx);
+                          updateActiveCard((c) => ({ ...c, effects: next }));
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="dev-effect-tile-fields">
+                      <label className="dev-field dev-effect-tile-full">
+                        <span>Effect Type</span>
+                        <select
+                          value={eff.type}
+                          onChange={(e) => {
+                            const next = [...activeCard.effects];
+                            next[eIdx] = { ...eff, type: e.target.value as EffectType };
+                            updateActiveCard((c) => ({ ...c, effects: next }));
+                          }}
+                        >
+                          {ALL_EFFECT_TYPES.map((t) => (
+                            <option key={t} value={t}>
+                              {t}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="dev-field">
+                        <span>Amount</span>
+                        <input
+                          type="number"
+                          value={eff.amount}
+                          onChange={(e) => {
+                            const next = [...activeCard.effects];
+                            next[eIdx] = { ...eff, amount: Number(e.target.value) };
+                            updateActiveCard((c) => ({ ...c, effects: next }));
+                          }}
+                        />
+                      </label>
+                      <label className="dev-field">
+                        <span>Target</span>
+                        <select
+                          value={eff.target || 'default'}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const next = [...activeCard.effects];
+                            next[eIdx] = {
+                              ...eff,
+                              target: val === 'default' ? undefined : (val as 'enemy' | 'all_enemies' | 'self'),
+                            };
+                            updateActiveCard((c) => ({ ...c, effects: next }));
+                          }}
+                        >
+                          <option value="default">Default (Card Target: {activeCard.target})</option>
+                          <option value="enemy">Single Enemy</option>
+                          <option value="all_enemies">All Enemies</option>
+                          <option value="self">Self (Player)</option>
+                        </select>
+                      </label>
+                      <label className="dev-field">
+                        <span>Targets Count</span>
+                        <input
+                          type="number"
+                          min={1}
+                          value={eff.targetCount ?? 1}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            const next = [...activeCard.effects];
+                            next[eIdx] = { ...eff, targetCount: val > 1 ? val : undefined };
+                            updateActiveCard((c) => ({ ...c, effects: next }));
+                          }}
+                        />
+                      </label>
+                      <label className="dev-field">
+                        <span>Hits / Repeats</span>
+                        <input
+                          type="number"
+                          min={1}
+                          value={eff.hits ?? 1}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            const next = [...activeCard.effects];
+                            next[eIdx] = { ...eff, hits: val > 1 ? val : undefined };
+                            updateActiveCard((c) => ({ ...c, effects: next }));
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* Upgraded Card Section */}
@@ -1601,33 +1660,238 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                     <span>Upgraded {diff.toUpperCase()} Name</span>
                     <input
                       type="text"
-                      value={activeCard.upgrade.names[diff]}
+                      value={ensureUpgrade(activeCard).names[diff]}
                       onChange={(e) =>
-                        updateActiveCard((c) => ({
-                          ...c,
-                          upgrade: {
-                            ...c.upgrade,
-                            names: { ...c.upgrade.names, [diff]: e.target.value },
-                          },
-                        }))
+                        updateActiveCard((c) => {
+                          const baseUp = ensureUpgrade(c);
+                          return {
+                            ...c,
+                            upgrade: {
+                              ...baseUp,
+                              names: { ...baseUp.names, [diff]: e.target.value },
+                            },
+                          };
+                        })
                       }
                     />
                   </label>
                 ))}
               </div>
-              <label className="dev-field" style={{ marginTop: 10 }}>
-                <span>Upgraded Description</span>
-                <input
-                  type="text"
-                  value={activeCard.upgrade.description}
-                  onChange={(e) =>
-                    updateActiveCard((c) => ({
-                      ...c,
-                      upgrade: { ...c.upgrade, description: e.target.value },
-                    }))
-                  }
-                />
-              </label>
+              <div className="dev-fields-grid" style={{ marginTop: 10 }}>
+                <label className="dev-field" style={{ gridColumn: 'span 2' }}>
+                  <span>Upgraded Description</span>
+                  <input
+                    type="text"
+                    value={ensureUpgrade(activeCard).description}
+                    onChange={(e) =>
+                      updateActiveCard((c) => ({
+                        ...c,
+                        upgrade: { ...ensureUpgrade(c), description: e.target.value },
+                      }))
+                    }
+                  />
+                </label>
+                <label className="dev-field">
+                  <span>Upgraded Energy Cost (⚡)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={5}
+                    value={activeCard.upgrade?.cost ?? activeCard.cost}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      updateActiveCard((c) => ({
+                        ...c,
+                        upgrade: {
+                          ...ensureUpgrade(c),
+                          cost: val,
+                        },
+                      }));
+                    }}
+                  />
+                </label>
+              </div>
+
+              {(() => {
+                const currentUpgrade = ensureUpgrade(activeCard);
+                const upgradedEffects = currentUpgrade.effects || [];
+                return (
+                  <>
+                    <div className="dev-section-header" style={{ marginTop: 16 }}>
+                      <h4>Upgraded Effects ({upgradedEffects.length})</h4>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className="dev-btn-mini"
+                          onClick={() => {
+                            const next = [...upgradedEffects, { type: 'damage' as EffectType, amount: 8 }];
+                            updateActiveCard((c) => ({
+                              ...c,
+                              upgrade: {
+                                ...ensureUpgrade(c),
+                                effects: next,
+                              },
+                            }));
+                          }}
+                        >
+                          + Add Upgraded Effect
+                        </button>
+                        <button
+                          type="button"
+                          className="dev-btn-mini"
+                          onClick={() => {
+                            const copied = activeCard.effects.map((eff) => ({ ...eff }));
+                            updateActiveCard((c) => ({
+                              ...c,
+                              upgrade: {
+                                ...ensureUpgrade(c),
+                                effects: copied,
+                              },
+                            }));
+                          }}
+                        >
+                          Copy Base Effects
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="dev-effects-grid-3col">
+                      {upgradedEffects.map((eff: CardEffect, eIdx: number) => (
+                        <div key={eIdx} className="dev-effect-tile">
+                          <div className="dev-effect-tile-header">
+                            <span className="dev-effect-tile-badge">Upgraded Effect #{eIdx + 1}</span>
+                            <button
+                              type="button"
+                              className="dev-btn dev-btn-danger dev-btn-mini"
+                              onClick={() => {
+                                const next = upgradedEffects.filter((_, i) => i !== eIdx);
+                                updateActiveCard((c) => ({
+                                  ...c,
+                                  upgrade: {
+                                    ...ensureUpgrade(c),
+                                    effects: next,
+                                  },
+                                }));
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                          <div className="dev-effect-tile-fields">
+                            <label className="dev-field dev-effect-tile-full">
+                              <span>Effect Type</span>
+                              <select
+                                value={eff.type}
+                                onChange={(e) => {
+                                  const next = [...upgradedEffects];
+                                  next[eIdx] = { ...eff, type: e.target.value as EffectType };
+                                  updateActiveCard((c) => ({
+                                    ...c,
+                                    upgrade: {
+                                      ...ensureUpgrade(c),
+                                      effects: next,
+                                    },
+                                  }));
+                                }}
+                              >
+                                {ALL_EFFECT_TYPES.map((t) => (
+                                  <option key={t} value={t}>
+                                    {t}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="dev-field">
+                              <span>Amount</span>
+                              <input
+                                type="number"
+                                value={eff.amount}
+                                onChange={(e) => {
+                                  const next = [...upgradedEffects];
+                                  next[eIdx] = { ...eff, amount: Number(e.target.value) };
+                                  updateActiveCard((c) => ({
+                                    ...c,
+                                    upgrade: {
+                                      ...ensureUpgrade(c),
+                                      effects: next,
+                                    },
+                                  }));
+                                }}
+                              />
+                            </label>
+                            <label className="dev-field">
+                              <span>Target</span>
+                              <select
+                                value={eff.target || 'default'}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const next = [...upgradedEffects];
+                                  next[eIdx] = {
+                                    ...eff,
+                                    target: val === 'default' ? undefined : (val as 'enemy' | 'all_enemies' | 'self'),
+                                  };
+                                  updateActiveCard((c) => ({
+                                    ...c,
+                                    upgrade: {
+                                      ...ensureUpgrade(c),
+                                      effects: next,
+                                    },
+                                  }));
+                                }}
+                              >
+                                <option value="default">Default (Card Target: {activeCard.target})</option>
+                                <option value="enemy">Single Enemy</option>
+                                <option value="all_enemies">All Enemies</option>
+                                <option value="self">Self (Player)</option>
+                              </select>
+                            </label>
+                            <label className="dev-field">
+                              <span>Targets Count</span>
+                              <input
+                                type="number"
+                                min={1}
+                                value={eff.targetCount ?? 1}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  const next = [...upgradedEffects];
+                                  next[eIdx] = { ...eff, targetCount: val > 1 ? val : undefined };
+                                  updateActiveCard((c) => ({
+                                    ...c,
+                                    upgrade: {
+                                      ...ensureUpgrade(c),
+                                      effects: next,
+                                    },
+                                  }));
+                                }}
+                              />
+                            </label>
+                            <label className="dev-field">
+                              <span>Hits / Repeats</span>
+                              <input
+                                type="number"
+                                min={1}
+                                value={eff.hits ?? 1}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  const next = [...upgradedEffects];
+                                  next[eIdx] = { ...eff, hits: val > 1 ? val : undefined };
+                                  updateActiveCard((c) => ({
+                                    ...c,
+                                    upgrade: {
+                                      ...ensureUpgrade(c),
+                                      effects: next,
+                                    },
+                                  }));
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                );
+              })()}
             </section>
           </main>
         </div>

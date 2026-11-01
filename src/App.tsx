@@ -667,12 +667,16 @@ export function App() {
 
       for (const eff of resolved.effects) {
         const effTarget = eff.target || resolved.target;
-        const targetList =
+        let targetList =
           effTarget === 'all_enemies'
             ? nextEnemies
             : targetEnemy
             ? nextEnemies.filter((e) => e.instanceId === targetEnemy.instanceId)
             : nextEnemies.slice(0, 1);
+
+        if (eff.targetCount && eff.targetCount > 1 && effTarget !== 'self') {
+          targetList = nextEnemies.filter((e) => e.hp > 0).slice(0, eff.targetCount);
+        }
 
         const hits = eff.hits || 1;
 
