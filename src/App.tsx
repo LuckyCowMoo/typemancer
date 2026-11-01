@@ -219,6 +219,7 @@ export function App() {
     () => ENVIRONMENTS_CATALOG[0]
   );
   const [biomePopupExpanded, setBiomePopupExpanded] = useState<boolean>(true);
+  const [biomePopupManual, setBiomePopupManual] = useState<boolean>(false);
   const [codexDiscovery, setCodexDiscovery] = useState<CodexDiscoveryState>(() => loadCodexState());
   const [codexTab, setCodexTab] = useState<CodexTab>('monsters');
   const [codexSelectedId, setCodexSelectedId] = useState<string | null>(null);
@@ -349,6 +350,7 @@ export function App() {
     if (screen === 'battle' && biomePopupExpanded) {
       const timer = window.setTimeout(() => {
         setBiomePopupExpanded(false);
+        setBiomePopupManual(false);
       }, 15000);
       return () => window.clearTimeout(timer);
     }
@@ -518,6 +520,7 @@ export function App() {
       setFloatingPopups([]);
       resetTypingBuffer(true);
       setBiomePopupExpanded(true);
+      setBiomePopupManual(false);
       setCodexDiscovery(
         unlockCodexEntries({
           enemies: spawnedEnemies.map((e) => e.enemyId),
@@ -604,6 +607,7 @@ export function App() {
       }
       setIsAnimatingTurn(true);
       setBiomePopupExpanded(false);
+      setBiomePopupManual(false);
       setSelectedCard(null);
       resetTypingBuffer(true);
 
@@ -2136,12 +2140,28 @@ export function App() {
 
     // 7. BATTLE
     if (screen === 'battle') {
+      if (biomePopupExpanded && biomePopupManual && matchCommand(raw, ['close', 'back', 'hide', 'dismiss'], 'easy')) {
+        soundEngine.playPageTurn(settings);
+        setBiomePopupExpanded(false);
+        setBiomePopupManual(false);
+        resetTypingBuffer(true);
+        return;
+      }
+
       if (
         selectedCard &&
         matchCommand(raw, ['back', 'return', 'cancel', 'deselect', 'abort'], 'easy')
       ) {
         soundEngine.playBackspace(settings);
         setSelectedCard(null);
+        resetTypingBuffer(true);
+        return;
+      }
+
+      if (!selectedCard && activeEnvironment && matchCommand(raw, [activeEnvironment.name, 'biome', 'environment'], difficulty)) {
+        soundEngine.playPageTurn(settings);
+        setBiomePopupExpanded(true);
+        setBiomePopupManual(true);
         resetTypingBuffer(true);
         return;
       }
@@ -2676,9 +2696,12 @@ export function App() {
       soundEngine.playError(settings);
     }
   }, [
+    activeEnvironment,
     activeEvent,
     advanceToMapNextFloor,
     availableMapNodes,
+    biomePopupExpanded,
+    biomePopupManual,
     campfireSubMode,
     deck,
     difficulty,
@@ -2893,6 +2916,12 @@ export function App() {
       } else if (screen === 'map') {
         availableMapNodes.forEach((n) => pool.push(n.phrases[phraseDiff]));
       } else if (screen === 'battle') {
+        if (biomePopupExpanded && biomePopupManual) {
+          pool.push('close', 'back');
+        }
+        if (!biomePopupExpanded && activeEnvironment) {
+          pool.push(activeEnvironment.name);
+        }
         if (!selectedCard) {
           handCandidates.forEach((c) => pool.push(c.phrase));
           enemies.forEach((e) => pool.push(e.displayName));
@@ -2963,8 +2992,11 @@ export function App() {
     if (candidatePhrase.length <= typedInput.length) return '';
     return candidatePhrase.slice(typedInput.length);
   }, [
+    activeEnvironment,
     activeEvent,
     availableMapNodes,
+    biomePopupExpanded,
+    biomePopupManual,
     campfireSubMode,
     deck,
     difficulty,
@@ -3284,6 +3316,10 @@ export function App() {
                         envSt.isHighlighted ? 'top-biome-slot-highlighted' : ''
                       } ${envSt.isEnterReady ? 'top-biome-slot-enter-ready' : ''}`}
                       title="Type environment name to inspect"
+                      onClick={() => {
+                        setBiomePopupExpanded(true);
+                        setBiomePopupManual(true);
+                      }}
                     >
                       <span className="top-biome-slot-name">{activeEnvironment.name}</span>
                     </div>
@@ -3320,7 +3356,9 @@ export function App() {
                   <div className="battle-environment-info">
                     <div className="battle-environment-header-row">
                       <span className="battle-environment-name">{activeEnvironment.name}</span>
-                      <span className="battle-environment-close-hint">(type "close" or "back" to hide)</span>
+                      {biomePopupManual && (
+                        <span className="battle-environment-close-hint">(type "close" or "back" to hide)</span>
+                      )}
                     </div>
                     <span className="battle-environment-desc">{activeEnvironment.description}</span>
                   </div>
