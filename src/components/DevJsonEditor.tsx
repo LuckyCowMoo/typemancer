@@ -24,6 +24,12 @@ import {
   MAP_PHRASES,
   RELICS_CATALOG,
 } from '../utils/gameContent';
+import {
+  getCardVisualCategory,
+  getCardColorTheme,
+  CARD_CATEGORY_LABELS,
+} from './CardBanner';
+import type { CardVisualCategory } from './CardBanner';
 
 export interface SpriteManifestEntry {
   id: string;
@@ -1136,38 +1142,165 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
               </button>
             </div>
             <div className="dev-item-list">
-              {cardsList.map((c, idx) => {
-                const q = searchQuery.toLowerCase();
-                const matches =
-                  !q ||
-                  c.id.toLowerCase().includes(q) ||
-                  c.names.easy.toLowerCase().includes(q) ||
-                  c.names.medium.toLowerCase().includes(q) ||
-                  c.description.toLowerCase().includes(q);
-                if (!matches) return null;
-                return (
-                  <button
-                    key={`${c.id}_${idx}`}
-                    type="button"
-                    className={`dev-list-item ${
-                      idx === selectedCardIdx ? 'dev-list-item-active' : ''
-                    }`}
-                    onClick={() => setSelectedCardIdx(idx)}
-                  >
-                    {c.art.spriteUrl && (
-                      <img src={c.art.spriteUrl} alt="" className="dev-list-thumb" />
-                    )}
-                    <div className="dev-list-meta">
-                      <div className="dev-list-title">
-                        {c.names.easy} ({c.cost}⚡)
+              {(() => {
+                const CARD_CATEGORY_KEYS: CardVisualCategory[] = [
+                  'attack',
+                  'defence',
+                  'skill',
+                  'debuff',
+                  'power',
+                ];
+                const RARITY_ORDER: Record<string, number> = {
+                  starter: 0,
+                  common: 1,
+                  uncommon: 2,
+                  rare: 3,
+                };
+
+                const q = searchQuery.toLowerCase().trim();
+                const matchedCards = cardsList
+                  .map((card, originalIndex) => ({ card, originalIndex }))
+                  .filter(({ card }) => {
+                    if (!q) return true;
+                    return (
+                      card.id.toLowerCase().includes(q) ||
+                      card.names.easy.toLowerCase().includes(q) ||
+                      card.names.medium.toLowerCase().includes(q) ||
+                      card.description.toLowerCase().includes(q)
+                    );
+                  });
+
+                const groups: Record<
+                  CardVisualCategory,
+                  Array<{ card: CardDefinition; originalIndex: number }>
+                > = {
+                  attack: [],
+                  defence: [],
+                  skill: [],
+                  debuff: [],
+                  power: [],
+                };
+
+                for (const item of matchedCards) {
+                  const cat = getCardVisualCategory(item.card as any);
+                  if (groups[cat]) {
+                    groups[cat].push(item);
+                  } else {
+                    groups.skill.push(item);
+                  }
+                }
+
+                return CARD_CATEGORY_KEYS.map((cat) => {
+                  const catCards = groups[cat];
+                  if (!catCards || catCards.length === 0) return null;
+
+                  const sortedCards = [...catCards].sort(
+                    (a, b) =>
+                      (RARITY_ORDER[a.card.rarity] ?? 99) -
+                      (RARITY_ORDER[b.card.rarity] ?? 99)
+                  );
+
+                  return (
+                    <React.Fragment key={cat}>
+                      <div className={`dev-card-cat-header dev-card-cat-${cat}`}>
+                        <span>{CARD_CATEGORY_LABELS[cat]}</span>
+                        <span className="dev-card-cat-count">{catCards.length}</span>
                       </div>
-                      <div className="dev-list-sub">
-                        {c.rarity} · {c.type} · {c.description}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+                      {sortedCards.map(({ card, originalIndex }) => {
+                        const theme = getCardColorTheme(cat, card.rarity);
+                        return (
+                          <button
+                            key={`${card.id}_${originalIndex}`}
+                            type="button"
+                            className={`dev-list-item ${
+                              originalIndex === selectedCardIdx
+                                ? 'dev-list-item-active'
+                                : ''
+                            }`}
+                            style={{
+                              backgroundColor: theme.bg,
+                              borderColor:
+                                originalIndex === selectedCardIdx
+                                  ? '#ffd166'
+                                  : '#0d1b22',
+                              borderWidth:
+                                originalIndex === selectedCardIdx ? '3px' : '2px',
+                              boxShadow:
+                                originalIndex === selectedCardIdx
+                                  ? '0 0 0 2px #ffd166, 0 4px 14px rgba(0, 0, 0, 0.45)'
+                                  : '0 2px 5px rgba(0, 0, 0, 0.18)',
+                              transform:
+                                originalIndex === selectedCardIdx
+                                  ? 'translateX(3px) scale(1.01)'
+                                  : undefined,
+                            }}
+                            onClick={() => setSelectedCardIdx(originalIndex)}
+                          >
+                            {card.art.spriteUrl && (
+                              <img
+                                src={card.art.spriteUrl}
+                                alt=""
+                                className="dev-list-thumb"
+                                style={{
+                                  backgroundColor: '#e9ecef',
+                                  border: '2px solid #0d1b22',
+                                  borderRadius: '8px',
+                                }}
+                              />
+                            )}
+                            <div className="dev-list-meta">
+                              <div
+                                className="dev-list-title"
+                                style={{
+                                  color: theme.textColor,
+                                  fontWeight: 800,
+                                }}
+                              >
+                                {card.names.easy} ({card.cost}⚡)
+                              </div>
+                              <div
+                                className="dev-list-sub"
+                                style={{
+                                  color: theme.descColor,
+                                  opacity: 0.95,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  marginTop: '2px',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    backgroundColor: theme.pillBg,
+                                    color: theme.textColor,
+                                    border: '1px solid #0d1b22',
+                                    padding: '1px 6px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 700,
+                                    textTransform: 'lowercase',
+                                  }}
+                                >
+                                  {card.rarity}
+                                </span>
+                                <span
+                                  style={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                >
+                                  {card.description}
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                });
+              })()}
             </div>
           </aside>
 
@@ -1176,6 +1309,31 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
               <h2>
                 ✏️ Editing Card #{selectedCardIdx + 1} of {cardsList.length}:{' '}
                 <span style={{ color: '#bc5215' }}>{activeCard.names.easy}</span>
+                {(() => {
+                  const activeCat = getCardVisualCategory(activeCard as any);
+                  const activeTheme = getCardColorTheme(activeCat, activeCard.rarity);
+                  return (
+                    <span
+                      style={{
+                        backgroundColor: activeTheme.bg,
+                        color: activeTheme.textColor,
+                        border: '1.5px solid #0d1b22',
+                        borderRadius: '8px',
+                        padding: '2px 10px',
+                        fontSize: '0.82rem',
+                        fontWeight: 800,
+                        marginLeft: '10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      <span>{activeCat.toUpperCase()}</span>
+                      <span>·</span>
+                      <span>{activeCard.rarity.toUpperCase()}</span>
+                    </span>
+                  );
+                })()}
               </h2>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button

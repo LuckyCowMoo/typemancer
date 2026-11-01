@@ -2525,6 +2525,54 @@ body,
   text-overflow: ellipsis;
 }
 
+/* ==================== DEV EDITOR CARDS CATEGORY & TIER STYLES ==================== */
+.dev-card-cat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1.5px solid #2b1e16;
+  color: #ffffff;
+}
+
+.dev-card-cat-header:first-child {
+  margin-top: 0;
+}
+
+.dev-card-cat-attack {
+  background: linear-gradient(90deg, #9e3219 0%, #6e1b0b 100%);
+}
+
+.dev-card-cat-defence {
+  background: linear-gradient(90deg, #105470 0%, #062636 100%);
+}
+
+.dev-card-cat-skill {
+  background: linear-gradient(90deg, #21704d 0%, #0c3623 100%);
+}
+
+.dev-card-cat-debuff {
+  background: linear-gradient(90deg, #683587 0%, #34124a 100%);
+}
+
+.dev-card-cat-power {
+  background: linear-gradient(90deg, #9c660f 0%, #543203 100%);
+}
+
+.dev-card-cat-count {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+}
+
 /* Right pane: Selected item inspector & form */
 .dev-detail-pane {
   flex: 1;
