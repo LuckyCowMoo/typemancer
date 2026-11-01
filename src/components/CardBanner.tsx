@@ -217,6 +217,24 @@ export const CardBanner: React.FC<CardBannerProps> = ({
     rarityText += ' · 1x';
   }
 
+  // Dynamic font size and line height for title to prevent card expansion on long names
+  const titleLen = resolved.name.length;
+  const titleFontSize =
+    titleLen <= 14
+      ? '0.96rem'
+      : titleLen <= 22
+      ? '0.86rem'
+      : titleLen <= 32
+      ? '0.78rem'
+      : titleLen <= 45
+      ? '0.72rem'
+      : '0.66rem';
+  const titleLineHeight = titleLen > 22 ? 1.12 : 1.18;
+
+  // Description dynamic font size if long description or campfire subtitle override
+  const descText = subtitleOverride ?? resolved.description;
+  const descFontSize = descText.length > 70 ? '0.67rem' : '0.71rem';
+
   return (
     <div
       data-card-id={instance.instanceId}
@@ -227,7 +245,10 @@ export const CardBanner: React.FC<CardBannerProps> = ({
       } rarity-${resolved.rarity} card-cat-${category} ${className}`}
       style={{
         width: 292,
+        height: 112,
         minHeight: 112,
+        maxHeight: 112,
+        overflow: 'hidden',
         borderRadius: 18,
         border:
           isEnterCandidate || isSelected
@@ -239,8 +260,8 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        gap: 10,
-        padding: 10,
+        gap: 8,
+        padding: '7px 9px 7px 8px',
         backgroundColor: theme.bg,
         color: theme.textColor,
         transition:
@@ -256,14 +277,14 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           className="card-price-pill"
           style={{
             position: 'absolute',
-            top: 5,
-            right: 50,
+            top: 4,
+            right: 46,
             background: '#141a1f',
             color: '#ffd166',
             border: '1.5px solid #0d1b22',
-            borderRadius: 8,
-            padding: '2px 7px',
-            fontSize: '0.75rem',
+            borderRadius: 7,
+            padding: '1px 6px',
+            fontSize: '0.72rem',
             fontWeight: 800,
             lineHeight: 1.2,
             zIndex: 6,
@@ -282,7 +303,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           top: -2.5,
           right: -2.5,
           borderTopRightRadius: 16,
-          borderBottomLeftRadius: 14,
+          borderBottomLeftRadius: 13,
           borderTopLeftRadius: 0,
           borderBottomRightRadius: 0,
           background: '#0d1b22',
@@ -293,13 +314,13 @@ export const CardBanner: React.FC<CardBannerProps> = ({
               : isHighlighted
               ? '2.5px solid #ffd166'
               : '2.5px solid #0d1b22',
-          minWidth: 44,
-          height: 38,
-          padding: '2px 10px 4px 10px',
+          minWidth: 40,
+          height: 34,
+          padding: '2px 8px 3px 8px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '1.15rem',
+          fontSize: '1.08rem',
           fontWeight: 900,
           boxShadow: '-2px 2px 6px rgba(0, 0, 0, 0.35)',
           zIndex: 5,
@@ -310,15 +331,15 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         {resolved.cost === -1 || (resolved as any).xCost ? 'X' : resolved.cost}
       </div>
 
-      {/* Left side: Large 1:1 Square with rounded corners (86x86, radius 14px, #e9ecef) */}
+      {/* Left side: Large 1:1 Square with rounded corners (82x82, radius 12px, #e9ecef) */}
       <div
         className="card-art-box card-art-square"
         style={{
-          width: 86,
-          height: 86,
-          minWidth: 86,
-          minHeight: 86,
-          borderRadius: 14,
+          width: 82,
+          height: 82,
+          minWidth: 82,
+          minHeight: 82,
+          borderRadius: 12,
           background: '#e9ecef',
           border: '2px solid #0d1b22',
           display: 'flex',
@@ -353,8 +374,10 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           justifyContent: 'space-between',
           flex: 1,
           minWidth: 0,
-          minHeight: 86,
+          height: 82,
+          maxHeight: 82,
           boxSizing: 'border-box',
+          overflow: 'hidden',
         }}
       >
         {/* Top: Card title */}
@@ -364,18 +387,24 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
-            paddingRight: displayPrice ? 96 : 46,
+            paddingRight: displayPrice ? 88 : 38,
+            maxHeight: 30,
+            overflow: 'hidden',
           }}
         >
           <span
             className="card-title-text card-tab-name"
             style={{
               fontWeight: 800,
-              fontSize: '1.05rem',
-              lineHeight: 1.2,
+              fontSize: titleFontSize,
+              lineHeight: titleLineHeight,
               textAlign: 'left',
               wordBreak: 'break-word',
               color: theme.textColor,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
             }}
           >
             {resolved.name}
@@ -386,18 +415,22 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         <div
           className="card-desc-text card-tab-sub"
           style={{
-            fontSize: '0.74rem',
-            lineHeight: 1.25,
+            fontSize: descFontSize,
+            lineHeight: 1.42,
             textAlign: 'left',
-            marginTop: 3,
-            marginBottom: 6,
+            marginTop: 2,
+            marginBottom: 3,
             flex: 1,
             wordBreak: 'break-word',
             color: theme.descColor,
             opacity: 0.95,
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
           }}
         >
-          {renderHighlightedCardText(subtitleOverride ?? resolved.description)}
+          {renderHighlightedCardText(descText)}
         </div>
 
         {/* Bottom: Full-width rounded pill for rarity */}
@@ -405,18 +438,20 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           className="card-rarity-bottom-pill card-rarity-pill"
           style={{
             width: '100%',
+            height: 18,
             boxSizing: 'border-box',
-            borderRadius: 8,
+            borderRadius: 6,
             border: '1.5px solid #0d1b22',
             background: theme.pillBg,
             color: theme.textColor,
             textAlign: 'center',
-            padding: '2px 6px',
-            fontSize: '0.74rem',
+            padding: '0 6px',
+            fontSize: '0.68rem',
             fontWeight: 700,
             letterSpacing: '0.02em',
-            lineHeight: 1.15,
+            lineHeight: '16px',
             textTransform: 'lowercase',
+            flexShrink: 0,
           }}
         >
           {rarityText}

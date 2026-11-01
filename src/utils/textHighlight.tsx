@@ -184,8 +184,7 @@ export function renderHighlightedCardText(text: string): React.ReactNode {
           className={`card-kw card-kw-${matchedKw.type}`}
           style={{
             color: matchedKw.color,
-            borderBottom: `1.5px solid ${matchedKw.border}`,
-            textShadow: `0 0 6px ${matchedKw.shadow}`,
+            textShadow: `0 0 5px ${matchedKw.shadow}`,
           }}
           title={matchedKw.label}
         >
