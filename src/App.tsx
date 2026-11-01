@@ -2000,35 +2000,10 @@ export function App() {
       }
 
       if (overlay === 'codex') {
-        // If in battle, typing an active combat enemy switches inspection directly to that foe
-        if (screen === 'battle' && enemies.length > 0) {
-          const matchedAlive = enemies.find((e) => {
-            const catEntry = ENEMIES_CATALOG.find((c) => c.id === e.enemyId);
-            const names = [
-              e.displayName,
-              e.enemyId,
-              ...(catEntry ? catEntry.namePools[phraseDiff] || catEntry.namePools.easy || [] : []),
-            ];
-            return matchCommand(raw, names, difficulty);
-          });
-          if (matchedAlive) {
-            setCodexTab('monsters');
-            setCodexSelectedId(matchedAlive.enemyId);
-            setInspectedEntity(matchedAlive);
-            setCodexDiscovery(
-              unlockCodexEntries({
-                enemies: [matchedAlive.enemyId],
-              })
-            );
-            resetTypingBuffer(false);
-            soundEngine.playPageTurn(settings);
-            return;
-          }
-        }
-
         if (matchCommand(raw, ['monsters', 'enemies'], 'easy')) {
           setCodexTab('monsters');
-          setCodexSelectedId(inspectedEntity && inspectedEntity !== 'player' ? inspectedEntity.enemyId : null);
+          setCodexSelectedId(null);
+          setInspectedEntity(null);
           setCodexScrollOffset(0);
           resetTypingBuffer(false);
           soundEngine.playPageTurn(settings);
@@ -2077,12 +2052,7 @@ export function App() {
           });
           if (matchedEnemy) {
             setCodexSelectedId(matchedEnemy.id);
-            if (screen === 'battle' && enemies.length > 0) {
-              const alive = enemies.find((en) => en.enemyId === matchedEnemy.id);
-              setInspectedEntity(alive || null);
-            } else {
-              setInspectedEntity(null);
-            }
+            setInspectedEntity(null);
             resetTypingBuffer(false);
             soundEngine.playPageTurn(settings);
             return;
@@ -4593,12 +4563,7 @@ export function App() {
                 } else {
                   soundEngine.playKeystroke(settings);
                 }
-                if (screen === 'battle' && enemies.length > 0) {
-                  const alive = enemies.find((en) => en.enemyId === id);
-                  setInspectedEntity(alive || null);
-                } else {
-                  setInspectedEntity(null);
-                }
+                setInspectedEntity(null);
               }}
               onChangeTab={(tab) => {
                 setCodexTab(tab);

@@ -152,47 +152,69 @@ export const CodexModal: React.FC<CodexModalProps> = ({
     });
   }, [phraseDiff]);
 
-  // Selected or fallback item to inspect
+  // Selected or fallback item to inspect (allows selecting unfound items too)
   const currentInspectItem = useMemo(() => {
     if (activeTab === 'monsters') {
       if (selectedId) {
         const found = ENEMIES_CATALOG.find((e) => e.id === selectedId);
-        if (
-          found &&
-          (discovery.enemies.includes(found.id) || activeEnemyInstance?.enemyId === found.id)
-        ) {
-          return found;
-        }
+        if (found) return found;
       }
       if (activeEnemyInstance) {
         const liveEnemy = ENEMIES_CATALOG.find((e) => e.id === activeEnemyInstance.enemyId);
         if (liveEnemy) return liveEnemy;
       }
-      return ENEMIES_CATALOG.find((e) => discovery.enemies.includes(e.id)) || null;
+      return (
+        ENEMIES_CATALOG.find((e) => discovery.enemies.includes(e.id)) ||
+        ENEMIES_CATALOG[0] ||
+        null
+      );
     }
     if (activeTab === 'cards') {
       if (selectedId) {
         const found = sortedCards.find((c) => c.id === selectedId);
-        if (found && discovery.cards.includes(found.id)) return found;
+        if (found) return found;
       }
-      return sortedCards.find((c) => discovery.cards.includes(c.id)) || null;
+      return sortedCards.find((c) => discovery.cards.includes(c.id)) || sortedCards[0] || null;
     }
     if (activeTab === 'environments') {
       if (selectedId) {
         const found = ENVIRONMENTS_CATALOG.find((env) => env.id === selectedId);
-        if (found && discovery.environments.includes(found.id)) return found;
+        if (found) return found;
       }
-      return ENVIRONMENTS_CATALOG.find((env) => discovery.environments.includes(env.id)) || null;
+      return (
+        ENVIRONMENTS_CATALOG.find((env) => discovery.environments.includes(env.id)) ||
+        ENVIRONMENTS_CATALOG[0] ||
+        null
+      );
     }
     if (activeTab === 'relics') {
       if (selectedId) {
         const found = RELICS_CATALOG.find((r) => r.id === selectedId);
-        if (found && discovery.relics.includes(found.id)) return found;
+        if (found) return found;
       }
-      return RELICS_CATALOG.find((r) => discovery.relics.includes(r.id)) || null;
+      return RELICS_CATALOG.find((r) => discovery.relics.includes(r.id)) || RELICS_CATALOG[0] || null;
     }
     return null;
   }, [activeTab, selectedId, discovery, sortedCards, activeEnemyInstance]);
+
+  // Determine whether the currently inspected item has been discovered by the player
+  const isCurrentItemDiscovered = useMemo(() => {
+    if (!currentInspectItem || !('id' in currentInspectItem)) return false;
+    const id = currentInspectItem.id;
+    if (activeTab === 'monsters') {
+      return discovery.enemies.includes(id) || activeEnemyInstance?.enemyId === id;
+    }
+    if (activeTab === 'cards') {
+      return discovery.cards.includes(id);
+    }
+    if (activeTab === 'environments') {
+      return discovery.environments.includes(id);
+    }
+    if (activeTab === 'relics') {
+      return discovery.relics.includes(id);
+    }
+    return false;
+  }, [activeTab, currentInspectItem, discovery, activeEnemyInstance]);
 
   // Determine whether to display the dedicated live combat status side panel
   const showEnemyStatusSidePanel =
@@ -502,6 +524,88 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           font-weight: 600;
         }
 
+        /* Prominent Navigation Toolbar */
+        .codex-nav-banner {
+          background: #dfd2be;
+          border-bottom: 2px solid #2b1e16;
+          padding: 7px 18px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 10px;
+          font-size: 0.82rem;
+          color: #2b1e16;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .codex-nav-banner-left,
+        .codex-nav-banner-right {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .codex-key-group {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: #fdf8ef;
+          border: 1.5px solid #7c674d;
+          border-radius: 7px;
+          padding: 3px 8px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .codex-key-chip {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 20px;
+          height: 20px;
+          padding: 0 5px;
+          background: #2b1e16;
+          color: #fdf8ef;
+          border: 1.5px solid #1a120c;
+          border-radius: 4px;
+          font-family: inherit;
+          font-size: 0.76rem;
+          font-weight: 900;
+          box-shadow: 0 2px 0 #120b07;
+          line-height: 1;
+        }
+
+        .codex-key-label {
+          font-size: 0.76rem;
+          font-weight: 700;
+          color: #2b1e16;
+        }
+
+        .codex-grid-action-hint {
+          background: #fdf8ef;
+          border: 1.5px dashed #7c674d;
+          border-radius: 8px;
+          padding: 6px 12px;
+          margin-bottom: 12px;
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #574837;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .codex-hint-kbd {
+          background: #3b281c;
+          color: #ffd166;
+          border: 1px solid #271911;
+          border-radius: 3px;
+          padding: 1px 5px;
+          font-size: 0.74rem;
+          font-weight: 900;
+        }
+
         /* Two-Pane Body */
         .codex-main-body {
           flex: 1;
@@ -545,13 +649,32 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           box-sizing: border-box;
           min-height: 125px;
           justify-content: space-between;
+          cursor: pointer;
+        }
+
+        .codex-entry-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
         }
 
         .codex-entry-card.is-selected {
           border-color: #d97706;
           background: #fffdf5;
-          box-shadow: 0 0 0 2px #d97706;
+          box-shadow: 0 0 0 2.5px #d97706, 0 4px 12px rgba(217, 119, 6, 0.25);
           transform: translateY(-2px);
+        }
+
+        .codex-entry-card.is-undiscovered {
+          background: #f1ebd8;
+          border-color: #8c7b6c;
+          border-style: dashed;
+        }
+
+        .codex-entry-card.is-undiscovered.is-selected {
+          border-color: #d97706;
+          border-style: solid;
+          background: #fdf6e6;
+          box-shadow: 0 0 0 2.5px #d97706, 0 4px 12px rgba(217, 119, 6, 0.25);
         }
 
         .codex-entry-card.is-highlighted {
@@ -630,6 +753,44 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           width: 340px;
           padding: 16px;
           border-right: 2px solid #2b1e16;
+        }
+
+        /* Generic Blank View / Undiscovered Inspector Box */
+        .inspector-undiscovered-box {
+          border: 2px dashed #9c8a74;
+          background: rgba(245, 238, 226, 0.6);
+        }
+
+        .undiscovered-pill {
+          background: #ece3d4 !important;
+          color: #7c674d !important;
+          border-color: #bfaea0 !important;
+          font-weight: 900 !important;
+        }
+
+        .undiscovered-spotlight {
+          border: 1.5px dashed #bfaea0;
+          background: #ede4d3;
+        }
+
+        .inspector-undiscovered-icon-frame {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: #dfd4c0;
+          border: 2px dashed #7c674d;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15);
+          margin-bottom: 8px;
+        }
+
+        .inspector-undiscovered-glyph {
+          font-size: 2.6rem;
+          font-weight: 900;
+          color: #7c674d;
+          text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
         }
 
         /* Far-Right Combat Status Side Panel */
@@ -902,6 +1063,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 return (
                   <div
                     key={tab}
+                    onClick={() => onChangeTab?.(tab)}
+                    style={{ cursor: 'pointer' }}
                     className={`codex-tab-pill ${isActive ? 'tab-active' : ''} ${
                       highlight.isEnterReady
                         ? 'tab-enter-ready'
@@ -909,6 +1072,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                         ? 'tab-highlighted'
                         : ''
                     }`}
+                    title={`Switch to ${tab} (or press Tab)`}
                   >
                     <span>{tab}</span>
                     <span className="codex-tab-count">
@@ -920,6 +1084,32 @@ export const CodexModal: React.FC<CodexModalProps> = ({
             </div>
           </div>
 
+          {/* Navigation Banner: Obvious Arrow Keys & Controls Prompt */}
+          <div className="codex-nav-banner">
+            <div className="codex-nav-banner-left">
+              <span style={{ fontSize: '1.05rem' }}>⌨️</span>
+              <span className="codex-key-label" style={{ fontWeight: 800 }}>Controls:</span>
+              <div className="codex-key-group" style={{ borderColor: '#b45309', background: '#fffbeb' }}>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↑</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↓</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>←</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>→</kbd>
+                <span className="codex-key-label" style={{ color: '#92400e', fontWeight: 800 }}>
+                  Arrow Keys Move Selection
+                </span>
+              </div>
+            </div>
+            <div className="codex-nav-banner-right">
+              <div className="codex-key-group">
+                <kbd className="codex-key-chip">Tab</kbd>
+                <span className="codex-key-label">Switch Category</span>
+              </div>
+              <div className="codex-key-group">
+                <span className="codex-key-label">🖱️ Click Any Card or Type Name</span>
+              </div>
+            </div>
+          </div>
+
           {/* Two/Three-Pane Body */}
           <div className="codex-main-body">
             {/* Left/Main Grid */}
@@ -927,6 +1117,10 @@ export const CodexModal: React.FC<CodexModalProps> = ({
               className={`codex-grid-pane ${showEnemyStatusSidePanel ? 'compact-grid' : ''}`}
               ref={gridContainerRef}
             >
+              <div className="codex-grid-action-hint">
+                <span>Select any entry below with <kbd className="codex-hint-kbd">↑</kbd> <kbd className="codex-hint-kbd">↓</kbd> <kbd className="codex-hint-kbd">←</kbd> <kbd className="codex-hint-kbd">→</kbd> or Click</span>
+              </div>
+
               <div className="codex-entry-grid">
                 {activeTab === 'monsters' &&
                   ENEMIES_CATALOG.map((en) => {
@@ -945,8 +1139,11 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={en.id}
+                        onClick={() => onSelectEntry?.(en.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
+                        } ${
+                          !isDiscovered ? 'is-undiscovered' : ''
                         } ${
                           highlight.isEnterReady
                             ? 'is-enter-ready'
@@ -954,6 +1151,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        title={isDiscovered ? primaryName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -990,8 +1188,11 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={c.id}
+                        onClick={() => onSelectEntry?.(c.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
+                        } ${
+                          !isDiscovered ? 'is-undiscovered' : ''
                         } ${
                           highlight.isEnterReady
                             ? 'is-enter-ready'
@@ -999,6 +1200,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        title={isDiscovered ? cardName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1039,8 +1241,11 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={env.id}
+                        onClick={() => onSelectEntry?.(env.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
+                        } ${
+                          !isDiscovered ? 'is-undiscovered' : ''
                         } ${
                           highlight.isEnterReady
                             ? 'is-enter-ready'
@@ -1048,6 +1253,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        title={isDiscovered ? env.name : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1084,8 +1290,11 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={r.id}
+                        onClick={() => onSelectEntry?.(r.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
+                        } ${
+                          !isDiscovered ? 'is-undiscovered' : ''
                         } ${
                           highlight.isEnterReady
                             ? 'is-enter-ready'
@@ -1093,6 +1302,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        title={isDiscovered ? relicName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1122,6 +1332,79 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 <div className="inspector-empty-state">
                   <span>✨</span>
                   <p>No discovered entries in this compendium yet. Explore more floors to unlock!</p>
+                </div>
+              ) : !isCurrentItemDiscovered ? (
+                <div className="inspector-content-box inspector-undiscovered-box">
+                  <div className="inspector-header">
+                    <span className="inspector-section-tag" style={{ color: '#8c7b6c' }}>
+                      Undiscovered Subject
+                    </span>
+                    <span className="inspector-meta-pill undiscovered-pill">???</span>
+                  </div>
+
+                  <div className="inspector-art-spotlight undiscovered-spotlight">
+                    <div className="inspector-undiscovered-icon-frame">
+                      <span className="inspector-undiscovered-glyph">?</span>
+                    </div>
+                    <div className="inspector-title" style={{ color: '#7c674d', letterSpacing: '0.12em' }}>
+                      ???
+                    </div>
+                    <div className="inspector-meta-row">
+                      <span
+                        className="inspector-meta-pill"
+                        style={{
+                          fontStyle: 'italic',
+                          background: '#ece3d4',
+                          color: '#7c674d',
+                          borderColor: '#c4b5a0',
+                        }}
+                      >
+                        Uncharted Knowledge
+                      </span>
+                      <span
+                        className="inspector-meta-pill"
+                        style={{
+                          background: '#ece3d4',
+                          color: '#7c674d',
+                          borderColor: '#c4b5a0',
+                        }}
+                      >
+                        Locked
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    className="inspector-description-box"
+                    style={{
+                      borderColor: '#c4b5a0',
+                      background: 'rgba(234, 223, 206, 0.4)',
+                    }}
+                  >
+                    <div className="inspector-description-label" style={{ color: '#8c7b6c' }}>
+                      Compendium Record
+                    </div>
+                    <div style={{ color: '#574837', fontStyle: 'italic', lineHeight: 1.45 }}>
+                      This subject has not yet been discovered on your journeys. Continue venturing through the dungeon floors, confronting new encounters, and collecting rare artifacts to inscribe its true form, lore, and secrets into your Codex.
+                    </div>
+                  </div>
+
+                  <div
+                    className="inspector-names-pool-box"
+                    style={{
+                      borderColor: '#c4b5a0',
+                      background: 'rgba(234, 223, 206, 0.3)',
+                    }}
+                  >
+                    <div className="inspector-names-heading" style={{ color: '#8c7b6c' }}>
+                      Observations:
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '0.78rem', color: '#7c674d' }}>
+                      <div>• True name: <span style={{ fontWeight: 800 }}>???</span></div>
+                      <div>• Attributes & powers: <span style={{ fontStyle: 'italic' }}>Awaiting observation</span></div>
+                      <div>• Discovery condition: <span style={{ fontStyle: 'italic' }}>Encounter or acquire during an expedition</span></div>
+                    </div>
+                  </div>
                 </div>
               ) : activeTab === 'monsters' ? (
                 (() => {
@@ -1546,12 +1829,25 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           {/* Footer Prompt Bar */}
           <div className="codex-footer-prompt">
             <div className="codex-prompt-instructions">
-              <span>Type</span>
+              <div className="codex-key-group" style={{ borderColor: '#b45309', background: '#fffbeb' }}>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↑</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↓</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>←</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>→</kbd>
+                <span className="codex-key-label" style={{ color: '#92400e', fontWeight: 800 }}>Navigate</span>
+              </div>
+              <div className="codex-key-group">
+                <kbd className="codex-key-chip">Tab</kbd>
+                <span className="codex-key-label">Switch Category</span>
+              </div>
+              <span>Type:</span>
               {tabs.map((tab) => {
                 const hl = getPhraseHighlightState(tab, 'easy');
                 return (
                   <span
                     key={tab}
+                    onClick={() => onChangeTab?.(tab)}
+                    style={{ cursor: 'pointer' }}
                     className={`codex-keyword-pill ${
                       hl.isEnterReady ? 'enter-ready' : hl.isHighlighted ? 'highlighted' : ''
                     }`}
@@ -1572,19 +1868,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                   </span>
                 );
               })()}
-              <span
-                className="codex-keyword-pill"
-                style={{ background: '#fdf8ef', borderColor: '#7c674d', color: '#162229' }}
-              >
-                (↑ ↓ ← →) Navigate
-              </span>
-              <span
-                className="codex-keyword-pill"
-                style={{ background: '#fdf8ef', borderColor: '#7c674d', color: '#162229' }}
-              >
-                (Tab) Switch Tab
-              </span>
-              <span>or type any entry name:</span>
+              <span>or search by name:</span>
             </div>
 
             <div className="codex-typing-input-wrapper">
