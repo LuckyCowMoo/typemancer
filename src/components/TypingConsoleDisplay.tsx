@@ -1,9 +1,11 @@
-import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useEffect, useMemo } from 'react';
+import { analyzeTypingWithWordAnchors } from '../utils/typingEngine';
 
 export interface TypingConsoleDisplayProps {
   prefix?: React.ReactNode;
   typedInput: string;
   ghostAutocompleteSuffix?: string;
+  suggestedPhrase?: string;
   className?: string;
 }
 
@@ -16,11 +18,14 @@ export interface TypingConsoleDisplayProps {
  *   and excess typed text scrolls off to the left.
  * - Text scrolling off the left edge has a sharp fade before the left edge.
  * - Prompted ghost text gets slowly fainter the further it gets from the cursor.
+ * - When suggestion is active, already-written letters are tinted slightly green or red,
+ *   anchored word-by-word to prevent length cascading.
  */
 export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
   prefix,
   typedInput,
   ghostAutocompleteSuffix,
+  suggestedPhrase,
   className = '',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -29,6 +34,15 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
 
   const [trackTranslateX, setTrackTranslateX] = useState<number>(0);
   const [hasScrolledLeft, setHasScrolledLeft] = useState<boolean>(false);
+
+  // Compute character-level correctness tints when a suggestion is active
+  const analyzedChars = useMemo(() => {
+    if (!suggestedPhrase || !ghostAutocompleteSuffix) {
+      return typedInput.split('').map((char) => ({ char, status: 'neutral' as const }));
+    }
+    const { analyzedChars: chars } = analyzeTypingWithWordAnchors(typedInput, suggestedPhrase);
+    return chars;
+  }, [typedInput, suggestedPhrase, ghostAutocompleteSuffix]);
 
   const updateScroll = () => {
     const container = containerRef.current;
@@ -102,7 +116,16 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
         }}
       >
         {prefix && <span className="typing-sentence-prefix">{prefix}</span>}
-        <span className="sentence-typed-text">{typedInput}</span>
+        <span className="sentence-typed-text">
+          {analyzedChars.map((item, idx) => (
+            <span
+              key={idx}
+              className={`typed-char ${item.status === 'correct' ? 'char-correct' : item.status === 'incorrect' ? 'char-incorrect' : ''}`}
+            >
+              {item.char}
+            </span>
+          ))}
+        </span>
         <span className="typing-caret" ref={caretRef} aria-hidden="true" />
         {ghostAutocompleteSuffix && (
           <span className="typing-ghost-autocomplete" aria-hidden="true">

@@ -225,3 +225,231 @@ export function calculateSpeedEffectiveness(
     displayPercent: clampedFloorPercent,
   };
 }
+
+export type CharTint = 'correct' | 'incorrect' | 'neutral';
+
+export interface AnalyzedChar {
+  char: string;
+  status: CharTint;
+}
+
+export interface TypingAlignmentResult {
+  analyzedChars: AnalyzedChar[];
+  ghostSuffix: string;
+}
+
+/**
+ * Needleman-Wunsch character alignment within a single word.
+ * Compares typed word against target word to identify exact correct and incorrect characters,
+ * accounting for insertions, deletions, and substitutions without cascading.
+ */
+function alignWordCharsNW(
+  uWord: string,
+  tWord: string
+): { statuses: CharTint[]; targetRemainder: string } {
+  const n = uWord.length;
+  const m = tWord.length;
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = 0; i <= n; i++) dp[i][0] = -i;
+  for (let j = 0; j <= m; j++) dp[0][j] = -j;
+
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      const match = uWord[i - 1].toLowerCase() === tWord[j - 1].toLowerCase();
+      dp[i][j] = Math.max(
+        dp[i - 1][j - 1] + (match ? 3 : -1),
+        dp[i - 1][j] - 1, // insertion in typed
+        dp[i][j - 1] - 1  // deletion from target
+      );
+    }
+  }
+
+  let i = n;
+  let j = m;
+  const statuses: CharTint[] = new Array<CharTint>(n).fill('incorrect');
+  let lastMatchedTargetIdx = -1;
+
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0) {
+      const match = uWord[i - 1].toLowerCase() === tWord[j - 1].toLowerCase();
+      if (dp[i][j] === dp[i - 1][j - 1] + (match ? 3 : -1)) {
+        statuses[i - 1] = match ? 'correct' : 'incorrect';
+        if (match && lastMatchedTargetIdx === -1) {
+          lastMatchedTargetIdx = j - 1;
+        }
+        i--;
+        j--;
+        continue;
+      }
+    }
+    if (i > 0 && dp[i][j] === dp[i - 1][j] - 1) {
+      statuses[i - 1] = 'incorrect';
+      i--;
+    } else {
+      j--;
+    }
+  }
+
+  const targetRemainder =
+    lastMatchedTargetIdx !== -1 && lastMatchedTargetIdx < m - 1
+      ? tWord.slice(lastMatchedTargetIdx + 1)
+      : lastMatchedTargetIdx === -1
+        ? tWord
+        : '';
+
+  return { statuses, targetRemainder };
+}
+
+/**
+ * Word-anchored typing analyzer:
+ * Anchors each word in `typedInput` to its corresponding word in `targetPhrase` so that
+ * misspellings with differing character counts never cascade into subsequent words.
+ * Returns character-level tints (slightly green for correct, slightly red for incorrect)
+ * and the synchronized ghost autocomplete suffix.
+ */
+export function analyzeTypingWithWordAnchors(
+  typedInput: string,
+  targetPhrase: string
+): TypingAlignmentResult {
+  if (!typedInput) {
+    return {
+      analyzedChars: [],
+      ghostSuffix: targetPhrase || '',
+    };
+  }
+
+  if (!targetPhrase || !targetPhrase.trim()) {
+    return {
+      analyzedChars: typedInput.split('').map((char) => ({ char, status: 'neutral' })),
+      ghostSuffix: '',
+    };
+  }
+
+  const targetWords = targetPhrase.trim().split(/\s+/);
+
+  // Tokenize typedInput into words and whitespace runs preserving exact character positions
+  const typedTokens: { text: string; isWord: boolean; start: number; end: number }[] = [];
+  const tokenRegex = /(\S+)|(\s+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = tokenRegex.exec(typedInput)) !== null) {
+    typedTokens.push({
+      text: match[0],
+      isWord: !match[2],
+      start: match.index,
+      end: match.index + match[0].length,
+    });
+  }
+
+  const typedWordTokens = typedTokens.filter((t) => t.isWord);
+  const n = typedWordTokens.length;
+  const m = targetWords.length;
+
+  function wordSimilarity(w1: string, w2: string): number {
+    if (!w1 || !w2) return 0;
+    const s1 = w1.toLowerCase();
+    const s2 = w2.toLowerCase();
+    if (s1 === s2) return 10;
+    let p = 0;
+    while (p < s1.length && p < s2.length && s1[p] === s2[p]) p++;
+    return p;
+  }
+
+  // DP alignment between sequence of typed words and target words
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(-Infinity));
+  const parent: ({ i: number; j: number; type: 'match' | 'skip_target' | 'extra_typed' } | null)[][] =
+    Array.from({ length: n + 1 }, () => new Array(m + 1).fill(null));
+  dp[0][0] = 0;
+
+  for (let i = 0; i <= n; i++) {
+    for (let j = 0; j <= m; j++) {
+      if (dp[i][j] === -Infinity) continue;
+      if (i < n && j < m) {
+        const sim = wordSimilarity(typedWordTokens[i].text, targetWords[j]);
+        if (dp[i][j] + sim > dp[i + 1][j + 1]) {
+          dp[i + 1][j + 1] = dp[i][j] + sim;
+          parent[i + 1][j + 1] = { i, j, type: 'match' };
+        }
+      }
+      if (j < m) {
+        if (dp[i][j] - 1 > dp[i][j + 1]) {
+          dp[i][j + 1] = dp[i][j] - 1;
+          parent[i][j + 1] = { i, j, type: 'skip_target' };
+        }
+      }
+      if (i < n) {
+        if (dp[i][j] - 2 > dp[i + 1][j]) {
+          dp[i + 1][j] = dp[i][j] - 2;
+          parent[i + 1][j] = { i, j, type: 'extra_typed' };
+        }
+      }
+    }
+  }
+
+  let currI = n;
+  let currJ = m;
+  const wordAlignment: number[] = new Array<number>(n).fill(-1);
+  while (currI > 0 || currJ > 0) {
+    const p = parent[currI][currJ];
+    if (!p) break;
+    if (p.type === 'match') {
+      wordAlignment[p.i] = p.j;
+    }
+    currI = p.i;
+    currJ = p.j;
+  }
+
+  const charStatuses: CharTint[] = new Array<CharTint>(typedInput.length).fill('neutral');
+  let lastTargetRemainder = '';
+
+  typedWordTokens.forEach((token, wIdx) => {
+    const targetIdx = wordAlignment[wIdx];
+    if (targetIdx === -1 || targetIdx >= targetWords.length) {
+      for (let k = token.start; k < token.end; k++) {
+        charStatuses[k] = 'incorrect';
+      }
+      return;
+    }
+
+    const tWord = targetWords[targetIdx];
+    const uWord = token.text;
+    const { statuses, targetRemainder } = alignWordCharsNW(uWord, tWord);
+
+    for (let c = 0; c < uWord.length; c++) {
+      charStatuses[token.start + c] = statuses[c];
+    }
+
+    if (wIdx === typedWordTokens.length - 1) {
+      lastTargetRemainder = targetRemainder;
+    }
+  });
+
+  // Calculate remaining ghost autocomplete suffix
+  let ghostSuffix = '';
+  if (typedWordTokens.length === 0) {
+    ghostSuffix = targetPhrase;
+  } else {
+    const lastTypedWordIdx = typedWordTokens.length - 1;
+    const lastTargetIdx = wordAlignment[lastTypedWordIdx];
+    const isInsideWord = !typedInput.endsWith(' ');
+
+    if (lastTargetIdx !== -1 && lastTargetIdx < targetWords.length) {
+      const curWordRemainder = isInsideWord ? lastTargetRemainder : '';
+      const remainingWords = targetWords.slice(lastTargetIdx + 1);
+
+      if (curWordRemainder && remainingWords.length > 0) {
+        ghostSuffix = curWordRemainder + ' ' + remainingWords.join(' ');
+      } else if (curWordRemainder) {
+        ghostSuffix = curWordRemainder;
+      } else if (remainingWords.length > 0) {
+        ghostSuffix = (isInsideWord ? ' ' : '') + remainingWords.join(' ');
+      }
+    }
+  }
+
+  const analyzedChars: AnalyzedChar[] = typedInput.split('').map((char, index) => ({
+    char,
+    status: charStatuses[index],
+  }));
+
+  return { analyzedChars, ghostSuffix };
+}

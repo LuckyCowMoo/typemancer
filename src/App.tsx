@@ -74,6 +74,7 @@ import {
 } from './utils/statusCatalog';
 import type { DictionaryResult } from './utils/statusCatalog';
 import {
+  analyzeTypingWithWordAnchors,
   calculateSpeedEffectiveness,
   calculateWpm,
   evaluateCandidates,
@@ -3062,10 +3063,13 @@ export function App() {
 
   /**
    * Computes the faint ghost autocomplete suffix shown in front of (after) the cursor
-   * once the student has typed at least 5 characters of a matching option!
+   * and the target phrase once the student has typed at least 5 characters of a matching option!
    */
-  const ghostAutocompleteSuffix = useMemo(() => {
-    if (typedInput.length < 5) return '';
+  const { ghostAutocompleteSuffix, ghostTargetPhrase } = useMemo<{
+    ghostAutocompleteSuffix: string;
+    ghostTargetPhrase: string;
+  }>(() => {
+    if (typedInput.length < 5) return { ghostAutocompleteSuffix: '', ghostTargetPhrase: '' };
 
     const pool: string[] = [];
 
@@ -3205,11 +3209,14 @@ export function App() {
       difficulty
     );
     const best = evaluated[0];
-    if (!best || !best.isPrefixMatch) return '';
+    if (!best || !best.isPrefixMatch) return { ghostAutocompleteSuffix: '', ghostTargetPhrase: '' };
 
     const candidatePhrase = best.phrase;
-    if (candidatePhrase.length <= typedInput.length) return '';
-    return candidatePhrase.slice(typedInput.length);
+    const { ghostSuffix } = analyzeTypingWithWordAnchors(typedInput, candidatePhrase);
+    return {
+      ghostAutocompleteSuffix: ghostSuffix,
+      ghostTargetPhrase: candidatePhrase,
+    };
   }, [
     activeEnvironment,
     activeEvent,
@@ -3349,6 +3356,7 @@ export function App() {
     <TypingConsoleDisplay
       typedInput={typedInput}
       ghostAutocompleteSuffix={ghostAutocompleteSuffix}
+      suggestedPhrase={ghostTargetPhrase}
       className="modal-embedded-input"
     />
   );
@@ -3812,6 +3820,7 @@ export function App() {
                 }
                 typedInput={typedInput}
                 ghostAutocompleteSuffix={ghostAutocompleteSuffix}
+                suggestedPhrase={ghostTargetPhrase}
               />
             </section>
           </main>
@@ -4399,6 +4408,7 @@ export function App() {
             <TypingConsoleDisplay
               typedInput={typedInput}
               ghostAutocompleteSuffix={ghostAutocompleteSuffix}
+              suggestedPhrase={ghostTargetPhrase}
             />
           </footer>
         </div>
