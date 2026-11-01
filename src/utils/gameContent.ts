@@ -23,7 +23,7 @@ import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
 import { cleanCardDescriptionForPlay } from './textHighlight';
 
-const CATALOG_SESSION_VERSION = 'v2_cards_rebalance';
+const CATALOG_SESSION_VERSION = 'v3_cost_sort_and_tiles';
 
 /**
  * Loads a catalog from sessionStorage if present (retaining user edits during the current browser session),

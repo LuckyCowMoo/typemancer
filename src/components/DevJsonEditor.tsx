@@ -611,16 +611,16 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     for (const cat of CARD_CATEGORY_KEYS) {
       const catCards = groups[cat] || [];
       const sorted = [...catCards].sort((a, b) => {
-        const rarA = RARITY_ORDER[a.card.rarity] ?? 99;
-        const rarB = RARITY_ORDER[b.card.rarity] ?? 99;
-        if (rarA !== rarB) {
-          return rarA - rarB;
-        }
-
         const costA = a.card.xCost || a.card.cost === -1 ? 999 : (a.card.cost ?? 0);
         const costB = b.card.xCost || b.card.cost === -1 ? 999 : (b.card.cost ?? 0);
         if (costA !== costB) {
           return costA - costB;
+        }
+
+        const rarA = RARITY_ORDER[a.card.rarity] ?? 99;
+        const rarB = RARITY_ORDER[b.card.rarity] ?? 99;
+        if (rarA !== rarB) {
+          return rarA - rarB;
         }
 
         const nameA = a.card.names?.easy || a.card.id;
@@ -951,9 +951,20 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                     <div className="dev-list-meta">
                       <div className="dev-list-title">
                         {en.namePools.easy[0] || en.id}
+                        <span
+                          style={{
+                            fontSize: '0.74rem',
+                            opacity: 0.65,
+                            fontWeight: 600,
+                            marginLeft: '6px',
+                          }}
+                        >
+                          T{en.tier} ({en.minHp}-{en.maxHp} HP)
+                        </span>
                       </div>
                       <div className="dev-list-sub">
-                        {en.id} · {en.faction} · T{en.tier} ({en.minHp}-{en.maxHp} HP)
+                        {en.description ||
+                          `${en.faction} · Tier ${en.tier} ${en.role} (${en.minHp}-${en.maxHp} HP) · ${en.moves.length} moves`}
                       </div>
                     </div>
                   </button>
@@ -1716,10 +1727,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                 style={{
                                   color: theme.descColor,
                                   opacity: 0.95,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '6px',
-                                  marginTop: '2px',
+                                  marginTop: '3px',
                                 }}
                               >
                                 <span
@@ -1732,19 +1740,14 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                     fontSize: '0.72rem',
                                     fontWeight: 700,
                                     textTransform: 'lowercase',
+                                    marginRight: '6px',
+                                    display: 'inline-block',
+                                    verticalAlign: 'baseline',
                                   }}
                                 >
                                   {card.rarity}
                                 </span>
-                                <span
-                                  style={{
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                  }}
-                                >
-                                  {card.description}
-                                </span>
+                                <span>{card.description}</span>
                               </div>
                             </div>
                           </button>
@@ -2483,10 +2486,21 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                       <img src={r.art.spriteUrl} alt="" className="dev-list-thumb" />
                     )}
                     <div className="dev-list-meta">
-                      <div className="dev-list-title">{r.names.easy}</div>
-                      <div className="dev-list-sub">
-                        {r.rarity} · {r.description}
+                      <div className="dev-list-title">
+                        {r.names.easy}
+                        <span
+                          style={{
+                            fontSize: '0.74rem',
+                            opacity: 0.65,
+                            fontWeight: 600,
+                            marginLeft: '6px',
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          ({r.rarity})
+                        </span>
                       </div>
+                      <div className="dev-list-sub">{r.description}</div>
                     </div>
                   </button>
                 );
@@ -3011,9 +3025,21 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                   onClick={() => setSelectedEventIdx(idx)}
                 >
                   <div className="dev-list-meta">
-                    <div className="dev-list-title">{ev.title}</div>
+                    <div className="dev-list-title">
+                      {ev.title}
+                      <span
+                        style={{
+                          fontSize: '0.74rem',
+                          opacity: 0.65,
+                          fontWeight: 600,
+                          marginLeft: '6px',
+                        }}
+                      >
+                        ({ev.choices.length} choices)
+                      </span>
+                    </div>
                     <div className="dev-list-sub">
-                      {ev.id} · {ev.choices.length} choices
+                      {ev.narrative || `${ev.id} · ${ev.choices.length} choices`}
                     </div>
                   </div>
                 </button>

@@ -2473,15 +2473,17 @@ body,
 .dev-list-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 9px 11px;
+  min-height: 74px;
+  padding: 10px 12px;
   background: #fdf8ef;
   border: 2px solid #c5b393;
   border-radius: 8px;
   text-align: left;
   transition: all 0.1s ease;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .dev-list-item:hover {
@@ -2497,8 +2499,10 @@ body,
 }
 
 .dev-list-thumb {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   image-rendering: pixelated;
   object-fit: contain;
   background: #e4d7c0;
@@ -2511,6 +2515,9 @@ body,
 .dev-list-meta {
   min-width: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .dev-list-title {
@@ -2520,14 +2527,20 @@ body,
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 3px;
 }
 
 .dev-list-sub {
   font-size: 0.78rem;
   color: #5c4b3b;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 /* ==================== DEV EDITOR CARDS CATEGORY & TIER STYLES ==================== */

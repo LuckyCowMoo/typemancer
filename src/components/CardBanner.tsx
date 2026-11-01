@@ -160,16 +160,16 @@ export function sortCardsByCategoryAndRarity<T>(
       return catA - catB;
     }
 
-    const rarA = RARITY_ORDER[resA.rarity] ?? 0;
-    const rarB = RARITY_ORDER[resB.rarity] ?? 0;
-    if (rarA !== rarB) {
-      return rarA - rarB;
-    }
-
     const costA = resA.xCost || resA.cost === -1 ? 999 : (resA.cost ?? 0);
     const costB = resB.xCost || resB.cost === -1 ? 999 : (resB.cost ?? 0);
     if (costA !== costB) {
       return costA - costB;
+    }
+
+    const rarA = RARITY_ORDER[resA.rarity] ?? 0;
+    const rarB = RARITY_ORDER[resB.rarity] ?? 0;
+    if (rarA !== rarB) {
+      return rarA - rarB;
     }
 
     return resA.name.localeCompare(resB.name);
