@@ -405,7 +405,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           justify-content: center;
           z-index: 120;
           padding: 16px;
-          cursor: none;
+          cursor: default;
           user-select: none;
         }
 
@@ -649,12 +649,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           box-sizing: border-box;
           min-height: 125px;
           justify-content: space-between;
-          cursor: pointer;
-        }
-
-        .codex-entry-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+          cursor: default;
         }
 
         .codex-entry-card.is-selected {
@@ -1063,8 +1058,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 return (
                   <div
                     key={tab}
-                    onClick={() => onChangeTab?.(tab)}
-                    style={{ cursor: 'pointer' }}
                     className={`codex-tab-pill ${isActive ? 'tab-active' : ''} ${
                       highlight.isEnterReady
                         ? 'tab-enter-ready'
@@ -1072,7 +1065,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                         ? 'tab-highlighted'
                         : ''
                     }`}
-                    title={`Switch to ${tab} (or press Tab)`}
+                    title={`Type "${tab}" or press Tab to switch`}
                   >
                     <span>{tab}</span>
                     <span className="codex-tab-count">
@@ -1105,7 +1098,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 <span className="codex-key-label">Switch Category</span>
               </div>
               <div className="codex-key-group">
-                <span className="codex-key-label">🖱️ Click Any Card or Type Name</span>
+                <span className="codex-key-label">Type Name or Arrow Keys</span>
               </div>
             </div>
           </div>
@@ -1118,7 +1111,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
               ref={gridContainerRef}
             >
               <div className="codex-grid-action-hint">
-                <span>Select any entry below with <kbd className="codex-hint-kbd">↑</kbd> <kbd className="codex-hint-kbd">↓</kbd> <kbd className="codex-hint-kbd">←</kbd> <kbd className="codex-hint-kbd">→</kbd> or Click</span>
+                <span>Navigate entries using <kbd className="codex-hint-kbd">↑</kbd> <kbd className="codex-hint-kbd">↓</kbd> <kbd className="codex-hint-kbd">←</kbd> <kbd className="codex-hint-kbd">→</kbd> Arrow Keys</span>
               </div>
 
               <div className="codex-entry-grid">
@@ -1139,7 +1132,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={en.id}
-                        onClick={() => onSelectEntry?.(en.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
                         } ${
@@ -1151,7 +1143,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? primaryName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
+                        title={isDiscovered ? primaryName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1188,7 +1180,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={c.id}
-                        onClick={() => onSelectEntry?.(c.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
                         } ${
@@ -1200,7 +1191,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? cardName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
+                        title={isDiscovered ? cardName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1241,7 +1232,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={env.id}
-                        onClick={() => onSelectEntry?.(env.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
                         } ${
@@ -1253,7 +1243,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? env.name : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
+                        title={isDiscovered ? env.name : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1290,7 +1280,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     return (
                       <div
                         key={r.id}
-                        onClick={() => onSelectEntry?.(r.id)}
                         className={`codex-entry-card ${
                           isSelected ? 'is-selected' : ''
                         } ${
@@ -1302,7 +1291,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? relicName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
+                        title={isDiscovered ? relicName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1441,7 +1430,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
 
                       <div className="inspector-names-pool-box">
                         <div className="inspector-names-heading">
-                          Names ({phraseDiff.toUpperCase()} Difficulty):
+                          Names:
                         </div>
                         <div className="inspector-names-chips">
                           {en.namePools[phraseDiff]?.map((name) => (
@@ -1854,8 +1843,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 return (
                   <span
                     key={tab}
-                    onClick={() => onChangeTab?.(tab)}
-                    style={{ cursor: 'pointer' }}
                     className={`codex-keyword-pill ${
                       hl.isEnterReady ? 'enter-ready' : hl.isHighlighted ? 'highlighted' : ''
                     }`}

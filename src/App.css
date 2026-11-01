@@ -1,7 +1,6 @@
 * {
   box-sizing: border-box;
   user-select: none;
-  cursor: none !important;
 }
 
 html,
@@ -15,6 +14,7 @@ body,
   background-color: #ece3d5;
   color: #162229;
   font-family: 'Georgia', 'Palatino Linotype', 'Book Antiqua', serif;
+  cursor: default;
 }
 
 /* Tactile Paper & Parchment Grain Viewport */

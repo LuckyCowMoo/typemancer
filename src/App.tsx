@@ -3587,22 +3587,6 @@ export function App() {
                       <div
                         key={item.instanceId}
                         className={isKeepCandidate ? 'card-tab-keep-candidate' : undefined}
-                        onClick={() => {
-                          if (isKeepCandidate) {
-                            setRetainedCardIds((prev) => new Set([...prev, item.instanceId]));
-                            soundEngine.playPageTurn(settings);
-                            triggerElementParticles(
-                              `[data-card-id="${item.instanceId}"]`,
-                              ['#10b981', '#34d399', '#ffd166'],
-                              48,
-                              4
-                            );
-                            const def = getCardDefinition(item.cardId);
-                            spawnPopup('player', `📌 Kept "${def.names[phraseDiff]}"!`, '#059669');
-                            setPendingKeepCount((c) => Math.max(0, c - 1));
-                            resetTypingBuffer(true);
-                          }
-                        }}
                       >
                         <CardBanner
                           instance={item}
@@ -3630,15 +3614,10 @@ export function App() {
               {pendingKeepCount > 0 ? (
                 <div
                   className="cards-footer-title"
-                  style={{ color: '#10b981', fontWeight: 900, cursor: 'pointer' }}
-                  onClick={() => {
-                    setPendingKeepCount(0);
-                    spawnPopup('player', 'Kept no card', '#64748b');
-                    resetTypingBuffer(true);
-                  }}
-                  title="Click or type 'skip' to skip keeping a card"
+                  style={{ color: '#10b981', fontWeight: 900 }}
+                  title="Type card name or 'skip' to skip keeping a card"
                 >
-                  📌 KEEP A CARD (click card or here to skip)
+                  📌 KEEP A CARD (type card name or 'skip')
                 </div>
               ) : (
                 <div className="cards-footer-title">type [view deck]</div>
@@ -3668,10 +3647,6 @@ export function App() {
                         envSt.isHighlighted ? 'top-biome-slot-highlighted' : ''
                       } ${envSt.isEnterReady ? 'top-biome-slot-enter-ready' : ''}`}
                       title="Type environment name to inspect"
-                      onClick={() => {
-                        setBiomePopupExpanded(true);
-                        setBiomePopupManual(true);
-                      }}
                     >
                       <span className="top-biome-slot-name">{activeEnvironment.name}</span>
                     </div>
