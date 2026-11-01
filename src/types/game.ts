@@ -135,6 +135,7 @@ export interface EnemyDefinition {
   tier: 1 | 2 | 3 | 4; // 1: Early (Floors 1-8), 2: Mid (9-16), 3: Late (17-23) / Elites, 4: Bosses
   minHp: number;
   maxHp: number;
+  description?: string;
   namePools: DifficultyStringPools;
   art: ArtPlaceholder;
   moves: EnemyMove[];

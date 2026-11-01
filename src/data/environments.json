@@ -12,7 +12,7 @@
       "primaryColor": "#b45309",
       "secondaryColor": "#f59e0b",
       "shape": "shield",
-      "spriteUrl": "./assets/entities/rock_pebble.png"
+      "spriteUrl": "./assets/sprite-library/ravenmore/ShieldLargeT1.png"
     },
     "modifiers": {
       "wardBonus": 2
@@ -31,7 +31,7 @@
       "primaryColor": "#0e7490",
       "secondaryColor": "#38bdf8",
       "shape": "capsule",
-      "spriteUrl": "./assets/relics/Ac_Necklace02.png"
+      "spriteUrl": "./assets/sprite-library/dcss-spells-env/lightning_bolt.png"
     },
     "modifiers": {
       "energyBonus": 1,
@@ -51,7 +51,7 @@
       "primaryColor": "#15803d",
       "secondaryColor": "#4ade80",
       "shape": "thorn",
-      "spriteUrl": "./assets/entities/evil_flower.png"
+      "spriteUrl": "./assets/sprite-library/ravenmore/PotionGreen.png"
     },
     "modifiers": {
       "statusBonus": 1
@@ -70,7 +70,7 @@
       "primaryColor": "#b91c1c",
       "secondaryColor": "#f87171",
       "shape": "spiky",
-      "spriteUrl": "./assets/relics/Ac_Ring02.png"
+      "spriteUrl": "./assets/sprite-library/ravenmore/SwordT1.png"
     },
     "modifiers": {
       "damageBonus": 2
@@ -89,7 +89,7 @@
       "primaryColor": "#1d4ed8",
       "secondaryColor": "#60a5fa",
       "shape": "hexagon",
-      "spriteUrl": "./assets/entities/rock_titan.png"
+      "spriteUrl": "./assets/sprite-library/ravenmore/ArmorT1.png"
     },
     "modifiers": {
       "turnStartWardAll": 3
@@ -108,7 +108,7 @@
       "primaryColor": "#6d28d9",
       "secondaryColor": "#a78bfa",
       "shape": "scroll",
-      "spriteUrl": "./assets/entities/evil_spore.png"
+      "spriteUrl": "./assets/sprite-library/dcss-spells-env/fireball.png"
     },
     "modifiers": {
       "turnEndInkBurnAll": 1
@@ -127,7 +127,7 @@
       "primaryColor": "#a16207",
       "secondaryColor": "#facc15",
       "shape": "crown",
-      "spriteUrl": "./assets/relics/Ac_Medal01.png"
+      "spriteUrl": "./assets/sprite-library/ravenmore/PotionRed.png"
     },
     "modifiers": {
       "healBonus": 3,
@@ -147,7 +147,7 @@
       "primaryColor": "#0f766e",
       "secondaryColor": "#2dd4bf",
       "shape": "scroll",
-      "spriteUrl": "./assets/entities/player.png"
+      "spriteUrl": "./assets/sprite-library/ravenmore/Scroll.png"
     },
     "modifiers": {
       "drawBonus": 1,
@@ -155,7 +155,7 @@
     }
   },
   {
-    "id": " calm_parchment_meadow",
+    "id": "calm_parchment_meadow",
     "name": "Calm Parchment Meadow",
     "description": "A still, quiet clearing where no environmental hazards interfere with the duel.",
     "backgroundTint": "rgba(234, 223, 206, 0.0)",
@@ -167,7 +167,7 @@
       "primaryColor": "#4b5563",
       "secondaryColor": "#9ca3af",
       "shape": "capsule",
-      "spriteUrl": "./assets/entities/evil_weed.png"
+      "spriteUrl": "./assets/sprite-library/ravenmore/Map.png"
     },
     "modifiers": {}
   }

@@ -51,7 +51,8 @@
         "damage": 3,
         "hits": 2
       }
-    ]
+    ],
+    "description": "Excels at rapid, nimble ambush strikes and relentless multi-hit flurries."
   },
   {
     "id": "goblin_archer",
@@ -105,7 +106,8 @@
         "damage": 2,
         "hits": 3
       }
-    ]
+    ],
+    "description": "Harasses from long range with sharp precision shots and wide piercing volleys."
   },
   {
     "id": "goblin_drummer",
@@ -164,7 +166,8 @@
         "weight": 40,
         "damage": 5
       }
-    ]
+    ],
+    "description": "Rallies the horde with booming war cadence that empowers all allies with Bold."
   },
   {
     "id": "goblin_brute",
@@ -218,7 +221,8 @@
         "damage": 4,
         "hits": 3
       }
-    ]
+    ],
+    "description": "Overwhelms challengers through brute muscle, unleashing crushing slams and wild swings."
   },
   {
     "id": "goblin_shaman",
@@ -277,7 +281,8 @@
         "weight": 50,
         "heal": 10
       }
-    ]
+    ],
+    "description": "Mends wounded allies with tribal brews while cursing enemies with Exposed to magnify incoming harm."
   },
   {
     "id": "goblin_assassin",
@@ -331,7 +336,8 @@
         "damage": 4,
         "hits": 4
       }
-    ]
+    ],
+    "description": "A lethal shadow-stalker specializing in devastating executions and dizzying flurry attacks."
   },
   {
     "id": "goblin_warlord",
@@ -390,7 +396,8 @@
         "weight": 50,
         "damage": 12
       }
-    ]
+    ],
+    "description": "Inspires troops with roaring commands that dramatically bolster ally strength before swinging heavy crushing blows."
   },
   {
     "id": "rock_pebble",
@@ -443,7 +450,8 @@
         "weight": 50,
         "ward": 6
       }
-    ]
+    ],
+    "description": "A sturdy little sentinel that fortifies itself with solid stone Ward between stinging charges."
   },
   {
     "id": "rock_roller",
@@ -497,7 +505,8 @@
         "damage": 4,
         "ward": 4
       }
-    ]
+    ],
+    "description": "Channels rolling kinetic momentum to smoothly alternate between heavy impacts and defensive bracing."
   },
   {
     "id": "rock_shield",
@@ -550,7 +559,8 @@
         "weight": 30,
         "damage": 6
       }
-    ]
+    ],
+    "description": "An impenetrable earthen bulwark designed to absorb devastating punishment before ramming forward."
   },
   {
     "id": "rock_crusher",
@@ -603,7 +613,8 @@
         "weight": 50,
         "ward": 12
       }
-    ]
+    ],
+    "description": "Pounds through enemy lines by combining ironclad defensive stances with bone-crushing smashes."
   },
   {
     "id": "rock_golem",
@@ -657,7 +668,8 @@
         "weight": 40,
         "damage": 12
       }
-    ]
+    ],
+    "description": "Maintains an unyielding frontline presence, generating heavy protective Ward while shaking the ground with earthquakes."
   },
   {
     "id": "rock_titan",
@@ -710,7 +722,8 @@
         "weight": 50,
         "ward": 20
       }
-    ]
+    ],
+    "description": "A colossal mountain monolith capable of erecting towering stone barriers and delivering earth-shattering slams."
   },
   {
     "id": "rock_elemental",
@@ -763,7 +776,8 @@
         "weight": 50,
         "ward": 15
       }
-    ]
+    ],
+    "description": "Hurls immense granite boulders from behind a hardened crystalline core that shrugs off damage."
   },
   {
     "id": "evil_weed",
@@ -822,7 +836,8 @@
         "weight": 50,
         "damage": 5
       }
-    ]
+    ],
+    "description": "Drains player vigor with debilitating Faded spores while thrashing out with thorny barbed vines."
   },
   {
     "id": "evil_spore",
@@ -881,7 +896,8 @@
         "weight": 40,
         "damage": 4
       }
-    ]
+    ],
+    "description": "Erupts in choking clouds of corrosive Ink Burn that steadily dissolve defenses over time."
   },
   {
     "id": "evil_flower",
@@ -940,7 +956,8 @@
           }
         ]
       }
-    ]
+    ],
+    "description": "Restores its own vitality through photosynthetic blooming while scattering disorienting pollen that leaves targets Exposed."
   },
   {
     "id": "evil_tree",
@@ -993,7 +1010,8 @@
         "weight": 40,
         "heal": 10
       }
-    ]
+    ],
+    "description": "Deeply anchors its roots to regenerate health while sweeping wide arcs with heavy wooden boughs."
   },
   {
     "id": "evil_flytrap",
@@ -1053,7 +1071,8 @@
           }
         ]
       }
-    ]
+    ],
+    "description": "Snaps shut with savage jaws and sprays caustic acidic bile that inflicts lingering Ink Burn."
   },
   {
     "id": "evil_treant",
@@ -1117,7 +1136,8 @@
           }
         ]
       }
-    ]
+    ],
+    "description": "Spreads ancient decay by smothering foes in toxic Faded and Ink Burn spores while smashing with uprooted trunks."
   },
   {
     "id": "evil_mandragora",
@@ -1177,7 +1197,8 @@
         "weight": 40,
         "damage": 8
       }
-    ]
+    ],
+    "description": "Stuns prey with ear-splitting shrieks that leave them Exposed, then leeches away their life force."
   },
   {
     "id": "boss_goblin_king",
@@ -1244,7 +1265,8 @@
         "damage": 6,
         "hits": 4
       }
-    ]
+    ],
+    "description": "Commands the battlefield with tyrannical buff anthems, violent multi-strike tantrums, and royal executions."
   },
   {
     "id": "boss_rock_mountain",
@@ -1297,7 +1319,8 @@
         "weight": 50,
         "ward": 30
       }
-    ]
+    ],
+    "description": "An immovable apex behemoth that hardens itself in impenetrable armor before unleashing catastrophic avalanches."
   },
   {
     "id": "boss_evil_world_tree",
@@ -1368,7 +1391,8 @@
         "weight": 30,
         "heal": 20
       }
-    ]
+    ],
+    "description": "A primordial forest terror that siphons life back into itself while blanketing the field in lethal Ink Burn and Faded rot."
   },
   {
     "id": "the_evil_wizard",
@@ -1447,6 +1471,7 @@
         "damage": 10,
         "hits": 4
       }
-    ]
+    ],
+    "description": "An apocalyptic archmage who fortifies behind massive arcane wards, inflicts crippling hexes, and summons devastating meteor swarms."
   }
 ]

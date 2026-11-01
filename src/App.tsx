@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
-import { CardBanner } from './components/CardBanner';
+import {
+  CardBanner,
+  CARD_CATEGORY_LABELS,
+  getCardVisualCategory,
+  sortCardsByCategoryAndRarity,
+} from './components/CardBanner';
+import type { CardVisualCategory } from './components/CardBanner';
+import { CodexModal } from './components/CodexModal';
+import type { CodexTab } from './components/CodexModal';
 import { DevJsonEditor } from './components/DevJsonEditor';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
 import { MAP_NODE_STYLES, ScrollableMap } from './components/ScrollableMap';
@@ -21,6 +29,7 @@ import type {
   StatusState,
 } from './types/game';
 import {
+  CARDS_CATALOG,
   chooseBattleEnvironment,
   chooseEnemyMove,
   createStarterDeck,
@@ -35,9 +44,16 @@ import {
   getRelicDefinition,
   nextUid,
   pickRandom,
+  RELICS_CATALOG,
   resolveCardInstance,
   shuffleArray,
 } from './utils/gameContent';
+import {
+  loadCodexState,
+  unlockCodexEntries,
+  unlockAllCodexEntries,
+} from './utils/codexEngine';
+import type { CodexDiscoveryState } from './utils/codexEngine';
 import {
   clearLocalRun,
   decodeSaveCode,
@@ -89,7 +105,8 @@ type ModalOverlay =
   | 'save'
   | 'status_effects'
   | 'entity_inspect'
-  | 'dictionary';
+  | 'dictionary'
+  | 'codex';
 
 interface ShopInventory {
   cards: { instance: CardInstance; price: number; sold: boolean }[];
@@ -201,6 +218,11 @@ export function App() {
   const [activeEnvironment, setActiveEnvironment] = useState<BattleEnvironmentDefinition>(
     () => ENVIRONMENTS_CATALOG[0]
   );
+  const [biomePopupExpanded, setBiomePopupExpanded] = useState<boolean>(true);
+  const [codexDiscovery, setCodexDiscovery] = useState<CodexDiscoveryState>(() => loadCodexState());
+  const [codexTab, setCodexTab] = useState<CodexTab>('monsters');
+  const [codexSelectedId, setCodexSelectedId] = useState<string | null>(null);
+  const [codexScrollOffset, setCodexScrollOffset] = useState<number>(0);
   const [devEditorOpen, setDevEditorOpen] = useState<boolean>(
     () =>
       typeof window !== 'undefined' &&
@@ -321,6 +343,28 @@ export function App() {
     }, 80);
     return () => window.clearInterval(interval);
   }, [actionStartTime, actionCharAccum, difficulty, typedInput]);
+
+  // Biome popup auto-shrinks to top-bar after 15s in battle
+  useEffect(() => {
+    if (screen === 'battle' && biomePopupExpanded) {
+      const timer = window.setTimeout(() => {
+        setBiomePopupExpanded(false);
+      }, 15000);
+      return () => window.clearTimeout(timer);
+    }
+  }, [screen, biomePopupExpanded]);
+
+  // Automatically record newly collected cards and relics in player's Codex
+  useEffect(() => {
+    if (deck.length > 0 || relicIds.length > 0) {
+      setCodexDiscovery(
+        unlockCodexEntries({
+          cards: deck.map((c) => c.cardId),
+          relics: relicIds,
+        })
+      );
+    }
+  }, [deck, relicIds]);
 
   const wpmRelicBonus = useMemo(() => {
     return relicIds.reduce((sum, id) => {
@@ -473,6 +517,15 @@ export function App() {
       setSelectedCard(null);
       setFloatingPopups([]);
       resetTypingBuffer(true);
+      setBiomePopupExpanded(true);
+      setCodexDiscovery(
+        unlockCodexEntries({
+          enemies: spawnedEnemies.map((e) => e.enemyId),
+          environments: [chosenEnv.id],
+          cards: currentDeck.map((c) => c.cardId),
+          relics: currentRelics,
+        })
+      );
       setScreen('battle');
       setHandAnimState('drawing');
       window.setTimeout(() => setHandAnimState('idle'), 420);
@@ -550,6 +603,7 @@ export function App() {
         triggerElementParticles('[data-player-spot="true"]', cardPalette, 36, 48);
       }
       setIsAnimatingTurn(true);
+      setBiomePopupExpanded(false);
       setSelectedCard(null);
       resetTypingBuffer(true);
 
@@ -1348,6 +1402,10 @@ export function App() {
     });
   }, [hand, phraseDiff]);
 
+  const sortedHandCandidates = useMemo(() => {
+    return sortCardsByCategoryAndRarity(handCandidates, (c) => c.item, phraseDiff);
+  }, [handCandidates, phraseDiff]);
+
   const evaluatedHand = useMemo(() => {
     if (screen !== 'battle' || selectedCard) return [];
     return evaluateCandidates(
@@ -1574,6 +1632,139 @@ export function App() {
         }
       }
 
+      if (overlay === 'codex') {
+        if (matchCommand(raw, ['monsters', 'enemies'], 'easy')) {
+          setCodexTab('monsters');
+          setCodexSelectedId(null);
+          setCodexScrollOffset(0);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+        if (matchCommand(raw, ['cards'], 'easy')) {
+          setCodexTab('cards');
+          setCodexSelectedId(null);
+          setCodexScrollOffset(0);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+        if (matchCommand(raw, ['environments', 'biomes'], 'easy')) {
+          setCodexTab('environments');
+          setCodexSelectedId(null);
+          setCodexScrollOffset(0);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+        if (matchCommand(raw, ['relics'], 'easy')) {
+          setCodexTab('relics');
+          setCodexSelectedId(null);
+          setCodexScrollOffset(0);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+        if (matchCommand(raw, ['unlock all', 'unlock-all'], 'easy')) {
+          setCodexDiscovery(unlockAllCodexEntries());
+          resetTypingBuffer(false);
+          soundEngine.playConfirm(settings);
+          return;
+        }
+
+        // Selection by name within current active tab
+        if (codexTab === 'monsters') {
+          const matchedEnemy = ENEMIES_CATALOG.find((e) => {
+            if (!codexDiscovery.enemies.includes(e.id)) return false;
+            const names = [e.id, ...(e.namePools[phraseDiff] || e.namePools.easy || [])];
+            return matchCommand(raw, names, difficulty);
+          });
+          if (matchedEnemy) {
+            setCodexSelectedId(matchedEnemy.id);
+            resetTypingBuffer(false);
+            soundEngine.playPageTurn(settings);
+            return;
+          }
+        } else if (codexTab === 'cards') {
+          const matchedCard = CARDS_CATALOG.find((c) => {
+            if (!codexDiscovery.cards.includes(c.id)) return false;
+            const names = [c.names[phraseDiff], c.names.easy, c.names.medium, c.names.hard, c.id].filter(Boolean);
+            return matchCommand(raw, names, difficulty);
+          });
+          if (matchedCard) {
+            setCodexSelectedId(matchedCard.id);
+            resetTypingBuffer(false);
+            soundEngine.playPageTurn(settings);
+            return;
+          }
+        } else if (codexTab === 'environments') {
+          const matchedEnv = ENVIRONMENTS_CATALOG.find((env) => {
+            if (!codexDiscovery.environments.includes(env.id)) return false;
+            return matchCommand(raw, [env.name, env.id], difficulty);
+          });
+          if (matchedEnv) {
+            setCodexSelectedId(matchedEnv.id);
+            resetTypingBuffer(false);
+            soundEngine.playPageTurn(settings);
+            return;
+          }
+        } else if (codexTab === 'relics') {
+          const matchedRelic = RELICS_CATALOG.find((r) => {
+            if (!codexDiscovery.relics.includes(r.id)) return false;
+            const names = [r.names[phraseDiff], r.names.easy, r.names.medium, r.names.hard, r.id].filter(Boolean);
+            return matchCommand(raw, names, difficulty);
+          });
+          if (matchedRelic) {
+            setCodexSelectedId(matchedRelic.id);
+            resetTypingBuffer(false);
+            soundEngine.playPageTurn(settings);
+            return;
+          }
+        }
+
+        // Cross-tab fallback search
+        const anyEnemy = ENEMIES_CATALOG.find(
+          (e) => codexDiscovery.enemies.includes(e.id) && matchCommand(raw, [e.id, ...(e.namePools[phraseDiff] || [])], difficulty)
+        );
+        if (anyEnemy) {
+          setCodexTab('monsters');
+          setCodexSelectedId(anyEnemy.id);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+        const anyCard = CARDS_CATALOG.find(
+          (c) => codexDiscovery.cards.includes(c.id) && matchCommand(raw, [c.names[phraseDiff], c.id], difficulty)
+        );
+        if (anyCard) {
+          setCodexTab('cards');
+          setCodexSelectedId(anyCard.id);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+        const anyEnv = ENVIRONMENTS_CATALOG.find(
+          (env) => codexDiscovery.environments.includes(env.id) && matchCommand(raw, [env.name, env.id], difficulty)
+        );
+        if (anyEnv) {
+          setCodexTab('environments');
+          setCodexSelectedId(anyEnv.id);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+        const anyRelic = RELICS_CATALOG.find(
+          (r) => codexDiscovery.relics.includes(r.id) && matchCommand(raw, [r.names[phraseDiff], r.id], difficulty)
+        );
+        if (anyRelic) {
+          setCodexTab('relics');
+          setCodexSelectedId(anyRelic.id);
+          resetTypingBuffer(false);
+          soundEngine.playPageTurn(settings);
+          return;
+        }
+      }
+
       if (overlay === 'save' && raw.toUpperCase().startsWith('TM1-')) {
         if (restoreFromSavePayload(raw)) {
           soundEngine.playConfirm(settings);
@@ -1587,6 +1778,15 @@ export function App() {
     }
 
     // 2. Universal Meta-Commands
+    if (matchCommand(raw, ['codex', 'bestiary', 'compendium', 'collection'], 'easy')) {
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles('[data-cmd="codex"]', ['#1b6488', '#d97706', '#ffd166'], 80, 4);
+      setCodexSelectedId(null);
+      setCodexScrollOffset(0);
+      setOverlay('codex');
+      resetTypingBuffer(false);
+      return;
+    }
     if (matchCommand(raw, ['help', 'commands', 'what can i type'], 'easy')) {
       soundEngine.playPageTurn(settings);
       triggerElementParticles('[data-cmd="help"]', ['#1b6488', '#137547', '#ffd166'], 82, 4);
@@ -1642,7 +1842,7 @@ export function App() {
     }
 
     if (
-      matchCommand(raw, ['view deck', 'deck', 'show deck'], 'easy') &&
+      matchCommand(raw, ['view deck', 'deck', 'show deck', 'cards', 'view cards'], 'easy') &&
       screen !== 'main_menu' &&
       screen !== 'peasant_intro'
     ) {
@@ -2762,6 +2962,43 @@ export function App() {
     </div>
   );
 
+  const renderCategorizedCardGrid = (cards: CardInstance[], emptyLabel = 'No cards') => {
+    if (cards.length === 0) {
+      return <p className="deck-empty-note">{emptyLabel}</p>;
+    }
+
+    const categoryOrder: CardVisualCategory[] = ['attack', 'defence', 'skill', 'debuff', 'power'];
+    const sortedAll = sortCardsByCategoryAndRarity(cards, (c) => c, phraseDiff);
+
+    return (
+      <div className="categorized-deck-container">
+        {categoryOrder.map((cat) => {
+          const catCards = sortedAll.filter(
+            (c) => getCardVisualCategory(resolveCardInstance(c, phraseDiff)) === cat
+          );
+          if (catCards.length === 0) return null;
+          return (
+            <div key={cat} className="deck-category-section">
+              <h3 className={`deck-category-title deck-cat-title-${cat}`}>
+                {CARD_CATEGORY_LABELS[cat]} ({catCards.length})
+              </h3>
+              <div className="deck-banner-grid">
+                {catCards.map((inst, idx) => (
+                  <CardBanner
+                    key={inst.instanceId}
+                    instance={inst}
+                    phraseDiff={phraseDiff}
+                    index={idx}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderTypingInputWithCaret = () => (
     <span className="sentence-live-input">
       {typedInput}
@@ -2854,10 +3091,37 @@ export function App() {
       {/* ==================== BATTLE SCENE ==================== */}
       {screen === 'battle' && (
         <div key="scene-battle" className="battle-layout scene-page-transition">
-          {/* LEFT COLUMN: Stacked Paper Card Banners */}
+          {/* LEFT COLUMN: Stacked Paper Card Cabinet */}
           <aside className="cards-column" aria-label="Player Hand">
+            {/* Top Cabinet Header: Energy Plaque + WPM Meter */}
+            <div className="cabinet-top-header">
+              <div className="cabinet-energy-plaque">
+                <span className="cabinet-energy-icon">⚡</span>
+                <span className="cabinet-energy-text">{energy}/{maxEnergy} Energy</span>
+              </div>
+              {difficulty === 'extra_hard' && (
+                <div className="wpm-meter-standalone cabinet-wpm-meter">
+                  <div className="wpm-meter-labels">
+                    <span>Speed: {liveWpm} WPM</span>
+                    <span>Power: {liveEffectiveness.displayPercent}%</span>
+                  </div>
+                  <div className="wpm-bar-track">
+                    <div
+                      className={`wpm-bar-fill ${
+                        liveEffectiveness.displayPercent > 100 ? 'wpm-bar-overflow' : ''
+                      }`}
+                      style={{
+                        width: `${Math.min(130, Math.max(15, Math.round(liveWpm * 2.5)))}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Hand Cards Centered in Cabinet Frame */}
             <div className={`cards-stack hand-anim-${handAnimState}`}>
-              {handCandidates.map(({ item, resolved }, idx) => {
+              {sortedHandCandidates.map(({ item, resolved }, idx) => {
                 const isSelected = selectedCard?.instanceId === item.instanceId;
                 const isHighlighted = highlightedCardIds.has(item.instanceId);
                 const isEnterReady = enterReadyCardId === item.instanceId;
@@ -2876,8 +3140,10 @@ export function App() {
                 );
               })}
             </div>
+
+            {/* Cabinet Footer */}
             <div className="cards-footer-box">
-              <div className="cards-footer-title">cards ({hand.length})</div>
+              <div className="cards-footer-title">type [view deck]</div>
               <div className="cards-pile-counts">
                 <span>Draw {drawPile.length}</span>
                 <span>Discard {discardPile.length}</span>
@@ -2895,12 +3161,25 @@ export function App() {
                   HP {hp}/{maxHp}
                 </span>
                 <span className="minimal-stat-chip gold-stat-chip">Gold {gold}</span>
+                {activeEnvironment && !biomePopupExpanded && (() => {
+                  const envSt = getPhraseHighlightState(activeEnvironment.name, difficulty);
+                  return (
+                    <div
+                      className={`top-biome-slot-pill ${
+                        envSt.isHighlighted ? 'top-biome-slot-highlighted' : ''
+                      } ${envSt.isEnterReady ? 'top-biome-slot-enter-ready' : ''}`}
+                      title="Type environment name to inspect"
+                    >
+                      <span className="top-biome-slot-name">{activeEnvironment.name}</span>
+                    </div>
+                  );
+                })()}
               </div>
               {renderCommandPills([
                 'end turn',
                 'relics',
                 'status effects',
-                'view deck',
+                'codex',
                 'help',
                 'options',
                 'editor',
@@ -2917,7 +3196,9 @@ export function App() {
             >
               {activeEnvironment && (
                 <div
-                  className="battle-environment-banner"
+                  className={`battle-environment-popup ${
+                    biomePopupExpanded ? 'biome-popup-expanded' : 'biome-popup-shrinking-to-topbar'
+                  }`}
                   style={{
                     borderColor: activeEnvironment.art.primaryColor || '#b89a67',
                   }}
@@ -2930,7 +3211,10 @@ export function App() {
                     />
                   )}
                   <div className="battle-environment-info">
-                    <span className="battle-environment-name">{activeEnvironment.name}</span>
+                    <div className="battle-environment-header-row">
+                      <span className="battle-environment-name">{activeEnvironment.name}</span>
+                      <span className="battle-environment-close-hint">(type "close" or "back" to hide)</span>
+                    </div>
                     <span className="battle-environment-desc">{activeEnvironment.description}</span>
                   </div>
                 </div>
@@ -2951,14 +3235,25 @@ export function App() {
               {/* Player Entity */}
               <div className="player-spot paper-sway-slow" data-player-spot="true">
                 <div className="entity-name-label">{playerName}</div>
-                <div className="hp-bar-frame player-hp-bar">
-                  <div
-                    className="hp-bar-fill"
-                    style={{ width: `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%` }}
-                  />
-                  <span className="hp-bar-text">
-                    {hp}/{maxHp} {playerWard > 0 ? `(${playerWard})` : ''}
-                  </span>
+                <div className="hp-shield-row">
+                  <div className={`hp-bar-frame player-hp-bar ${playerWard > 0 ? 'has-ward' : ''}`}>
+                    <div
+                      className="hp-bar-fill"
+                      style={{ width: `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%` }}
+                    />
+                    <span className="hp-bar-text">
+                      {hp}/{maxHp}
+                    </span>
+                  </div>
+                  {playerWard > 0 && (
+                    <div
+                      className="shield-extension-bar"
+                      style={{ width: `${Math.min(90, Math.max(34, 24 + playerWard * 3))}px` }}
+                      title={`Ward: ${playerWard}`}
+                    >
+                      <span className="shield-extension-text">🛡 {playerWard}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="floating-popups-anchor">
@@ -3039,16 +3334,27 @@ export function App() {
                       } ${isTargetEnterReady ? 'enemy-spot-enter-ready' : ''}`}
                     >
                       <div className="entity-name-label enemy-name-label">{enemy.displayName}</div>
-                      <div className="hp-bar-frame enemy-hp-bar">
-                        <div
-                          className="hp-bar-fill"
-                          style={{
-                            width: `${Math.max(0, Math.min(100, (enemy.hp / enemy.maxHp) * 100))}%`,
-                          }}
-                        />
-                        <span className="hp-bar-text">
-                          {enemy.hp}/{enemy.maxHp} {enemy.ward > 0 ? `(${enemy.ward})` : ''}
-                        </span>
+                      <div className="hp-shield-row">
+                        <div className={`hp-bar-frame enemy-hp-bar ${enemy.ward > 0 ? 'has-ward' : ''}`}>
+                          <div
+                            className="hp-bar-fill"
+                            style={{
+                              width: `${Math.max(0, Math.min(100, (enemy.hp / enemy.maxHp) * 100))}%`,
+                            }}
+                          />
+                          <span className="hp-bar-text">
+                            {enemy.hp}/{enemy.maxHp}
+                          </span>
+                        </div>
+                        {enemy.ward > 0 && (
+                          <div
+                            className="shield-extension-bar"
+                            style={{ width: `${Math.min(80, Math.max(30, 20 + enemy.ward * 3))}px` }}
+                            title={`Ward: ${enemy.ward}`}
+                          >
+                            <span className="shield-extension-text">🛡 {enemy.ward}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="floating-popups-anchor">
@@ -3116,35 +3422,6 @@ export function App() {
               </div>
             </section>
 
-            {/* MIDDLE ROW: Compact Energy Box (+ Extra Hard WPM Meter when unlocked) */}
-            <section className="battle-stats-row">
-              <div className="energy-box">
-                <div className="energy-value">
-                  {energy}/{maxEnergy}
-                </div>
-                <div className="energy-label">energy</div>
-              </div>
-
-              {difficulty === 'extra_hard' && (
-                <div className="wpm-meter-standalone">
-                  <div className="wpm-meter-labels">
-                    <span>Speed: {liveWpm} WPM</span>
-                    <span>Power: {liveEffectiveness.displayPercent}%</span>
-                  </div>
-                  <div className="wpm-bar-track">
-                    <div
-                      className={`wpm-bar-fill ${
-                        liveEffectiveness.displayPercent > 100 ? 'wpm-bar-overflow' : ''
-                      }`}
-                      style={{
-                        width: `${Math.min(130, Math.max(15, Math.round(liveWpm * 2.5)))}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-            </section>
-
             {/* BOTTOM ROW: Clean Typing Bar */}
             <section className="typing-console-box">
               <div className="typing-sentence-display">
@@ -3191,7 +3468,7 @@ export function App() {
             ) : (
               <div />
             )}
-            {renderCommandPills(['help', 'options', 'save', 'relics', 'view deck', 'editor'])}
+            {renderCommandPills(['codex', 'relics', 'view deck', 'help', 'options', 'save', 'editor'])}
           </header>
 
           {/* Main Content Stage */}
@@ -3201,7 +3478,7 @@ export function App() {
               <div className="clean-menu-card paper-sheet-float">
                 <h1 className="clean-menu-title">TYPEMANCER</h1>
                 <div className="clean-menu-options">
-                  {(['new run', 'tutorial', 'load', 'options', 'editor'] as const).map((opt, idx) => {
+                  {(['new run', 'tutorial', 'load', 'codex', 'options', 'editor'] as const).map((opt, idx) => {
                     const st = getPhraseHighlightState(opt, 'easy');
                     return (
                       <div
@@ -3666,8 +3943,21 @@ export function App() {
 
       {/* ==================== KEYBOARD-CONTROLLED MODAL OVERLAYS ==================== */}
       {overlay !== 'none' && (
-        <div className="keyboard-modal-backdrop">
-          <div className="keyboard-modal-card paper-sheet-float">
+        <div className={`keyboard-modal-backdrop ${overlay === 'codex' ? 'codex-backdrop-fullscreen' : ''}`}>
+          {overlay === 'codex' ? (
+            <CodexModal
+              activeTab={codexTab}
+              selectedId={codexSelectedId}
+              scrollOffset={codexScrollOffset}
+              typedInput={typedInput}
+              difficulty={difficulty}
+              phraseDiff={phraseDiff}
+              discovery={codexDiscovery}
+              getPhraseHighlightState={getPhraseHighlightState}
+              renderTypingInputWithCaret={renderTypingInputWithCaret}
+            />
+          ) : (
+            <div className="keyboard-modal-card paper-sheet-float">
             {overlay === 'help' && (
               <>
                 <h2>Commands</h2>
@@ -3853,52 +4143,25 @@ export function App() {
               </>
             )}
 
-            {/* VIEW DECK / DISCARD / BURNED: Same size & format as Battle Side-Column Cards, with Rarity & Upgraded tags! */}
+            {/* VIEW DECK / DISCARD / BURNED: Categorized by visual theme and rarity */}
             {overlay === 'deck' && (
               <>
                 <h2>Deck ({deck.length} Cards)</h2>
-                <div className="deck-banner-grid">
-                  {deck.map((inst, idx) => (
-                    <CardBanner
-                      key={inst.instanceId}
-                      instance={inst}
-                      phraseDiff={phraseDiff}
-                      index={idx}
-                    />
-                  ))}
-                </div>
+                {renderCategorizedCardGrid(deck)}
               </>
             )}
 
             {overlay === 'discard' && (
               <>
                 <h2>Discard Pile ({discardPile.length} Cards)</h2>
-                <div className="deck-banner-grid">
-                  {discardPile.map((inst, idx) => (
-                    <CardBanner
-                      key={inst.instanceId}
-                      instance={inst}
-                      phraseDiff={phraseDiff}
-                      index={idx}
-                    />
-                  ))}
-                </div>
+                {renderCategorizedCardGrid(discardPile)}
               </>
             )}
 
             {overlay === 'burn_draft' && (
               <>
                 <h2>Burned Drafts ({burnDraftPile.length} Cards)</h2>
-                <div className="deck-banner-grid">
-                  {burnDraftPile.map((inst, idx) => (
-                    <CardBanner
-                      key={inst.instanceId}
-                      instance={inst}
-                      phraseDiff={phraseDiff}
-                      index={idx}
-                    />
-                  ))}
-                </div>
+                {renderCategorizedCardGrid(burnDraftPile)}
               </>
             )}
 
@@ -3940,6 +4203,7 @@ export function App() {
               {renderTypingInputWithCaret()}
             </div>
           </div>
+          )}
         </div>
       )}
 
