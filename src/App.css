@@ -3559,6 +3559,53 @@ body,
   text-shadow: 0 0 6px rgba(20, 184, 166, 0.5);
 }
 
+.card-kw-keep {
+  color: #34d399 !important;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+
+.card-kept-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: #047857;
+  color: #ecfdf5;
+  border: 1.5px solid #064e3b;
+  border-radius: 7px;
+  padding: 2px 7px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  z-index: 8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.card-tab-keep-candidate {
+  cursor: pointer;
+  animation: cardKeepCandidatePulse 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes cardKeepCandidatePulse {
+  0% {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.9), 0 0 24px rgba(52, 211, 153, 0.5);
+  }
+}
+
+.sentence-keep-card-hint {
+  color: #10b981;
+  font-weight: 900;
+  margin-right: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .card-kw-discard {
   color: #fb923c !important;
   text-shadow: 0 0 6px rgba(234, 88, 12, 0.5);

@@ -237,6 +237,8 @@ export function App() {
   );
   const [handAnimState, setHandAnimState] = useState<'idle' | 'discarding' | 'drawing'>('idle');
   const [selectedCard, setSelectedCard] = useState<CardInstance | null>(null);
+  const [retainedCardIds, setRetainedCardIds] = useState<Set<string>>(() => new Set());
+  const [pendingKeepCount, setPendingKeepCount] = useState<number>(0);
   const [isAnimatingTurn, setIsAnimatingTurn] = useState<boolean>(false);
   const [activeProjectile, setActiveProjectile] = useState<CombatProjectile | null>(null);
   const [floatingPopups, setFloatingPopups] = useState<FloatingCombatPopup[]>([]);
@@ -527,6 +529,8 @@ export function App() {
       setDiscardPile(nextDiscard);
       setBurnDraftPile([]);
       setActivePowers([]);
+      setRetainedCardIds(new Set());
+      setPendingKeepCount(0);
       setEnemies(spawnedEnemies);
       setSelectedCard(null);
       setFloatingPopups([]);
@@ -589,6 +593,8 @@ export function App() {
       }));
 
       setSelectedCard(null);
+      setRetainedCardIds(new Set());
+      setPendingKeepCount(0);
       resetTypingBuffer(true);
       setScreen('reward');
     },
@@ -636,12 +642,22 @@ export function App() {
         ...e,
         statuses: { ...e.statuses },
       }));
+      if (retainedCardIds.has(cardInst.instanceId)) {
+        setRetainedCardIds((prev) => {
+          const next = new Set(prev);
+          next.delete(cardInst.instanceId);
+          return next;
+        });
+      }
+
       let nextHand = hand.filter((c) => c.instanceId !== cardInst.instanceId);
       let nextDiscard = [...discardPile];
       let nextBurn = [...burnDraftPile];
 
       let totalDmgDealtThisCard = 0;
       let extraDraw = 0;
+      let hasKeepCardEffect = false;
+      let keepCardCount = 0;
 
       const scaleAmount = (raw: number): number => {
         if (difficulty !== 'extra_hard') return raw;
@@ -826,6 +842,11 @@ export function App() {
             }
             break;
           }
+          case 'keep_card': {
+            hasKeepCardEffect = true;
+            keepCardCount += Math.max(1, eff.amount * xMultiplier);
+            break;
+          }
           case 'discard_random': {
             const count = Math.max(1, eff.amount * xMultiplier);
             const eligible = nextHand.filter((c) => c.instanceId !== cardInst.instanceId);
@@ -871,7 +892,8 @@ export function App() {
           case 'power_ink_burn_all_each_turn':
           case 'power_damage_all_each_turn':
           case 'power_ward_on_card_play':
-          case 'power_damage_all_on_attack': {
+          case 'power_damage_all_on_attack':
+          case 'power_keep_card_each_turn': {
             const pType = eff.type as PowerEffectType;
             const pAmt = scaleAmount(eff.amount);
             const labelMap: Record<PowerEffectType, string> = {
@@ -884,6 +906,7 @@ export function App() {
               power_damage_all_each_turn: `Deal ${pAmt} All/turn`,
               power_ward_on_card_play: `Ward +${pAmt}/card`,
               power_damage_all_on_attack: `Fire Breath ${pAmt}/atk`,
+              power_keep_card_each_turn: `Keep +${pAmt}/turn`,
             };
             setActivePowers((prev) => {
               const existingIdx = prev.findIndex((p) => p.type === pType);
@@ -991,6 +1014,21 @@ export function App() {
 
       setIsAnimatingTurn(false);
 
+      if (aliveEnemies.length > 0 && hasKeepCardEffect) {
+        const eligible = drawnResult.nextHand.filter((c) => !retainedCardIds.has(c.instanceId));
+        if (eligible.length === 0) {
+          if (drawnResult.nextHand.length === 0) {
+            spawnPopup('player', 'No cards in hand to keep', '#64748b');
+          } else {
+            spawnPopup('player', 'All hand cards already kept!', '#059669');
+          }
+        } else {
+          setPendingKeepCount((prev) => prev + keepCardCount);
+          soundEngine.playPageTurn(settings);
+          spawnPopup('player', '📌 Choose a card to KEEP!', '#10b981');
+        }
+      }
+
       if (aliveEnemies.length === 0) {
         await delay(300);
         handleCombatVictory(nextHp);
@@ -1016,6 +1054,7 @@ export function App() {
       playerWard,
       relicIds,
       resetTypingBuffer,
+      retainedCardIds,
       settings,
       spawnPopup,
       triggerElementParticles,
@@ -1033,15 +1072,20 @@ export function App() {
 
     const envMod = activeEnvironment?.modifiers || {};
 
-    // Animate unused cards returning to the deck/discard at the end of turn!
-    const discardedHand = [...discardPile, ...hand];
-    if (hand.length > 0) {
+    // Separate kept cards from discarded cards
+    const keptCards = hand.filter((c) => retainedCardIds.has(c.instanceId));
+    const discardedCards = hand.filter((c) => !retainedCardIds.has(c.instanceId));
+    const nextDiscardedPile = [...discardPile, ...discardedCards];
+    if (discardedCards.length > 0) {
       setHandAnimState('discarding');
       soundEngine.playDrawCard(settings);
       await delay(340);
-      setHand([]);
-      setDiscardPile(discardedHand);
+      setHand(keptCards);
+      setDiscardPile(nextDiscardedPile);
       setHandAnimState('idle');
+    }
+    if (keptCards.length > 0) {
+      spawnPopup('player', `📌 Retained ${keptCards.length} card${keptCards.length > 1 ? 's' : ''}!`, '#10b981');
     }
 
     let nextPlayerHp = hp;
@@ -1400,9 +1444,9 @@ export function App() {
 
     const { nextHand, nextDraw, nextDiscard } = drawCards(
       Math.min(10, Math.max(1, turnDrawCount)),
-      [],
+      keptCards,
       drawPile,
-      discardedHand
+      nextDiscardedPile
     );
 
     soundEngine.playDrawCard(settings);
@@ -1413,6 +1457,8 @@ export function App() {
     setHand(nextHand);
     setDrawPile(nextDraw);
     setDiscardPile(nextDiscard);
+    setRetainedCardIds(new Set());
+    setPendingKeepCount(0);
     setEnemies(survivingEnemies);
     setHandAnimState('drawing');
     window.setTimeout(() => setHandAnimState('idle'), 420);
@@ -1434,6 +1480,7 @@ export function App() {
     playerWard,
     relicIds,
     resetTypingBuffer,
+    retainedCardIds,
     settings,
     spawnPopup,
     triggerElementParticles,
@@ -2429,6 +2476,36 @@ export function App() {
         return;
       }
 
+      if (pendingKeepCount > 0) {
+        if (matchCommand(raw, ['skip', 'pass', 'cancel', 'none', 'done', 'continue'], 'easy')) {
+          setPendingKeepCount(0);
+          spawnPopup('player', 'Kept no card', '#64748b');
+          resetTypingBuffer(true);
+          return;
+        }
+
+        const candidateInstances = hand.filter((c) => !retainedCardIds.has(c.instanceId));
+        const candidateItems = candidateInstances.map((c) => ({
+          item: c,
+          phrase: resolveCardInstance(c, phraseDiff).name,
+        }));
+        const evalCandidates = evaluateCandidates(raw, candidateItems, difficulty);
+        const best = evalCandidates[0];
+        if (best && best.isValidConfirm) {
+          const chosen = best.item;
+          const def = getCardDefinition(chosen.cardId);
+          setRetainedCardIds((prev) => new Set([...prev, chosen.instanceId]));
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles(`[data-card-id="${chosen.instanceId}"]`, ['#10b981', '#34d399', '#ffd166'], 48, 4);
+          spawnPopup('player', `📌 Kept "${def.names[phraseDiff]}"!`, '#059669');
+          setPendingKeepCount((c) => Math.max(0, c - 1));
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
       if (
         selectedCard &&
         matchCommand(raw, ['back', 'return', 'cancel', 'deselect', 'abort'], 'easy')
@@ -3170,25 +3247,32 @@ export function App() {
       } else if (screen === 'map') {
         availableMapNodes.forEach((n) => pool.push(n.phrases[phraseDiff]));
       } else if (screen === 'battle') {
-        if (biomePopupExpanded && biomePopupManual) {
-          pool.push('close', 'back');
-        }
-        if (!biomePopupExpanded && activeEnvironment) {
-          pool.push(activeEnvironment.name);
-        }
-        if (!selectedCard) {
-          handCandidates.forEach((c) => pool.push(c.phrase));
-          enemies.forEach((e) => pool.push(e.displayName));
-          pool.push('end turn', 'view discard', 'view deck', 'status effects', 'relics');
-        } else if (
-          selectedCardResolved &&
-          (selectedCardResolved.target === 'self' ||
-            selectedCardResolved.target === 'all_enemies')
-        ) {
-          pool.push(selectedCardResolved.connector, 'confirm', 'back', 'cancel');
+        if (pendingKeepCount > 0) {
+          hand
+            .filter((c) => !retainedCardIds.has(c.instanceId))
+            .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('skip', 'pass');
         } else {
-          enemies.forEach((e) => pool.push(e.displayName));
-          pool.push('back', 'cancel');
+          if (biomePopupExpanded && biomePopupManual) {
+            pool.push('close', 'back');
+          }
+          if (!biomePopupExpanded && activeEnvironment) {
+            pool.push(activeEnvironment.name);
+          }
+          if (!selectedCard) {
+            handCandidates.forEach((c) => pool.push(c.phrase));
+            enemies.forEach((e) => pool.push(e.displayName));
+            pool.push('end turn', 'view discard', 'view deck', 'status effects', 'relics');
+          } else if (
+            selectedCardResolved &&
+            (selectedCardResolved.target === 'self' ||
+              selectedCardResolved.target === 'all_enemies')
+          ) {
+            pool.push(selectedCardResolved.connector, 'confirm', 'back', 'cancel');
+          } else {
+            enemies.forEach((e) => pool.push(e.displayName));
+            pool.push('back', 'cancel');
+          }
         }
       } else if (screen === 'reward') {
         rewardCards.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
@@ -3527,21 +3611,44 @@ export function App() {
                     const isHighlighted = highlightedCardIds.has(item.instanceId);
                     const isEnterReady = enterReadyCardId === item.instanceId;
                     const canAfford = energy >= resolved.cost;
+                    const isKept = retainedCardIds.has(item.instanceId);
+                    const isKeepCandidate = pendingKeepCount > 0 && !isKept;
                     return (
-                      <CardBanner
+                      <div
                         key={item.instanceId}
-                        instance={item}
-                        phraseDiff={phraseDiff}
-                        index={idx}
-                        isHighlighted={isHighlighted}
-                        isEnterCandidate={isEnterReady}
-                        isSelected={isSelected}
-                        isUnaffordable={!canAfford}
-                        style={{
-                          marginTop: idx === 0 ? 0 : `-${overlap}px`,
-                          zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
+                        className={isKeepCandidate ? 'card-tab-keep-candidate' : undefined}
+                        onClick={() => {
+                          if (isKeepCandidate) {
+                            setRetainedCardIds((prev) => new Set([...prev, item.instanceId]));
+                            soundEngine.playPageTurn(settings);
+                            triggerElementParticles(
+                              `[data-card-id="${item.instanceId}"]`,
+                              ['#10b981', '#34d399', '#ffd166'],
+                              48,
+                              4
+                            );
+                            const def = getCardDefinition(item.cardId);
+                            spawnPopup('player', `📌 Kept "${def.names[phraseDiff]}"!`, '#059669');
+                            setPendingKeepCount((c) => Math.max(0, c - 1));
+                            resetTypingBuffer(true);
+                          }
                         }}
-                      />
+                      >
+                        <CardBanner
+                          instance={item}
+                          phraseDiff={phraseDiff}
+                          index={idx}
+                          isHighlighted={isHighlighted}
+                          isEnterCandidate={isEnterReady}
+                          isSelected={isSelected}
+                          isUnaffordable={!canAfford}
+                          isKept={isKept}
+                          style={{
+                            marginTop: idx === 0 ? 0 : `-${overlap}px`,
+                            zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
+                          }}
+                        />
+                      </div>
                     );
                   })}
                 </div>
@@ -3550,7 +3657,22 @@ export function App() {
 
             {/* Cabinet Footer */}
             <div className="cards-footer-box">
-              <div className="cards-footer-title">type [view deck]</div>
+              {pendingKeepCount > 0 ? (
+                <div
+                  className="cards-footer-title"
+                  style={{ color: '#10b981', fontWeight: 900, cursor: 'pointer' }}
+                  onClick={() => {
+                    setPendingKeepCount(0);
+                    spawnPopup('player', 'Kept no card', '#64748b');
+                    resetTypingBuffer(true);
+                  }}
+                  title="Click or type 'skip' to skip keeping a card"
+                >
+                  📌 KEEP A CARD (click card or here to skip)
+                </div>
+              ) : (
+                <div className="cards-footer-title">type [view deck]</div>
+              )}
               <div className="cards-pile-counts">
                 <span>Draw {drawPile.length}</span>
                 <span>Discard {discardPile.length}</span>
@@ -3839,7 +3961,11 @@ export function App() {
             <section className="typing-console-box">
               <TypingConsoleDisplay
                 prefix={
-                  selectedCardResolved ? (
+                  pendingKeepCount > 0 ? (
+                    <span className="sentence-keep-card-hint">
+                      📌 KEEP A CARD (type card or "skip"):
+                    </span>
+                  ) : selectedCardResolved ? (
                     <>
                       <span className="sentence-locked-card">"{selectedCardResolved.name}"</span>
                       <span className="sentence-connector">

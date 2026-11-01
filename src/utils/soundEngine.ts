@@ -77,6 +77,8 @@ export const CARD_SFX_MAP: Record<string, { sfx: string; volume?: number }> = {
   deep_breath: { sfx: 'cards/wind.ogg', volume: 0.68 },
   final_draft: { sfx: 'cards/explode1.ogg', volume: 0.88 },
   blank_page_sanctuary: { sfx: 'cards/blessing3.ogg', volume: 0.82 },
+  bookmark: { sfx: 'cards/bookFlip1.ogg', volume: 0.75 },
+  dog_ear: { sfx: 'cards/bookFlip2.ogg', volume: 0.75 },
 };
 
 class SoundEngine {

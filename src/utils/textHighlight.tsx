@@ -149,6 +149,14 @@ export const EFFECT_KEYWORDS: KeywordDef[] = [
     shadow: 'rgba(20, 184, 166, 0.5)',
     label: 'Card Draw',
   },
+  {
+    type: 'keep',
+    pattern: /\b(?:keep|retains?|retained)\b/i,
+    color: '#34d399',
+    border: '#10b981',
+    shadow: 'rgba(16, 185, 129, 0.5)',
+    label: 'Keep (Retain card from discard at end of turn)',
+  },
 ];
 
 /**

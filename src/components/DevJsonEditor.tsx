@@ -129,6 +129,7 @@ export const EFFECT_TYPE_GROUPS: EffectGroupDef[] = [
     effects: [
       { type: 'discard', label: '🗑️ Discard Target / Choice' },
       { type: 'discard_random', label: '🎲 Discard Random from Hand' },
+      { type: 'keep_card', label: '📌 Keep Card (Retain from discard at end of turn)' },
     ],
   },
   {

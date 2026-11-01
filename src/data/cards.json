@@ -3827,5 +3827,111 @@
       ]
     },
     "sfx": "cards/blessing3.ogg"
+  },
+  {
+    "id": "bookmark",
+    "rarity": "common",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "bookmark",
+      "medium": "silk bookmark",
+      "hard": "place a woven bookmark between the leaves"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to hold my place"
+    },
+    "description": "Gain 7 Ward. Choose 1 card in your hand to keep from being discarded at the end of this turn.",
+    "effects": [
+      {
+        "type": "ward",
+        "amount": 7
+      },
+      {
+        "type": "keep_card",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#0d9488",
+      "secondaryColor": "#5eead4",
+      "shape": "scroll"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "bookmark+",
+        "medium": "gilded bookmark+",
+        "hard": "place a radiant gilded bookmark between the leaves+"
+      },
+      "cost": 1,
+      "description": "Gain 10 Ward. Choose 1 card in your hand to keep from being discarded at the end of this turn.",
+      "effects": [
+        {
+          "type": "ward",
+          "amount": 10
+        },
+        {
+          "type": "keep_card",
+          "amount": 1
+        }
+      ]
+    },
+    "sfx": "cards/bookFlip1.ogg"
+  },
+  {
+    "id": "dog_ear",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 0,
+    "target": "self",
+    "names": {
+      "easy": "dog ear",
+      "medium": "fold dog ear",
+      "hard": "crease a sharp dog ear on the corner of the leaf"
+    },
+    "connectors": {
+      "easy": "on self",
+      "medium": "around myself",
+      "hard": "to mark my place"
+    },
+    "description": "Draw 1 card. Choose 1 card in your hand to keep from being discarded at the end of this turn.",
+    "effects": [
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "keep_card",
+        "amount": 1
+      }
+    ],
+    "art": {
+      "primaryColor": "#b45309",
+      "secondaryColor": "#fde68a",
+      "shape": "diamond"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "dog ear+",
+        "medium": "fold dog ear+",
+        "hard": "crease a sharp dog ear on the corner of the leaf+"
+      },
+      "cost": 0,
+      "description": "Draw 2 cards. Choose 1 card in your hand to keep from being discarded at the end of this turn.",
+      "effects": [
+        {
+          "type": "draw",
+          "amount": 2
+        },
+        {
+          "type": "keep_card",
+          "amount": 1
+        }
+      ]
+    },
+    "sfx": "cards/bookFlip2.ogg"
   }
 ]

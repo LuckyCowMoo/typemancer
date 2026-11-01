@@ -34,6 +34,7 @@ export type EffectType =
   | 'gain_ward_per_card_in_hand'
   | 'discard'
   | 'discard_random'
+  | 'keep_card' // Choose X card(s) in hand to keep from being discarded at the end of this turn
   | 'plated_armor'
   | 'thorns'
   // ---- Persistent "rest of this combat" powers (stack if played more than once) ----
@@ -45,7 +46,8 @@ export type EffectType =
   | 'power_ink_burn_all_each_turn' // Apply X Ink Burn to ALL enemies at the end of each of your turns
   | 'power_damage_all_each_turn' // Deal X damage to ALL enemies at the end of each of your turns
   | 'power_ward_on_card_play' // Gain X Ward whenever you play a card
-  | 'power_damage_all_on_attack'; // Deal X damage to ALL enemies whenever you play an Attack
+  | 'power_damage_all_on_attack' // Deal X damage to ALL enemies whenever you play an Attack
+  | 'power_keep_card_each_turn'; // Choose X card(s) to keep at the end of each of your turns
 
 export type PowerEffectType = Extract<EffectType, `power_${string}`>;
 

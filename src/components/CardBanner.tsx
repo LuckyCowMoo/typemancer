@@ -21,6 +21,7 @@ export interface CardBannerProps {
   isEnterCandidate?: boolean;
   isSelected?: boolean;
   isUnaffordable?: boolean;
+  isKept?: boolean;
   priceBadge?: string;
   shopPrice?: string | number;
   subtitleOverride?: string;
@@ -191,6 +192,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   isEnterCandidate = false,
   isSelected = false,
   isUnaffordable = false,
+  isKept = false,
   priceBadge,
   shopPrice,
   subtitleOverride,
@@ -276,6 +278,35 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         ...style,
       }}
     >
+      {/* Top-Left: Kept Card Pin Badge */}
+      {isKept && (
+        <span
+          className="card-kept-badge"
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 4,
+            background: '#047857',
+            color: '#ecfdf5',
+            border: '1.5px solid #064e3b',
+            borderRadius: 7,
+            padding: '2px 7px',
+            fontSize: '0.68rem',
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: '0.04em',
+            zIndex: 8,
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.35)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+          title="Kept from being discarded at end of turn"
+        >
+          📌 KEPT
+        </span>
+      )}
+
       {/* Top-Right: Shop Price (optional, placed to the left of the corner inlet) */}
       {displayPrice && (
         <span
