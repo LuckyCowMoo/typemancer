@@ -134,7 +134,12 @@ body,
   align-items: center;
   justify-content: space-between;
   padding: 6px 18px;
+  height: 48px;
   min-height: 48px;
+  max-height: 48px;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  overflow: hidden;
   position: relative;
   z-index: 30;
   background: linear-gradient(180deg, #dccbb1 0%, #cdb896 100%);
@@ -148,7 +153,9 @@ body,
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
 }
 
 .minimal-stat-chip {
@@ -164,6 +171,8 @@ body,
   align-items: center;
   min-height: 36px;
   box-sizing: border-box;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .ward-stat-chip {
@@ -193,6 +202,8 @@ body,
   cursor: default;
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, border-color 0.2s ease;
   animation: paperBreathe 5s ease-in-out infinite;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .top-biome-slot-name {
@@ -204,7 +215,9 @@ body,
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
   font-size: 0.84rem;
   font-weight: 700;
   color: #2b1e16;
@@ -256,10 +269,14 @@ body,
   border-radius: 9px;
   padding: 3px 8px;
   min-height: 36px;
-  min-width: 296px;
+  min-width: 278px;
   width: auto;
   max-width: 520px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
   box-shadow: 1px 2px 4px rgba(43, 30, 22, 0.15);
   box-sizing: border-box;
 }
@@ -1689,6 +1706,66 @@ body,
 .modal-list li {
   margin-bottom: 8px;
   font-size: 0.96rem;
+}
+
+/* ==================== OPTIONS MODAL EXPANDED VIEW ==================== */
+.options-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+  max-height: 72vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.options-group {
+  background: rgba(255, 255, 255, 0.45);
+  border: 1.5px solid #2b1e16;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.options-group-title {
+  margin: 0 0 8px 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1a110b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1.5px solid rgba(43, 30, 22, 0.2);
+  padding-bottom: 3px;
+}
+
+.options-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.options-action-chip {
+  background: #fdf8ef;
+  border: 2px solid #2b1e16;
+  border-radius: 9px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 1px 2px 4px rgba(43, 30, 22, 0.12);
+  transition: transform 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.options-action-cmd {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #0b4f4a;
+  font-family: monospace;
+}
+
+.options-action-desc {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #5c4228;
 }
 
 .modal-grid {

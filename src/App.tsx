@@ -1567,6 +1567,76 @@ export function App() {
       }
 
       if (overlay === 'options') {
+        if (matchCommand(raw, ['deck', 'view deck', 'cards'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('deck');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['discard', 'view discard'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('discard');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['burned', 'burn draft'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('burn_draft');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['relics'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('relics');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['codex', 'bestiary'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('codex');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['status effects', 'statuses', 'status'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('status_effects');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['help', 'rules'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('help');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['save', 'save code'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('save');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['editor'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setDevEditorOpen(true);
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['main menu', 'title screen'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('none');
+          setScreen('main_menu');
+          resetTypingBuffer(false);
+          return;
+        }
+        if (matchCommand(raw, ['surrender', 'abandon', 'give up'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setOverlay('none');
+          setHp(0);
+          setScreen('game_over');
+          resetTypingBuffer(false);
+          return;
+        }
+
         if (matchCommand(raw, ['mute', 'unmute', 'toggle mute'], 'easy')) {
           setSettings((s) => ({ ...s, muted: !s.muted }));
           soundEngine.playConfirm(settings);
@@ -2765,15 +2835,38 @@ export function App() {
       pool.push('back', 'return', 'close');
       if (overlay === 'options') {
         pool.push(
+          'deck',
+          'view deck',
+          'cards',
+          'discard',
+          'view discard',
+          'burned',
+          'burn draft',
+          'relics',
+          'codex',
+          'status effects',
+          'help',
+          'save',
+          'editor',
+          'main menu',
+          'surrender',
           'mute',
           'unmute',
+          'typewriter',
           'mechanical typewriter',
+          'telegraph',
           'vintage telegraph',
+          'quill',
           'arcane quill',
+          'chalk',
           'soft chalk',
+          'bell',
           'carriage bell',
+          'chime',
           'spell chime',
+          'stamp',
           'heavy stamp',
+          'contrast',
           'high contrast'
         );
       }
@@ -3197,15 +3290,7 @@ export function App() {
                   );
                 })()}
               </div>
-              {renderCommandPills([
-                'end turn',
-                'relics',
-                'status effects',
-                'codex',
-                'help',
-                'options',
-                'editor',
-              ])}
+              {renderCommandPills(['options', 'relics', 'codex'])}
             </header>
 
             <section
@@ -3494,7 +3579,7 @@ export function App() {
             ) : (
               <div />
             )}
-            {renderCommandPills(['codex', 'relics', 'view deck', 'help', 'options', 'save', 'editor'])}
+            {renderCommandPills(['options', 'relics', 'codex'])}
           </header>
 
           {/* Main Content Stage */}
@@ -4150,23 +4235,79 @@ export function App() {
             )}
 
             {overlay === 'options' && (
-              <>
-                <h2>Options</h2>
-                <ul className="modal-list">
-                  <li>
-                    Audio ({settings.muted ? 'Muted' : 'On'}): type <code>mute</code> or <code>unmute</code>
-                  </li>
-                  <li>
-                    Typing Sound ({settings.typingSound}): type <code>typewriter</code>, <code>telegraph</code>, <code>quill</code>, or <code>chalk</code>
-                  </li>
-                  <li>
-                    Confirm Sound ({settings.confirmSound}): type <code>bell</code>, <code>chime</code>, or <code>stamp</code>
-                  </li>
-                  <li>
-                    High Contrast ({settings.highContrast ? 'On' : 'Off'}): type <code>contrast</code>
-                  </li>
-                </ul>
-              </>
+              <div className="options-dialog">
+                <h2>Options & Menu</h2>
+
+                <div className="options-group">
+                  <h3 className="options-group-title">Navigation & Codex</h3>
+                  <div className="options-actions-grid">
+                    {[
+                      { cmd: 'codex', label: 'Monsters, Cards & Biomes' },
+                      { cmd: 'relics', label: 'View Collected Relics' },
+                      { cmd: 'deck', label: 'Inspect Deck Cards' },
+                      { cmd: 'discard', label: 'Inspect Discard Pile' },
+                      { cmd: 'status effects', label: 'Combat Statuses & Afflictions' },
+                      { cmd: 'help', label: 'How to Play & Rules' },
+                    ].map(({ cmd, label }) => {
+                      const st = getPhraseHighlightState(cmd, 'easy');
+                      return (
+                        <div
+                          key={cmd}
+                          className={`options-action-chip ${
+                            st.isHighlighted ? 'option-highlighted' : ''
+                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                        >
+                          <span className="options-action-cmd">type "{cmd}"</span>
+                          <span className="options-action-desc">{label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="options-group">
+                  <h3 className="options-group-title">Audio & Accessibility</h3>
+                  <ul className="modal-list">
+                    <li>
+                      Audio ({settings.muted ? 'Muted' : 'On'}): type <code>mute</code> or <code>unmute</code>
+                    </li>
+                    <li>
+                      Typing Sound ({settings.typingSound}): type <code>typewriter</code>, <code>telegraph</code>, <code>quill</code>, or <code>chalk</code>
+                    </li>
+                    <li>
+                      Confirm Sound ({settings.confirmSound}): type <code>bell</code>, <code>chime</code>, or <code>stamp</code>
+                    </li>
+                    <li>
+                      High Contrast ({settings.highContrast ? 'On' : 'Off'}): type <code>contrast</code>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="options-group">
+                  <h3 className="options-group-title">System & Game</h3>
+                  <div className="options-actions-grid">
+                    {[
+                      { cmd: 'save', label: 'View Run Save Code' },
+                      { cmd: 'editor', label: 'Developer JSON Editor' },
+                      { cmd: 'main menu', label: 'Exit to Title Screen' },
+                      ...(screen === 'battle' ? [{ cmd: 'surrender', label: 'Abandon Battle' }] : []),
+                    ].map(({ cmd, label }) => {
+                      const st = getPhraseHighlightState(cmd, 'easy');
+                      return (
+                        <div
+                          key={cmd}
+                          className={`options-action-chip ${
+                            st.isHighlighted ? 'option-highlighted' : ''
+                          } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                        >
+                          <span className="options-action-cmd">type "{cmd}"</span>
+                          <span className="options-action-desc">{label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* VIEW DECK / DISCARD / BURNED: Categorized by visual theme and rarity */}
