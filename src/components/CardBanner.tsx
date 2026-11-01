@@ -209,8 +209,6 @@ export const CardBanner: React.FC<CardBannerProps> = ({
     rarityText += ' · 1x';
   }
 
-  const isFocusState = isHighlighted || isEnterCandidate || isSelected;
-
   return (
     <div
       data-card-id={instance.instanceId}
@@ -223,15 +221,20 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         width: 292,
         minHeight: 112,
         borderRadius: 18,
-        border: '2.5px solid #0d1b22',
+        border:
+          isEnterCandidate || isSelected
+            ? '3.5px solid #2ec4b6'
+            : isHighlighted
+            ? '3px solid #ffd166'
+            : '2.5px solid #0d1b22',
         boxSizing: 'border-box',
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
         gap: 10,
         padding: 10,
-        backgroundColor: isFocusState ? undefined : theme.bg,
-        color: isFocusState ? undefined : theme.textColor,
+        backgroundColor: theme.bg,
+        color: theme.textColor,
         transition:
           'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, margin 0.18s ease, background-color 0.18s ease',
         boxShadow: '2px 3px 8px rgba(13, 27, 34, 0.22)',
@@ -276,7 +279,12 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           borderBottomRightRadius: 0,
           background: '#0d1b22',
           color: '#ffffff',
-          border: '2.5px solid #0d1b22',
+          border:
+            isEnterCandidate || isSelected
+              ? '2.5px solid #2ec4b6'
+              : isHighlighted
+              ? '2.5px solid #ffd166'
+              : '2.5px solid #0d1b22',
           minWidth: 44,
           height: 38,
           padding: '2px 10px 4px 10px',
@@ -359,7 +367,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
               lineHeight: 1.2,
               textAlign: 'left',
               wordBreak: 'break-word',
-              color: isFocusState ? undefined : theme.textColor,
+              color: theme.textColor,
             }}
           >
             {resolved.name}
@@ -377,8 +385,8 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             marginBottom: 6,
             flex: 1,
             wordBreak: 'break-word',
-            color: isFocusState ? undefined : theme.descColor,
-            opacity: isFocusState ? 1 : 0.95,
+            color: theme.descColor,
+            opacity: 0.95,
           }}
         >
           {subtitleOverride ?? resolved.description}
@@ -392,8 +400,8 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             boxSizing: 'border-box',
             borderRadius: 8,
             border: '1.5px solid #0d1b22',
-            background: isFocusState ? 'rgba(0, 0, 0, 0.14)' : theme.pillBg,
-            color: isFocusState ? undefined : theme.textColor,
+            background: theme.pillBg,
+            color: theme.textColor,
             textAlign: 'center',
             padding: '2px 6px',
             fontSize: '0.74rem',
