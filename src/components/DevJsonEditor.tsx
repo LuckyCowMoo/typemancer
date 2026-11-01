@@ -421,9 +421,64 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     }
   };
 
+  /**
+   * Saves a JSON payload using the browser's native File System Access API (showSaveFilePicker)
+   * if available, allowing the user to select and overwrite the exact file in File Explorer.
+   * Falls back to standard download if the API is unsupported.
+   */
+  const saveJsonWithPicker = async (
+    fileName: string,
+    data: unknown
+  ): Promise<{ success: boolean; method: 'picker' | 'download' | 'canceled' }> => {
+    const jsonString = JSON.stringify(data, null, 2) + '\n';
+
+    // 1. Modern File System Access API: opens native OS Save/Replace dialog
+    if (
+      typeof window !== 'undefined' &&
+      'showSaveFilePicker' in window &&
+      typeof (window as any).showSaveFilePicker === 'function'
+    ) {
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: fileName,
+          types: [
+            {
+              description: 'JSON Files (*.json)',
+              accept: {
+                'application/json': ['.json'],
+              },
+            },
+          ],
+        });
+
+        const writable = await handle.createWritable();
+        await writable.write(jsonString);
+        await writable.close();
+        return { success: true, method: 'picker' };
+      } catch (err: any) {
+        if (err?.name === 'AbortError') {
+          return { success: false, method: 'canceled' };
+        }
+        // If permission error or security block, fall through to blob download
+      }
+    }
+
+    // 2. Fallback download for unsupported browsers
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+    return { success: true, method: 'download' };
+  };
+
   const handleSaveCurrentTabToDisk = async () => {
     syncLiveCatalogs();
     const { fileName, data } = getTabPayload(activeTab);
+
+    // 1. Attempt direct local dev server save first (works automatically when running Vite locally)
     try {
       const res = await fetch('/__dev_api/save-json', {
         method: 'POST',
@@ -432,18 +487,40 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
       });
       if (res.ok) {
         setSaveBanner({
-          text: `Saved src/data/${fileName} to disk & updated live game catalogs!`,
+          text: `✅ Saved src/data/${fileName} directly to disk & updated live game catalogs!`,
         });
-      } else {
-        setSaveBanner({
-          text: `Updated live in-game catalogs! (Running on static host — click 'Download JSON' to save ${fileName})`,
-          isError: true,
-        });
+        window.setTimeout(() => setSaveBanner(null), 5000);
+        return;
       }
     } catch {
+      // Local dev API unreachable (e.g. static hosting, GitHub Pages, or offline)
+    }
+
+    // 2. Dev server unreachable: automatically prompt File Explorer to pick/replace the file!
+    const result = await saveJsonWithPicker(fileName, data);
+    if (result.method === 'picker') {
       setSaveBanner({
-        text: `Updated live in-game catalogs! (Click 'Download JSON' to save ${fileName} file)`,
-        isError: true,
+        text: `✅ Overwrote and saved ${fileName} via File Explorer! Live catalogs updated.`,
+      });
+    } else if (result.method === 'download') {
+      setSaveBanner({
+        text: `⬇️ Downloaded ${fileName}. Move it to src/data/ to replace the old file.`,
+      });
+    }
+    window.setTimeout(() => setSaveBanner(null), 5000);
+  };
+
+  const handlePromptFileExplorer = async () => {
+    syncLiveCatalogs();
+    const { fileName, data } = getTabPayload(activeTab);
+    const result = await saveJsonWithPicker(fileName, data);
+    if (result.method === 'picker') {
+      setSaveBanner({
+        text: `✅ File chosen and replaced successfully on disk! Live catalogs updated.`,
+      });
+    } else if (result.method === 'download') {
+      setSaveBanner({
+        text: `⬇️ Downloaded ${fileName}. Move it to src/data/ to replace the old file.`,
       });
     }
     window.setTimeout(() => setSaveBanner(null), 5000);
@@ -475,11 +552,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     }
     if (savedCount === tabs.length) {
       setSaveBanner({
-        text: `Saved all 6 JSON files (enemies, cards, relics, environments, events, map_phrases) to src/data/!`,
+        text: `✅ Saved all 6 JSON files (enemies, cards, relics, environments, events, map_phrases) directly to src/data/!`,
       });
     } else {
       setSaveBanner({
-        text: `Applied all edits to the live game session!`,
+        text: `Applied all edits to the live game session! Use "📁 Replace in File Explorer" for static host saving.`,
       });
     }
     window.setTimeout(() => setSaveBanner(null), 5000);
@@ -822,9 +899,17 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             type="button"
             className="dev-btn dev-btn-primary"
             onClick={handleSaveCurrentTabToDisk}
-            title={`Overwrites src/data/${activeTab}.json on disk`}
+            title={`Directly saves & overwrites src/data/${activeTab}.json on disk (with File Explorer fallback)`}
           >
             💾 Save {activeTab}.json to Disk
+          </button>
+          <button
+            type="button"
+            className="dev-btn dev-btn-secondary"
+            onClick={handlePromptFileExplorer}
+            title="Open File Explorer prompt to choose which file to replace on disk"
+          >
+            📁 Replace in File Explorer...
           </button>
           <button
             type="button"
