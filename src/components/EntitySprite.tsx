@@ -158,7 +158,8 @@ export const EntitySprite: React.FC<SpriteProps> = ({
 
 interface IntentBadgeProps {
   intent: EnemyIntentType;
-  damage?: number;
+  damage?: number | string;
+  faded?: number;
   hits?: number;
   ward?: number;
   heal?: number;
@@ -171,13 +172,39 @@ interface IntentBadgeProps {
 export const IntentBadge: React.FC<IntentBadgeProps> = ({
   intent,
   damage,
+  faded,
   hits = 1,
   ward,
   heal,
 }) => {
   if (intent === 'attack' || intent === 'multi_attack' || intent === 'attack_debuff' || intent === 'attack_defend') {
+    let displayDamage: React.ReactNode = damage ?? 0;
+    if (typeof damage === 'number' && faded && faded > 0) {
+      displayDamage = (
+        <span className="intent-faded-calc">
+          <span className="intent-base-dmg">{damage}</span>
+          <span className="intent-faded-minus">-{faded}</span>
+        </span>
+      );
+    } else if (typeof damage === 'string' && damage.includes('-')) {
+      const [basePart, fadedPart] = damage.split('-');
+      displayDamage = (
+        <span className="intent-faded-calc">
+          <span className="intent-base-dmg">{basePart}</span>
+          <span className="intent-faded-minus">-{fadedPart}</span>
+        </span>
+      );
+    }
+
     return (
-      <div className="intent-badge intent-attack" title="Enemy intends to attack">
+      <div
+        className="intent-badge intent-attack"
+        title={
+          faded && faded > 0
+            ? `Enemy intends to attack (${damage}-${faded} damage from Faded)`
+            : 'Enemy intends to attack'
+        }
+      >
         <svg width="26" height="32" viewBox="0 0 28 36">
           {/* Fist + Lightning bolt matching the user's mockup */}
           <path
@@ -188,7 +215,7 @@ export const IntentBadge: React.FC<IntentBadgeProps> = ({
           />
         </svg>
         <span className="intent-number">
-          {damage ?? 0}
+          {displayDamage}
           {hits > 1 ? `x${hits}` : ''}
         </span>
         {intent === 'attack_defend' && ward ? (

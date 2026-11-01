@@ -28,7 +28,7 @@ export const STATUS_DEFINITIONS: StatusInfo[] = [
     name: 'Faded',
     aliases: ['faded', 'weak', 'weakened'],
     color: '#64748b',
-    summary: 'Reduces attack damage dealt by 25%. Decreases by 1 each turn.',
+    summary: 'Reduces attack damage dealt by 1 per stack. Decreases by 1 each turn.',
   },
   {
     id: 'exposed',
@@ -69,32 +69,34 @@ export const STATUS_DEFINITIONS: StatusInfo[] = [
 
 export function describeEnemyIntentInEnglish(enemy: ActiveEnemy, playerExposed: number = 0): string {
   const move = enemy.currentMove;
+  const rawBase = (move.damage || 0) + enemy.statuses.bold;
+  const hasFaded = enemy.statuses.faded > 0;
+
   const calcDamage = (base: number) => {
     let dmg = base + enemy.statuses.bold;
-    if (enemy.statuses.faded > 0) dmg = Math.floor(dmg * 0.75);
+    if (enemy.statuses.faded > 0) dmg = Math.max(0, dmg - enemy.statuses.faded);
     if (playerExposed > 0) dmg = Math.floor(dmg * 1.5);
     return Math.max(0, dmg);
   };
 
+  const d = calcDamage(move.damage || 0);
+  const dmgLabel = hasFaded ? `${rawBase}-${enemy.statuses.faded} (${d})` : `${d}`;
+
   if (move.intent === 'attack') {
-    const d = calcDamage(move.damage || 0);
-    return `${enemy.displayName} intends to damage you for ${d} damage.`;
+    return `${enemy.displayName} intends to damage you for ${dmgLabel} damage.`;
   }
   if (move.intent === 'multi_attack') {
-    const d = calcDamage(move.damage || 0);
     const hits = move.hits || 2;
-    return `${enemy.displayName} intends to strike you ${hits} times for ${d} damage each (${d * hits} total damage).`;
+    return `${enemy.displayName} intends to strike you ${hits} times for ${dmgLabel} damage each (${d * hits} total damage).`;
   }
   if (move.intent === 'attack_defend') {
-    const d = calcDamage(move.damage || 0);
-    return `${enemy.displayName} intends to damage you for ${d} damage and gain ${move.ward || 0} Ward.`;
+    return `${enemy.displayName} intends to damage you for ${dmgLabel} damage and gain ${move.ward || 0} Ward.`;
   }
   if (move.intent === 'attack_debuff') {
-    const d = calcDamage(move.damage || 0);
     const debuffText = (move.statusEffects || [])
       .map((s) => `${s.amount} ${s.status.replace('_', ' ')}`)
       .join(' and ');
-    return `${enemy.displayName} intends to damage you for ${d} damage and inflict ${debuffText || 'a status effect'}.`;
+    return `${enemy.displayName} intends to damage you for ${dmgLabel} damage and inflict ${debuffText || 'a status effect'}.`;
   }
   if (move.intent === 'defend') {
     return `${enemy.displayName} intends to fortify itself with ${move.ward || 0} Ward.`;

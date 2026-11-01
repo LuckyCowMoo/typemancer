@@ -676,7 +676,7 @@ export function App() {
       const dealHitToEnemy = (enemyObj: ActiveEnemy, baseDamage: number) => {
         let dmg = scaleAmount(baseDamage) + nextPlayerStatuses.bold + (envMod.damageBonus ?? 0);
         if (nextPlayerStatuses.faded > 0) {
-          dmg = Math.floor(dmg * 0.75);
+          dmg = Math.max(0, dmg - nextPlayerStatuses.faded);
         }
         if (enemyObj.statuses.exposed > 0) {
           dmg = Math.floor(dmg * 1.5);
@@ -1194,7 +1194,7 @@ export function App() {
               en.statuses.bold +
               (envMod.damageBonus ?? 0) +
               (envMod.enemyDamageBonus ?? 0);
-            if (en.statuses.faded > 0) dmg = Math.floor(dmg * 0.75);
+            if (en.statuses.faded > 0) dmg = Math.max(0, dmg - en.statuses.faded);
             if (nextPlayerStats.exposed > 0) dmg = Math.floor(dmg * 1.5);
             dmg = Math.max(0, dmg);
 
@@ -3887,11 +3887,13 @@ export function App() {
                             ? Math.max(
                                 0,
                                 enemy.currentMove.damage +
+                                  enemy.statuses.bold +
                                   (activeEnvironment?.modifiers?.damageBonus ?? 0) +
                                   (activeEnvironment?.modifiers?.enemyDamageBonus ?? 0)
                               )
                             : undefined
                         }
+                        faded={enemy.statuses.faded}
                         hits={enemy.currentMove.hits}
                         ward={
                           enemy.currentMove.ward
@@ -4646,7 +4648,7 @@ export function App() {
                       )}
                       {playerStatuses.faded > 0 && (
                         <li>
-                          <strong>Faded ({playerStatuses.faded}):</strong> Attacks deal 25% less damage.
+                          <strong>Faded ({playerStatuses.faded}):</strong> Attacks deal -{playerStatuses.faded} damage ({playerStatuses.faded} turn{playerStatuses.faded > 1 ? 's' : ''} left).
                         </li>
                       )}
                       {playerStatuses.exposed > 0 && (
@@ -4687,7 +4689,15 @@ export function App() {
                     <div className="entity-intent-english-box">
                       <IntentBadge
                         intent={inspectedEntity.currentMove.intent}
-                        damage={inspectedEntity.currentMove.damage}
+                        damage={
+                          inspectedEntity.currentMove.damage
+                            ? Math.max(
+                                0,
+                                inspectedEntity.currentMove.damage + inspectedEntity.statuses.bold
+                              )
+                            : undefined
+                        }
+                        faded={inspectedEntity.statuses.faded}
                         hits={inspectedEntity.currentMove.hits}
                         ward={inspectedEntity.currentMove.ward}
                         heal={inspectedEntity.currentMove.heal}
@@ -4712,7 +4722,7 @@ export function App() {
                       )}
                       {inspectedEntity.statuses.faded > 0 && (
                         <li>
-                          <strong>Faded ({inspectedEntity.statuses.faded}):</strong> Deals 25% less attack damage ({inspectedEntity.statuses.faded} turns left).
+                          <strong>Faded ({inspectedEntity.statuses.faded}):</strong> Deals -{inspectedEntity.statuses.faded} attack damage ({inspectedEntity.statuses.faded} turn{inspectedEntity.statuses.faded > 1 ? 's' : ''} left).
                         </li>
                       )}
                       {inspectedEntity.statuses.exposed > 0 && (

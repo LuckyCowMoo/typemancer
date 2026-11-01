@@ -114,7 +114,7 @@ export const EFFECT_TYPE_GROUPS: EffectGroupDef[] = [
     bg: '#faf5ff',
     textColor: '#581c87',
     effects: [
-      { type: 'faded', label: '💨 Faded (Target deals 25% less damage)' },
+      { type: 'faded', label: '💨 Faded (Target deals -1 attack damage per stack)' },
       { type: 'exposed', label: '🎯 Exposed (Target takes 50% more damage)' },
       { type: 'ink_burn', label: '✒️ Ink Burn (Poison damage at turn start)' },
       { type: 'double_ink_burn', label: '💥 Double Ink Burn (Catalyst)' },

@@ -1178,6 +1178,19 @@ body,
   color: #b84a14;
 }
 
+.intent-faded-calc {
+  display: inline-flex;
+  align-items: baseline;
+  letter-spacing: -0.02em;
+}
+
+.intent-faded-minus {
+  color: #64748b;
+  font-size: 0.9em;
+  font-weight: 900;
+  margin-left: 1px;
+}
+
 .heal-text { color: #3a8918; }
 .defend-text { color: #1f6f8b; }
 

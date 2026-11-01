@@ -1668,7 +1668,15 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <IntentBadge
                       intent={activeEnemyInstance.currentMove.intent}
-                      damage={activeEnemyInstance.currentMove.damage}
+                      damage={
+                        activeEnemyInstance.currentMove.damage
+                          ? Math.max(
+                              0,
+                              activeEnemyInstance.currentMove.damage + activeEnemyInstance.statuses.bold
+                            )
+                          : undefined
+                      }
+                      faded={activeEnemyInstance.statuses.faded}
                       hits={activeEnemyInstance.currentMove.hits}
                       ward={activeEnemyInstance.currentMove.ward}
                       heal={activeEnemyInstance.currentMove.heal}
@@ -1717,7 +1725,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                       icon: '🌫️',
                       color: '#64748b',
                       value: activeEnemyInstance.statuses.faded,
-                      text: `Weakened: deals 25% less attack damage (${activeEnemyInstance.statuses.faded} turns left).`,
+                      text: `Weakened: deals -${activeEnemyInstance.statuses.faded} attack damage (${activeEnemyInstance.statuses.faded} turn${activeEnemyInstance.statuses.faded > 1 ? 's' : ''} left).`,
                     });
                   }
                   if (activeEnemyInstance.statuses.exposed > 0) {
