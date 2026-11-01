@@ -4449,6 +4449,23 @@ export function App() {
               renderTypingInputWithCaret={renderTypingInputWithCaret}
               activeEnemyInstance={inspectedEntity && inspectedEntity !== 'player' ? inspectedEntity : null}
               playerExposed={playerStatuses.exposed}
+              onSelectEntry={(id) => {
+                setCodexSelectedId(id);
+                soundEngine.playKeystroke(settings);
+                if (screen === 'battle' && enemies.length > 0) {
+                  const alive = enemies.find((en) => en.enemyId === id);
+                  setInspectedEntity(alive || null);
+                } else {
+                  setInspectedEntity(null);
+                }
+              }}
+              onChangeTab={(tab) => {
+                setCodexTab(tab);
+                setCodexSelectedId(null);
+                setCodexScrollOffset(0);
+                setInspectedEntity(null);
+                soundEngine.playPageTurn(settings);
+              }}
             />
           ) : (
             <div className="keyboard-modal-card paper-sheet-float">

@@ -37,6 +37,8 @@ export interface CodexModalProps {
   renderTypingInputWithCaret: () => React.ReactNode;
   activeEnemyInstance?: ActiveEnemy | null;
   playerExposed?: number;
+  onSelectEntry?: (id: string) => void;
+  onChangeTab?: (tab: CodexTab) => void;
 }
 
 function formatFaction(faction: string): string {
@@ -67,6 +69,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
   renderTypingInputWithCaret,
   activeEnemyInstance,
   playerExposed = 0,
+  onSelectEntry,
+  onChangeTab,
 }) => {
   const gridContainerRef = useRef<HTMLDivElement>(null);
 
@@ -211,6 +215,160 @@ export const CodexModal: React.FC<CodexModalProps> = ({
   };
 
   const tabs: CodexTab[] = ['monsters', 'cards', 'environments', 'relics'];
+
+  // List of all item IDs in the currently active compendium tab
+  const currentTabItems = useMemo<{ id: string }[]>(() => {
+    if (activeTab === 'monsters') {
+      return ENEMIES_CATALOG.map((en) => ({ id: en.id }));
+    }
+    if (activeTab === 'cards') {
+      return sortedCards.map((c) => ({ id: c.id }));
+    }
+    if (activeTab === 'environments') {
+      return ENVIRONMENTS_CATALOG.map((env) => ({ id: env.id }));
+    }
+    if (activeTab === 'relics') {
+      return RELICS_CATALOG.map((r) => ({ id: r.id }));
+    }
+    return [];
+  }, [activeTab, sortedCards]);
+
+  const currentIndex = useMemo(() => {
+    if (!currentInspectItem || !('id' in currentInspectItem)) return 0;
+    const idx = currentTabItems.findIndex((it) => it.id === currentInspectItem.id);
+    return idx >= 0 ? idx : 0;
+  }, [currentInspectItem, currentTabItems]);
+
+  const getGridColumnCount = (): number => {
+    const gridEl = gridContainerRef.current?.querySelector('.codex-entry-grid');
+    if (!gridEl) return 1;
+    const template = window.getComputedStyle(gridEl).gridTemplateColumns;
+    const cols = template ? template.trim().split(/\s+/).length : 1;
+    return Math.max(1, cols);
+  };
+
+  // Keyboard navigation & scrolling with Arrow Keys, PageUp/PageDown, Home/End, and Tab
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept if modifier keys are held
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      // Tab key switches between compendium tabs
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        if (onChangeTab) {
+          const tabIdx = tabs.indexOf(activeTab);
+          const nextTab = e.shiftKey
+            ? tabs[(tabIdx - 1 + tabs.length) % tabs.length]
+            : tabs[(tabIdx + 1) % tabs.length];
+          onChangeTab(nextTab);
+        }
+        return;
+      }
+
+      const gridContainer = gridContainerRef.current;
+      const total = currentTabItems.length;
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (total === 0) return;
+        const nextIdx = Math.min(total - 1, currentIndex + 1);
+        if (nextIdx !== currentIndex && onSelectEntry) {
+          onSelectEntry(currentTabItems[nextIdx].id);
+        } else if (gridContainer) {
+          gridContainer.scrollBy({ top: 80, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (total === 0) return;
+        const prevIdx = Math.max(0, currentIndex - 1);
+        if (prevIdx !== currentIndex && onSelectEntry) {
+          onSelectEntry(currentTabItems[prevIdx].id);
+        } else if (gridContainer) {
+          gridContainer.scrollBy({ top: -80, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (total === 0) {
+          gridContainer?.scrollBy({ top: 120, behavior: 'smooth' });
+          return;
+        }
+        const cols = getGridColumnCount();
+        const nextIdx = currentIndex + cols;
+        if (nextIdx < total && onSelectEntry) {
+          onSelectEntry(currentTabItems[nextIdx].id);
+        } else if (gridContainer) {
+          gridContainer.scrollBy({ top: 130, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (total === 0) {
+          gridContainer?.scrollBy({ top: -120, behavior: 'smooth' });
+          return;
+        }
+        const cols = getGridColumnCount();
+        const prevIdx = currentIndex - cols;
+        if (prevIdx >= 0 && onSelectEntry) {
+          onSelectEntry(currentTabItems[prevIdx].id);
+        } else if (gridContainer) {
+          gridContainer.scrollBy({ top: -130, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      if (e.key === 'PageDown') {
+        e.preventDefault();
+        if (total === 0) {
+          gridContainer?.scrollBy({ top: 320, behavior: 'smooth' });
+          return;
+        }
+        const cols = getGridColumnCount();
+        const nextIdx = Math.min(total - 1, currentIndex + cols * 3);
+        if (onSelectEntry) onSelectEntry(currentTabItems[nextIdx].id);
+        gridContainer?.scrollBy({ top: 320, behavior: 'smooth' });
+        return;
+      }
+
+      if (e.key === 'PageUp') {
+        e.preventDefault();
+        if (total === 0) {
+          gridContainer?.scrollBy({ top: -320, behavior: 'smooth' });
+          return;
+        }
+        const cols = getGridColumnCount();
+        const prevIdx = Math.max(0, currentIndex - cols * 3);
+        if (onSelectEntry) onSelectEntry(currentTabItems[prevIdx].id);
+        gridContainer?.scrollBy({ top: -320, behavior: 'smooth' });
+        return;
+      }
+
+      if (e.key === 'Home') {
+        e.preventDefault();
+        if (total > 0 && onSelectEntry) onSelectEntry(currentTabItems[0].id);
+        if (gridContainer) gridContainer.scrollTop = 0;
+        return;
+      }
+
+      if (e.key === 'End') {
+        e.preventDefault();
+        if (total > 0 && onSelectEntry) onSelectEntry(currentTabItems[total - 1].id);
+        if (gridContainer) gridContainer.scrollTop = gridContainer.scrollHeight;
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, currentIndex, currentTabItems, onChangeTab, onSelectEntry, tabs]);
 
   return (
     <div className="codex-modal-overlay">
@@ -1413,7 +1571,19 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                   </span>
                 );
               })()}
-              <span>or type any discovered entry name:</span>
+              <span
+                className="codex-keyword-pill"
+                style={{ background: '#fdf8ef', borderColor: '#7c674d', color: '#162229' }}
+              >
+                (↑ ↓ ← →) Navigate
+              </span>
+              <span
+                className="codex-keyword-pill"
+                style={{ background: '#fdf8ef', borderColor: '#7c674d', color: '#162229' }}
+              >
+                (Tab) Switch Tab
+              </span>
+              <span>or type any entry name:</span>
             </div>
 
             <div className="codex-typing-input-wrapper">
