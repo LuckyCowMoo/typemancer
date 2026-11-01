@@ -349,6 +349,9 @@ export function analyzeTypingWithWordAnchors(
     const s1 = w1.toLowerCase();
     const s2 = w2.toLowerCase();
     if (s1 === s2) return 10;
+    const c1 = s1.replace(/[^a-z0-9]/g, '');
+    const c2 = s2.replace(/[^a-z0-9]/g, '');
+    if (c1 && c1 === c2) return 10;
     let p = 0;
     while (p < s1.length && p < s2.length && s1[p] === s2[p]) p++;
     return p;

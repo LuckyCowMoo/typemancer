@@ -772,7 +772,7 @@ export function generateProceduralMap(): MapNode[][] {
 
     const hardDir = pickRandom(dirPools.hard);
     const hardDest = pickRandom(destPools.hard);
-    const hardPhrase = `${hardDir} ${hardDest}`;
+    const hardPhrase = `${hardDir}, ${hardDest}`;
 
     return {
       easy: easyPhrase,

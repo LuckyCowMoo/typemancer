@@ -235,6 +235,19 @@ function buildInkyAndTextPaths(
  */
 function splitPhraseForRoad(phrase: string): { topLine: string; bottomLine: string | null } {
   const trimmed = phrase.trim();
+  // If the phrase has a comma transition (e.g. between direction and destination), split on the comma!
+  if (trimmed.includes(',')) {
+    const commaIdx = trimmed.indexOf(',');
+    const leftPart = trimmed.slice(0, commaIdx + 1).trim();
+    const rightPart = trimmed.slice(commaIdx + 1).trim();
+    if (leftPart && rightPart) {
+      return {
+        topLine: leftPart,
+        bottomLine: rightPart,
+      };
+    }
+  }
+
   const words = trimmed.split(/\s+/).filter(Boolean);
   if (words.length <= 1) {
     return { topLine: trimmed, bottomLine: null };
