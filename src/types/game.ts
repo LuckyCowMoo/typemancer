@@ -98,6 +98,7 @@ export interface CardDefinition {
   burnDraft?: boolean; // Functions like Exhaust in StS
   art: ArtPlaceholder;
   upgrade: CardUpgradeData;
+  sfx?: string;
 }
 
 export interface CardInstance {

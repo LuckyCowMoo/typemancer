@@ -609,7 +609,7 @@ export function App() {
       const xMultiplier = isXCost ? Math.max(0, energy) : 1;
       let nextEnergy = isXCost ? 0 : energy - resolved.cost;
 
-      soundEngine.playCardCast(settings);
+      soundEngine.playCardSound(resolved.cardId, settings);
       const cardPalette = [
         resolved.art.primaryColor || '#bc5215',
         resolved.art.secondaryColor || '#d97706',
@@ -726,7 +726,6 @@ export function App() {
           case 'ward': {
             const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.wardBonus ?? 0));
             nextWard += gained;
-            soundEngine.playWardBlock(settings);
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
             setMetrics((m) => ({ ...m, totalWardGained: m.totalWardGained + gained }));
             break;
@@ -2312,7 +2311,7 @@ export function App() {
         return;
       }
       if (tutorialStep === 0 && matchCommand(raw, ['strike'], 'easy')) {
-        soundEngine.playCardCast(settings);
+        soundEngine.playCardSound('ink_strike', settings);
         triggerElementParticles(undefined, ['#b84a14', '#137547', '#ffd166'], 50, 65);
         setTutorialStep(1);
         resetTypingBuffer(true);
@@ -4469,7 +4468,11 @@ export function App() {
               playerExposed={playerStatuses.exposed}
               onSelectEntry={(id) => {
                 setCodexSelectedId(id);
-                soundEngine.playKeystroke(settings);
+                if (codexTab === 'cards') {
+                  soundEngine.playCardSound(id, settings);
+                } else {
+                  soundEngine.playKeystroke(settings);
+                }
                 if (screen === 'battle' && enemies.length > 0) {
                   const alive = enemies.find((en) => en.enemyId === id);
                   setInspectedEntity(alive || null);

@@ -1,5 +1,84 @@
 import type { ConfirmSoundProfile, GameSettings, SoundProfile } from '../types/game';
 
+export const CARD_SFX_MAP: Record<string, { sfx: string; volume?: number }> = {
+  ink_strike: { sfx: 'cards/blade_01.ogg', volume: 0.75 },
+  page_ward: { sfx: 'ward_block.ogg', volume: 0.78 },
+  boulder_barrage: { sfx: 'cards/stones_01.ogg', volume: 0.85 },
+  blotting_cloud: { sfx: 'cards/magicerase.ogg', volume: 0.72 },
+  fire_breathing: { sfx: 'cards/flamethrower.ogg', volume: 0.78 },
+  metallicize: { sfx: 'cards/metal_01.ogg', volume: 0.75 },
+  well_laid_plans: { sfx: 'cards/book_01.ogg', volume: 0.7 },
+  noxious_fumes: { sfx: 'cards/steam.ogg', volume: 0.72 },
+  demon_form: { sfx: 'cards/creature_roar_01.ogg', volume: 0.82 },
+  evolve: { sfx: 'cards/enchant.ogg', volume: 0.75 },
+  tools_of_the_trade: { sfx: 'cards/metalClick.ogg', volume: 0.72 },
+  caltrops: { sfx: 'cards/metal_small1.wav', volume: 0.72 },
+  berserk: { sfx: 'cards/creature_roar_02.ogg', volume: 0.85 },
+  echo_form: { sfx: 'cards/forcepulse.ogg', volume: 0.8 },
+  accuracy: { sfx: 'cards/metalLatch.ogg', volume: 0.72 },
+  juggernaut: { sfx: 'cards/metalPot1.ogg', volume: 0.82 },
+  inflame: { sfx: 'cards/spell_fire_01.ogg', volume: 0.78 },
+  feel_no_pain: { sfx: 'cards/magicshield.ogg', volume: 0.75 },
+  steady_margins: { sfx: 'cards/item_wood_01.ogg', volume: 0.75 },
+  flowing_quill: { sfx: 'cards/wind.ogg', volume: 0.7 },
+  rain_of_full_stops: { sfx: 'cards/forcepush.ogg', volume: 0.8 },
+  echoing_exclamations: { sfx: 'cards/metal_ringing.wav', volume: 0.75 },
+  wraith_form: { sfx: 'cards/curse.ogg', volume: 0.75 },
+  venomous_bite: { sfx: 'cards/bite_small.wav', volume: 0.75 },
+  flurry_of_blows: { sfx: 'cards/swing3.wav', volume: 0.78 },
+  heavy_blow: { sfx: 'cards/doorClose_1.ogg', volume: 0.85 },
+  vampiric_bite: { sfx: 'cards/curse2.ogg', volume: 0.75 },
+  barricade: { sfx: 'cards/bookClose.ogg', volume: 0.82 },
+  twin_strike: { sfx: 'cards/swing2.wav', volume: 0.74 },
+  prepare: { sfx: 'cards/bookFlip1.ogg', volume: 0.7 },
+  reckless_charge: { sfx: 'cards/chop.ogg', volume: 0.82 },
+  fortify: { sfx: 'cards/chain_01.ogg', volume: 0.78 },
+  expose_weakness: { sfx: 'cards/knifeSlice.ogg', volume: 0.72 },
+  shadow_strike: { sfx: 'cards/sword_unsheathe.wav', volume: 0.75 },
+  adrenaline: { sfx: 'cards/bubble.wav', volume: 0.75 },
+  shield_bash: { sfx: 'cards/bookPlace1.ogg', volume: 0.8 },
+  lacerate: { sfx: 'cards/knifeSlice2.ogg', volume: 0.74 },
+  execute: { sfx: 'cards/blade_02.ogg', volume: 0.85 },
+  blur: { sfx: 'cards/wind2.ogg', volume: 0.72 },
+  defend: { sfx: 'cards/blade_03.ogg', volume: 0.75 },
+  backflip: { sfx: 'cards/bookFlip2.ogg', volume: 0.72 },
+  fiery_slash: { sfx: 'cards/spell_fire_02.ogg', volume: 0.78 },
+  weaken: { sfx: 'cards/steam.ogg', volume: 0.7 },
+  corrosive_spit: { sfx: 'cards/creature_slime_01.ogg', volume: 0.78 },
+  toxic_dart: { sfx: 'cards/shot.ogg', volume: 0.75 },
+  cleave: { sfx: 'cards/swing.wav', volume: 0.8 },
+  meteor_smash: { sfx: 'cards/explode.ogg', volume: 0.9 },
+  warcry: { sfx: 'cards/creature_monster_01.ogg', volume: 0.8 },
+  quick_slash: { sfx: 'cards/drawKnife1.ogg', volume: 0.74 },
+  outmaneuver: { sfx: 'cards/clothBelt.ogg', volume: 0.7 },
+  panic_button: { sfx: 'cards/metalPot2.ogg', volume: 0.82 },
+  draining_touch: { sfx: 'cards/curse3.ogg', volume: 0.74 },
+  thunder_strike: { sfx: 'cards/zap.ogg', volume: 0.82 },
+  concentrate: { sfx: 'cards/spell_fire_03.ogg', volume: 0.76 },
+  expertise: { sfx: 'cards/book_02.ogg', volume: 0.7 },
+  iron_skin: { sfx: 'cards/chainmail1.wav', volume: 0.78 },
+  piercing_stab: { sfx: 'cards/knifeSlice.ogg', volume: 0.75 },
+  ink_spill: { sfx: 'cards/creature_slime_02.ogg', volume: 0.76 },
+  wild_swing: { sfx: 'cards/metalPot3.ogg', volume: 0.8 },
+  blunt_force: { sfx: 'cards/bookPlace2.ogg', volume: 0.82 },
+  sweeping_blow: { sfx: 'cards/clothBelt2.ogg', volume: 0.74 },
+  sunder: { sfx: 'cards/cloth4.ogg', volume: 0.78 },
+  smoke_bomb: { sfx: 'cards/magicdrop.ogg', volume: 0.74 },
+  tactics: { sfx: 'cards/beltHandle1.ogg', volume: 0.7 },
+  entrench: { sfx: 'cards/chain_02.ogg', volume: 0.82 },
+  catalyst: { sfx: 'cards/bottle.wav', volume: 0.78 },
+  empower: { sfx: 'cards/blessing.ogg', volume: 0.8 },
+  bandaging: { sfx: 'cards/heal.ogg', volume: 0.82 },
+  meditate: { sfx: 'cards/blessing2.ogg', volume: 0.76 },
+  calculated_gamble: { sfx: 'cards/bookFlip3.ogg', volume: 0.72 },
+  acrobatics: { sfx: 'cards/book_03.ogg', volume: 0.7 },
+  dodge: { sfx: 'cards/cloth1.ogg', volume: 0.68 },
+  deflect: { sfx: 'cards/spell_01.ogg', volume: 0.78 },
+  deep_breath: { sfx: 'cards/wind.ogg', volume: 0.68 },
+  final_draft: { sfx: 'cards/explode1.ogg', volume: 0.88 },
+  blank_page_sanctuary: { sfx: 'cards/blessing3.ogg', volume: 0.82 },
+};
+
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private sampleCache: Map<string, HTMLAudioElement> = new Map();
@@ -12,7 +91,7 @@ class SoundEngine {
   ): void {
     if (typeof window === 'undefined' || settings.muted || settings.volume <= 0) return;
     try {
-      const src = `./assets/sfx/${filename}`;
+      const src = filename.startsWith('/') || filename.startsWith('./') ? filename : `./assets/sfx/${filename}`;
       let baseAudio = this.sampleCache.get(src);
       if (!baseAudio) {
         baseAudio = new Audio(src);
@@ -40,6 +119,25 @@ class SoundEngine {
 
   public playCardCast(settings: GameSettings): void {
     this.playSample('play_card.wav', settings, 0.72, 0.06);
+  }
+
+  /**
+   * Plays the distinctive custom sound effect assigned to a specific card,
+   * layering in the subtle tactile card flick for satisfying audio feedback.
+   */
+  public playCardSound(cardId: string, settings: GameSettings): void {
+    // Subtle physical card flick sound
+    this.playCardCast(settings);
+
+    // Look up card's unique SFX from registry
+    const mapped = CARD_SFX_MAP[cardId];
+    if (mapped) {
+      this.playSample(mapped.sfx, settings, mapped.volume ?? 0.76, 0.05);
+      return;
+    }
+
+    // Default fallback
+    this.playSample('cards/blade_01.ogg', settings, 0.7, 0.05);
   }
 
   public playMapOpen(settings: GameSettings): void {
