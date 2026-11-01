@@ -12,6 +12,7 @@ import type { CodexTab } from './components/CodexModal';
 import { DevJsonEditor } from './components/DevJsonEditor';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
 import { MAP_NODE_STYLES, ScrollableMap } from './components/ScrollableMap';
+import { MysteryChanceWheel } from './components/MysteryChanceWheel';
 import { TypingConsoleDisplay } from './components/TypingConsoleDisplay';
 import type {
   ActiveEnemy,
@@ -253,6 +254,7 @@ export function App() {
   const [eventOutcomeText, setEventOutcomeText] = useState<string | null>(null);
   const [eventOutcomeSummary, setEventOutcomeSummary] = useState<string[]>([]);
   const [eventRollSucceeded, setEventRollSucceeded] = useState<boolean | null>(null);
+  const [pendingChanceChoice, setPendingChanceChoice] = useState<MysteryChoice | null>(null);
 
   const [typedInput, setTypedInput] = useState<string>('');
   const [actionStartTime, setActionStartTime] = useState<number | null>(null);
@@ -1517,6 +1519,7 @@ export function App() {
         setEventOutcomeText(null);
         setEventOutcomeSummary([]);
         setEventRollSucceeded(null);
+        setPendingChanceChoice(null);
         resetTypingBuffer(true);
         setScreen('mystery');
       }
@@ -1689,6 +1692,95 @@ export function App() {
       return true;
     },
     [resetTypingBuffer, settings, triggerElementParticles]
+  );
+
+  const executeMysteryChoiceEffects = useCallback(
+    (choice: MysteryChoice, succeeded: boolean) => {
+      const eff: MysteryEffects = succeeded
+        ? choice.effects
+        : choice.failEffects || {};
+      const finalNarrative = succeeded
+        ? choice.outcomeText
+        : choice.failText || choice.outcomeText;
+
+      const summaryItems: string[] = [];
+      if (typeof choice.chance === 'number') {
+        summaryItems.push(
+          succeeded
+            ? `🎲 Roll Succeeded! (${choice.chance}% chance)`
+            : `🎲 Roll Failed (${choice.chance}% success chance)`
+        );
+      }
+
+      if (eff.maxHpChange) {
+        setMaxHp((m) => Math.max(10, m + eff.maxHpChange!));
+        if (eff.maxHpChange > 0) setHp((h) => h + eff.maxHpChange!);
+        summaryItems.push(
+          `${eff.maxHpChange > 0 ? '+' : ''}${eff.maxHpChange} Max HP`
+        );
+      }
+      if (eff.hpChange) {
+        setHp((h) => Math.max(1, Math.min(maxHp, h + eff.hpChange!)));
+        summaryItems.push(
+          `${eff.hpChange > 0 ? '+' : ''}${eff.hpChange} HP`
+        );
+      }
+      if (eff.goldChange) {
+        setGold((g) => Math.max(0, g + eff.goldChange!));
+        summaryItems.push(
+          `${eff.goldChange > 0 ? '+' : ''}${eff.goldChange} Gold`
+        );
+      }
+      if (eff.gainRareCard) {
+        const newCard = generateCardRewards(1, true)[0];
+        const cName = resolveCardInstance(newCard, phraseDiff).name;
+        setDeck((d) => [...d, newCard]);
+        summaryItems.push(`Gained Rare Card: "${cName}"`);
+      }
+      if (eff.gainRandomCard) {
+        const newCard = generateCardRewards(1, false)[0];
+        const cName = resolveCardInstance(newCard, phraseDiff).name;
+        setDeck((d) => [...d, newCard]);
+        summaryItems.push(`Gained Card: "${cName}"`);
+      }
+      if (eff.upgradeRandomCard) {
+        const unup = deck.filter((c) => !c.upgraded);
+        if (unup.length > 0) {
+          const pick = pickRandom(unup);
+          const oldName = resolveCardInstance(pick, phraseDiff).name;
+          const newName = resolveCardInstance({ ...pick, upgraded: true }, phraseDiff).name;
+          setDeck((prev) =>
+            prev.map((c) =>
+              c.instanceId === pick.instanceId ? { ...c, upgraded: true } : c
+            )
+          );
+          summaryItems.push(`Upgraded Card: "${oldName}" → "${newName}"`);
+        }
+      }
+      if (eff.gainRandomRelic) {
+        const newRel = generateRelicRewards(relicIds, 1)[0];
+        if (newRel) {
+          setRelicIds((ids) => [...ids, newRel.id]);
+          summaryItems.push(`Gained Relic: "${newRel.names[phraseDiff]}"`);
+        }
+      }
+      if (eff.removeRandomCard && deck.length > 5) {
+        const pick = pickRandom(deck);
+        const remName = resolveCardInstance(pick, phraseDiff).name;
+        setDeck((prev) => prev.filter((c) => c.instanceId !== pick.instanceId));
+        summaryItems.push(`Removed Card from Deck: "${remName}"`);
+      }
+
+      if (summaryItems.length === 0) {
+        summaryItems.push('No stat changes — continued safely.');
+      }
+
+      setEventRollSucceeded(succeeded);
+      setEventOutcomeSummary(summaryItems);
+      setEventOutcomeText(finalNarrative);
+      resetTypingBuffer(true);
+    },
+    [deck, maxHp, phraseDiff, relicIds, resetTypingBuffer]
   );
 
   const handleEnterSubmit = useCallback(() => {
@@ -2757,10 +2849,19 @@ export function App() {
 
     // 12. MYSTERY ENCOUNTER
     if (screen === 'mystery' && activeEvent) {
+      if (pendingChanceChoice && eventOutcomeText === null) {
+        // Wheel of Fate is actively spinning
+        return;
+      }
+
       if (eventOutcomeText !== null) {
         if (!norm || matchCommand(raw, ['continue', 'onward', 'next', 'leave'], 'easy')) {
           soundEngine.playConfirm(settings);
           triggerElementParticles('.prompt-panel', ['#1b6488', '#137547', '#ffd166'], 50, 72);
+          setPendingChanceChoice(null);
+          setEventOutcomeText(null);
+          setEventOutcomeSummary([]);
+          setEventRollSucceeded(null);
           advanceToMapNextFloor();
           return;
         }
@@ -2774,100 +2875,20 @@ export function App() {
         difficulty
       );
       if (evalChoices[0] && evalChoices[0].isValidConfirm) {
-        soundEngine.playPageTurn(settings);
-        triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 65);
         const choice = evalChoices[0].item;
 
-        let succeeded = true;
-        let rolledPct: number | null = null;
+        // If the choice involves risk / % chance, trigger the Wheel of Fate!
         if (typeof choice.chance === 'number') {
-          rolledPct = Math.floor(Math.random() * 100) + 1;
-          succeeded = rolledPct <= choice.chance;
+          soundEngine.playPageTurn(settings);
+          setPendingChanceChoice(choice);
+          resetTypingBuffer(true);
+          return;
         }
 
-        const eff: MysteryEffects = succeeded
-          ? choice.effects
-          : choice.failEffects || {};
-        const finalNarrative = succeeded
-          ? choice.outcomeText
-          : choice.failText || choice.outcomeText;
-
-        const summaryItems: string[] = [];
-        if (typeof choice.chance === 'number') {
-          summaryItems.push(
-            succeeded
-              ? `🎲 Roll Succeeded! (${choice.chance}% chance)`
-              : `🎲 Roll Failed (${choice.chance}% success chance)`
-          );
-        }
-
-        if (eff.maxHpChange) {
-          setMaxHp((m) => Math.max(10, m + eff.maxHpChange!));
-          if (eff.maxHpChange > 0) setHp((h) => h + eff.maxHpChange!);
-          summaryItems.push(
-            `${eff.maxHpChange > 0 ? '+' : ''}${eff.maxHpChange} Max HP`
-          );
-        }
-        if (eff.hpChange) {
-          setHp((h) => Math.max(1, Math.min(maxHp, h + eff.hpChange!)));
-          summaryItems.push(
-            `${eff.hpChange > 0 ? '+' : ''}${eff.hpChange} HP`
-          );
-        }
-        if (eff.goldChange) {
-          setGold((g) => Math.max(0, g + eff.goldChange!));
-          summaryItems.push(
-            `${eff.goldChange > 0 ? '+' : ''}${eff.goldChange} Gold`
-          );
-        }
-        if (eff.gainRareCard) {
-          const newCard = generateCardRewards(1, true)[0];
-          const cName = resolveCardInstance(newCard, phraseDiff).name;
-          setDeck((d) => [...d, newCard]);
-          summaryItems.push(`Gained Rare Card: "${cName}"`);
-        }
-        if (eff.gainRandomCard) {
-          const newCard = generateCardRewards(1, false)[0];
-          const cName = resolveCardInstance(newCard, phraseDiff).name;
-          setDeck((d) => [...d, newCard]);
-          summaryItems.push(`Gained Card: "${cName}"`);
-        }
-        if (eff.upgradeRandomCard) {
-          const unup = deck.filter((c) => !c.upgraded);
-          if (unup.length > 0) {
-            const pick = pickRandom(unup);
-            const oldName = resolveCardInstance(pick, phraseDiff).name;
-            const newName = resolveCardInstance({ ...pick, upgraded: true }, phraseDiff).name;
-            setDeck((prev) =>
-              prev.map((c) =>
-                c.instanceId === pick.instanceId ? { ...c, upgraded: true } : c
-              )
-            );
-            summaryItems.push(`Upgraded Card: "${oldName}" → "${newName}"`);
-          }
-        }
-        if (eff.gainRandomRelic) {
-          const newRel = generateRelicRewards(relicIds, 1)[0];
-          if (newRel) {
-            setRelicIds((ids) => [...ids, newRel.id]);
-            summaryItems.push(`Gained Relic: "${newRel.names[phraseDiff]}"`);
-          }
-        }
-        if (eff.removeRandomCard && deck.length > 5) {
-          const pick = pickRandom(deck);
-          const remName = resolveCardInstance(pick, phraseDiff).name;
-          setDeck((prev) => prev.filter((c) => c.instanceId !== pick.instanceId));
-          summaryItems.push(`Removed Card from Deck: "${remName}"`);
-        }
-
-        if (summaryItems.length === 0) {
-          summaryItems.push('No stat changes — continued safely.');
-        }
-
-        setEventRollSucceeded(succeeded);
-        setEventOutcomeSummary(summaryItems);
-        setEventOutcomeText(finalNarrative);
-        resetTypingBuffer(true);
+        // Safe deterministic choice
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 65);
+        executeMysteryChoiceEffects(choice, true);
         return;
       }
 
@@ -2904,12 +2925,14 @@ export function App() {
     eventOutcomeText,
     executeCardPlay,
     executeEndTurn,
+    executeMysteryChoiceEffects,
     extraHardAvailable,
     gold,
     introStep,
     isAnimatingTurn,
     maxHp,
     overlay,
+    pendingChanceChoice,
     phraseDiff,
     playerName,
     recordActionMetrics,
@@ -3160,7 +3183,9 @@ export function App() {
         rewardRelics.forEach((r) => pool.push(r.names[phraseDiff]));
         pool.push('skip');
       } else if (screen === 'mystery' && activeEvent) {
-        if (eventOutcomeText === null) {
+        if (pendingChanceChoice && eventOutcomeText === null) {
+          // Wheel is actively spinning
+        } else if (eventOutcomeText === null) {
           activeEvent.choices.forEach((ch) => pool.push(ch.phrases[phraseDiff]));
         } else {
           pool.push('continue');
@@ -3201,6 +3226,7 @@ export function App() {
     handCandidates,
     introStep,
     overlay,
+    pendingChanceChoice,
     phraseDiff,
     rewardCards,
     rewardRelics,
@@ -4253,7 +4279,41 @@ export function App() {
               <div className="story-card paper-sheet-float">
                 <h2 className="story-title">{activeEvent.title}</h2>
                 <p className="story-paragraph">{activeEvent.narrative}</p>
-                {eventOutcomeText === null ? (
+                {pendingChanceChoice ? (
+                  <>
+                    <MysteryChanceWheel
+                      chance={pendingChanceChoice.chance!}
+                      choiceText={pendingChanceChoice.phrases[phraseDiff]}
+                      settings={settings}
+                      onSpinComplete={(succeeded) => {
+                        executeMysteryChoiceEffects(pendingChanceChoice, succeeded);
+                      }}
+                      triggerParticles={triggerElementParticles}
+                    />
+                    {eventOutcomeText !== null && (
+                      <div className="prompt-panel mystery-outcome-panel">
+                        <div
+                          className={`mystery-outcome-summary-box ${
+                            eventRollSucceeded === false ? 'outcome-box-failed' : 'outcome-box-success'
+                          }`}
+                        >
+                          <div className="mystery-outcome-header">
+                            {eventRollSucceeded === false ? 'OUTCOME — RISK FAILED' : 'OUTCOME SUMMARY'}
+                          </div>
+                          <div className="mystery-outcome-badges">
+                            {eventOutcomeSummary.map((line, idx) => (
+                              <span key={idx} className="mystery-outcome-chip">
+                                {line}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <p className="mystery-outcome-narrative">{eventOutcomeText}</p>
+                        <div className="phrase-to-type">continue</div>
+                      </div>
+                    )}
+                  </>
+                ) : eventOutcomeText === null ? (
                   <div className="choice-list">
                     {activeEvent.choices.map((ch) => {
                       const phrase = ch.phrases[phraseDiff];
