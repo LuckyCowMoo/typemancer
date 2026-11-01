@@ -1779,6 +1779,7 @@ export function App() {
       setEventRollSucceeded(succeeded);
       setEventOutcomeSummary(summaryItems);
       setEventOutcomeText(finalNarrative);
+      setPendingChanceChoice(null);
       resetTypingBuffer(true);
     },
     [deck, maxHp, phraseDiff, relicIds, resetTypingBuffer]
@@ -4289,39 +4290,15 @@ export function App() {
                 <h2 className="story-title">{activeEvent.title}</h2>
                 <p className="story-paragraph">{activeEvent.narrative}</p>
                 {pendingChanceChoice ? (
-                  <>
-                    <MysteryChanceWheel
-                      chance={pendingChanceChoice.chance!}
-                      choiceText={pendingChanceChoice.phrases[phraseDiff]}
-                      settings={settings}
-                      onSpinComplete={(succeeded) => {
-                        executeMysteryChoiceEffects(pendingChanceChoice, succeeded);
-                      }}
-                      triggerParticles={triggerElementParticles}
-                    />
-                    {eventOutcomeText !== null && (
-                      <div className="prompt-panel mystery-outcome-panel">
-                        <div
-                          className={`mystery-outcome-summary-box ${
-                            eventRollSucceeded === false ? 'outcome-box-failed' : 'outcome-box-success'
-                          }`}
-                        >
-                          <div className="mystery-outcome-header">
-                            {eventRollSucceeded === false ? 'OUTCOME — RISK FAILED' : 'OUTCOME SUMMARY'}
-                          </div>
-                          <div className="mystery-outcome-badges">
-                            {eventOutcomeSummary.map((line, idx) => (
-                              <span key={idx} className="mystery-outcome-chip">
-                                {line}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <p className="mystery-outcome-narrative">{eventOutcomeText}</p>
-                        <div className="phrase-to-type">continue</div>
-                      </div>
-                    )}
-                  </>
+                  <MysteryChanceWheel
+                    chance={pendingChanceChoice.chance!}
+                    choiceText={pendingChanceChoice.phrases[phraseDiff]}
+                    settings={settings}
+                    onSpinComplete={(succeeded) => {
+                      executeMysteryChoiceEffects(pendingChanceChoice, succeeded);
+                    }}
+                    triggerParticles={triggerElementParticles}
+                  />
                 ) : eventOutcomeText === null ? (
                   <div className="choice-list">
                     {activeEvent.choices.map((ch) => {

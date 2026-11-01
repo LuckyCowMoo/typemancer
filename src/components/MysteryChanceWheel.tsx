@@ -74,59 +74,83 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
   const [currentRotation, setCurrentRotation] = useState<number>(spinPlan.thetaStart);
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [hasLanded, setHasLanded] = useState<boolean>(false);
-  const audioIntervalRef = useRef<number | null>(null);
 
-  // Start spinning on mount
+  const audioIntervalRef = useRef<number | null>(null);
+  const landTimerRef = useRef<number | null>(null);
+  const completeTimerRef = useRef<number | null>(null);
+  const hasStartedRef = useRef<boolean>(false);
+
+  const onSpinCompleteRef = useRef(onSpinComplete);
+  onSpinCompleteRef.current = onSpinComplete;
+
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
+  // Start spinning once on mount
   useEffect(() => {
+    if (hasStartedRef.current) return;
+    hasStartedRef.current = true;
+
+    let isStopped = false;
+
+    // Audio ticks during spin
+    let tickCount = 0;
+    const maxTicks = 18;
+    const tick = () => {
+      if (isStopped) return;
+      if (tickCount < maxTicks) {
+        soundEngine.playKeystroke(settingsRef.current);
+        tickCount++;
+        // Progressive slowdown for mechanical wheel ticks
+        const delay = 60 + Math.pow(tickCount, 2.1) * 6;
+        audioIntervalRef.current = window.setTimeout(tick, delay);
+      }
+    };
+
     // Tiny timeout to allow initial render at thetaStart before triggering transition
     const startTimer = window.setTimeout(() => {
+      if (isStopped) return;
       setIsSpinning(true);
       setCurrentRotation(spinPlan.targetRotation);
-
-      // Audio ticks during spin
-      let tickCount = 0;
-      const maxTicks = 18;
-      const tick = () => {
-        if (tickCount < maxTicks) {
-          soundEngine.playKeystroke(settings);
-          tickCount++;
-          // Progressive slowdown for mechanical wheel ticks
-          const delay = 60 + Math.pow(tickCount, 2.1) * 6;
-          audioIntervalRef.current = window.setTimeout(tick, delay);
-        }
-      };
       tick();
     }, 60);
 
     // Landing timer matching the 3.4s CSS transition
-    const landTimer = window.setTimeout(() => {
+    landTimerRef.current = window.setTimeout(() => {
+      if (isStopped) return;
+      isStopped = true;
       setIsSpinning(false);
       setHasLanded(true);
 
+      // Immediately clear and terminate audio ticks
       if (audioIntervalRef.current) {
         clearTimeout(audioIntervalRef.current);
+        audioIntervalRef.current = null;
       }
 
       if (spinPlan.succeeded) {
-        soundEngine.playConfirm(settings);
+        soundEngine.playConfirm(settingsRef.current);
         triggerParticles?.('.mystery-wheel-stage', ['#10b981', '#ffd166', '#3b82f6', '#f59e0b']);
       } else {
-        soundEngine.playError(settings);
+        soundEngine.playError(settingsRef.current);
         triggerParticles?.('.mystery-wheel-stage', ['#ef4444', '#b91c1c', '#7f1d1d']);
       }
 
-      // Short delay so the player can witness where the needle landed before outcome appears
-      window.setTimeout(() => {
-        onSpinComplete(spinPlan.succeeded);
-      }, 750);
+      // Pause on the stopped wheel for 1.25s so the player clearly sees where the needle landed,
+      // then finish so the wheel disappears and is cleanly replaced by the outcome.
+      completeTimerRef.current = window.setTimeout(() => {
+        onSpinCompleteRef.current(spinPlan.succeeded);
+      }, 1250);
     }, 3460);
 
     return () => {
+      isStopped = true;
       clearTimeout(startTimer);
-      clearTimeout(landTimer);
+      if (landTimerRef.current) clearTimeout(landTimerRef.current);
       if (audioIntervalRef.current) clearTimeout(audioIntervalRef.current);
+      if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
     };
-  }, [spinPlan, settings, onSpinComplete, triggerParticles]);
+  }, [spinPlan, triggerParticles]);
 
   // Sector mid-angles for text labels
   const midSuccess = successDegrees / 2;
