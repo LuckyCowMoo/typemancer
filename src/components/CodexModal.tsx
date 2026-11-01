@@ -390,8 +390,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
         .codex-cabinet-frame {
           width: 100%;
           max-width: 1180px;
-          height: 92vh;
-          max-height: 860px;
+          height: 94vh;
+          max-height: 920px;
           background-color: #3b281c;
           background-image: url('./assets/ui/cabinet_wood_pixel.png');
           background-repeat: repeat;
@@ -636,31 +636,31 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           flex: 0 0 350px;
           width: 350px;
           background: #faf2e4;
-          padding: 18px 16px;
+          padding: 14px 12px;
           overflow-y: auto;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
           border-left: 2px solid #2b1e16;
         }
 
         .combat-card-section {
           background: #ffffff;
           border: 2px solid #2b1e16;
-          border-radius: 10px;
-          padding: 12px 14px;
+          border-radius: 9px;
+          padding: 9px 11px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 6px;
           box-shadow: 0 2px 6px rgba(43, 30, 22, 0.06);
         }
 
         .combat-status-badge-item {
           background: #f8fafc;
           border: 1.5px solid #2b1e16;
-          border-radius: 8px;
-          padding: 7px 10px;
+          border-radius: 7px;
+          padding: 5px 8px;
           display: flex;
           flex-direction: column;
           gap: 2px;
