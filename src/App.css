@@ -1277,7 +1277,7 @@ body,
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 6px;
+  padding: 0;
   box-sizing: border-box;
   white-space: nowrap;
   -webkit-mask-image: linear-gradient(

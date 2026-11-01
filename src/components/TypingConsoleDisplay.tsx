@@ -10,10 +10,12 @@ export interface TypingConsoleDisplayProps {
 /**
  * Typewriter Single-Line Console Display
  * - All text (prefix, typed text, cursor, and prompt ghost text) remains strictly on one line.
- * - Prompted ghost text gets slowly fainter the further it gets from the cursor.
- * - When the typed text exceeds the stationary anchor point (~42% of the container width),
- *   the text scrolls to the left so the cursor remains completely stationary in place.
+ * - The cursor starts in the middle of the area (50% of visible container width).
+ * - As text is typed, it stays centered, moving the cursor smoothly rightwards towards 80%.
+ * - When the cursor reaches 80% of the way across to the right, it holds stationary,
+ *   and excess typed text scrolls off to the left.
  * - Text scrolling off the left edge has a sharp fade before the left edge.
+ * - Prompted ghost text gets slowly fainter the further it gets from the cursor.
  */
 export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
   prefix,
@@ -25,7 +27,7 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
   const trackRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLSpanElement>(null);
 
-  const [scrollOffset, setScrollOffset] = useState<number>(0);
+  const [trackTranslateX, setTrackTranslateX] = useState<number>(0);
   const [hasScrolledLeft, setHasScrolledLeft] = useState<boolean>(false);
 
   const updateScroll = () => {
@@ -36,19 +38,35 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
     const containerWidth = container.clientWidth;
     if (containerWidth <= 0) return;
 
-    // Stationary anchor point: 42% of visible container width
-    const anchorX = Math.round(containerWidth * 0.42);
-
     // Untransformed offset of caret relative to track left edge
     const caretOffset = caret.offsetLeft;
 
-    if (caretOffset > anchorX) {
-      setScrollOffset(caretOffset - anchorX);
-      setHasScrolledLeft(true);
-    } else {
-      setScrollOffset(0);
-      setHasScrolledLeft(false);
+    const isModalEmbedded = className.includes('modal-embedded-input');
+    if (isModalEmbedded) {
+      // In modal footers, start inline (0px), scroll left if exceeding 80%
+      const anchorX = Math.round(containerWidth * 0.8);
+      if (caretOffset > anchorX) {
+        setTrackTranslateX(anchorX - caretOffset);
+        setHasScrolledLeft(true);
+      } else {
+        setTrackTranslateX(0);
+        setHasScrolledLeft(false);
+      }
+      return;
     }
+
+    // Main console typing:
+    // Cursor starts in the middle of the area (50% of container width).
+    // As typed text grows, it stays centered, advancing the cursor rightward until reaching 80%.
+    // Once the cursor reaches 80% of the way across to the right, it holds stationary
+    // and excess typed text scrolls off to the left.
+    const anchorX = Math.round(containerWidth * 0.8);
+    const targetCaretX = Math.min(anchorX, Math.round((containerWidth + caretOffset) / 2));
+    const nextTranslateX = targetCaretX - caretOffset;
+
+    setTrackTranslateX(nextTranslateX);
+    // When text reaches or scrolls past the left edge, apply sharp left edge fade
+    setHasScrolledLeft(nextTranslateX <= 16);
   };
 
   useLayoutEffect(() => {
@@ -80,7 +98,7 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
         ref={trackRef}
         className="typing-sentence-track"
         style={{
-          transform: `translateX(-${scrollOffset}px)`,
+          transform: `translateX(${trackTranslateX}px)`,
         }}
       >
         {prefix && <span className="typing-sentence-prefix">{prefix}</span>}
