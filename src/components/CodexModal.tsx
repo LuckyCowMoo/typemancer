@@ -14,7 +14,7 @@ import {
   ENVIRONMENTS_CATALOG,
   RELICS_CATALOG,
 } from '../utils/gameContent';
-import { CardBanner } from './CardBanner';
+import { CardBanner, getCardVisualCategory } from './CardBanner';
 import { renderHighlightedCardText } from '../utils/textHighlight';
 
 export type CodexTab = 'monsters' | 'cards' | 'environments' | 'relics';
@@ -93,6 +93,44 @@ export const CodexModal: React.FC<CodexModalProps> = ({
     };
   }, [discovery]);
 
+  // Cards sorted by Category (Attack -> Defence -> Skill -> Debuff -> Power),
+  // then by Rarity (Starter -> Common -> Uncommon -> Rare),
+  // then by Cost ascending (cheaper cards at top, more expensive cards at bottom),
+  // and finally by name.
+  const sortedCards = useMemo(() => {
+    const CATEGORY_ORDER: Record<string, number> = {
+      attack: 0,
+      defence: 1,
+      skill: 2,
+      debuff: 3,
+      power: 4,
+    };
+    const RARITY_ORDER: Record<string, number> = {
+      starter: 0,
+      common: 1,
+      uncommon: 2,
+      rare: 3,
+    };
+
+    return [...CARDS_CATALOG].sort((a, b) => {
+      const catA = CATEGORY_ORDER[getCardVisualCategory(a as any)] ?? 99;
+      const catB = CATEGORY_ORDER[getCardVisualCategory(b as any)] ?? 99;
+      if (catA !== catB) return catA - catB;
+
+      const rarA = RARITY_ORDER[a.rarity] ?? 99;
+      const rarB = RARITY_ORDER[b.rarity] ?? 99;
+      if (rarA !== rarB) return rarA - rarB;
+
+      const costA = a.xCost || a.cost === -1 ? 999 : (a.cost ?? 0);
+      const costB = b.xCost || b.cost === -1 ? 999 : (b.cost ?? 0);
+      if (costA !== costB) return costA - costB;
+
+      const nameA = a.names[phraseDiff] || a.names.easy;
+      const nameB = b.names[phraseDiff] || b.names.easy;
+      return nameA.localeCompare(nameB);
+    });
+  }, [phraseDiff]);
+
   // Selected or fallback item to inspect
   const currentInspectItem = useMemo(() => {
     if (activeTab === 'monsters') {
@@ -104,10 +142,10 @@ export const CodexModal: React.FC<CodexModalProps> = ({
     }
     if (activeTab === 'cards') {
       if (selectedId) {
-        const found = CARDS_CATALOG.find((c) => c.id === selectedId);
+        const found = sortedCards.find((c) => c.id === selectedId);
         if (found && discovery.cards.includes(found.id)) return found;
       }
-      return CARDS_CATALOG.find((c) => discovery.cards.includes(c.id)) || null;
+      return sortedCards.find((c) => discovery.cards.includes(c.id)) || null;
     }
     if (activeTab === 'environments') {
       if (selectedId) {
@@ -684,7 +722,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                   })}
 
                 {activeTab === 'cards' &&
-                  CARDS_CATALOG.map((c) => {
+                  sortedCards.map((c) => {
                     const isDiscovered = discovery.cards.includes(c.id);
                     const cardName = c.names[phraseDiff] || c.names.easy;
                     const highlight = isDiscovered

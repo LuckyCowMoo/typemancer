@@ -2534,7 +2534,11 @@ export function App() {
           resetTypingBuffer(true);
           return;
         }
-        const upgradable = deck.filter((c) => !c.upgraded);
+        const upgradable = sortCardsByCategoryAndRarity(
+          deck.filter((c) => !c.upgraded),
+          (c) => c,
+          phraseDiff
+        );
         const cands = upgradable.map((c) => ({
           item: c,
           phrase: resolveCardInstance(c, phraseDiff).name,
@@ -2570,7 +2574,8 @@ export function App() {
           resetTypingBuffer(true);
           return;
         }
-        const cands = deck.map((c) => ({
+        const sortedDeck = sortCardsByCategoryAndRarity(deck, (c) => c, phraseDiff);
+        const cands = sortedDeck.map((c) => ({
           item: c,
           phrase: resolveCardInstance(c, phraseDiff).name,
         }));
@@ -4026,9 +4031,11 @@ export function App() {
                   </div>
                 ) : (
                   <div className="deck-banner-grid">
-                    {deck
-                      .filter((c) => !c.upgraded)
-                      .map((inst, idx) => {
+                    {sortCardsByCategoryAndRarity(
+                      deck.filter((c) => !c.upgraded),
+                      (c) => c,
+                      phraseDiff
+                    ).map((inst, idx) => {
                         const baseRes = resolveCardInstance(inst, phraseDiff);
                         const upRes = resolveCardInstance({ ...inst, upgraded: true }, phraseDiff);
                         const st = getPhraseHighlightState(baseRes.name, difficulty);
@@ -4107,7 +4114,7 @@ export function App() {
                   </>
                 ) : (
                   <div className="deck-banner-grid">
-                    {deck.map((inst, idx) => {
+                    {sortCardsByCategoryAndRarity(deck, (c) => c, phraseDiff).map((inst, idx) => {
                       const res = resolveCardInstance(inst, phraseDiff);
                       const st = getPhraseHighlightState(res.name, difficulty);
                       return (

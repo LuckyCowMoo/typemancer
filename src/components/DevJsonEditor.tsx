@@ -552,6 +552,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
   // Memoized card list sorted in the exact visual sequence of the GUI sidebar:
   // Categorized (Attack -> Defence -> Skill -> Debuff -> Power),
   // then sorted ascending by Rarity (Starter -> Common -> Uncommon -> Rare),
+  // then sorted ascending by Cost (cheaper cards first, more expensive cards at bottom),
   // and filtered by any active search query.
   const orderedGuiCards = useMemo(() => {
     const CARD_CATEGORY_KEYS: CardVisualCategory[] = [
@@ -609,11 +610,23 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
 
     for (const cat of CARD_CATEGORY_KEYS) {
       const catCards = groups[cat] || [];
-      const sorted = [...catCards].sort(
-        (a, b) =>
-          (RARITY_ORDER[a.card.rarity] ?? 99) -
-          (RARITY_ORDER[b.card.rarity] ?? 99)
-      );
+      const sorted = [...catCards].sort((a, b) => {
+        const rarA = RARITY_ORDER[a.card.rarity] ?? 99;
+        const rarB = RARITY_ORDER[b.card.rarity] ?? 99;
+        if (rarA !== rarB) {
+          return rarA - rarB;
+        }
+
+        const costA = a.card.xCost || a.card.cost === -1 ? 999 : (a.card.cost ?? 0);
+        const costB = b.card.xCost || b.card.cost === -1 ? 999 : (b.card.cost ?? 0);
+        if (costA !== costB) {
+          return costA - costB;
+        }
+
+        const nameA = a.card.names?.easy || a.card.id;
+        const nameB = b.card.names?.easy || b.card.id;
+        return nameA.localeCompare(nameB);
+      });
       for (const item of sorted) {
         result.push({ ...item, category: cat });
       }

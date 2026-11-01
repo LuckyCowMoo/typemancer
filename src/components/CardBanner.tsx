@@ -139,6 +139,7 @@ const RARITY_ORDER: Record<CardRarity, number> = {
 /**
  * Sorts card items first by category (attack -> defence -> skill -> debuff -> power),
  * then by rarity ascending so rarer cards are placed at the bottom of each category's grouping,
+ * within each rarity ascending by energy cost so more expensive cards are at the bottom,
  * and finally alphabetically by card name.
  */
 export function sortCardsByCategoryAndRarity<T>(
@@ -162,6 +163,12 @@ export function sortCardsByCategoryAndRarity<T>(
     const rarB = RARITY_ORDER[resB.rarity] ?? 0;
     if (rarA !== rarB) {
       return rarA - rarB;
+    }
+
+    const costA = resA.xCost || resA.cost === -1 ? 999 : (resA.cost ?? 0);
+    const costB = resB.xCost || resB.cost === -1 ? 999 : (resB.cost ?? 0);
+    if (costA !== costB) {
+      return costA - costB;
     }
 
     return resA.name.localeCompare(resB.name);
