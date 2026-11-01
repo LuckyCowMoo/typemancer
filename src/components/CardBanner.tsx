@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CardInstance, CardRarity, PhraseDifficulty } from '../types/game';
 import { resolveCardInstance } from '../utils/gameContent';
+import { renderHighlightedCardText } from '../utils/textHighlight';
 
 export type ResolvedCard = ReturnType<typeof resolveCardInstance>;
 export type CardVisualCategory = 'attack' | 'defence' | 'skill' | 'debuff' | 'power';
@@ -389,7 +390,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             opacity: 0.95,
           }}
         >
-          {subtitleOverride ?? resolved.description}
+          {renderHighlightedCardText(subtitleOverride ?? resolved.description)}
         </div>
 
         {/* Bottom: Full-width rounded pill for rarity */}

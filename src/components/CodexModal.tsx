@@ -15,6 +15,7 @@ import {
   RELICS_CATALOG,
 } from '../utils/gameContent';
 import { CardBanner } from './CardBanner';
+import { renderHighlightedCardText } from '../utils/textHighlight';
 
 export type CodexTab = 'monsters' | 'cards' | 'environments' | 'relics';
 
@@ -915,7 +916,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                       {c.upgrade && (
                         <div className="inspector-description-box">
                           <div className="inspector-description-label">Upgraded Form (+)</div>
-                          <div>{c.upgrade.description}</div>
+                          <div>{renderHighlightedCardText(c.upgrade.description)}</div>
                         </div>
                       )}
                     </div>

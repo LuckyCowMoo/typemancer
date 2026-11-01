@@ -3050,6 +3050,112 @@ body,
   border-color: #b45309;
 }
 
+/* ==================== CARD EFFECT KEYWORD HIGHLIGHTS ==================== */
+.card-kw {
+  display: inline;
+  padding: 0 3px;
+  margin: 0 1px;
+  border-radius: 3px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  background: rgba(10, 16, 22, 0.45);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: all 0.15s ease;
+}
+
+.card-kw-damage {
+  color: #ff8a7a !important;
+  border-bottom: 1.5px solid #ff5252;
+  text-shadow: 0 0 6px rgba(255, 82, 82, 0.5);
+}
+
+.card-kw-ward {
+  color: #38bdf8 !important;
+  border-bottom: 1.5px solid #0ea5e9;
+  text-shadow: 0 0 6px rgba(14, 165, 233, 0.5);
+}
+
+.card-kw-bold {
+  color: #fbbf24 !important;
+  border-bottom: 1.5px solid #f59e0b;
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+.card-kw-faded {
+  color: #cbd5e1 !important;
+  border-bottom: 1.5px solid #94a3b8;
+  text-shadow: 0 0 6px rgba(148, 163, 184, 0.5);
+}
+
+.card-kw-exposed {
+  color: #fb7185 !important;
+  border-bottom: 1.5px solid #f43f5e;
+  text-shadow: 0 0 6px rgba(244, 63, 94, 0.5);
+}
+
+.card-kw-ink-burn {
+  color: #c084fc !important;
+  border-bottom: 1.5px solid #a855f7;
+  text-shadow: 0 0 6px rgba(168, 85, 247, 0.5);
+}
+
+.card-kw-thorns {
+  color: #a3e635 !important;
+  border-bottom: 1.5px solid #84cc16;
+  text-shadow: 0 0 6px rgba(132, 204, 22, 0.5);
+}
+
+.card-kw-plated-armor {
+  color: #60a5fa !important;
+  border-bottom: 1.5px solid #3b82f6;
+  text-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+}
+
+.card-kw-energy {
+  color: #facc15 !important;
+  border-bottom: 1.5px solid #eab308;
+  text-shadow: 0 0 6px rgba(234, 179, 8, 0.5);
+}
+
+.card-kw-heal {
+  color: #4ade80 !important;
+  border-bottom: 1.5px solid #22c55e;
+  text-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+.card-kw-draw {
+  color: #2dd4bf !important;
+  border-bottom: 1.5px solid #14b8a6;
+  text-shadow: 0 0 6px rgba(20, 184, 166, 0.5);
+}
+
+.card-kw-discard {
+  color: #fb923c !important;
+  border-bottom: 1.5px solid #ea580c;
+  text-shadow: 0 0 6px rgba(234, 88, 12, 0.5);
+}
+
+.card-kw-burn-draft {
+  color: #fda4af !important;
+  border-bottom: 1.5px solid #fb7185;
+  text-shadow: 0 0 6px rgba(251, 113, 133, 0.5);
+}
+
+.card-kw-x-cost {
+  color: #fef08a !important;
+  border-bottom: 1.5px solid #facc15;
+  text-shadow: 0 0 6px rgba(250, 204, 21, 0.5);
+}
+
+.card-kw-aoe {
+  color: #fed7aa !important;
+  border-bottom: 1.5px solid #fb923c;
+  text-shadow: 0 0 6px rgba(251, 146, 60, 0.5);
+}
+
+
 
 
 
