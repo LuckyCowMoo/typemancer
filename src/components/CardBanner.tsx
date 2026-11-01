@@ -238,7 +238,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
     (showUpgradeDelta
       ? formatUpgradePreviewDescription(def)
       : resolved.description);
-  const descFontSize = descText.length > 70 ? '0.70rem' : '0.74rem';
+  const descFontSize = descText.length > 85 ? '0.70rem' : '0.74rem';
 
   return (
     <div
@@ -352,51 +352,94 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         )}
       </div>
 
-      {/* Left side: Large 1:1 Square with rounded corners (96x96, radius 14px, #e9ecef) */}
+      {/* Left column: Image slot (top) + Rarity pill (bottom) */}
       <div
-        className="card-art-box card-art-square"
+        className="card-left-art-col"
         style={{
-          width: 96,
-          height: 96,
-          minWidth: 96,
-          minHeight: 96,
-          borderRadius: 14,
-          background: '#e9ecef',
-          border: '2px solid #0d1b22',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          overflow: 'hidden',
-          boxSizing: 'border-box',
+          gap: 5,
+          width: 96,
+          minWidth: 96,
+          height: 122,
           flexShrink: 0,
+          boxSizing: 'border-box',
         }}
       >
-        {resolved.art.spriteUrl ? (
-          <img
-            src={resolved.art.spriteUrl}
-            alt=""
-            className="card-art-img"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              imageRendering: 'pixelated',
-            }}
-          />
-        ) : null}
+        <div
+          className="card-art-box"
+          style={{
+            width: 96,
+            height: 96,
+            minWidth: 96,
+            minHeight: 96,
+            borderRadius: 14,
+            background: '#e9ecef',
+            border: '2px solid #0d1b22',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            boxSizing: 'border-box',
+            flexShrink: 0,
+          }}
+        >
+          {resolved.art.spriteUrl ? (
+            <img
+              src={resolved.art.spriteUrl}
+              alt=""
+              className="card-art-img"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                imageRendering: 'pixelated',
+              }}
+            />
+          ) : null}
+        </div>
+
+        {/* Bottom: Rarity pill under the image slot */}
+        <div
+          className="card-rarity-bottom-pill card-rarity-pill"
+          style={{
+            width: '100%',
+            height: 19,
+            boxSizing: 'border-box',
+            borderRadius: 6,
+            border: '1.5px solid #0d1b22',
+            background: theme.pillBg,
+            color: theme.textColor,
+            textAlign: 'center',
+            padding: '0 4px',
+            fontSize: '0.67rem',
+            fontWeight: 700,
+            letterSpacing: '0.02em',
+            lineHeight: '17px',
+            textTransform: 'lowercase',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            flexShrink: 0,
+          }}
+        >
+          {rarityText}
+        </div>
       </div>
 
-      {/* Right half: Title (top), Description (middle), Rarity Full Pill (bottom) */}
+      {/* Right half: Title (top), Description (middle/bottom with full space) */}
       <div
         className="card-info-col card-info-right"
         style={{
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-start',
           flex: 1,
           minWidth: 0,
-          height: 108,
-          maxHeight: 108,
+          height: 122,
+          maxHeight: 122,
           boxSizing: 'border-box',
           overflow: 'hidden',
         }}
@@ -408,9 +451,11 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
-            paddingRight: displayPrice ? 88 : 40,
-            maxHeight: 52,
+            paddingRight: displayPrice ? 88 : 38,
+            minHeight: 22,
+            maxHeight: 46,
             overflow: 'hidden',
+            flexShrink: 0,
           }}
         >
           <span
@@ -423,7 +468,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
               wordBreak: 'break-word',
               color: theme.textColor,
               display: '-webkit-box',
-              WebkitLineClamp: 3,
+              WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
             }}
@@ -432,50 +477,26 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           </span>
         </div>
 
-        {/* Middle: Card description */}
+        {/* Middle/Bottom: Card description with abundant vertical space */}
         <div
           className="card-desc-text card-tab-sub"
           style={{
             fontSize: descFontSize,
-            lineHeight: 1.42,
+            lineHeight: 1.35,
             textAlign: 'left',
-            marginTop: 2,
-            marginBottom: 3,
+            marginTop: 3,
+            marginBottom: 0,
             flex: 1,
             wordBreak: 'break-word',
             color: theme.descColor,
             opacity: 0.95,
             display: '-webkit-box',
-            WebkitLineClamp: 3,
+            WebkitLineClamp: 5,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
           }}
         >
           {renderHighlightedCardText(descText)}
-        </div>
-
-        {/* Bottom: Full-width rounded pill for rarity */}
-        <div
-          className="card-rarity-bottom-pill card-rarity-pill"
-          style={{
-            width: '100%',
-            height: 18,
-            boxSizing: 'border-box',
-            borderRadius: 6,
-            border: '1.5px solid #0d1b22',
-            background: theme.pillBg,
-            color: theme.textColor,
-            textAlign: 'center',
-            padding: '0 6px',
-            fontSize: '0.68rem',
-            fontWeight: 700,
-            letterSpacing: '0.02em',
-            lineHeight: '16px',
-            textTransform: 'lowercase',
-            flexShrink: 0,
-          }}
-        >
-          {rarityText}
         </div>
       </div>
     </div>
