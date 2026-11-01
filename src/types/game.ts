@@ -60,7 +60,7 @@ export interface ActivePower {
 export interface CardEffect {
   type: EffectType;
   amount: number;
-  target?: 'enemy' | 'all_enemies' | 'self';
+  target?: 'enemy' | 'all_enemies' | 'self' | 'player' | 'all_allies';
   hits?: number; // For multi-hit attacks (defaults to 1)
   targetCount?: number; // Amount of targets per tile
 }
@@ -133,6 +133,7 @@ export interface EnemyMove {
     amount: number;
     target: 'self' | 'all_allies' | 'player';
   }[];
+  effects?: CardEffect[];
 }
 
 export interface EnemyDefinition {

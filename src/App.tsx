@@ -41,6 +41,7 @@ import {
   generateProceduralMap,
   generateRelicRewards,
   getCardDefinition,
+  getEnemyMoveEffects,
   getRelicDefinition,
   nextUid,
   pickRandom,
@@ -1129,80 +1130,134 @@ export function App() {
       }
 
       const move = en.currentMove;
-      if (move.damage && move.damage > 0) {
-        const hits = move.hits || 1;
-        for (let h = 0; h < hits; h++) {
-          await triggerProjectile(idx, 'player', '#b84a14');
-          let dmg =
-            move.damage +
-            en.statuses.bold +
-            (envMod.damageBonus ?? 0) +
-            (envMod.enemyDamageBonus ?? 0);
-          if (en.statuses.faded > 0) dmg = Math.floor(dmg * 0.75);
-          if (nextPlayerStats.exposed > 0) dmg = Math.floor(dmg * 1.5);
-          dmg = Math.max(0, dmg);
+      const effectsToRun = getEnemyMoveEffects(move);
+      let executedAnyAction = false;
 
-          const blocked = Math.min(nextPlayerWard, dmg);
-          nextPlayerWard -= blocked;
-          const unblocked = dmg - blocked;
-          nextPlayerHp = Math.max(0, nextPlayerHp - unblocked);
+      for (const eff of effectsToRun) {
+        if (eff.type === 'damage' && eff.amount > 0) {
+          executedAnyAction = true;
+          const hits = eff.hits || move.hits || 1;
+          for (let h = 0; h < hits; h++) {
+            await triggerProjectile(idx, 'player', '#b84a14');
+            let dmg =
+              eff.amount +
+              en.statuses.bold +
+              (envMod.damageBonus ?? 0) +
+              (envMod.enemyDamageBonus ?? 0);
+            if (en.statuses.faded > 0) dmg = Math.floor(dmg * 0.75);
+            if (nextPlayerStats.exposed > 0) dmg = Math.floor(dmg * 1.5);
+            dmg = Math.max(0, dmg);
 
-          totalBlockedSummary += blocked;
-          totalHpLostSummary += unblocked;
+            const blocked = Math.min(nextPlayerWard, dmg);
+            nextPlayerWard -= blocked;
+            const unblocked = dmg - blocked;
+            nextPlayerHp = Math.max(0, nextPlayerHp - unblocked);
 
-          if (blocked > 0 && unblocked > 0) {
-            spawnPopup('player', `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
-          } else if (blocked > 0) {
-            spawnPopup('player', `${blocked} Blocked`, '#1d6fa5');
-          } else if (unblocked > 0) {
-            spawnPopup('player', `-${unblocked} HP`, '#e63946');
+            totalBlockedSummary += blocked;
+            totalHpLostSummary += unblocked;
+
+            if (blocked > 0 && unblocked > 0) {
+              spawnPopup('player', `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
+            } else if (blocked > 0) {
+              spawnPopup('player', `${blocked} Blocked`, '#1d6fa5');
+            } else if (unblocked > 0) {
+              spawnPopup('player', `-${unblocked} HP`, '#e63946');
+            }
+
+            if (nextPlayerStats.thorns > 0 && dmg > 0) {
+              const retal = nextPlayerStats.thorns;
+              en.hp = Math.max(0, en.hp - retal);
+              spawnPopup(en.instanceId, `-${retal} Thorns`, '#059669');
+              soundEngine.playHit(settings);
+            }
+
+            setPlayerWard(nextPlayerWard);
+            setHp(nextPlayerHp);
+            await delay(320);
           }
-
-          if (nextPlayerStats.thorns > 0 && dmg > 0) {
-            const retal = nextPlayerStats.thorns;
-            en.hp = Math.max(0, en.hp - retal);
-            spawnPopup(en.instanceId, `-${retal} Thorns`, '#059669');
-            soundEngine.playHit(settings);
-          }
-
-          setPlayerWard(nextPlayerWard);
-          setHp(nextPlayerHp);
-          await delay(320);
-        }
-      } else {
-        await delay(300);
-      }
-
-      if (move.ward && move.ward > 0) {
-        const enemyWardGained = Math.max(0, move.ward + (envMod.wardBonus ?? 0));
-        en.ward += enemyWardGained;
-        spawnPopup(en.instanceId, `+${enemyWardGained} Ward`, '#1d6fa5');
-      }
-
-      if (move.heal && move.heal > 0) {
-        const enemyHealAmt = Math.max(0, move.heal + (envMod.healBonus ?? 0));
-        en.hp = Math.min(en.maxHp, en.hp + enemyHealAmt);
-        spawnPopup(en.instanceId, `+${enemyHealAmt} HP`, '#3a8918');
-      }
-
-      if (move.statusEffects) {
-        move.statusEffects.forEach((se) => {
-          const effAmt = Math.max(1, se.amount + (envMod.statusBonus ?? 0));
-          if (se.target === 'player') {
-            nextPlayerStats[se.status] += effAmt;
-            spawnPopup('player', `+${effAmt} ${se.status.replace('_', ' ')}`, '#6d28d9');
-          } else if (se.target === 'self') {
-            en.statuses[se.status] += effAmt;
-            spawnPopup(en.instanceId, `+${effAmt} ${se.status.replace('_', ' ')}`, '#d97706');
-          } else if (se.target === 'all_allies') {
+        } else if (eff.type === 'ward' && eff.amount > 0) {
+          executedAnyAction = true;
+          const enemyWardGained = Math.max(0, eff.amount + (envMod.wardBonus ?? 0));
+          if (eff.target === 'all_allies') {
             workingEnemies.forEach((ally) => {
               if (ally.hp > 0) {
-                ally.statuses[se.status] += effAmt;
-                spawnPopup(ally.instanceId, `+${effAmt} ${se.status.replace('_', ' ')}`, '#d97706');
+                ally.ward += enemyWardGained;
+                spawnPopup(ally.instanceId, `+${enemyWardGained} Ward`, '#1d6fa5');
               }
             });
+          } else {
+            en.ward += enemyWardGained;
+            spawnPopup(en.instanceId, `+${enemyWardGained} Ward`, '#1d6fa5');
           }
-        });
+          await delay(200);
+        } else if (eff.type === 'heal' && eff.amount > 0) {
+          executedAnyAction = true;
+          const enemyHealAmt = Math.max(0, eff.amount + (envMod.healBonus ?? 0));
+          if (eff.target === 'all_allies') {
+            workingEnemies.forEach((ally) => {
+              if (ally.hp > 0) {
+                ally.hp = Math.min(ally.maxHp, ally.hp + enemyHealAmt);
+                spawnPopup(ally.instanceId, `+${enemyHealAmt} HP`, '#3a8918');
+              }
+            });
+          } else {
+            en.hp = Math.min(en.maxHp, en.hp + enemyHealAmt);
+            spawnPopup(en.instanceId, `+${enemyHealAmt} HP`, '#3a8918');
+          }
+          await delay(200);
+        } else if (
+          eff.type === 'bold' ||
+          eff.type === 'faded' ||
+          eff.type === 'exposed' ||
+          eff.type === 'ink_burn' ||
+          eff.type === 'plated_armor' ||
+          eff.type === 'thorns'
+        ) {
+          executedAnyAction = true;
+          const stKey: keyof StatusState = eff.type;
+          const effAmt = Math.max(1, eff.amount + (envMod.statusBonus ?? 0));
+          const target =
+            eff.target ??
+            (eff.type === 'bold' || eff.type === 'plated_armor' || eff.type === 'thorns'
+              ? 'self'
+              : 'player');
+          if (target === 'player' || target === 'enemy') {
+            nextPlayerStats[stKey] += effAmt;
+            spawnPopup('player', `+${effAmt} ${eff.type.replace('_', ' ')}`, '#6d28d9');
+          } else if (target === 'all_allies') {
+            workingEnemies.forEach((ally) => {
+              if (ally.hp > 0) {
+                ally.statuses[stKey] += effAmt;
+                spawnPopup(ally.instanceId, `+${effAmt} ${eff.type.replace('_', ' ')}`, '#d97706');
+              }
+            });
+          } else {
+            en.statuses[stKey] += effAmt;
+            spawnPopup(en.instanceId, `+${effAmt} ${eff.type.replace('_', ' ')}`, '#d97706');
+          }
+          await delay(200);
+        } else if (eff.type === 'discard' || eff.type === 'discard_random') {
+          executedAnyAction = true;
+          const discardAmt = Math.max(1, eff.amount);
+          setHand((prevHand) => {
+            if (prevHand.length === 0) return prevHand;
+            const nextHand = [...prevHand];
+            const discarded: CardInstance[] = [];
+            for (let d = 0; d < discardAmt && nextHand.length > 0; d++) {
+              const randIdx = Math.floor(Math.random() * nextHand.length);
+              const [rm] = nextHand.splice(randIdx, 1);
+              discarded.push(rm);
+            }
+            setDiscardPile((prev) => [...prev, ...discarded]);
+            return nextHand;
+          });
+          spawnPopup('player', `Discarded ${discardAmt} Card(s)`, '#94a3b8');
+          await delay(250);
+        }
+      }
+
+      if (!executedAnyAction) {
+        await delay(300);
       }
 
       const woreOffList: string[] = [];

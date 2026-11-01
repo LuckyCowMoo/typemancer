@@ -19,12 +19,22 @@ import type {
 } from '../types/game';
 import {
   CARDS_CATALOG,
+  clearSessionCatalogs,
   ENEMIES_CATALOG,
   ENVIRONMENTS_CATALOG,
   EVENTS_CATALOG,
+  getEnemyMoveEffects,
   MAP_PHRASES,
   RELICS_CATALOG,
+  saveCatalogToSession,
+  syncEnemyMoveStats,
 } from '../utils/gameContent';
+import cardsRaw from '../data/cards.json';
+import enemiesRaw from '../data/enemies.json';
+import relicsRaw from '../data/relics.json';
+import eventsRaw from '../data/events.json';
+import environmentsRaw from '../data/environments.json';
+import mapPhrasesRaw from '../data/map_phrases.json';
 import {
   getCardVisualCategory,
   getCardColorTheme,
@@ -337,7 +347,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     setSpritePickerOpen(true);
   };
 
-  // Sync in-memory catalog arrays so changes immediately reflect in the game without page reload
+  // Sync in-memory catalog arrays and sessionStorage so changes immediately reflect in the game and survive page reloads
   const syncLiveCatalogs = () => {
     ENEMIES_CATALOG.splice(0, ENEMIES_CATALOG.length, ...enemiesList);
     CARDS_CATALOG.splice(0, CARDS_CATALOG.length, ...cardsList);
@@ -345,6 +355,53 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     ENVIRONMENTS_CATALOG.splice(0, ENVIRONMENTS_CATALOG.length, ...environmentsList);
     EVENTS_CATALOG.splice(0, EVENTS_CATALOG.length, ...eventsList);
     Object.assign(MAP_PHRASES, mapPhrases);
+
+    saveCatalogToSession('enemies', enemiesList);
+    saveCatalogToSession('cards', cardsList);
+    saveCatalogToSession('relics', relicsList);
+    saveCatalogToSession('environments', environmentsList);
+    saveCatalogToSession('events', eventsList);
+    saveCatalogToSession('map_phrases', mapPhrases);
+  };
+
+  useEffect(() => {
+    syncLiveCatalogs();
+  }, [enemiesList, cardsList, relicsList, environmentsList, eventsList, mapPhrases]);
+
+  const handleResetSessionToDefaults = () => {
+    if (
+      !window.confirm(
+        'Reset all catalogs to default raw JSON? Any edits made this session will be reverted.'
+      )
+    ) {
+      return;
+    }
+    clearSessionCatalogs();
+    const defEnemies = JSON.parse(JSON.stringify(enemiesRaw));
+    const defCards = JSON.parse(JSON.stringify(cardsRaw));
+    const defRelics = JSON.parse(JSON.stringify(relicsRaw));
+    const defEnvs = JSON.parse(JSON.stringify(environmentsRaw));
+    const defEvents = JSON.parse(JSON.stringify(eventsRaw));
+    const defPhrases = JSON.parse(JSON.stringify(mapPhrasesRaw));
+
+    setEnemiesList(defEnemies);
+    setCardsList(defCards);
+    setRelicsList(defRelics);
+    setEnvironmentsList(defEnvs);
+    setEventsList(defEvents);
+    setMapPhrases(defPhrases);
+
+    ENEMIES_CATALOG.splice(0, ENEMIES_CATALOG.length, ...defEnemies);
+    CARDS_CATALOG.splice(0, CARDS_CATALOG.length, ...defCards);
+    RELICS_CATALOG.splice(0, RELICS_CATALOG.length, ...defRelics);
+    ENVIRONMENTS_CATALOG.splice(0, ENVIRONMENTS_CATALOG.length, ...defEnvs);
+    EVENTS_CATALOG.splice(0, EVENTS_CATALOG.length, ...defEvents);
+    Object.assign(MAP_PHRASES, defPhrases);
+
+    setSaveBanner({
+      text: 'Reverted all data back to clean source JSON files!',
+    });
+    window.setTimeout(() => setSaveBanner(null), 4000);
   };
 
   const getTabPayload = (tab: EditorTab): { fileName: string; data: unknown } => {
@@ -650,10 +707,29 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
         </div>
 
         <div className="dev-editor-actions">
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: '#e0f2fe',
+              border: '1.5px solid #0284c7',
+              color: '#0369a1',
+              borderRadius: 6,
+              padding: '5px 10px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+            }}
+            title="Changes are automatically persisted in sessionStorage and live in the current game session!"
+          >
+            <span>🟢 Session Live</span>
+            <span style={{ fontWeight: 600, color: '#0c4a6e' }}>(Auto-persisted in session)</span>
+          </div>
           <button
             type="button"
             className="dev-btn dev-btn-primary"
             onClick={handleSaveCurrentTabToDisk}
+            title={`Overwrites src/data/${activeTab}.json on disk`}
           >
             💾 Save {activeTab}.json to Disk
           </button>
@@ -661,6 +737,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             type="button"
             className="dev-btn dev-btn-success"
             onClick={handleSaveAllTabsToDisk}
+            title="Overwrites all 6 JSON files in src/data/ on disk"
           >
             💾 Save ALL Tabs
           </button>
@@ -668,8 +745,17 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             type="button"
             className="dev-btn dev-btn-secondary"
             onClick={handleDownloadCurrentJson}
+            title="Download the current tab JSON file"
           >
             ⬇️ Download .json
+          </button>
+          <button
+            type="button"
+            className="dev-btn dev-btn-secondary"
+            onClick={handleResetSessionToDefaults}
+            title="Revert all catalogs back to clean source JSON"
+          >
+            🔄 Reset Defaults
           </button>
           <button
             type="button"
@@ -1065,13 +1151,14 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                       ...en,
                       moves: [
                         ...en.moves,
-                        {
+                        syncEnemyMoveStats({
                           id: `move_${en.moves.length + 1}`,
                           name: 'New Attack',
                           intent: 'attack',
                           weight: 50,
                           damage: 6,
-                        },
+                          effects: [{ type: 'damage', amount: 6, target: 'player', hits: 1 }],
+                        }),
                       ],
                     }))
                   }
@@ -1081,137 +1168,358 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
               </div>
 
               <div className="dev-moves-list">
-                {activeEnemy.moves.map((mv: EnemyMove, mIdx: number) => (
-                  <div key={mIdx} className="dev-subcard">
-                    <div className="dev-fields-grid">
-                      <label className="dev-field">
-                        <span>Move Name</span>
-                        <input
-                          type="text"
-                          value={mv.name}
-                          onChange={(e) => {
-                            const nextMoves = [...activeEnemy.moves];
-                            nextMoves[mIdx] = { ...mv, name: e.target.value };
-                            updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
-                          }}
-                        />
-                      </label>
-                      <label className="dev-field">
-                        <span>Intent Icon</span>
-                        <select
-                          value={mv.intent}
-                          onChange={(e) => {
-                            const nextMoves = [...activeEnemy.moves];
-                            nextMoves[mIdx] = {
-                              ...mv,
-                              intent: e.target.value as EnemyIntentType,
-                            };
-                            updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
-                          }}
-                        >
-                          {ALL_INTENTS.map((intType) => (
-                            <option key={intType} value={intType}>
-                              {intType}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="dev-field">
-                        <span>Weight (%)</span>
-                        <input
-                          type="number"
-                          value={mv.weight}
-                          onChange={(e) => {
-                            const nextMoves = [...activeEnemy.moves];
-                            nextMoves[mIdx] = { ...mv, weight: Number(e.target.value) };
-                            updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
-                          }}
-                        />
-                      </label>
-                      <label className="dev-field">
-                        <span>Damage</span>
-                        <input
-                          type="number"
-                          value={mv.damage ?? 0}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            const nextMoves = [...activeEnemy.moves];
-                            nextMoves[mIdx] = {
-                              ...mv,
-                              damage: val > 0 ? val : undefined,
-                            };
-                            updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
-                          }}
-                        />
-                      </label>
-                      <label className="dev-field">
-                        <span>Hits</span>
-                        <input
-                          type="number"
-                          value={mv.hits ?? 1}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            const nextMoves = [...activeEnemy.moves];
-                            nextMoves[mIdx] = {
-                              ...mv,
-                              hits: val > 1 ? val : undefined,
-                            };
-                            updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
-                          }}
-                        />
-                      </label>
-                      <label className="dev-field">
-                        <span>Ward (Block)</span>
-                        <input
-                          type="number"
-                          value={mv.ward ?? 0}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            const nextMoves = [...activeEnemy.moves];
-                            nextMoves[mIdx] = {
-                              ...mv,
-                              ward: val > 0 ? val : undefined,
-                            };
-                            updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
-                          }}
-                        />
-                      </label>
-                      <label className="dev-field">
-                        <span>Heal</span>
-                        <input
-                          type="number"
-                          value={mv.heal ?? 0}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            const nextMoves = [...activeEnemy.moves];
-                            nextMoves[mIdx] = {
-                              ...mv,
-                              heal: val > 0 ? val : undefined,
-                            };
-                            updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
-                          }}
-                        />
-                      </label>
-                      {activeEnemy.moves.length > 1 && (
-                        <div className="dev-field">
-                          <span>&nbsp;</span>
-                          <button
-                            type="button"
-                            className="dev-btn dev-btn-danger"
-                            onClick={() => {
-                              const nextMoves = activeEnemy.moves.filter(
-                                (_, i) => i !== mIdx
-                              );
+                {activeEnemy.moves.map((mv: EnemyMove, mIdx: number) => {
+                  const moveEffects =
+                    mv.effects && mv.effects.length > 0 ? mv.effects : getEnemyMoveEffects(mv);
+                  return (
+                    <div key={mIdx} className="dev-subcard">
+                      <div className="dev-fields-grid" style={{ alignItems: 'center' }}>
+                        <label className="dev-field" style={{ minWidth: 160 }}>
+                          <span>Move Name</span>
+                          <input
+                            type="text"
+                            value={mv.name}
+                            onChange={(e) => {
+                              const nextMoves = [...activeEnemy.moves];
+                              nextMoves[mIdx] = { ...mv, name: e.target.value };
+                              updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                            }}
+                          />
+                        </label>
+                        <label className="dev-field" style={{ minWidth: 140 }}>
+                          <span>Intent Icon</span>
+                          <select
+                            value={mv.intent}
+                            onChange={(e) => {
+                              const nextMoves = [...activeEnemy.moves];
+                              nextMoves[mIdx] = {
+                                ...mv,
+                                intent: e.target.value as EnemyIntentType,
+                              };
                               updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
                             }}
                           >
-                            Remove Move
-                          </button>
+                            {ALL_INTENTS.map((intType) => (
+                              <option key={intType} value={intType}>
+                                {intType}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="dev-field" style={{ minWidth: 90 }}>
+                          <span>Weight (%)</span>
+                          <input
+                            type="number"
+                            value={mv.weight}
+                            onChange={(e) => {
+                              const nextMoves = [...activeEnemy.moves];
+                              nextMoves[mIdx] = { ...mv, weight: Number(e.target.value) };
+                              updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                            }}
+                          />
+                        </label>
+                        {activeEnemy.moves.length > 1 && (
+                          <div
+                            className="dev-field"
+                            style={{ alignSelf: 'flex-end', marginLeft: 'auto' }}
+                          >
+                            <span>&nbsp;</span>
+                            <button
+                              type="button"
+                              className="dev-btn dev-btn-danger"
+                              onClick={() => {
+                                const nextMoves = activeEnemy.moves.filter(
+                                  (_, i) => i !== mIdx
+                                );
+                                updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                              }}
+                            >
+                              Remove Move
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Move Effects Section (3-Column Grid using CardEffect logic) */}
+                      <div
+                        style={{
+                          marginTop: 8,
+                          borderTop: '1.5px dashed #c5b393',
+                          paddingTop: 8,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: 6,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: '0.86rem',
+                              fontWeight: 800,
+                              color: '#1e1610',
+                            }}
+                          >
+                            ⚡ Move Effects ({moveEffects.length})
+                          </span>
+                          <select
+                            className="dev-add-effect-select"
+                            value=""
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                const chosenType = e.target.value as EffectType;
+                                const isSelf =
+                                  chosenType === 'ward' ||
+                                  chosenType === 'heal' ||
+                                  chosenType === 'bold' ||
+                                  chosenType === 'plated_armor' ||
+                                  chosenType === 'thorns';
+                                const newEff: CardEffect = {
+                                  type: chosenType,
+                                  amount:
+                                    chosenType === 'damage'
+                                      ? 6
+                                      : chosenType === 'ward'
+                                      ? 5
+                                      : 2,
+                                  target: isSelf ? 'self' : 'player',
+                                  hits: 1,
+                                };
+                                const nextEffects = [...moveEffects, newEff];
+                                const nextMove = syncEnemyMoveStats({
+                                  ...mv,
+                                  effects: nextEffects,
+                                });
+                                const nextMoves = [...activeEnemy.moves];
+                                nextMoves[mIdx] = nextMove;
+                                updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                              }
+                            }}
+                          >
+                            <option value="" disabled>
+                              ➕ Add Effect (Choose Type)...
+                            </option>
+                            {EFFECT_TYPE_GROUPS.map((g) => (
+                              <optgroup
+                                key={g.category}
+                                label={`━━━ ${g.category} (${g.colorName}) ━━━`}
+                              >
+                                {g.effects.map((item) => (
+                                  <option key={item.type} value={item.type}>
+                                    {item.label}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))}
+                          </select>
                         </div>
-                      )}
+
+                        {moveEffects.length === 0 ? (
+                          <div
+                            style={{
+                              padding: '8px 10px',
+                              fontSize: '0.82rem',
+                              color: '#786852',
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            No effects on this move yet. Choose an effect above to add one.
+                          </div>
+                        ) : (
+                          <div className="dev-effects-grid-3col">
+                            {moveEffects.map((eff: CardEffect, eIdx: number) => {
+                              const grp = getEffectGroup(eff.type);
+                              return (
+                                <div key={eIdx} className="dev-effect-tile">
+                                  <div
+                                    className="dev-effect-tile-header"
+                                    style={{ borderBottomColor: grp.color }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          display: 'inline-block',
+                                          width: 10,
+                                          height: 10,
+                                          borderRadius: '50%',
+                                          backgroundColor: grp.color,
+                                        }}
+                                      />
+                                      <span
+                                        className="dev-effect-tile-badge"
+                                        style={{ color: grp.color }}
+                                      >
+                                        #{eIdx + 1} · {grp.category}
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="dev-btn dev-btn-danger dev-btn-mini"
+                                      onClick={() => {
+                                        const nextEffects = moveEffects.filter(
+                                          (_, i) => i !== eIdx
+                                        );
+                                        const nextMove = syncEnemyMoveStats({
+                                          ...mv,
+                                          effects: nextEffects,
+                                        });
+                                        const nextMoves = [...activeEnemy.moves];
+                                        nextMoves[mIdx] = nextMove;
+                                        updateActiveEnemy((en) => ({
+                                          ...en,
+                                          moves: nextMoves,
+                                        }));
+                                      }}
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                  <div className="dev-effect-tile-fields">
+                                    <label className="dev-field dev-effect-tile-full">
+                                      <span>Effect Type</span>
+                                      <select
+                                        value={eff.type}
+                                        className="dev-effect-select"
+                                        style={{ borderLeft: `6px solid ${grp.color}` }}
+                                        onChange={(e) => {
+                                          const nextEffects = [...moveEffects];
+                                          nextEffects[eIdx] = {
+                                            ...eff,
+                                            type: e.target.value as EffectType,
+                                          };
+                                          const nextMove = syncEnemyMoveStats({
+                                            ...mv,
+                                            effects: nextEffects,
+                                          });
+                                          const nextMoves = [...activeEnemy.moves];
+                                          nextMoves[mIdx] = nextMove;
+                                          updateActiveEnemy((en) => ({
+                                            ...en,
+                                            moves: nextMoves,
+                                          }));
+                                        }}
+                                      >
+                                        {EFFECT_TYPE_GROUPS.map((g) => (
+                                          <optgroup
+                                            key={g.category}
+                                            label={`━━━ ${g.category} (${g.colorName}) ━━━`}
+                                          >
+                                            {g.effects.map((item) => (
+                                              <option key={item.type} value={item.type}>
+                                                {item.label}
+                                              </option>
+                                            ))}
+                                          </optgroup>
+                                        ))}
+                                      </select>
+                                    </label>
+                                    <label className="dev-field">
+                                      <span>Amount</span>
+                                      <input
+                                        type="number"
+                                        value={eff.amount}
+                                        onChange={(e) => {
+                                          const nextEffects = [...moveEffects];
+                                          nextEffects[eIdx] = {
+                                            ...eff,
+                                            amount: Number(e.target.value),
+                                          };
+                                          const nextMove = syncEnemyMoveStats({
+                                            ...mv,
+                                            effects: nextEffects,
+                                          });
+                                          const nextMoves = [...activeEnemy.moves];
+                                          nextMoves[mIdx] = nextMove;
+                                          updateActiveEnemy((en) => ({
+                                            ...en,
+                                            moves: nextMoves,
+                                          }));
+                                        }}
+                                      />
+                                    </label>
+                                    <label className="dev-field">
+                                      <span>Target</span>
+                                      <select
+                                        value={
+                                          eff.target ||
+                                          (eff.type === 'ward' || eff.type === 'heal'
+                                            ? 'self'
+                                            : 'player')
+                                        }
+                                        onChange={(e) => {
+                                          const nextEffects = [...moveEffects];
+                                          nextEffects[eIdx] = {
+                                            ...eff,
+                                            target: e.target.value as
+                                              | 'player'
+                                              | 'self'
+                                              | 'all_allies',
+                                          };
+                                          const nextMove = syncEnemyMoveStats({
+                                            ...mv,
+                                            effects: nextEffects,
+                                          });
+                                          const nextMoves = [...activeEnemy.moves];
+                                          nextMoves[mIdx] = nextMove;
+                                          updateActiveEnemy((en) => ({
+                                            ...en,
+                                            moves: nextMoves,
+                                          }));
+                                        }}
+                                      >
+                                        <option value="player">Player (Hero)</option>
+                                        <option value="self">Self (Caster)</option>
+                                        <option value="all_allies">All Allies (Monsters)</option>
+                                      </select>
+                                    </label>
+                                    {(eff.type === 'damage' ||
+                                      (eff.hits && eff.hits > 1)) && (
+                                      <label className="dev-field">
+                                        <span>Hits</span>
+                                        <input
+                                          type="number"
+                                          min={1}
+                                          max={10}
+                                          value={eff.hits || 1}
+                                          onChange={(e) => {
+                                            const nextEffects = [...moveEffects];
+                                            nextEffects[eIdx] = {
+                                              ...eff,
+                                              hits: Number(e.target.value),
+                                            };
+                                            const nextMove = syncEnemyMoveStats({
+                                              ...mv,
+                                              effects: nextEffects,
+                                            });
+                                            const nextMoves = [...activeEnemy.moves];
+                                            nextMoves[mIdx] = nextMove;
+                                            updateActiveEnemy((en) => ({
+                                              ...en,
+                                              moves: nextMoves,
+                                            }));
+                                          }}
+                                        />
+                                      </label>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           </main>
@@ -1653,18 +1961,6 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                       </optgroup>
                     ))}
                   </select>
-                  <button
-                    type="button"
-                    className="dev-btn-mini"
-                    onClick={() =>
-                      updateActiveCard((c) => ({
-                        ...c,
-                        effects: [...c.effects, { type: 'damage', amount: 5 }],
-                      }))
-                    }
-                  >
-                    + Add Effect
-                  </button>
                 </div>
               </div>
 
@@ -1901,22 +2197,6 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                             </optgroup>
                           ))}
                         </select>
-                        <button
-                          type="button"
-                          className="dev-btn-mini"
-                          onClick={() => {
-                            const next = [...upgradedEffects, { type: 'damage' as EffectType, amount: 8 }];
-                            updateActiveCard((c) => ({
-                              ...c,
-                              upgrade: {
-                                ...ensureUpgrade(c),
-                                effects: next,
-                              },
-                            }));
-                          }}
-                        >
-                          + Add Upgraded Effect
-                        </button>
                         <button
                           type="button"
                           className="dev-btn-mini"

@@ -22,13 +22,76 @@ import eventsRaw from '../data/events.json';
 import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
 
-export const CARDS_CATALOG: CardDefinition[] = cardsRaw as unknown as CardDefinition[];
-export const ENEMIES_CATALOG: EnemyDefinition[] = enemiesRaw as unknown as EnemyDefinition[];
-export const RELICS_CATALOG: RelicDefinition[] = relicsRaw as unknown as RelicDefinition[];
-export const EVENTS_CATALOG: MysteryEventDefinition[] = eventsRaw as unknown as MysteryEventDefinition[];
-export const ENVIRONMENTS_CATALOG: BattleEnvironmentDefinition[] =
-  environmentsRaw as unknown as BattleEnvironmentDefinition[];
-export const MAP_PHRASES: MapPhrasesCatalog = mapPhrasesRaw as unknown as MapPhrasesCatalog;
+/**
+ * Loads a catalog from sessionStorage if present (retaining user edits during the current browser session),
+ * otherwise falling back to the raw JSON file bundled with the build.
+ */
+function loadCatalogFromSession<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined' || !window.sessionStorage) return fallback;
+  try {
+    const raw = window.sessionStorage.getItem(`typemancer_session_${key}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(fallback) && Array.isArray(parsed) && parsed.length > 0) {
+        return parsed as T;
+      }
+      if (!Array.isArray(fallback) && parsed && typeof parsed === 'object') {
+        return parsed as T;
+      }
+    }
+  } catch (e) {
+    console.warn(`Failed to read sessionStorage for ${key}:`, e);
+  }
+  return fallback;
+}
+
+export function saveCatalogToSession(key: string, data: unknown): void {
+  if (typeof window === 'undefined' || !window.sessionStorage) return;
+  try {
+    window.sessionStorage.setItem(`typemancer_session_${key}`, JSON.stringify(data));
+  } catch (e) {
+    console.warn(`Failed to write sessionStorage for ${key}:`, e);
+  }
+}
+
+export function clearSessionCatalogs(): void {
+  if (typeof window === 'undefined' || !window.sessionStorage) return;
+  try {
+    window.sessionStorage.removeItem('typemancer_session_cards');
+    window.sessionStorage.removeItem('typemancer_session_enemies');
+    window.sessionStorage.removeItem('typemancer_session_relics');
+    window.sessionStorage.removeItem('typemancer_session_events');
+    window.sessionStorage.removeItem('typemancer_session_environments');
+    window.sessionStorage.removeItem('typemancer_session_map_phrases');
+  } catch (e) {
+    console.warn('Failed to clear sessionStorage catalogs:', e);
+  }
+}
+
+export const CARDS_CATALOG: CardDefinition[] = loadCatalogFromSession(
+  'cards',
+  cardsRaw as unknown as CardDefinition[]
+);
+export const ENEMIES_CATALOG: EnemyDefinition[] = loadCatalogFromSession(
+  'enemies',
+  enemiesRaw as unknown as EnemyDefinition[]
+);
+export const RELICS_CATALOG: RelicDefinition[] = loadCatalogFromSession(
+  'relics',
+  relicsRaw as unknown as RelicDefinition[]
+);
+export const EVENTS_CATALOG: MysteryEventDefinition[] = loadCatalogFromSession(
+  'events',
+  eventsRaw as unknown as MysteryEventDefinition[]
+);
+export const ENVIRONMENTS_CATALOG: BattleEnvironmentDefinition[] = loadCatalogFromSession(
+  'environments',
+  environmentsRaw as unknown as BattleEnvironmentDefinition[]
+);
+export const MAP_PHRASES: MapPhrasesCatalog = loadCatalogFromSession(
+  'map_phrases',
+  mapPhrasesRaw as unknown as MapPhrasesCatalog
+);
 
 export function chooseBattleEnvironment(floor: number): BattleEnvironmentDefinition {
   const eligible = ENVIRONMENTS_CATALOG.filter(
@@ -205,6 +268,96 @@ export function shuffleArray<T>(arr: T[]): T[] {
 }
 
 /**
+ * Resolves an enemy move's effects into a unified CardEffect array.
+ * If move.effects is defined and non-empty, returns it.
+ * Otherwise, synthesizes CardEffects from legacy damage, hits, ward, heal, and statusEffects.
+ */
+export function getEnemyMoveEffects(move: EnemyMove): CardEffect[] {
+  if (move.effects && move.effects.length > 0) {
+    return move.effects;
+  }
+  const synth: CardEffect[] = [];
+  if (move.damage && move.damage > 0) {
+    synth.push({
+      type: 'damage',
+      amount: move.damage,
+      target: 'player',
+      hits: move.hits && move.hits > 1 ? move.hits : 1,
+    });
+  }
+  if (move.ward && move.ward > 0) {
+    synth.push({
+      type: 'ward',
+      amount: move.ward,
+      target: 'self',
+    });
+  }
+  if (move.heal && move.heal > 0) {
+    synth.push({
+      type: 'heal',
+      amount: move.heal,
+      target: 'self',
+    });
+  }
+  if (move.statusEffects && move.statusEffects.length > 0) {
+    for (const se of move.statusEffects) {
+      synth.push({
+        type: se.status,
+        amount: se.amount,
+        target: se.target === 'player' ? 'player' : se.target === 'all_allies' ? 'all_allies' : 'self',
+      });
+    }
+  }
+  return synth;
+}
+
+/**
+ * Synchronizes legacy move fields (damage, hits, ward, heal) from move.effects
+ * to ensure intent badges, tooltips, and sprite previews reflect the effects accurately.
+ */
+export function syncEnemyMoveStats(move: EnemyMove): EnemyMove {
+  const effects = move.effects;
+  if (!effects || effects.length === 0) return move;
+
+  const dmgEff = effects.find((e) => e.type === 'damage');
+  const wardEff = effects.find((e) => e.type === 'ward');
+  const healEff = effects.find((e) => e.type === 'heal');
+  const debuffEff = effects.find(
+    (e) =>
+      e.type === 'bold' ||
+      e.type === 'faded' ||
+      e.type === 'exposed' ||
+      e.type === 'ink_burn'
+  );
+
+  const damage = dmgEff ? dmgEff.amount : undefined;
+  const hits = dmgEff && dmgEff.hits && dmgEff.hits > 1 ? dmgEff.hits : undefined;
+  const ward = wardEff ? wardEff.amount : undefined;
+  const heal = healEff ? healEff.amount : undefined;
+
+  let intent = move.intent;
+  if (!intent) {
+    if (damage && ward) intent = 'attack_defend';
+    else if (damage && debuffEff) intent = 'attack_debuff';
+    else if (damage && hits && hits > 1) intent = 'multi_attack';
+    else if (damage) intent = 'attack';
+    else if (ward) intent = 'defend';
+    else if (heal) intent = 'heal';
+    else if (debuffEff) intent = 'debuff';
+    else intent = 'buff';
+  }
+
+  return {
+    ...move,
+    damage,
+    hits,
+    ward,
+    heal,
+    intent,
+  };
+}
+
+/**
  * Picks a weighted random move from an enemy's move list.
  */
 export function chooseEnemyMove(moves: EnemyMove[]): EnemyMove {
@@ -212,9 +365,9 @@ export function chooseEnemyMove(moves: EnemyMove[]): EnemyMove {
   let roll = Math.random() * totalWeight;
   for (const m of moves) {
     roll -= m.weight || 10;
-    if (roll <= 0) return m;
+    if (roll <= 0) return syncEnemyMoveStats({ ...m });
   }
-  return moves[0];
+  return syncEnemyMoveStats({ ...moves[0] });
 }
 
 /**
