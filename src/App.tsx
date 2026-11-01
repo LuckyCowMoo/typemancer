@@ -4037,7 +4037,6 @@ export function App() {
                       phraseDiff
                     ).map((inst, idx) => {
                         const baseRes = resolveCardInstance(inst, phraseDiff);
-                        const upRes = resolveCardInstance({ ...inst, upgraded: true }, phraseDiff);
                         const st = getPhraseHighlightState(baseRes.name, difficulty);
                         return (
                           <CardBanner
@@ -4047,7 +4046,7 @@ export function App() {
                             index={idx}
                             isHighlighted={st.isHighlighted}
                             isEnterCandidate={st.isEnterReady}
-                            subtitleOverride={`Upgrades to: ${upRes.name} (${upRes.description})`}
+                            showUpgradeDelta={true}
                           />
                         );
                       })}

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CardInstance, CardRarity, PhraseDifficulty } from '../types/game';
-import { resolveCardInstance } from '../utils/gameContent';
-import { renderHighlightedCardText } from '../utils/textHighlight';
+import { resolveCardInstance, getCardDefinition } from '../utils/gameContent';
+import { renderHighlightedCardText, formatUpgradePreviewDescription } from '../utils/textHighlight';
 
 export type ResolvedCard = ReturnType<typeof resolveCardInstance>;
 export type CardVisualCategory = 'attack' | 'defence' | 'skill' | 'debuff' | 'power';
@@ -24,6 +24,7 @@ export interface CardBannerProps {
   priceBadge?: string;
   shopPrice?: string | number;
   subtitleOverride?: string;
+  showUpgradeDelta?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -193,10 +194,12 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   priceBadge,
   shopPrice,
   subtitleOverride,
+  showUpgradeDelta = false,
   className = '',
   style,
 }) => {
   const resolved = resolveCardInstance(instance, phraseDiff);
+  const def = getCardDefinition(instance.cardId);
   const category = getCardVisualCategory(resolved);
   const theme = getCardColorTheme(category, resolved.rarity);
 
@@ -232,7 +235,11 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   const titleLineHeight = titleLen > 22 ? 1.12 : 1.18;
 
   // Description dynamic font size if long description or campfire subtitle override
-  const descText = subtitleOverride ?? resolved.description;
+  const descText =
+    subtitleOverride ??
+    (showUpgradeDelta
+      ? formatUpgradePreviewDescription(def)
+      : resolved.description);
   const descFontSize = descText.length > 70 ? '0.67rem' : '0.71rem';
 
   return (
@@ -328,7 +335,23 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         }}
         title="Energy Cost"
       >
-        {resolved.cost === -1 || (resolved as any).xCost ? 'X' : resolved.cost}
+        {resolved.cost === -1 || (resolved as any).xCost ? (
+          'X'
+        ) : showUpgradeDelta &&
+          def.upgrade &&
+          def.upgrade.cost !== undefined &&
+          def.upgrade.cost !== def.cost ? (
+          <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 2 }}>
+            <span>{def.cost}</span>
+            <span style={{ fontSize: '0.74rem', color: '#34d399', fontWeight: 900 }}>
+              {def.upgrade.cost - def.cost > 0
+                ? `+${def.upgrade.cost - def.cost}`
+                : def.upgrade.cost - def.cost}
+            </span>
+          </span>
+        ) : (
+          resolved.cost
+        )}
       </div>
 
       {/* Left side: Large 1:1 Square with rounded corners (82x82, radius 12px, #e9ecef) */}

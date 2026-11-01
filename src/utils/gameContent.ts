@@ -21,6 +21,7 @@ import relicsRaw from '../data/relics.json';
 import eventsRaw from '../data/events.json';
 import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
+import { cleanCardDescriptionForPlay } from './textHighlight';
 
 const CATALOG_SESSION_VERSION = 'v2_cards_rebalance';
 
@@ -227,7 +228,7 @@ export function resolveCardInstance(
     type: def.type,
     rarity: def.rarity,
     target: deriveEffectiveTarget(def.target, def.effects),
-    description: def.description,
+    description: cleanCardDescriptionForPlay(def.description),
     effects: def.effects,
     burnDraft: Boolean(def.burnDraft),
     art: def.art,

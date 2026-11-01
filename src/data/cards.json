@@ -15,7 +15,7 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 6 damage.",
+    "description": "Deal 6 {+3} damage.",
     "effects": [
       {
         "type": "damage",
@@ -58,7 +58,7 @@
       "medium": "around myself",
       "hard": "to fortify my stance"
     },
-    "description": "Gain 5 Ward.",
+    "description": "Gain 5 {+3} Ward.",
     "effects": [
       {
         "type": "ward",
@@ -101,7 +101,7 @@
       "medium": "towards",
       "hard": "aiming squarely at"
     },
-    "description": "Deal 9 damage and apply 2 Exposed.",
+    "description": "Deal 9 {+3} damage and apply 2 {+1} Exposed.",
     "effects": [
       {
         "type": "damage",

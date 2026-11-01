@@ -152,26 +152,178 @@ export const EFFECT_KEYWORDS: KeywordDef[] = [
 ];
 
 /**
- * Combined non-capturing master regular expression used to slice text into segments.
+ * Strips optional upgrade delta tags like {+2} or [+2] so normal in-combat card descriptions
+ * remain clean and standard.
+ */
+export function cleanCardDescriptionForPlay(desc: string): string {
+  if (!desc) return '';
+  return desc
+    .replace(/\{[+-]?[\w\d]+\}\s*/g, '')
+    .replace(/\[[+-]?[\w\d]+\]\s*/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+/**
+ * Formats a card's description for upgrade preview areas (such as Campfire Revise).
+ * 1. If an optional position is explicitly defined with {+2} or [+2] in the description,
+ *    it places the +2 in that exact defined position.
+ * 2. If no tag is defined, it automatically calculates effect deltas between base and upgrade
+ *    and inserts "+X" after the base number before the corresponding keyword.
+ */
+export function formatUpgradePreviewDescription(def: {
+  description: string;
+  effects?: Array<{ type: string; amount?: number }>;
+  upgrade?: {
+    description?: string;
+    effects?: Array<{ type: string; amount?: number }>;
+  };
+}): string {
+  if (!def) return '';
+
+  // 1. If explicit delta tag like {+2} or [+2] is present in description:
+  if (/\{[+-]?[\w\d]+\}|\[[+-]?[\w\d]+\]/.test(def.description)) {
+    return def.description
+      .replace(/\{([+-]?[\w\d]+)\}/g, ' $1 ')
+      .replace(/\[([+-]?[\w\d]+)\]/g, ' $1 ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  // 2. If no upgrade defined, return base description
+  if (!def.upgrade) {
+    return cleanCardDescriptionForPlay(def.description);
+  }
+
+  // 3. Automatically compute effect deltas between base and upgrade
+  let preview = def.description;
+  const baseEffects = def.effects || [];
+  const upEffects = def.upgrade.effects || [];
+
+  for (let i = 0; i < baseEffects.length; i++) {
+    const baseEff = baseEffects[i];
+    const upEff = upEffects[i];
+    if (!baseEff || !upEff) continue;
+
+    if (
+      baseEff.type === upEff.type &&
+      typeof baseEff.amount === 'number' &&
+      typeof upEff.amount === 'number'
+    ) {
+      const diff = upEff.amount - baseEff.amount;
+      if (diff > 0) {
+        const deltaStr = `+${diff}`;
+        const amt = baseEff.amount;
+        const targetPattern = new RegExp(`(\\b${amt}\\b)(?!\\s*\\+)`, 'i');
+        if (targetPattern.test(preview)) {
+          preview = preview.replace(targetPattern, `$1 ${deltaStr}`);
+        }
+      }
+    }
+  }
+
+  return preview;
+}
+
+/**
+ * Combined non-capturing master regular expression used to slice text into segments,
+ * including keyword effects and upgrade value deltas (e.g. +2, +3, -1, +X).
  */
 const COMBINED_REGEX = new RegExp(
-  '(' + EFFECT_KEYWORDS.map((k) => k.pattern.source).join('|') + ')',
+  '(' +
+    [
+      ...EFFECT_KEYWORDS.map((k) => k.pattern.source),
+      '[+-]\\d+',
+      '[+-][xX]',
+    ].join('|') +
+    ')',
   'gi'
 );
 
 /**
+ * Contextually discovers the appropriate color for an upgrade delta (+2, +3, etc.)
+ * by looking ahead or behind for the corresponding card effect keyword.
+ * E.g. in "gain 4 +2 ward", "+2" detects "ward" and adopts luminous sky cyan (#38bdf8).
+ */
+function findAdjacentKeywordColor(
+  parts: string[],
+  idx: number
+): { color: string; shadow: string } {
+  // 1. Look ahead for the first non-empty token matching an effect keyword
+  for (let i = idx + 1; i < parts.length; i++) {
+    const raw = parts[i]?.trim();
+    if (!raw) continue;
+    const kw = EFFECT_KEYWORDS.find((k) => {
+      const re = new RegExp('^' + k.pattern.source + '$', k.pattern.flags || 'i');
+      return re.test(raw);
+    });
+    if (kw) {
+      return { color: kw.color, shadow: kw.shadow };
+    }
+    // Stop looking ahead if sentence ends
+    if (/[.;!?,]/.test(raw)) break;
+  }
+
+  // 2. Look behind if not found ahead (e.g. "Ward +2")
+  for (let i = idx - 1; i >= 0; i--) {
+    const raw = parts[i]?.trim();
+    if (!raw) continue;
+    const kw = EFFECT_KEYWORDS.find((k) => {
+      const re = new RegExp('^' + k.pattern.source + '$', k.pattern.flags || 'i');
+      return re.test(raw);
+    });
+    if (kw) {
+      return { color: kw.color, shadow: kw.shadow };
+    }
+    if (/[.;!?,]/.test(raw)) break;
+  }
+
+  // 3. Fallback: Vibrant Upgrade Emerald Green
+  return {
+    color: '#34d399',
+    shadow: 'rgba(52, 211, 153, 0.5)',
+  };
+}
+
+/**
  * Parses card description text and wraps every card effect keyword (and its equivalents)
- * in an inline, high-contrast, color-coded badge that remains readable on any card background.
+ * as well as upgrade value deltas (+2, +3, +X) in inline, high-contrast, color-coded badges
+ * that remain readable and harmonious on any card background.
  */
 export function renderHighlightedCardText(text: string): React.ReactNode {
   if (!text) return null;
 
-  const parts = text.split(COMBINED_REGEX);
+  // Normalize any leftover optional tags like {+2} or [+2] to standard "+2" with spacing
+  const normalizedText = text
+    .replace(/\{([+-]?[\w\d]+)\}/g, ' $1 ')
+    .replace(/\[([+-]?[\w\d]+)\]/g, ' $1 ')
+    .replace(/\s{2,}/g, ' ');
+
+  const parts = normalizedText.split(COMBINED_REGEX);
 
   return parts.map((part, idx) => {
     if (!part) return null;
 
-    // Check if part matches any keyword
+    // 1. Check if part is a value delta (e.g. +2, +3, -1, +X)
+    if (/^[+-](\d+|[xX])$/i.test(part)) {
+      const theme = findAdjacentKeywordColor(parts, idx);
+      return (
+        <span
+          key={idx}
+          className="card-kw card-kw-delta"
+          style={{
+            color: theme.color,
+            textShadow: `0 0 5px ${theme.shadow}`,
+            fontWeight: 900,
+          }}
+          title={`Upgrade Value: ${part}`}
+        >
+          {part}
+        </span>
+      );
+    }
+
+    // 2. Check if part matches any standard keyword
     const matchedKw = EFFECT_KEYWORDS.find((k) => {
       const re = new RegExp('^' + k.pattern.source + '$', k.pattern.flags || 'i');
       return re.test(part);

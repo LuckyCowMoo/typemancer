@@ -1976,7 +1976,12 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
               </div>
 
               <label className="dev-field" style={{ marginTop: 12 }}>
-                <span>Card Description</span>
+                <span>
+                  Card Description{' '}
+                  <span style={{ fontSize: '0.72rem', color: '#9a6a3b', fontWeight: 500 }}>
+                    (Optional: Use <code>{'{+2}'}</code> or <code>{'[+2]'}</code> to define upgrade delta position)
+                  </span>
+                </span>
                 <input
                   type="text"
                   value={activeCard.description}
