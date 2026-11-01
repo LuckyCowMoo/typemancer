@@ -45,35 +45,112 @@ interface DevJsonEditorProps {
   onClose: () => void;
 }
 
-const ALL_EFFECT_TYPES: EffectType[] = [
-  'damage',
-  'ward',
-  'bold',
-  'faded',
-  'exposed',
-  'ink_burn',
-  'draw',
-  'energy',
-  'heal',
-  'self_damage',
-  'damage_per_ward',
-  'double_ward',
-  'double_ink_burn',
-  'gain_ward_per_card_in_hand',
-  'discard',
-  'discard_random',
-  'plated_armor',
-  'thorns',
-  'power_ward_each_turn',
-  'power_bold_each_turn',
-  'power_draw_each_turn',
-  'power_energy_each_turn',
-  'power_heal_each_turn',
-  'power_ink_burn_all_each_turn',
-  'power_damage_all_each_turn',
-  'power_ward_on_card_play',
-  'power_damage_all_on_attack',
+export interface EffectGroupDef {
+  category: string;
+  colorName: string;
+  color: string;
+  bg: string;
+  textColor: string;
+  effects: {
+    type: EffectType;
+    label: string;
+  }[];
+}
+
+export const EFFECT_TYPE_GROUPS: EffectGroupDef[] = [
+  {
+    category: 'Attack & Damage',
+    colorName: 'Red',
+    color: '#c24d2c',
+    bg: '#fdf2ee',
+    textColor: '#831843',
+    effects: [
+      { type: 'damage', label: '⚔️ Damage (Direct Hit)' },
+      { type: 'damage_per_ward', label: '🛡️ Damage Per Ward (Body Slam)' },
+      { type: 'bold', label: '💪 Bold (+Damage Dealt)' },
+      { type: 'self_damage', label: '🩸 Self Damage (Sacrifice HP)' },
+    ],
+  },
+  {
+    category: 'Defence & Armor',
+    colorName: 'Blue',
+    color: '#105470',
+    bg: '#f0f9ff',
+    textColor: '#0c4a6e',
+    effects: [
+      { type: 'ward', label: '🛡️ Ward (Block / Armor)' },
+      { type: 'double_ward', label: '🛡️ Double Ward (Entrench)' },
+      { type: 'gain_ward_per_card_in_hand', label: '🃏 Ward Per Card in Hand' },
+      { type: 'plated_armor', label: '⚙️ Plated Armor (Ward each turn, -1 decay)' },
+      { type: 'thorns', label: '🌵 Thorns (Retaliation Damage)' },
+    ],
+  },
+  {
+    category: 'Utility & Economy',
+    colorName: 'Green',
+    color: '#21704d',
+    bg: '#f0fdf4',
+    textColor: '#064e3b',
+    effects: [
+      { type: 'draw', label: '🎴 Draw Cards' },
+      { type: 'energy', label: '⚡ Gain Energy' },
+      { type: 'heal', label: '💚 Heal HP' },
+    ],
+  },
+  {
+    category: 'Afflictions & Debuffs',
+    colorName: 'Purple',
+    color: '#683587',
+    bg: '#faf5ff',
+    textColor: '#581c87',
+    effects: [
+      { type: 'faded', label: '💨 Faded (Target deals 25% less damage)' },
+      { type: 'exposed', label: '🎯 Exposed (Target takes 50% more damage)' },
+      { type: 'ink_burn', label: '✒️ Ink Burn (Poison damage at turn start)' },
+      { type: 'double_ink_burn', label: '💥 Double Ink Burn (Catalyst)' },
+    ],
+  },
+  {
+    category: 'Hand & Discard',
+    colorName: 'Slate',
+    color: '#475569',
+    bg: '#f8fafc',
+    textColor: '#1e293b',
+    effects: [
+      { type: 'discard', label: '🗑️ Discard Target / Choice' },
+      { type: 'discard_random', label: '🎲 Discard Random from Hand' },
+    ],
+  },
+  {
+    category: 'Persistent Powers',
+    colorName: 'Gold',
+    color: '#9c660f',
+    bg: '#fffbeb',
+    textColor: '#78350f',
+    effects: [
+      { type: 'power_ward_each_turn', label: '✨ Power: Ward Each Turn' },
+      { type: 'power_bold_each_turn', label: '✨ Power: Bold Each Turn' },
+      { type: 'power_draw_each_turn', label: '✨ Power: Draw Extra Each Turn' },
+      { type: 'power_energy_each_turn', label: '✨ Power: Extra Energy Each Turn' },
+      { type: 'power_heal_each_turn', label: '✨ Power: Heal HP Each Turn' },
+      { type: 'power_ink_burn_all_each_turn', label: '✨ Power: Ink Burn All Each Turn' },
+      { type: 'power_damage_all_each_turn', label: '✨ Power: Damage All Each Turn' },
+      { type: 'power_ward_on_card_play', label: '✨ Power: Ward On Every Card Play' },
+      { type: 'power_damage_all_on_attack', label: '✨ Power: Damage All On Attacks' },
+    ],
+  },
 ];
+
+export const ALL_EFFECT_TYPES: EffectType[] = EFFECT_TYPE_GROUPS.flatMap((g) =>
+  g.effects.map((e) => e.type)
+);
+
+export const getEffectGroup = (type: EffectType): EffectGroupDef => {
+  return (
+    EFFECT_TYPE_GROUPS.find((g) => g.effects.some((e) => e.type === type)) ||
+    EFFECT_TYPE_GROUPS[0]
+  );
+};
 
 const ALL_INTENTS: EnemyIntentType[] = [
   'attack',
@@ -1549,54 +1626,103 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
 
               <div className="dev-section-header" style={{ marginTop: 12 }}>
                 <h4>Base Effects ({activeCard.effects.length})</h4>
-                <button
-                  type="button"
-                  className="dev-btn-mini"
-                  onClick={() =>
-                    updateActiveCard((c) => ({
-                      ...c,
-                      effects: [...c.effects, { type: 'damage', amount: 5 }],
-                    }))
-                  }
-                >
-                  + Add Effect
-                </button>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    className="dev-add-effect-select"
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const chosenType = e.target.value as EffectType;
+                        updateActiveCard((c) => ({
+                          ...c,
+                          effects: [...c.effects, { type: chosenType, amount: 5 }],
+                        }));
+                      }
+                    }}
+                  >
+                    <option value="" disabled>
+                      ➕ Add Effect (Choose Type)...
+                    </option>
+                    {EFFECT_TYPE_GROUPS.map((g) => (
+                      <optgroup key={g.category} label={`━━━ ${g.category} (${g.colorName}) ━━━`}>
+                        {g.effects.map((item) => (
+                          <option key={item.type} value={item.type}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="dev-btn-mini"
+                    onClick={() =>
+                      updateActiveCard((c) => ({
+                        ...c,
+                        effects: [...c.effects, { type: 'damage', amount: 5 }],
+                      }))
+                    }
+                  >
+                    + Add Effect
+                  </button>
+                </div>
               </div>
 
               <div className="dev-effects-grid-3col">
-                {activeCard.effects.map((eff: CardEffect, eIdx: number) => (
-                  <div key={eIdx} className="dev-effect-tile">
-                    <div className="dev-effect-tile-header">
-                      <span className="dev-effect-tile-badge">Base Effect #{eIdx + 1}</span>
-                      <button
-                        type="button"
-                        className="dev-btn dev-btn-danger dev-btn-mini"
-                        onClick={() => {
-                          const next = activeCard.effects.filter((_, i) => i !== eIdx);
-                          updateActiveCard((c) => ({ ...c, effects: next }));
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="dev-effect-tile-fields">
-                      <label className="dev-field dev-effect-tile-full">
-                        <span>Effect Type</span>
-                        <select
-                          value={eff.type}
-                          onChange={(e) => {
-                            const next = [...activeCard.effects];
-                            next[eIdx] = { ...eff, type: e.target.value as EffectType };
+                {activeCard.effects.map((eff: CardEffect, eIdx: number) => {
+                  const grp = getEffectGroup(eff.type);
+                  return (
+                    <div key={eIdx} className="dev-effect-tile">
+                      <div className="dev-effect-tile-header" style={{ borderBottomColor: grp.color }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              width: 10,
+                              height: 10,
+                              borderRadius: '50%',
+                              backgroundColor: grp.color,
+                            }}
+                          />
+                          <span className="dev-effect-tile-badge" style={{ color: grp.color }}>
+                            #{eIdx + 1} · {grp.category}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="dev-btn dev-btn-danger dev-btn-mini"
+                          onClick={() => {
+                            const next = activeCard.effects.filter((_, i) => i !== eIdx);
                             updateActiveCard((c) => ({ ...c, effects: next }));
                           }}
                         >
-                          {ALL_EFFECT_TYPES.map((t) => (
-                            <option key={t} value={t}>
-                              {t}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                          Remove
+                        </button>
+                      </div>
+                      <div className="dev-effect-tile-fields">
+                        <label className="dev-field dev-effect-tile-full">
+                          <span>Effect Type</span>
+                          <select
+                            value={eff.type}
+                            className="dev-effect-select"
+                            style={{ borderLeft: `6px solid ${grp.color}` }}
+                            onChange={(e) => {
+                              const next = [...activeCard.effects];
+                              next[eIdx] = { ...eff, type: e.target.value as EffectType };
+                              updateActiveCard((c) => ({ ...c, effects: next }));
+                            }}
+                          >
+                            {EFFECT_TYPE_GROUPS.map((g) => (
+                              <optgroup key={g.category} label={`━━━ ${g.category} (${g.colorName}) ━━━`}>
+                                {g.effects.map((item) => (
+                                  <option key={item.type} value={item.type}>
+                                    {item.label}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))}
+                          </select>
+                        </label>
                       <label className="dev-field">
                         <span>Amount</span>
                         <input
@@ -1659,7 +1785,8 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                       </label>
                     </div>
                   </div>
-                ))}
+                );
+              })}
               </div>
             </section>
 
@@ -1744,7 +1871,36 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                   <>
                     <div className="dev-section-header" style={{ marginTop: 16 }}>
                       <h4>Upgraded Effects ({upgradedEffects.length})</h4>
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <select
+                          className="dev-add-effect-select"
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              const chosenType = e.target.value as EffectType;
+                              updateActiveCard((c) => ({
+                                ...c,
+                                upgrade: {
+                                  ...ensureUpgrade(c),
+                                  effects: [...upgradedEffects, { type: chosenType, amount: 7 }],
+                                },
+                              }));
+                            }
+                          }}
+                        >
+                          <option value="" disabled>
+                            ➕ Add Upgraded Effect (Choose Type)...
+                          </option>
+                          {EFFECT_TYPE_GROUPS.map((g) => (
+                            <optgroup key={g.category} label={`━━━ ${g.category} (${g.colorName}) ━━━`}>
+                              {g.effects.map((item) => (
+                                <option key={item.type} value={item.type}>
+                                  {item.label}
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                        </select>
                         <button
                           type="button"
                           className="dev-btn-mini"
@@ -1781,35 +1937,30 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                     </div>
 
                     <div className="dev-effects-grid-3col">
-                      {upgradedEffects.map((eff: CardEffect, eIdx: number) => (
-                        <div key={eIdx} className="dev-effect-tile">
-                          <div className="dev-effect-tile-header">
-                            <span className="dev-effect-tile-badge">Upgraded Effect #{eIdx + 1}</span>
-                            <button
-                              type="button"
-                              className="dev-btn dev-btn-danger dev-btn-mini"
-                              onClick={() => {
-                                const next = upgradedEffects.filter((_, i) => i !== eIdx);
-                                updateActiveCard((c) => ({
-                                  ...c,
-                                  upgrade: {
-                                    ...ensureUpgrade(c),
-                                    effects: next,
-                                  },
-                                }));
-                              }}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                          <div className="dev-effect-tile-fields">
-                            <label className="dev-field dev-effect-tile-full">
-                              <span>Effect Type</span>
-                              <select
-                                value={eff.type}
-                                onChange={(e) => {
-                                  const next = [...upgradedEffects];
-                                  next[eIdx] = { ...eff, type: e.target.value as EffectType };
+                      {upgradedEffects.map((eff: CardEffect, eIdx: number) => {
+                        const grp = getEffectGroup(eff.type);
+                        return (
+                          <div key={eIdx} className="dev-effect-tile">
+                            <div className="dev-effect-tile-header" style={{ borderBottomColor: grp.color }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span
+                                  style={{
+                                    display: 'inline-block',
+                                    width: 10,
+                                    height: 10,
+                                    borderRadius: '50%',
+                                    backgroundColor: grp.color,
+                                  }}
+                                />
+                                <span className="dev-effect-tile-badge" style={{ color: grp.color }}>
+                                  #{eIdx + 1} · {grp.category}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                className="dev-btn dev-btn-danger dev-btn-mini"
+                                onClick={() => {
+                                  const next = upgradedEffects.filter((_, i) => i !== eIdx);
                                   updateActiveCard((c) => ({
                                     ...c,
                                     upgrade: {
@@ -1819,13 +1970,39 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                   }));
                                 }}
                               >
-                                {ALL_EFFECT_TYPES.map((t) => (
-                                  <option key={t} value={t}>
-                                    {t}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
+                                Remove
+                              </button>
+                            </div>
+                            <div className="dev-effect-tile-fields">
+                              <label className="dev-field dev-effect-tile-full">
+                                <span>Effect Type</span>
+                                <select
+                                  value={eff.type}
+                                  className="dev-effect-select"
+                                  style={{ borderLeft: `6px solid ${grp.color}` }}
+                                  onChange={(e) => {
+                                    const next = [...upgradedEffects];
+                                    next[eIdx] = { ...eff, type: e.target.value as EffectType };
+                                    updateActiveCard((c) => ({
+                                      ...c,
+                                      upgrade: {
+                                        ...ensureUpgrade(c),
+                                        effects: next,
+                                      },
+                                    }));
+                                  }}
+                                >
+                                  {EFFECT_TYPE_GROUPS.map((g) => (
+                                    <optgroup key={g.category} label={`━━━ ${g.category} (${g.colorName}) ━━━`}>
+                                      {g.effects.map((item) => (
+                                        <option key={item.type} value={item.type}>
+                                          {item.label}
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                  ))}
+                                </select>
+                              </label>
                             <label className="dev-field">
                               <span>Amount</span>
                               <input
@@ -1912,8 +2089,9 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                             </label>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
+                  </div>
                   </>
                 );
               })()}

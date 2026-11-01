@@ -3014,5 +3014,42 @@ body,
   grid-column: span 2;
 }
 
+/* ==================== COLOR-CODED EFFECT SELECT & DROPDOWNS ==================== */
+.dev-effect-select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 2px solid #2b1e16;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background-color: #fdf8ef;
+  color: #1a110b;
+  cursor: pointer;
+}
+
+.dev-effect-select optgroup {
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 4px 2px;
+}
+
+.dev-add-effect-select {
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  border: 1.8px solid #2b1e16;
+  border-radius: 6px;
+  background: #fdf8ef;
+  color: #1a110b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dev-add-effect-select:hover {
+  background: #fff9eb;
+  border-color: #b45309;
+}
+
+
 
 
