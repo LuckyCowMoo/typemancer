@@ -971,26 +971,66 @@ export function generateProceduralMap(): MapNode[][] {
   return floors;
 }
 
+export type EffectiveDropRarity = 'common' | 'uncommon' | 'rare' | 'ultra_rare';
+
 /**
- * Generates 4 distinct card rewards after combat.
+ * Calculates a card's effective drop rarity.
+ * Rule: Power cards of equivalent rarity to other cards are as rare as the rarity above them:
+ * - Common non-powers -> 'common'
+ * - Common powers -> 'uncommon' (as rare as Uncommon cards)
+ * - Uncommon non-powers -> 'uncommon'
+ * - Uncommon powers -> 'rare' (as rare as Rare cards)
+ * - Rare non-powers -> 'rare'
+ * - Rare powers -> 'ultra_rare' (rarity tier above Rare cards)
  */
-export function generateCardRewards(count: number = 4, isEliteOrBoss: boolean = false): CardInstance[] {
+export function getCardEffectiveDropRarity(def: CardDefinition): EffectiveDropRarity {
+  if (def.type === 'power') {
+    if (def.rarity === 'common') return 'uncommon';
+    if (def.rarity === 'uncommon') return 'rare';
+    return 'ultra_rare';
+  }
+  return def.rarity === 'starter' ? 'common' : def.rarity;
+}
+
+/**
+ * Generates distinct card rewards after combat, in merchant shops, or from mystery events.
+ * Power cards drop at the frequency of the rarity tier above them.
+ */
+export function generateCardRewards(
+  count: number = 4,
+  isEliteOrBoss: boolean = false,
+  forceRarity?: EffectiveDropRarity
+): CardInstance[] {
   const pool = CARDS_CATALOG.filter((c) => c.rarity !== 'starter');
   const source = pool.length >= count ? pool : CARDS_CATALOG;
   const chosenDefs: CardDefinition[] = [];
 
   for (let i = 0; i < count; i++) {
-    const roll = Math.random();
-    let targetRarity: CardDefinition['rarity'] = 'common';
-    if (isEliteOrBoss) {
-      targetRarity = roll < 0.25 ? 'rare' : roll < 0.7 ? 'uncommon' : 'common';
+    let targetRarity: EffectiveDropRarity = 'common';
+
+    if (forceRarity) {
+      targetRarity = forceRarity;
     } else {
-      targetRarity = roll < 0.08 ? 'rare' : roll < 0.40 ? 'uncommon' : 'common';
+      const roll = Math.random();
+      if (isEliteOrBoss) {
+        // Elite/Boss: 3.5% Ultra-Rare (Rare Powers), 21.5% Rare (Rare non-powers & Uncommon Powers), 45% Uncommon (Uncommon non-powers & Common Powers), 30% Common
+        targetRarity =
+          roll < 0.035 ? 'ultra_rare' : roll < 0.25 ? 'rare' : roll < 0.70 ? 'uncommon' : 'common';
+      } else {
+        // Normal: 1.0% Ultra-Rare (Rare Powers), 7.0% Rare (Rare non-powers & Uncommon Powers), 32% Uncommon (Uncommon non-powers & Common Powers), 60% Common
+        targetRarity =
+          roll < 0.01 ? 'ultra_rare' : roll < 0.08 ? 'rare' : roll < 0.40 ? 'uncommon' : 'common';
+      }
     }
 
-    const candidates = source.filter(
-      (c) => c.rarity === targetRarity && !chosenDefs.some((d) => d.id === c.id)
-    );
+    const candidates = source.filter((c) => {
+      const eff = getCardEffectiveDropRarity(c);
+      if (forceRarity === 'rare') {
+        return (eff === 'rare' || eff === 'ultra_rare') && !chosenDefs.some((d) => d.id === c.id);
+      }
+      return eff === targetRarity && !chosenDefs.some((d) => d.id === c.id);
+    });
+
     const fallback = source.filter((c) => !chosenDefs.some((d) => d.id === c.id));
     const pickFrom = candidates.length > 0 ? candidates : fallback.length > 0 ? fallback : source;
     chosenDefs.push(pickRandom(pickFrom));

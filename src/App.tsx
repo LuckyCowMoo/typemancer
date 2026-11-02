@@ -47,6 +47,7 @@ import {
   generateProceduralMap,
   generateRelicRewards,
   getCardDefinition,
+  getCardEffectiveDropRarity,
   getEnemyMoveEffects,
   getRelicDefinition,
   nextUid,
@@ -2197,7 +2198,15 @@ export function App() {
 
         const shopCards = generateCardRewards(4, false).map((inst) => {
           const def = getCardDefinition(inst.cardId);
-          const basePrice = def.rarity === 'rare' ? 130 : def.rarity === 'uncommon' ? 85 : 50;
+          const effRarity = getCardEffectiveDropRarity(def);
+          const basePrice =
+            effRarity === 'ultra_rare'
+              ? 175
+              : effRarity === 'rare'
+              ? 130
+              : effRarity === 'uncommon'
+              ? 85
+              : 50;
           return { instance: inst, price: randomizePrice(basePrice), sold: false };
         });
         const shopRelics = generateRelicRewards(relicIds, 2).map((rel) => ({
@@ -2499,7 +2508,7 @@ export function App() {
         );
       }
       if (eff.gainRareCard) {
-        const newCard = generateCardRewards(1, true)[0];
+        const newCard = generateCardRewards(1, true, 'rare')[0];
         const cName = resolveCardInstance(newCard, phraseDiff).name;
         setDeck((d) => [...d, newCard]);
         summaryItems.push(`Gained Rare Card: "${cName}"`);
