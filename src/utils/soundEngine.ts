@@ -356,6 +356,30 @@ class SoundEngine {
   }
 
   /**
+   * Martial combat initiation sound when entering a standard battle encounter.
+   */
+  public playBattleEntrance(settings: GameSettings): void {
+    this.playSample('cards/quick_slash.wav', settings, 0.72, 0.05);
+  }
+
+  /**
+   * Rewarding combat victory stinger when clearing a battle encounter.
+   */
+  public playBattleVictory(settings: GameSettings): void {
+    this.playSample('cards/blessing2.ogg', settings, 0.75, 0.02);
+  }
+
+  /**
+   * Shop door chime and latch when departing the Merchant.
+   */
+  public playShopExit(settings: GameSettings): void {
+    this.playSample('typing/carriage_bell.wav', settings, 0.65, 0.05);
+    window.setTimeout(() => {
+      this.playSample('cards/item_wood_01.wav', settings, 0.55, 0.08);
+    }, 120);
+  }
+
+  /**
    * Transaction coin clink played when gaining or spending gold at the Merchant.
    */
   public playCoinClink(settings: GameSettings): void {

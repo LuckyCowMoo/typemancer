@@ -468,6 +468,8 @@ export function App() {
       setActiveNodeType(nodeType);
       if (nodeType === 'elite' || nodeType === 'boss') {
         soundEngine.playEliteBossEntrance(settings);
+      } else {
+        soundEngine.playBattleEntrance(settings);
       }
       const spawnedEnemies = generateEncounter(floorNum, nodeType, phraseDiff);
 
@@ -606,6 +608,7 @@ export function App() {
           : 18 + Math.floor(Math.random() * 12)) + bonusGold;
       setGold((g) => g + goldEarned);
       setRewardGoldClaimed(goldEarned);
+      soundEngine.playBattleVictory(settings);
       if (goldEarned > 0) {
         soundEngine.playCoinClink(settings);
       }
@@ -3451,7 +3454,7 @@ export function App() {
       }
 
       if (matchCommand(raw, ['leave', 'exit', 'continue', 'skip', 'back'], 'easy')) {
-        soundEngine.playConfirm(settings);
+        soundEngine.playShopExit(settings);
         triggerElementParticles(undefined, ['#1b7a58', '#ffd166'], 50, 82);
         advanceToMapNextFloor();
         return;
