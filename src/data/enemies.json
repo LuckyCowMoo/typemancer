@@ -516,6 +516,18 @@
         "intent": "attack",
         "weight": 50,
         "damage": 12
+      },
+      {
+        "id": "rally_goblins",
+        "name": "Rally Minions",
+        "intent": "summon",
+        "weight": 18,
+        "summonPool": [
+          "goblin_skirmisher",
+          "goblin_archer",
+          "goblin_drummer"
+        ],
+        "summonCount": 1
       }
     ],
     "description": "Inspires troops with roaring commands that dramatically bolster ally strength before swinging heavy crushing blows."
@@ -842,6 +854,17 @@
         "intent": "defend",
         "weight": 50,
         "ward": 20
+      },
+      {
+        "id": "shatter_pebbles",
+        "name": "Shatter Fragments",
+        "intent": "summon",
+        "weight": 18,
+        "summonPool": [
+          "rock_pebble",
+          "rock_roller"
+        ],
+        "summonCount": 1
       }
     ],
     "description": "A colossal mountain monolith capable of erecting towering stone barriers and delivering earth-shattering slams."
@@ -1256,6 +1279,18 @@
             "target": "player"
           }
         ]
+      },
+      {
+        "id": "sprout_seedlings",
+        "name": "Sprout Seedlings",
+        "intent": "summon",
+        "weight": 18,
+        "summonPool": [
+          "evil_weed",
+          "evil_spore",
+          "evil_flower"
+        ],
+        "summonCount": 1
       }
     ],
     "description": "Spreads ancient decay by smothering foes in toxic Faded and Ink Burn spores while smashing with uprooted trunks."
@@ -1368,7 +1403,7 @@
       {
         "id": "summon",
         "name": "Call Guards",
-        "intent": "buff",
+        "intent": "summon",
         "weight": 30,
         "statusEffects": [
           {
@@ -1376,7 +1411,13 @@
             "amount": 2,
             "target": "all_allies"
           }
-        ]
+        ],
+        "summonPool": [
+          "goblin_skirmisher",
+          "goblin_archer",
+          "goblin_drummer"
+        ],
+        "summonCount": 2
       },
       {
         "id": "tantrum",
@@ -1439,6 +1480,18 @@
         "intent": "defend",
         "weight": 50,
         "ward": 30
+      },
+      {
+        "id": "spawn_crushers",
+        "name": "Avalanche Birth",
+        "intent": "summon",
+        "weight": 20,
+        "summonPool": [
+          "rock_pebble",
+          "rock_roller",
+          "rock_shield"
+        ],
+        "summonCount": 2
       }
     ],
     "description": "An immovable apex behemoth that hardens itself in impenetrable armor before unleashing catastrophic avalanches."
@@ -1511,6 +1564,18 @@
         "intent": "heal",
         "weight": 30,
         "heal": 20
+      },
+      {
+        "id": "bloom_minions",
+        "name": "Canopy Bloom",
+        "intent": "summon",
+        "weight": 20,
+        "summonPool": [
+          "evil_weed",
+          "evil_flower",
+          "evil_spore"
+        ],
+        "summonCount": 2
       }
     ],
     "description": "A primordial forest terror that siphons life back into itself while blanketing the field in lethal Ink Burn and Faded rot."
@@ -1591,6 +1656,18 @@
         "weight": 20,
         "damage": 10,
         "hits": 4
+      },
+      {
+        "id": "conjure_minions",
+        "name": "Conjure Minions",
+        "intent": "summon",
+        "weight": 20,
+        "summonPool": [
+          "goblin_archer",
+          "evil_spore",
+          "rock_pebble"
+        ],
+        "summonCount": 2
       }
     ],
     "behaviors": [
@@ -1715,5 +1792,115 @@
       }
     ],
     "description": "An apocalyptic archmage who fortifies behind massive arcane wards, inflicts crippling hexes, and summons devastating meteor swarms."
+  },
+  {
+    "id": "origami_cat",
+    "faction": "origami",
+    "role": "balanced",
+    "tier": 1,
+    "minHp": 14,
+    "maxHp": 18,
+    "namePools": {
+      "easy": [
+        "origami cat",
+        "folded kitten",
+        "paper feline"
+      ],
+      "medium": [
+        "folded parchment cat",
+        "creased origami kitten",
+        "sharp-eared paper feline"
+      ],
+      "hard": [
+        "delicately creased masterwork origami cat",
+        "spirited paper kitten folded from ancient parchment",
+        "crisp-edged linen origami prowler"
+      ]
+    },
+    "art": {
+      "primaryColor": "#f59e0b",
+      "secondaryColor": "#fde68a",
+      "shape": "capsule",
+      "spriteUrl": "./assets/entities/origami_cat.png"
+    },
+    "moves": [
+      {
+        "id": "paper_scratch",
+        "name": "Paper Scratch",
+        "intent": "attack",
+        "weight": 55,
+        "damage": 6
+      },
+      {
+        "id": "paper_curl",
+        "name": "Paper Curl",
+        "intent": "defend",
+        "weight": 45,
+        "ward": 5
+      }
+    ],
+    "description": "A delicately folded paper cat. Slashes at enemies or curls its folded edges tightly to shield itself."
+  },
+  {
+    "id": "origami_tiger",
+    "faction": "origami",
+    "role": "balanced",
+    "tier": 2,
+    "minHp": 26,
+    "maxHp": 32,
+    "namePools": {
+      "easy": [
+        "origami tiger",
+        "striped paper predator",
+        "folded tiger"
+      ],
+      "medium": [
+        "geometric origami striped tiger",
+        "golden parchment paper tiger",
+        "creased linen apex predator"
+      ],
+      "hard": [
+        "fearsome multi-creased origami tiger of the golden scrolls",
+        "striped parchment predator folded by a grand master",
+        "crease-tempered origami tiger with razor-folded fangs"
+      ]
+    },
+    "art": {
+      "primaryColor": "#d97706",
+      "secondaryColor": "#f59e0b",
+      "shape": "spiky",
+      "spriteUrl": "./assets/entities/origami_tiger.png"
+    },
+    "moves": [
+      {
+        "id": "origami_pounce",
+        "name": "Origami Pounce",
+        "intent": "attack",
+        "weight": 45,
+        "damage": 11
+      },
+      {
+        "id": "crease_barrier",
+        "name": "Crease Barrier",
+        "intent": "defend",
+        "weight": 30,
+        "ward": 8,
+        "target": "ally_or_player"
+      },
+      {
+        "id": "paper_roar",
+        "name": "Paper Roar",
+        "intent": "buff",
+        "weight": 25,
+        "statusEffects": [
+          {
+            "status": "bold",
+            "amount": 2,
+            "target": "ally_or_player"
+          }
+        ]
+      }
+    ],
+    "description": "A powerful origami predator with razor folds. Pounces on foes, erects sturdy crease barriers, and roars to embolden itself or the Typemancer."
   }
 ]

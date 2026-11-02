@@ -37,6 +37,7 @@ import {
   chooseEnemyMoveForContext,
   resolveEnemyBehavior,
   createStarterDeck,
+  createSummonInstance,
   ENEMIES_CATALOG,
   ENVIRONMENTS_CATALOG,
   EVENTS_CATALOG,
@@ -222,6 +223,7 @@ export function App() {
   const [discardPile, setDiscardPile] = useState<CardInstance[]>([]);
   const [burnDraftPile, setBurnDraftPile] = useState<CardInstance[]>([]);
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
+  const [allies, setAllies] = useState<ActiveEnemy[]>([]);
   const [activePowers, setActivePowers] = useState<ActivePower[]>([]);
   const [activeEnvironment, setActiveEnvironment] = useState<BattleEnvironmentDefinition>(
     () => ENVIRONMENTS_CATALOG[0]
@@ -547,6 +549,7 @@ export function App() {
       setTurnLockedCardIds(new Set());
       setUsedPowerCardIdsThisCombat(new Set());
       setEnemies(spawnedEnemies);
+      setAllies([]);
       setSelectedCard(null);
       setFloatingPopups([]);
       resetTypingBuffer(true);
@@ -615,6 +618,7 @@ export function App() {
       setPendingFollowUpDraw(0);
       setTurnLockedCardIds(new Set());
       setUsedPowerCardIdsThisCombat(new Set());
+      setAllies([]);
       resetTypingBuffer(true);
       setScreen('reward');
     },
@@ -666,6 +670,10 @@ export function App() {
       const nextEnemies = enemies.map((e) => ({
         ...e,
         statuses: { ...e.statuses },
+      }));
+      const nextAllies = allies.map((a) => ({
+        ...a,
+        statuses: { ...a.statuses },
       }));
       if (retainedCardIds.has(cardInst.instanceId)) {
         setRetainedCardIds((prev) => {
@@ -855,6 +863,38 @@ export function App() {
             spawnPopup('player', `-${eff.amount} HP`, '#e63946');
             break;
           }
+          case 'summon': {
+            const summonTargetId = eff.summonId || 'origami_cat';
+            const summonDef = ENEMIES_CATALOG.find((e) => e.id === summonTargetId);
+            const summonTeam = eff.team || 'player';
+            const count = Math.max(1, (eff.amount || 1) * xMultiplier);
+            const hpBonus = eff.hpBonus || 0;
+            const wardBonus = eff.wardBonus || 0;
+
+            if (summonDef) {
+              for (let sIdx = 0; sIdx < count; sIdx++) {
+                const newEntity = createSummonInstance(
+                  summonDef,
+                  phraseDiff,
+                  summonTeam,
+                  hpBonus,
+                  wardBonus
+                );
+                if (summonTeam === 'player') {
+                  nextAllies.push(newEntity);
+                  soundEngine.playPageTurn(settings);
+                  spawnPopup('player', `Summoned ${newEntity.displayName}!`, '#10b981');
+                } else {
+                  if (nextEnemies.length < 5) {
+                    nextEnemies.push(newEntity);
+                    soundEngine.playPageTurn(settings);
+                    spawnPopup(newEntity.instanceId, `Joined enemy fray!`, '#ef4444');
+                  }
+                }
+              }
+            }
+            break;
+          }
           case 'plated_armor': {
             const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier));
             if (effTarget === 'enemy' && targetEnemy) {
@@ -902,11 +942,6 @@ export function App() {
           case 'discard': {
             hasDiscardChoiceEffect = true;
             discardChoiceCount += Math.max(1, eff.amount * xMultiplier);
-            break;
-          }
-          case 'self_damage': {
-            nextHp = Math.max(1, nextHp - eff.amount);
-            spawnPopup('player', `-${eff.amount} HP`, '#e63946');
             break;
           }
           case 'power_ward_each_turn':
@@ -1054,6 +1089,7 @@ export function App() {
       });
 
       setEnemies(aliveEnemies);
+      setAllies(nextAllies.filter((a) => a.hp > 0));
 
       setMetrics((prev) => ({
         ...prev,
@@ -1116,6 +1152,7 @@ export function App() {
     [
       activeEnvironment,
       activePowers,
+      allies,
       burnDraftPile,
       difficulty,
       discardPile,
@@ -1190,14 +1227,25 @@ export function App() {
     let totalBlockedSummary = 0;
     let totalHpLostSummary = 0;
     const workingEnemies = enemies.map((e) => ({ ...e, statuses: { ...e.statuses } }));
+    const workingAllies = allies.map((a) => ({ ...a, statuses: { ...a.statuses } }));
 
-    // Environment turn-end Ink Burn hazard (symmetrical: hits all enemies AND the player!)
+    // Environment turn-end Ink Burn hazard (symmetrical: hits all enemies, allies AND the player!)
     if (envMod.turnEndInkBurnAll && envMod.turnEndInkBurnAll > 0) {
       workingEnemies.forEach((en) => {
         if (en.hp > 0) {
           en.statuses.ink_burn += envMod.turnEndInkBurnAll!;
           spawnPopup(
             en.instanceId,
+            `+${envMod.turnEndInkBurnAll} Ink Burn (${activeEnvironment.name})`,
+            '#6d28d9'
+          );
+        }
+      });
+      workingAllies.forEach((ally) => {
+        if (ally.hp > 0) {
+          ally.statuses.ink_burn += envMod.turnEndInkBurnAll!;
+          spawnPopup(
+            ally.instanceId,
             `+${envMod.turnEndInkBurnAll} Ink Burn (${activeEnvironment.name})`,
             '#6d28d9'
           );
@@ -1267,47 +1315,131 @@ export function App() {
       const effectsToRun = getEnemyMoveEffects(move);
       let executedAnyAction = false;
 
+      // Handle enemy summon moves (e.g. Goblin Warlord rally, Rock Titan shatter, etc.)
+      if (
+        move.intent === 'summon' ||
+        effectsToRun.some((e) => e.type === 'summon') ||
+        Boolean(move.summonPool && move.summonPool.length > 0) ||
+        Boolean(move.summonId)
+      ) {
+        executedAnyAction = true;
+        const pool = move.summonPool || (move.summonId ? [move.summonId] : []);
+        const count = move.summonCount || 1;
+        if (pool.length > 0) {
+          for (let s = 0; s < count; s++) {
+            if (workingEnemies.filter((e) => e.hp > 0).length >= 5) break;
+            const chosenId = pickRandom(pool);
+            const sDef = ENEMIES_CATALOG.find((e) => e.id === chosenId);
+            if (sDef) {
+              const newMinion = createSummonInstance(sDef, phraseDiff, 'enemy');
+              workingEnemies.push(newMinion);
+              soundEngine.playPageTurn(settings);
+              spawnPopup(en.instanceId, `Summoned ${newMinion.displayName}!`, '#ef4444');
+              setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+              await delay(320);
+            }
+          }
+        }
+      }
+
       for (const eff of effectsToRun) {
+        if (eff.type === 'summon') continue;
         if (eff.type === 'damage' && eff.amount > 0) {
           executedAnyAction = true;
           const hits = eff.hits || move.hits || 1;
           for (let h = 0; h < hits; h++) {
-            await triggerProjectile(idx, 'player', '#b84a14');
-            let dmg =
-              eff.amount +
-              en.statuses.bold +
-              (envMod.damageBonus ?? 0) +
-              (envMod.enemyDamageBonus ?? 0);
-            if (en.statuses.faded > 0) dmg = Math.max(0, dmg - en.statuses.faded);
-            if (nextPlayerStats.exposed > 0) dmg = Math.floor(dmg * 1.5);
-            dmg = Math.max(0, dmg);
+            const livingAllies = workingAllies.filter((a) => a.hp > 0);
+            let targetIsAlly = false;
+            let targetAlly: ActiveEnemy | null = null;
 
-            const blocked = Math.min(nextPlayerWard, dmg);
-            nextPlayerWard -= blocked;
-            const unblocked = dmg - blocked;
-            nextPlayerHp = Math.max(0, nextPlayerHp - unblocked);
-
-            totalBlockedSummary += blocked;
-            totalHpLostSummary += unblocked;
-
-            if (blocked > 0 && unblocked > 0) {
-              spawnPopup('player', `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
-            } else if (blocked > 0) {
-              spawnPopup('player', `${blocked} Blocked`, '#1d6fa5');
-            } else if (unblocked > 0) {
-              spawnPopup('player', `-${unblocked} HP`, '#e63946');
+            // "enimies have a 50% chance to target you, and then an equal chance to target each of your current summons"
+            if (livingAllies.length > 0) {
+              if (Math.random() < 0.5) {
+                targetIsAlly = false;
+              } else {
+                targetIsAlly = true;
+                targetAlly = pickRandom(livingAllies);
+              }
             }
 
-            if (nextPlayerStats.thorns > 0 && dmg > 0) {
-              const retal = nextPlayerStats.thorns;
-              en.hp = Math.max(0, en.hp - retal);
-              spawnPopup(en.instanceId, `-${retal} Thorns`, '#059669');
-              soundEngine.playHit(settings);
-            }
+            if (targetIsAlly && targetAlly) {
+              await triggerProjectile(idx, 'player', '#b84a14');
+              let dmg =
+                eff.amount +
+                en.statuses.bold +
+                (envMod.damageBonus ?? 0) +
+                (envMod.enemyDamageBonus ?? 0);
+              if (en.statuses.faded > 0) dmg = Math.max(0, dmg - en.statuses.faded);
+              if (targetAlly.statuses.exposed > 0) dmg = Math.floor(dmg * 1.5);
+              dmg = Math.max(0, dmg);
 
-            setPlayerWard(nextPlayerWard);
-            setHp(nextPlayerHp);
-            await delay(320);
+              const blocked = Math.min(targetAlly.ward, dmg);
+              targetAlly.ward -= blocked;
+              const unblocked = dmg - blocked;
+              targetAlly.hp = Math.max(0, targetAlly.hp - unblocked);
+
+              if (blocked > 0 && unblocked > 0) {
+                soundEngine.playHit(settings);
+                spawnPopup(targetAlly.instanceId, `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
+              } else if (blocked > 0) {
+                soundEngine.playWardBlock(settings);
+                spawnPopup(targetAlly.instanceId, `${blocked} Blocked`, '#1d6fa5');
+              } else if (unblocked > 0) {
+                soundEngine.playHit(settings);
+                spawnPopup(targetAlly.instanceId, `-${unblocked} HP`, '#e63946');
+              }
+
+              if (targetAlly.statuses.thorns > 0 && dmg > 0) {
+                const retal = targetAlly.statuses.thorns;
+                en.hp = Math.max(0, en.hp - retal);
+                spawnPopup(en.instanceId, `-${retal} Thorns`, '#059669');
+                soundEngine.playHit(settings);
+              }
+
+              if (targetAlly.hp <= 0) {
+                spawnPopup(targetAlly.instanceId, `${targetAlly.displayName} defeated!`, '#ef4444');
+              }
+
+              setAllies([...workingAllies.filter((x) => x.hp > 0)]);
+              await delay(320);
+            } else {
+              await triggerProjectile(idx, 'player', '#b84a14');
+              let dmg =
+                eff.amount +
+                en.statuses.bold +
+                (envMod.damageBonus ?? 0) +
+                (envMod.enemyDamageBonus ?? 0);
+              if (en.statuses.faded > 0) dmg = Math.max(0, dmg - en.statuses.faded);
+              if (nextPlayerStats.exposed > 0) dmg = Math.floor(dmg * 1.5);
+              dmg = Math.max(0, dmg);
+
+              const blocked = Math.min(nextPlayerWard, dmg);
+              nextPlayerWard -= blocked;
+              const unblocked = dmg - blocked;
+              nextPlayerHp = Math.max(0, nextPlayerHp - unblocked);
+
+              totalBlockedSummary += blocked;
+              totalHpLostSummary += unblocked;
+
+              if (blocked > 0 && unblocked > 0) {
+                spawnPopup('player', `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
+              } else if (blocked > 0) {
+                spawnPopup('player', `${blocked} Blocked`, '#1d6fa5');
+              } else if (unblocked > 0) {
+                spawnPopup('player', `-${unblocked} HP`, '#e63946');
+              }
+
+              if (nextPlayerStats.thorns > 0 && dmg > 0) {
+                const retal = nextPlayerStats.thorns;
+                en.hp = Math.max(0, en.hp - retal);
+                spawnPopup(en.instanceId, `-${retal} Thorns`, '#059669');
+                soundEngine.playHit(settings);
+              }
+
+              setPlayerWard(nextPlayerWard);
+              setHp(nextPlayerHp);
+              await delay(320);
+            }
           }
         } else if (eff.type === 'ward' && eff.amount > 0) {
           executedAnyAction = true;
@@ -1356,8 +1488,16 @@ export function App() {
               ? 'self'
               : 'player');
           if (target === 'player' || target === 'enemy') {
-            nextPlayerStats[stKey] += effAmt;
-            spawnPopup('player', `+${effAmt} ${eff.type.replace('_', ' ')}`, '#6d28d9');
+            const livingAllies = workingAllies.filter((a) => a.hp > 0);
+            if (livingAllies.length > 0 && Math.random() >= 0.5) {
+              const targetAlly = pickRandom(livingAllies);
+              targetAlly.statuses[stKey] += effAmt;
+              spawnPopup(targetAlly.instanceId, `+${effAmt} ${eff.type.replace('_', ' ')}`, '#6d28d9');
+              setAllies([...workingAllies.filter((x) => x.hp > 0)]);
+            } else {
+              nextPlayerStats[stKey] += effAmt;
+              spawnPopup('player', `+${effAmt} ${eff.type.replace('_', ' ')}`, '#6d28d9');
+            }
           } else if (target === 'all_allies') {
             workingEnemies.forEach((ally) => {
               if (ally.hp > 0) {
@@ -1452,6 +1592,177 @@ export function App() {
       clearLocalRun();
       setScreen('game_over');
       return;
+    }
+
+    // ==================== ALLY TURN EXECUTION ====================
+    // Allies take their turn after enemies and before the player.
+    // The player does not decide what they do.
+    for (let aIdx = 0; aIdx < workingAllies.length; aIdx++) {
+      const ally = workingAllies[aIdx];
+      if (ally.hp <= 0) continue;
+
+      // Ally Ink Burn tick
+      if (ally.statuses.ink_burn > 0) {
+        const burnDmg = ally.statuses.ink_burn;
+        ally.hp = Math.max(0, ally.hp - burnDmg);
+        ally.statuses.ink_burn = Math.max(0, ally.statuses.ink_burn - 1);
+        spawnPopup(ally.instanceId, `-${burnDmg} Ink Burn`, '#6d28d9');
+        setAllies([...workingAllies.filter((x) => x.hp > 0)]);
+        await delay(300);
+      }
+      if (ally.hp <= 0) {
+        spawnPopup(ally.instanceId, `${ally.displayName} fell!`, '#ef4444');
+        continue;
+      }
+
+      // Ally ward reset at turn start
+      if (ally.ward > 0) {
+        ally.ward = 0;
+        spawnPopup(ally.instanceId, 'Ward wore off', '#64748b');
+      }
+
+      const aMove = ally.currentMove;
+      const aEffects = getEnemyMoveEffects(aMove);
+      let executedAllyAction = false;
+
+      for (const eff of aEffects) {
+        if (eff.type === 'damage' && eff.amount > 0) {
+          executedAllyAction = true;
+          const currentLivingEnemies = workingEnemies.filter((e) => e.hp > 0);
+          if (currentLivingEnemies.length === 0) break;
+
+          // "when attacking, each enemy has an equal chance of being targeted"
+          const targetEnemy = pickRandom(currentLivingEnemies);
+          const rawTargetIdx = workingEnemies.findIndex((e) => e.instanceId === targetEnemy.instanceId);
+          const targetIdx = Math.max(0, Math.min(2, rawTargetIdx));
+          const hits = eff.hits || aMove.hits || 1;
+
+          for (let h = 0; h < hits; h++) {
+            await triggerProjectile('player', targetIdx, '#10b981');
+            let dmg = eff.amount + ally.statuses.bold + (envMod.damageBonus ?? 0);
+            if (ally.statuses.faded > 0) dmg = Math.max(0, dmg - ally.statuses.faded);
+            if (targetEnemy.statuses.exposed > 0) dmg = Math.floor(dmg * 1.5);
+            dmg = Math.max(0, dmg);
+
+            const blocked = Math.min(targetEnemy.ward, dmg);
+            targetEnemy.ward -= blocked;
+            const hpLoss = dmg - blocked;
+            targetEnemy.hp = Math.max(0, targetEnemy.hp - hpLoss);
+
+            if (blocked > 0 && hpLoss > 0) {
+              soundEngine.playHit(settings);
+              spawnPopup(targetEnemy.instanceId, `-${hpLoss} HP (${blocked} Blocked)`, '#e63946');
+            } else if (blocked > 0) {
+              soundEngine.playWardBlock(settings);
+              spawnPopup(targetEnemy.instanceId, `${blocked} Blocked`, '#1d6fa5');
+            } else if (hpLoss > 0) {
+              soundEngine.playHit(settings);
+              spawnPopup(targetEnemy.instanceId, `-${hpLoss} HP`, '#e63946');
+            }
+            spawnPopup(ally.instanceId, `⚔️ ${aMove.name}!`, '#10b981');
+
+            if (targetEnemy.statuses.thorns > 0 && hpLoss > 0) {
+              const retal = targetEnemy.statuses.thorns;
+              ally.hp = Math.max(0, ally.hp - retal);
+              spawnPopup(ally.instanceId, `-${retal} Thorns`, '#059669');
+              soundEngine.playHit(settings);
+            }
+
+            setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+            setAllies([...workingAllies.filter((x) => x.hp > 0)]);
+            await delay(320);
+
+            if (targetEnemy.hp <= 0) {
+              spawnPopup(targetEnemy.instanceId, 'Defeated!', '#e63946');
+              break;
+            }
+          }
+        } else if (eff.type === 'ward' && eff.amount > 0) {
+          executedAllyAction = true;
+          const wardAmt = Math.max(0, eff.amount + (envMod.wardBonus ?? 0));
+          // "the cat can sheild itself, the tiger can sheild itself or you"
+          const targetPref = eff.target || aMove.target || 'self';
+          if (targetPref === 'ally_or_player') {
+            if (Math.random() < 0.5) {
+              ally.ward += wardAmt;
+              spawnPopup(ally.instanceId, `+${wardAmt} Ward`, '#1d6fa5');
+            } else {
+              nextPlayerWard += wardAmt;
+              spawnPopup('player', `+${wardAmt} Ward (${ally.displayName})`, '#1d6fa5');
+              setPlayerWard(nextPlayerWard);
+            }
+          } else if (targetPref === 'player') {
+            nextPlayerWard += wardAmt;
+            spawnPopup('player', `+${wardAmt} Ward (${ally.displayName})`, '#1d6fa5');
+            setPlayerWard(nextPlayerWard);
+          } else {
+            ally.ward += wardAmt;
+            spawnPopup(ally.instanceId, `+${wardAmt} Ward`, '#1d6fa5');
+          }
+          soundEngine.playWardBlock(settings);
+          await delay(240);
+        } else if (
+          eff.type === 'bold' ||
+          eff.type === 'plated_armor' ||
+          eff.type === 'thorns'
+        ) {
+          executedAllyAction = true;
+          // "and also buff itself or you, not debuff enimies, and not heal you"
+          const stKey = eff.type as keyof StatusState;
+          const buffAmt = Math.max(1, eff.amount + (envMod.statusBonus ?? 0));
+          const targetPref = eff.target || aMove.target || 'self';
+          if (targetPref === 'ally_or_player') {
+            if (Math.random() < 0.5) {
+              ally.statuses[stKey] += buffAmt;
+              spawnPopup(ally.instanceId, `+${buffAmt} ${eff.type.replace('_', ' ')}`, '#d97706');
+            } else {
+              nextPlayerStats[stKey] += buffAmt;
+              spawnPopup('player', `+${buffAmt} ${eff.type.replace('_', ' ')} (${ally.displayName})`, '#d97706');
+              setPlayerStatuses({ ...nextPlayerStats });
+            }
+          } else if (targetPref === 'player') {
+            nextPlayerStats[stKey] += buffAmt;
+            spawnPopup('player', `+${buffAmt} ${eff.type.replace('_', ' ')} (${ally.displayName})`, '#d97706');
+            setPlayerStatuses({ ...nextPlayerStats });
+          } else {
+            ally.statuses[stKey] += buffAmt;
+            spawnPopup(ally.instanceId, `+${buffAmt} ${eff.type.replace('_', ' ')}`, '#d97706');
+          }
+          await delay(240);
+        }
+      }
+
+      if (!executedAllyAction) {
+        await delay(200);
+      }
+
+      // Ally status decay
+      if (ally.statuses.faded > 0) ally.statuses.faded -= 1;
+      if (ally.statuses.exposed > 0) ally.statuses.exposed -= 1;
+      if (ally.statuses.plated_armor > 0) {
+        ally.ward += ally.statuses.plated_armor;
+        ally.statuses.plated_armor = Math.max(0, ally.statuses.plated_armor - 1);
+      }
+
+      // Roll ally's next move for the upcoming round
+      const aDef = ENEMIES_CATALOG.find((d) => d.id === ally.enemyId);
+      if (aDef) {
+        const aliveAlliesCount = workingAllies.filter((x) => x.hp > 0).length;
+        const { move, behavior } = chooseEnemyMoveForContext(aDef, ally.hp, ally.maxHp, aliveAlliesCount);
+        ally.currentMove = move;
+        ally.currentBehavior = behavior;
+      }
+
+      setAllies([...workingAllies.filter((x) => x.hp > 0)]);
+      setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+      await delay(200);
+
+      // Check if all enemies were defeated during ally turn
+      if (workingEnemies.filter((e) => e.hp > 0).length === 0) {
+        setIsAnimatingTurn(false);
+        handleCombatVictory(nextPlayerHp);
+        return;
+      }
     }
 
     const playerWoreOff: string[] = [];
@@ -1552,13 +1863,15 @@ export function App() {
     setPendingDiscardCount(0);
     setPendingFollowUpDraw(0);
     setTurnLockedCardIds(new Set());
-    setEnemies(survivingEnemies);
+    setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+    setAllies([...workingAllies.filter((x) => x.hp > 0)]);
     setHandAnimState('drawing');
     window.setTimeout(() => setHandAnimState('idle'), 420);
     setIsAnimatingTurn(false);
   }, [
     activeEnvironment,
     activePowers,
+    allies,
     discardPile,
     drawCards,
     drawPile,
@@ -3974,71 +4287,169 @@ export function App() {
                 />
               )}
 
-              {/* Player Entity */}
-              <div className="player-spot paper-sway-slow" data-player-spot="true">
-                <div className="entity-name-label">{playerName}</div>
-                <div className="hp-shield-row hp-shield-scroll">
-                  <div className="hp-shield-trough">
-                    <div className={`hp-bar-frame player-hp-bar ${playerWard > 0 ? 'has-ward' : ''}`}>
-                      <div
-                        className="hp-bar-fill"
-                        style={{ width: `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%` }}
-                      />
-                      <span className="hp-bar-text">
-                        {hp}/{maxHp}
-                      </span>
-                    </div>
-                    {playerWard > 0 && (
-                      <div
-                        className="shield-extension-bar"
-                        style={{ width: `${Math.min(90, Math.max(34, 24 + playerWard * 3))}px` }}
-                        title={`Ward: ${playerWard}`}
-                      >
-                        <span className="shield-extension-text">🛡 {playerWard}</span>
+              {/* Player & Allies Side */}
+              <div className="player-side-formation">
+                {/* Player Entity */}
+                <div className="player-spot paper-sway-slow" data-player-spot="true">
+                  <div className="entity-name-label">{playerName}</div>
+                  <div className="hp-shield-row hp-shield-scroll">
+                    <div className="hp-shield-trough">
+                      <div className={`hp-bar-frame player-hp-bar ${playerWard > 0 ? 'has-ward' : ''}`}>
+                        <div
+                          className="hp-bar-fill"
+                          style={{ width: `${Math.max(0, Math.min(100, (hp / maxHp) * 100))}%` }}
+                        />
+                        <span className="hp-bar-text">
+                          {hp}/{maxHp}
+                        </span>
                       </div>
-                    )}
+                      {playerWard > 0 && (
+                        <div
+                          className="shield-extension-bar"
+                          style={{ width: `${Math.min(90, Math.max(34, 24 + playerWard * 3))}px` }}
+                          title={`Ward: ${playerWard}`}
+                        >
+                          <span className="shield-extension-text">🛡 {playerWard}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="floating-popups-anchor">
+                    {floatingPopups
+                      .filter((p) => p.target === 'player')
+                      .map((p) => (
+                        <div
+                          key={p.id}
+                          className="floating-combat-popup"
+                          style={{ backgroundColor: p.color }}
+                        >
+                          {p.text}
+                        </div>
+                      ))}
+                  </div>
+
+                  <EntitySprite
+                    art={{
+                      primaryColor: '#165b7d',
+                      secondaryColor: '#2980b9',
+                      shape: 'capsule',
+                      spriteUrl: './assets/entities/player.png',
+                      flip: false,
+                    }}
+                    width={128}
+                    height={128}
+                  />
+                  <div className="status-pills-row">
+                    {playerWard > 0 && <span className="status-pill ward-pill">Ward {playerWard}</span>}
+                    {playerStatuses.bold > 0 && <span className="status-pill bold-pill">Bold +{playerStatuses.bold}</span>}
+                    {playerStatuses.faded > 0 && <span className="status-pill faded-pill">Faded {playerStatuses.faded}</span>}
+                    {playerStatuses.exposed > 0 && <span className="status-pill exposed-pill">Exposed {playerStatuses.exposed}</span>}
+                    {playerStatuses.ink_burn > 0 && <span className="status-pill burn-pill">Ink Burn {playerStatuses.ink_burn}</span>}
+                    {playerStatuses.plated_armor > 0 && <span className="status-pill plated-armor-pill">Plated Armor {playerStatuses.plated_armor}</span>}
+                    {playerStatuses.thorns > 0 && <span className="status-pill thorns-pill">Thorns {playerStatuses.thorns}</span>}
+                    {activePowers.map((pwr) => (
+                      <span key={pwr.id} className="status-pill power-active-pill" title={`${pwr.name}: Rest of combat`}>
+                        ★ {pwr.label}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
-                <div className="floating-popups-anchor">
-                  {floatingPopups
-                    .filter((p) => p.target === 'player')
-                    .map((p) => (
+                {/* Allies Formation */}
+                {allies.length > 0 && (
+                  <div className="allies-formation">
+                    {allies.map((ally, index) => (
                       <div
-                        key={p.id}
-                        className="floating-combat-popup"
-                        style={{ backgroundColor: p.color }}
+                        key={ally.instanceId}
+                        data-ally-id={ally.instanceId}
+                        className={`ally-spot ally-slot-${index}`}
                       >
-                        {p.text}
+                        <div className="entity-name-label ally-name-label">
+                          🤝 {ally.displayName}
+                        </div>
+                        <div className="hp-shield-row hp-shield-scroll">
+                          <div className="hp-shield-trough">
+                            <div className={`hp-bar-frame ally-hp-bar ${ally.ward > 0 ? 'has-ward' : ''}`}>
+                              <div
+                                className="hp-bar-fill"
+                                style={{
+                                  width: `${Math.max(0, Math.min(100, (ally.hp / ally.maxHp) * 100))}%`,
+                                }}
+                              />
+                              <span className="hp-bar-text">
+                                {ally.hp}/{ally.maxHp}
+                              </span>
+                            </div>
+                            {ally.ward > 0 && (
+                              <div
+                                className="shield-extension-bar"
+                                style={{ width: `${Math.min(70, Math.max(26, 18 + ally.ward * 3))}px` }}
+                                title={`Ward: ${ally.ward}`}
+                              >
+                                <span className="shield-extension-text">🛡 {ally.ward}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="floating-popups-anchor">
+                          {floatingPopups
+                            .filter((p) => p.target === ally.instanceId)
+                            .map((p) => (
+                              <div
+                                key={p.id}
+                                className="floating-combat-popup"
+                                style={{ backgroundColor: p.color }}
+                              >
+                                {p.text}
+                              </div>
+                            ))}
+                        </div>
+
+                        <EntitySprite
+                          art={ally.art}
+                          width={76}
+                          height={76}
+                          maxHp={ally.maxHp}
+                        />
+                        <IntentBadge
+                          intent={ally.currentMove.intent}
+                          damage={
+                            ally.currentMove.damage
+                              ? Math.max(
+                                  0,
+                                  ally.currentMove.damage +
+                                    ally.statuses.bold +
+                                    (activeEnvironment?.modifiers?.damageBonus ?? 0)
+                                )
+                              : undefined
+                          }
+                          faded={ally.statuses.faded}
+                          hits={ally.currentMove.hits}
+                          ward={
+                            ally.currentMove.ward
+                              ? Math.max(
+                                  0,
+                                  ally.currentMove.ward +
+                                    (activeEnvironment?.modifiers?.wardBonus ?? 0)
+                                )
+                              : undefined
+                          }
+                        />
+                        <div className="status-pills-row">
+                          {ally.ward > 0 && <span className="status-pill ward-pill">Ward {ally.ward}</span>}
+                          {ally.statuses.bold > 0 && <span className="status-pill bold-pill">Bold +{ally.statuses.bold}</span>}
+                          {ally.statuses.faded > 0 && <span className="status-pill faded-pill">Faded {ally.statuses.faded}</span>}
+                          {ally.statuses.exposed > 0 && <span className="status-pill exposed-pill">Exposed {ally.statuses.exposed}</span>}
+                          {ally.statuses.ink_burn > 0 && <span className="status-pill burn-pill">Ink Burn {ally.statuses.ink_burn}</span>}
+                          {ally.statuses.plated_armor > 0 && <span className="status-pill plated-armor-pill">Plated Armor {ally.statuses.plated_armor}</span>}
+                          {ally.statuses.thorns > 0 && <span className="status-pill thorns-pill">Thorns {ally.statuses.thorns}</span>}
+                        </div>
                       </div>
                     ))}
-                </div>
-
-                <EntitySprite
-                  art={{
-                    primaryColor: '#165b7d',
-                    secondaryColor: '#2980b9',
-                    shape: 'capsule',
-                    spriteUrl: './assets/entities/player.png',
-                    flip: false,
-                  }}
-                  width={128}
-                  height={128}
-                />
-                <div className="status-pills-row">
-                  {playerWard > 0 && <span className="status-pill ward-pill">Ward {playerWard}</span>}
-                  {playerStatuses.bold > 0 && <span className="status-pill bold-pill">Bold +{playerStatuses.bold}</span>}
-                  {playerStatuses.faded > 0 && <span className="status-pill faded-pill">Faded {playerStatuses.faded}</span>}
-                  {playerStatuses.exposed > 0 && <span className="status-pill exposed-pill">Exposed {playerStatuses.exposed}</span>}
-                  {playerStatuses.ink_burn > 0 && <span className="status-pill burn-pill">Ink Burn {playerStatuses.ink_burn}</span>}
-                  {playerStatuses.plated_armor > 0 && <span className="status-pill plated-armor-pill">Plated Armor {playerStatuses.plated_armor}</span>}
-                  {playerStatuses.thorns > 0 && <span className="status-pill thorns-pill">Thorns {playerStatuses.thorns}</span>}
-                  {activePowers.map((pwr) => (
-                    <span key={pwr.id} className="status-pill power-active-pill" title={`${pwr.name}: Rest of combat`}>
-                      ★ {pwr.label}
-                    </span>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Center Area: Single-Card Inspector */}

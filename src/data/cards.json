@@ -3969,5 +3969,113 @@
       ]
     },
     "sfx": "cards/bookFlip2.ogg"
+  },
+  {
+    "id": "fold_cat",
+    "rarity": "uncommon",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "fold cat",
+      "medium": "crease folded kitten",
+      "hard": "fold a nimble origami cat from crisp parchment leaves"
+    },
+    "connectors": {
+      "easy": "to summon",
+      "medium": "to awaken",
+      "hard": "to shape and awaken"
+    },
+    "description": "Summon an Origami Cat (14-18 HP) to fight beside you. Takes action before your turn. Once per combat.",
+    "effects": [
+      {
+        "type": "summon",
+        "amount": 1,
+        "summonId": "origami_cat",
+        "team": "player"
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#f59e0b",
+      "secondaryColor": "#fde68a",
+      "shape": "capsule",
+      "spriteUrl": "./assets/entities/origami_cat.png"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "fold cat+",
+        "medium": "master crease cat",
+        "hard": "fold a masterwork origami cat with sharpened paper claws+"
+      },
+      "description": "Summon an Origami Cat (18-22 HP) with 4 Ward to fight beside you. Takes action before your turn. Once per combat.",
+      "cost": 1,
+      "effects": [
+        {
+          "type": "summon",
+          "amount": 1,
+          "summonId": "origami_cat",
+          "team": "player",
+          "hpBonus": 4,
+          "wardBonus": 4
+        }
+      ],
+      "burnDraft": true
+    },
+    "sfx": "cards/cardTakeOutPackage1.ogg"
+  },
+  {
+    "id": "fold_tiger",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 2,
+    "target": "self",
+    "names": {
+      "easy": "fold tiger",
+      "medium": "crease fierce origami tiger",
+      "hard": "sculpt a ferocious golden origami tiger from heavy bound paper"
+    },
+    "connectors": {
+      "easy": "to summon",
+      "medium": "to awaken",
+      "hard": "to crease into life"
+    },
+    "description": "Summon an Origami Tiger (26-32 HP) to fight beside you. Takes action before your turn. Once per combat.",
+    "effects": [
+      {
+        "type": "summon",
+        "amount": 1,
+        "summonId": "origami_tiger",
+        "team": "player"
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#d97706",
+      "secondaryColor": "#f59e0b",
+      "shape": "spiky",
+      "spriteUrl": "./assets/entities/origami_tiger.png"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "fold tiger+",
+        "medium": "master crease tiger",
+        "hard": "sculpt an apex origami tiger with razor folds and fortified seams+"
+      },
+      "description": "Summon an Origami Tiger (32-38 HP) with 8 Ward to fight beside you. Takes action before your turn. Once per combat.",
+      "cost": 2,
+      "effects": [
+        {
+          "type": "summon",
+          "amount": 1,
+          "summonId": "origami_tiger",
+          "team": "player",
+          "hpBonus": 6,
+          "wardBonus": 8
+        }
+      ],
+      "burnDraft": true
+    },
+    "sfx": "cards/bookFlip3.ogg"
   }
 ]

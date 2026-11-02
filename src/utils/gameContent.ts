@@ -337,6 +337,7 @@ export function syncEnemyMoveStats(move: EnemyMove): EnemyMove {
   const dmgEff = effects.find((e) => e.type === 'damage');
   const wardEff = effects.find((e) => e.type === 'ward');
   const healEff = effects.find((e) => e.type === 'heal');
+  const summonEff = effects.find((e) => e.type === 'summon');
   const debuffEff = effects.find(
     (e) =>
       e.type === 'bold' ||
@@ -352,7 +353,8 @@ export function syncEnemyMoveStats(move: EnemyMove): EnemyMove {
 
   let intent = move.intent;
   if (!intent) {
-    if (damage && ward) intent = 'attack_defend';
+    if (summonEff || move.summonPool || move.summonId) intent = 'summon';
+    else if (damage && ward) intent = 'attack_defend';
     else if (damage && debuffEff) intent = 'attack_debuff';
     else if (damage && hits && hits > 1) intent = 'multi_attack';
     else if (damage) intent = 'attack';
@@ -467,6 +469,48 @@ export function calculateEnemySpriteScale(maxHp: number = 20, isElite: boolean =
   const hpBonus = 0.22 * Math.log(1 + Math.max(0, maxHp - baseHp) / 40);
   const eliteBonus = isElite ? 0.25 : 0;
   return Number((1 + hpBonus + eliteBonus).toFixed(3));
+}
+
+/**
+ * Creates an ActiveEnemy instance for a summoned entity (player ally or enemy reinforcement).
+ * Slightly randomizes HP between minHp and maxHp, rolls initial move/behavior, and assigns team.
+ */
+export function createSummonInstance(
+  def: EnemyDefinition,
+  phraseDiff: PhraseDifficulty,
+  team: 'player' | 'enemy' = 'player',
+  hpBonus: number = 0,
+  initialWard: number = 0
+): ActiveEnemy {
+  const pool = def.namePools[phraseDiff] || def.namePools.easy;
+  const chosenName = pickRandom(pool);
+  const hpRange = Math.max(0, def.maxHp - def.minHp);
+  const randomizedHp = Math.max(1, def.minHp + Math.floor(Math.random() * (hpRange + 1)) + hpBonus);
+  const { move, behavior } = chooseEnemyMoveForContext(def, randomizedHp, randomizedHp, 1);
+
+  return {
+    instanceId: nextUid(team === 'player' ? 'ally' : 'enemy'),
+    enemyId: def.id,
+    displayName: chosenName,
+    faction: def.faction,
+    role: def.role,
+    isElite: def.role === 'elite',
+    team,
+    hp: randomizedHp,
+    maxHp: randomizedHp,
+    ward: initialWard,
+    statuses: {
+      bold: 0,
+      faded: 0,
+      exposed: 0,
+      ink_burn: 0,
+      plated_armor: 0,
+      thorns: 0,
+    },
+    currentMove: move,
+    currentBehavior: behavior,
+    art: def.art,
+  };
 }
 
 /**

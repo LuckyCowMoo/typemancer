@@ -110,6 +110,9 @@ export function describeEnemyIntentInEnglish(enemy: ActiveEnemy, playerExposed: 
       .join(', ');
     return `${enemy.displayName} intends to empower its side (${buffText || 'Bold'}).`;
   }
+  if (move.intent === 'summon') {
+    return `${enemy.displayName} intends to summon reinforcements into battle!`;
+  }
   const curseText = (move.statusEffects || [])
     .map((s) => `${s.amount} ${s.status.replace('_', ' ')}`)
     .join(', ');

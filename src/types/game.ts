@@ -37,6 +37,7 @@ export type EffectType =
   | 'keep_card' // Choose X card(s) in hand to keep from being discarded at the end of this turn
   | 'plated_armor'
   | 'thorns'
+  | 'summon' // Summon an ally or enemy NPC into battle
   // ---- Persistent "rest of this combat" powers (once per combat) ----
   | 'power_ward_each_turn' // Gain X Ward at the start of each of your turns
   | 'power_bold_each_turn' // Gain X Bold at the start of each of your turns
@@ -62,9 +63,13 @@ export interface ActivePower {
 export interface CardEffect {
   type: EffectType;
   amount: number;
-  target?: 'enemy' | 'all_enemies' | 'self' | 'player' | 'all_allies';
+  target?: 'enemy' | 'all_enemies' | 'self' | 'player' | 'all_allies' | 'ally_or_player';
   hits?: number; // For multi-hit attacks (defaults to 1)
   targetCount?: number; // Amount of targets per tile
+  summonId?: string; // ID of the enemy definition from ENEMIES_CATALOG to summon
+  team?: 'player' | 'enemy'; // Which team the summoned NPC joins (defaults to 'player' for card plays)
+  hpBonus?: number;
+  wardBonus?: number;
 }
 
 export interface ArtPlaceholder {
@@ -109,7 +114,7 @@ export interface CardInstance {
   upgraded: boolean;
 }
 
-export type EnemyFaction = 'goblins' | 'rock_monsters' | 'evil_plants' | 'boss';
+export type EnemyFaction = 'goblins' | 'rock_monsters' | 'evil_plants' | 'boss' | 'origami';
 export type EnemyRole = 'tank' | 'glass_cannon' | 'support' | 'balanced' | 'elite' | 'boss';
 
 export type EnemyIntentType =
@@ -120,7 +125,8 @@ export type EnemyIntentType =
   | 'buff'
   | 'debuff'
   | 'attack_debuff'
-  | 'heal';
+  | 'heal'
+  | 'summon';
 
 export interface EnemyMove {
   id: string;
@@ -131,10 +137,14 @@ export interface EnemyMove {
   hits?: number;
   ward?: number;
   heal?: number;
+  target?: 'player' | 'self' | 'all_allies' | 'ally_or_player';
+  summonId?: string; // Specific enemy ID from ENEMIES_CATALOG to summon
+  summonPool?: string[]; // Array of low-level faction enemy IDs to summon from
+  summonCount?: number; // How many copies to summon (1 or 2)
   statusEffects?: {
     status: 'bold' | 'faded' | 'exposed' | 'ink_burn';
     amount: number;
-    target: 'self' | 'all_allies' | 'player';
+    target: 'self' | 'all_allies' | 'player' | 'ally_or_player';
   }[];
   effects?: CardEffect[];
 }
@@ -178,6 +188,7 @@ export interface ActiveEnemy {
   faction: EnemyFaction;
   role: EnemyRole;
   isElite?: boolean;
+  team?: 'player' | 'enemy'; // 'player' = summoned ally, 'enemy' = opposing team
   hp: number;
   maxHp: number;
   ward: number;

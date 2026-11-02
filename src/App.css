@@ -842,10 +842,61 @@ body,
 
 .arena-stage {
   display: grid;
-  grid-template-columns: 240px 1fr 370px;
+  grid-template-columns: minmax(240px, auto) 1fr minmax(360px, auto);
   align-items: center;
   padding: 6px 18px;
   position: relative;
+  gap: 12px;
+}
+
+.player-side-formation {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+}
+
+.allies-formation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  z-index: 10;
+}
+
+.ally-spot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  border: 1.5px dashed rgba(16, 185, 129, 0.4);
+  backdrop-filter: blur(2px);
+  transition: transform 0.16s ease, border-color 0.16s ease;
+}
+
+.ally-spot:hover {
+  transform: translateY(-2px);
+  border-color: #10b981;
+}
+
+.ally-name-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #10b981;
+  border-radius: 6px;
+  padding: 1px 6px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+.ally-hp-bar {
+  width: 76px;
+  height: 16px;
 }
 
 .combat-projectile-ball {

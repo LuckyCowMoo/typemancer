@@ -287,11 +287,23 @@ export const IntentBadge: React.FC<IntentBadgeProps> = ({
 
   if (intent === 'buff') {
     return (
-      <div className="intent-badge intent-buff" title="Enemy intends to empower allies">
+      <div className="intent-badge intent-buff" title="Intends to empower allies">
         <svg width="24" height="26" viewBox="0 0 28 28">
           <polygon points="14,2 25,14 19,14 19,26 9,26 9,14 3,14" fill="#d97706" stroke="#78350f" strokeWidth="1.5" />
         </svg>
         <span className="intent-sub">BOLD</span>
+      </div>
+    );
+  }
+
+  if (intent === 'summon') {
+    return (
+      <div className="intent-badge intent-summon" title="Intends to summon reinforcements into battle">
+        <svg width="24" height="26" viewBox="0 0 28 28">
+          <circle cx="14" cy="14" r="10" fill="#8b5cf6" stroke="#5b21b6" strokeWidth="1.8" />
+          <path d="M14,6 L14,22 M6,14 L22,14" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+        <span className="intent-sub" style={{ color: '#8b5cf6', fontWeight: 800 }}>SUMMON</span>
       </div>
     );
   }

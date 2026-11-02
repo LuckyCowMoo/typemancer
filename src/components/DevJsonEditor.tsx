@@ -162,6 +162,16 @@ export const EFFECT_TYPE_GROUPS: EffectGroupDef[] = [
       { type: 'power_damage_all_on_attack', label: '✨ Power: Damage All On Attacks' },
     ],
   },
+  {
+    category: 'Summoning & Allies',
+    colorName: 'Purple',
+    color: '#8b5cf6',
+    bg: '#f5f3ff',
+    textColor: '#4c1d95',
+    effects: [
+      { type: 'summon', label: '✨ Summon Ally / Entity (Join Battle)' },
+    ],
+  },
 ];
 
 export const ALL_EFFECT_TYPES: EffectType[] = EFFECT_TYPE_GROUPS.flatMap((g) =>
@@ -184,6 +194,7 @@ const ALL_INTENTS: EnemyIntentType[] = [
   'debuff',
   'attack_debuff',
   'heal',
+  'summon',
 ];
 
 const ALL_RELIC_TRIGGERS: RelicTrigger[] = [
@@ -2523,6 +2534,41 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                           }}
                         />
                       </label>
+                      {eff.type === 'summon' && (
+                        <>
+                          <label className="dev-field">
+                            <span>Summoned Entity</span>
+                            <select
+                              value={eff.summonId || 'origami_cat'}
+                              onChange={(e) => {
+                                const next = [...activeCard.effects];
+                                next[eIdx] = { ...eff, summonId: e.target.value };
+                                updateActiveCard((c) => ({ ...c, effects: next }));
+                              }}
+                            >
+                              {enemiesList.map((enDef) => (
+                                <option key={enDef.id} value={enDef.id}>
+                                  {enDef.id} ({enDef.namePools?.easy?.[0] || enDef.id}) [T{enDef.tier}]
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="dev-field">
+                            <span>Summon Team</span>
+                            <select
+                              value={eff.team || 'player'}
+                              onChange={(e) => {
+                                const next = [...activeCard.effects];
+                                next[eIdx] = { ...eff, team: e.target.value as 'player' | 'enemy' };
+                                updateActiveCard((c) => ({ ...c, effects: next }));
+                              }}
+                            >
+                              <option value="player">Player Team (Ally)</option>
+                              <option value="enemy">Enemy Team (Reinforcement)</option>
+                            </select>
+                          </label>
+                        </>
+                      )}
                       <label className="dev-field">
                         <span>Target</span>
                         <select
@@ -2807,6 +2853,53 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                 }}
                               />
                             </label>
+                            {eff.type === 'summon' && (
+                              <>
+                                <label className="dev-field">
+                                  <span>Summoned Entity</span>
+                                  <select
+                                    value={eff.summonId || 'origami_cat'}
+                                    onChange={(e) => {
+                                      const next = [...upgradedEffects];
+                                      next[eIdx] = { ...eff, summonId: e.target.value };
+                                      updateActiveCard((c) => ({
+                                        ...c,
+                                        upgrade: {
+                                          ...ensureUpgrade(c),
+                                          effects: next,
+                                        },
+                                      }));
+                                    }}
+                                  >
+                                    {enemiesList.map((enDef) => (
+                                      <option key={enDef.id} value={enDef.id}>
+                                        {enDef.id} ({enDef.namePools?.easy?.[0] || enDef.id}) [T{enDef.tier}]
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <label className="dev-field">
+                                  <span>Summon Team</span>
+                                  <select
+                                    value={eff.team || 'player'}
+                                    onChange={(e) => {
+                                      const next = [...upgradedEffects];
+                                      next[eIdx] = { ...eff, team: e.target.value as 'player' | 'enemy' };
+                                      updateActiveCard((c) => ({
+                                        ...c,
+                                        upgrade: {
+                                          ...ensureUpgrade(c),
+                                          effects: next,
+                                        },
+                                      }));
+                                    }}
+                                  >
+                                    <option value="player">Player Team (Ally)</option>
+                                    <option value="enemy">Enemy Team (Reinforcement)</option>
+                                  </select>
+                                </label>
+                              </>
+                            )}
                             <label className="dev-field">
                               <span>Target</span>
                               <select
