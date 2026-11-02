@@ -1347,21 +1347,17 @@ body,
 
 .typed-char {
   display: inline;
-  transition: color 0.1s ease, background-color 0.1s ease;
+  transition: color 0.1s ease;
 }
 
-/* Slightly tinted green for correctly spelled letters when suggesting */
+/* Faintly tinted green for correctly spelled letters when suggesting */
 .typed-char.char-correct {
-  color: #147240;
-  background-color: rgba(20, 114, 64, 0.08);
-  border-radius: 2px;
+  color: #275239;
 }
 
-/* Slightly tinted red for incorrectly spelled letters when suggesting */
+/* Faintly tinted red for incorrectly spelled letters when suggesting */
 .typed-char.char-incorrect {
-  color: #b91c1c;
-  background-color: rgba(185, 28, 28, 0.12);
-  border-radius: 2px;
+  color: #853232;
 }
 
 .sentence-locked-card {
