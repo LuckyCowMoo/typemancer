@@ -4572,11 +4572,8 @@ export function App() {
 
             {overlay === 'status_effects' && (
               <div className="status-effects-overlay-content">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ marginBottom: 8 }}>
                   <h2 style={{ margin: 0, fontSize: '1.35rem' }}>Combat Status Effects & Afflictions</h2>
-                  <span style={{ fontSize: '0.8rem', color: '#7c674d', fontWeight: 600 }}>
-                    Type any status name (e.g. <code>ward</code>, <code>faded</code>) to inspect
-                  </span>
                 </div>
                 <div className="status-definitions-list">
                   {STATUS_DEFINITIONS.map((st) => (
@@ -4586,12 +4583,9 @@ export function App() {
                         highlightedStatusId === st.id ? 'status-def-highlighted' : ''
                       }`}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
                         <span className="status-pill" style={{ backgroundColor: st.color }}>
                           {st.name}
-                        </span>
-                        <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
-                          {st.aliases.slice(0, 3).join(', ')}
                         </span>
                       </div>
                       <p>{st.summary}</p>
