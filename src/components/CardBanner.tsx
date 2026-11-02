@@ -124,6 +124,23 @@ export function getCardColorTheme(
   return CARD_COLOR_THEMES[category]?.[rarity] ?? CARD_COLOR_THEMES.attack.starter;
 }
 
+/**
+ * Blends a hex color with its perceived luminance gray value to produce
+ * a slightly grayer, desaturated version while preserving its tonal contrast.
+ */
+function toSlightlyGrayerColor(hex: string, factor: number = 0.45): string {
+  if (!hex || !hex.startsWith('#') || hex.length < 7) return hex;
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
+  const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+  const blendR = Math.round(r * (1 - factor) + gray * factor);
+  const blendG = Math.round(g * (1 - factor) + gray * factor);
+  const blendB = Math.round(b * (1 - factor) + gray * factor);
+  return `rgb(${blendR}, ${blendG}, ${blendB})`;
+}
+
 const CATEGORY_ORDER: Record<CardVisualCategory, number> = {
   attack: 0,
   defence: 1,
@@ -268,7 +285,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         alignItems: 'center',
         gap: 8,
         padding: '7px 9px 7px 8px',
-        backgroundColor: theme.bg,
+        backgroundColor: isUnaffordable ? toSlightlyGrayerColor(theme.bg, 0.45) : theme.bg,
         color: theme.textColor,
         transition:
           'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, margin 0.18s ease, background-color 0.18s ease',
@@ -371,12 +388,17 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           borderTopLeftRadius: 0,
           borderBottomRightRadius: 0,
           background: '#0d1b22',
-          color: '#ffffff',
+          color: isUnaffordable ? '#ff4d4d' : '#2ec4b6',
+          textShadow: isUnaffordable
+            ? '0 0 9px rgba(255, 77, 77, 0.85)'
+            : '0 0 7px rgba(46, 196, 182, 0.65)',
           border:
             isEnterCandidate || isSelected
               ? '2.5px solid #2ec4b6'
               : isHighlighted
               ? '2.5px solid #ffd166'
+              : isUnaffordable
+              ? '2.5px solid #4a1515'
               : '2.5px solid #0d1b22',
           minWidth: 40,
           height: 34,
@@ -400,7 +422,13 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           def.upgrade.cost !== def.cost ? (
           <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 2 }}>
             <span>{def.cost}</span>
-            <span style={{ fontSize: '0.74rem', color: '#34d399', fontWeight: 900 }}>
+            <span
+              style={{
+                fontSize: '0.74rem',
+                color: isUnaffordable ? '#ff8080' : '#34d399',
+                fontWeight: 900,
+              }}
+            >
               {def.upgrade.cost - def.cost > 0
                 ? `+${def.upgrade.cost - def.cost}`
                 : def.upgrade.cost - def.cost}

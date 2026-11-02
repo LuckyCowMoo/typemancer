@@ -569,8 +569,16 @@ body,
   color: #fff8f2;
 }
 
+/* Unaffordable card (not enough energy): card is no longer transparent, becomes slightly grayer, while energy cost number remains vibrant red */
 .card-tab-unaffordable {
-  opacity: 0.5;
+  /* opacity: 0.5 removed - cards are no longer transparent when unaffordable */
+}
+
+.card-tab-unaffordable .card-left-art-col,
+.card-tab-unaffordable .card-info-col,
+.card-tab-unaffordable .card-kept-badge {
+  filter: grayscale(0.55) contrast(0.95);
+  transition: filter 0.2s ease;
 }
 
 /* Tier 1 Highlight: Prefix match while typing */

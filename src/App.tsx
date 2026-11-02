@@ -3891,7 +3891,15 @@ export function App() {
                 {inspectedCard && (
                   <div className="inspected-card-panel paper-sheet-float">
                     <div className="inspected-card-badge">
-                      {inspectedCard.rarity.toUpperCase()} {inspectedCard.type.toUpperCase()} · {inspectedCard.cost} Energy
+                      {inspectedCard.rarity.toUpperCase()} {inspectedCard.type.toUpperCase()} ·{' '}
+                      <span
+                        style={{
+                          color: energy >= inspectedCard.cost ? '#2ec4b6' : '#ff4d4d',
+                          fontWeight: 900,
+                        }}
+                      >
+                        {inspectedCard.cost} Energy
+                      </span>
                     </div>
                     <h3 className="inspected-card-title">{inspectedCard.name}</h3>
                     <p className="inspected-card-desc">{inspectedCard.description}</p>
