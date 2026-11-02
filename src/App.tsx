@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import {
   CardBanner,
@@ -154,6 +154,14 @@ export interface InkParticleBurst {
   }[];
 }
 
+export interface ExitingCardState {
+  instance: CardInstance;
+  resolved: ReturnType<typeof resolveCardInstance>;
+  topOffset: number;
+  leftOffset: number;
+  discardIdx: number;
+}
+
 const DEFAULT_SETTINGS: GameSettings = {
   muted: false,
   volume: 0.75,
@@ -245,6 +253,9 @@ export function App() {
       (window.location.search.includes('editor') || window.location.hash.includes('editor'))
   );
   const [handAnimState, setHandAnimState] = useState<'idle' | 'discarding' | 'drawing'>('idle');
+  const [exitingCards, setExitingCards] = useState<ExitingCardState[]>([]);
+  const [enteringCardMap, setEnteringCardMap] = useState<Map<string, number>>(() => new Map());
+  const cardPositionsRef = useRef<Map<string, DOMRect>>(new Map());
   const [selectedCard, setSelectedCard] = useState<CardInstance | null>(null);
   const [selectedTargetEnemy, setSelectedTargetEnemy] = useState<ActiveEnemy | null>(null);
   const [selectedDiscardInstances, setSelectedDiscardInstances] = useState<CardInstance[]>([]);
@@ -487,10 +498,16 @@ export function App() {
       currentDraw: CardInstance[],
       currentDiscard: CardInstance[],
       lockedCardIds?: Set<string>
-    ): { nextHand: CardInstance[]; nextDraw: CardInstance[]; nextDiscard: CardInstance[] } => {
+    ): {
+      nextHand: CardInstance[];
+      nextDraw: CardInstance[];
+      nextDiscard: CardInstance[];
+      drawnCards: CardInstance[];
+    } => {
       const nextHand = [...currentHand];
       let nextDraw = [...currentDraw];
       let nextDiscard = [...currentDiscard];
+      const drawnCards: CardInstance[] = [];
       const locked = lockedCardIds ?? turnLockedCardIds;
 
       for (let i = 0; i < count; i++) {
@@ -512,13 +529,76 @@ export function App() {
             continue;
           }
           nextHand.push(drawn);
+          drawnCards.push(drawn);
         }
       }
 
-      return { nextHand, nextDraw, nextDiscard };
+      return { nextHand, nextDraw, nextDiscard, drawnCards };
     },
     [turnLockedCardIds]
   );
+
+  const captureCardExit = useCallback(
+    (cardInst: CardInstance, discardIdx = 0): ExitingCardState => {
+      let topOffset = 0;
+      let leftOffset = 0;
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const cardEl = document.querySelector(`[data-card-id="${cardInst.instanceId}"]`);
+        const stackEl = document.querySelector('.cards-stack');
+        if (cardEl && stackEl) {
+          const cardRect = cardEl.getBoundingClientRect();
+          const stackRect = stackEl.getBoundingClientRect();
+          topOffset = cardRect.top - stackRect.top;
+          leftOffset = cardRect.left - stackRect.left;
+        }
+      }
+      return {
+        instance: cardInst,
+        resolved: resolveCardInstance(cardInst, phraseDiff),
+        topOffset,
+        leftOffset,
+        discardIdx,
+      };
+    },
+    [phraseDiff]
+  );
+
+  const triggerCardExits = useCallback(
+    (cardsToExit: { card: CardInstance; idx: number }[]) => {
+      if (cardsToExit.length === 0) return;
+      const captured: ExitingCardState[] = cardsToExit.map(({ card, idx }) =>
+        captureCardExit(card, idx)
+      );
+      setExitingCards((prev) => [...prev, ...captured]);
+      const maxWait = cardsToExit.length * 90 + 520;
+      window.setTimeout(() => {
+        const exitedIds = new Set(captured.map((c) => c.instance.instanceId));
+        setExitingCards((prev) => prev.filter((c) => !exitedIds.has(c.instance.instanceId)));
+      }, maxWait);
+    },
+    [captureCardExit]
+  );
+
+  const markCardsEntering = useCallback((newCards: CardInstance[]) => {
+    if (newCards.length === 0) return;
+    setEnteringCardMap((prev) => {
+      const next = new Map(prev);
+      newCards.forEach((c, idx) => {
+        next.set(c.instanceId, idx);
+      });
+      return next;
+    });
+    const totalDuration = newCards.length * 120 + 650;
+    window.setTimeout(() => {
+      setEnteringCardMap((prev) => {
+        const next = new Map(prev);
+        newCards.forEach((c) => {
+          next.delete(c.instanceId);
+        });
+        return next;
+      });
+    }, totalDuration);
+  }, []);
 
   const startBattle = useCallback(
     (floorNum: number, nodeType: 'battle' | 'elite' | 'boss', currentDeck: CardInstance[], currentRelics: string[]) => {
@@ -596,10 +676,13 @@ export function App() {
 
       const shuffled = shuffleArray(currentDeck);
       const initialDrawCount = Math.min(8, 5 + bonusDraw);
-      const { nextHand, nextDraw, nextDiscard } = drawCards(initialDrawCount, [], shuffled, [], new Set());
+      const { nextHand, nextDraw, nextDiscard, drawnCards } = drawCards(initialDrawCount, [], shuffled, [], new Set());
 
       soundEngine.playShuffle(settings);
       soundEngine.playDrawCards(initialDrawCount, settings);
+      cardPositionsRef.current.clear();
+      setExitingCards([]);
+      markCardsEntering(drawnCards);
       setHand(nextHand);
       setDrawPile(nextDraw);
       setDiscardPile(nextDiscard);
@@ -769,11 +852,16 @@ export function App() {
       const activeTurnLockedIds = new Set(turnLockedCardIds);
       activeTurnLockedIds.add(cardInst.instanceId);
 
+      const cardsToExitList: { card: CardInstance; idx: number }[] = [
+        { card: cardInst, idx: 0 },
+      ];
+
       if (preConfirmedDiscards.length > 0) {
         const preDiscardIds = new Set(preConfirmedDiscards.map((c) => c.instanceId));
         nextHand = nextHand.filter((c) => !preDiscardIds.has(c.instanceId));
         nextDiscard = [...nextDiscard, ...preConfirmedDiscards];
-        preConfirmedDiscards.forEach((c) => {
+        preConfirmedDiscards.forEach((c, idx) => {
+          cardsToExitList.push({ card: c, idx: idx + 1 });
           activeTurnLockedIds.add(c.instanceId);
           if (retainedCardIds.has(c.instanceId)) {
             setRetainedCardIds((prev) => {
@@ -787,6 +875,7 @@ export function App() {
           triggerElementParticles(`[data-card-id="${c.instanceId}"]`, ['#e11d48', '#f43f5e', '#ffd166'], 48, 4);
         });
       }
+      triggerCardExits(cardsToExitList);
 
       let totalDmgDealtThisCard = 0;
       let extraDraw = 0;
@@ -1169,15 +1258,17 @@ export function App() {
         nextDiscard.push(cardInst);
       }
 
-      if (extraDraw > 0) {
-        soundEngine.playDrawCards(extraDraw, settings);
-        setHandAnimState('drawing');
-        window.setTimeout(() => setHandAnimState('idle'), 380);
-      }
       const drawnResult =
         extraDraw > 0
           ? drawCards(extraDraw, nextHand, drawPile, nextDiscard, activeTurnLockedIds)
-          : { nextHand, nextDraw: drawPile, nextDiscard };
+          : { nextHand, nextDraw: drawPile, nextDiscard, drawnCards: [] };
+
+      if (extraDraw > 0) {
+        soundEngine.playDrawCards(extraDraw, settings);
+        markCardsEntering(drawnResult.drawnCards);
+        setHandAnimState('drawing');
+        window.setTimeout(() => setHandAnimState('idle'), 380);
+      }
 
       setTurnLockedCardIds(activeTurnLockedIds);
 
@@ -1253,6 +1344,7 @@ export function App() {
               drawnResult.nextDiscard,
               activeTurnLockedIds
             );
+            markCardsEntering(drawn.drawnCards);
             setHand(drawn.nextHand);
             setDrawPile(drawn.nextDraw);
             setDiscardPile(drawn.nextDiscard);
@@ -1341,12 +1433,12 @@ export function App() {
     const discardedCards = hand.filter((c) => !retainedCardIds.has(c.instanceId));
     const nextDiscardedPile = [...discardPile, ...discardedCards];
     if (discardedCards.length > 0) {
-      setHandAnimState('discarding');
-      soundEngine.playPageTurn(settings);
-      await delay(340);
+      soundEngine.playDiscardCards(discardedCards.length, settings);
+      triggerCardExits(discardedCards.map((c, i) => ({ card: c, idx: i })));
       setHand(keptCards);
       setDiscardPile(nextDiscardedPile);
-      setHandAnimState('idle');
+      const exitWait = Math.min(1000, Math.max(450, discardedCards.length * 90 + 440));
+      await delay(exitWait);
     }
     if (keptCards.length > 0) {
       spawnPopup('player', `📌 Retained ${keptCards.length} card${keptCards.length > 1 ? 's' : ''}!`, '#10b981');
@@ -1707,18 +1799,21 @@ export function App() {
         } else if (eff.type === 'discard' || eff.type === 'discard_random') {
           executedAnyAction = true;
           const discardAmt = Math.max(1, eff.amount);
-          setHand((prevHand) => {
-            if (prevHand.length === 0) return prevHand;
-            const nextHand = [...prevHand];
+          if (hand.length > 0) {
+            const nextHand = [...hand];
             const discarded: CardInstance[] = [];
             for (let d = 0; d < discardAmt && nextHand.length > 0; d++) {
               const randIdx = Math.floor(Math.random() * nextHand.length);
               const [rm] = nextHand.splice(randIdx, 1);
               discarded.push(rm);
             }
-            setDiscardPile((prev) => [...prev, ...discarded]);
-            return nextHand;
-          });
+            if (discarded.length > 0) {
+              soundEngine.playDiscardCards(discarded.length, settings);
+              triggerCardExits(discarded.map((c, i) => ({ card: c, idx: i })));
+              setHand(nextHand);
+              setDiscardPile((prev) => [...prev, ...discarded]);
+            }
+          }
           spawnPopup('player', `Discarded ${discardAmt} Card(s)`, '#94a3b8');
           await delay(250);
         }
@@ -2105,7 +2200,7 @@ export function App() {
     });
 
     const finalTurnDraw = Math.min(10, Math.max(1, turnDrawCount));
-    const { nextHand, nextDraw, nextDiscard } = drawCards(
+    const { nextHand, nextDraw, nextDiscard, drawnCards } = drawCards(
       finalTurnDraw,
       keptCards,
       drawPile,
@@ -2114,6 +2209,7 @@ export function App() {
     );
 
     soundEngine.playDrawCards(finalTurnDraw, settings);
+    markCardsEntering(drawnCards);
     setHp(nextPlayerHp);
     setPlayerWard(newTurnWard);
     setPlayerStatuses(nextPlayerStats);
@@ -2306,6 +2402,38 @@ export function App() {
   const sortedHandCandidates = useMemo(() => {
     return sortCardsByCategoryAndRarity(handCandidates, (c) => c.item, phraseDiff);
   }, [handCandidates, phraseDiff]);
+
+  useLayoutEffect(() => {
+    const currentPositions = new Map<string, DOMRect>();
+    const stackEl = document.querySelector('.cards-stack');
+    if (!stackEl) return;
+
+    const slotEls = stackEl.querySelectorAll<HTMLElement>('.hand-card-slot:not(.card-exiting-right)');
+    slotEls.forEach((el) => {
+      const id = el.getAttribute('data-slot-id');
+      if (!id) return;
+      const rect = el.getBoundingClientRect();
+      currentPositions.set(id, rect);
+
+      const prevRect = cardPositionsRef.current.get(id);
+      if (prevRect && !enteringCardMap.has(id)) {
+        const dy = prevRect.top - rect.top;
+        const dx = prevRect.left - rect.left;
+        if (Math.abs(dy) > 0.5 || Math.abs(dx) > 0.5) {
+          el.style.transform = `translate(${dx}px, ${dy}px)`;
+          el.style.transition = 'none';
+          void el.offsetHeight;
+
+          requestAnimationFrame(() => {
+            el.style.transition = '';
+            el.style.transform = '';
+          });
+        }
+      }
+    });
+
+    cardPositionsRef.current = currentPositions;
+  }, [sortedHandCandidates, enteringCardMap]);
 
   const selectedCardResolved = useMemo(
     () => (selectedCard ? resolveCardInstance(selectedCard, phraseDiff) : null),
@@ -3281,6 +3409,7 @@ export function App() {
               discardPile,
               turnLockedCardIds
             );
+            markCardsEntering(drawn.drawnCards);
             setHand(drawn.nextHand);
             setDrawPile(drawn.nextDraw);
             setDiscardPile(drawn.nextDiscard);
@@ -3301,6 +3430,7 @@ export function App() {
         if (best && best.isValidConfirm) {
           const chosen = best.item;
           const def = getCardDefinition(chosen.cardId);
+          triggerCardExits([{ card: chosen, idx: 0 }]);
           const nextHandAfterDiscard = hand.filter((c) => c.instanceId !== chosen.instanceId);
           const nextDiscardAfterDiscard = [...discardPile, chosen];
           const nextTurnLockedIds = new Set(turnLockedCardIds);
@@ -3337,6 +3467,7 @@ export function App() {
               nextDiscardAfterDiscard,
               nextTurnLockedIds
             );
+            markCardsEntering(drawn.drawnCards);
             setHand(drawn.nextHand);
             setDrawPile(drawn.nextDraw);
             setDiscardPile(drawn.nextDiscard);
@@ -4658,6 +4789,33 @@ export function App() {
                     justifyContent: overlap === 0 ? 'space-evenly' : 'center',
                   }}
                 >
+                  {/* Floating exited cards sliding out to the right */}
+                  {exitingCards.map((exit) => (
+                    <div
+                      key={`exiting-${exit.instance.instanceId}`}
+                      className="hand-card-slot card-exiting-right"
+                      style={
+                        {
+                          position: 'absolute',
+                          top: exit.topOffset,
+                          left: exit.leftOffset,
+                          '--discard-idx': exit.discardIdx,
+                          zIndex: 90,
+                        } as React.CSSProperties
+                      }
+                    >
+                      <CardBanner
+                        instance={exit.instance}
+                        phraseDiff={phraseDiff}
+                        isDiscardCandidate={false}
+                        isHighlighted={false}
+                        isSelected={false}
+                        isUnaffordable={false}
+                        environmentModifiers={activeEnvironment?.modifiers}
+                      />
+                    </div>
+                  ))}
+
                   {sortedHandCandidates.map(({ item, resolved }, idx) => {
                     const isSelected = selectedCard?.instanceId === item.instanceId;
                     const isHighlighted = highlightedCardIds.has(item.instanceId);
@@ -4672,15 +4830,22 @@ export function App() {
                       (isCardPlayAwaitingDiscard &&
                         eligibleDiscardsInHand.some((c) => c.instanceId === item.instanceId));
                     const isPreDiscarded = selectedDiscardInstances.some((c) => c.instanceId === item.instanceId);
+                    const isEntering = enteringCardMap.has(item.instanceId);
+                    const dealIdx = enteringCardMap.get(item.instanceId) ?? 0;
+
                     return (
                       <div
                         key={item.instanceId}
-                        className={
-                          isDiscardCandidate
-                            ? 'card-tab-discard-candidate'
-                            : isKeepCandidate
-                            ? 'card-tab-keep-candidate'
-                            : undefined
+                        data-slot-id={item.instanceId}
+                        className={`hand-card-slot ${
+                          isEntering ? 'card-entering-left' : ''
+                        }`}
+                        style={
+                          {
+                            marginTop: idx === 0 ? 0 : `-${overlap}px`,
+                            zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
+                            '--deal-idx': dealIdx,
+                          } as React.CSSProperties
                         }
                       >
                         <CardBanner
@@ -4693,12 +4858,17 @@ export function App() {
                           isUnaffordable={!canAfford}
                           isKept={isKept}
                           isDiscardCandidate={isDiscardCandidate}
+                          className={
+                            isDiscardCandidate
+                              ? 'card-tab-discard-candidate'
+                              : isKeepCandidate
+                              ? 'card-tab-keep-candidate'
+                              : undefined
+                          }
                           subtitleOverride={isPreDiscarded ? '🗑️ Queued Discard' : undefined}
                           isPowerAlreadyActive={isPowerAlreadyActive}
                           environmentModifiers={activeEnvironment?.modifiers}
                           style={{
-                            marginTop: idx === 0 ? 0 : `-${overlap}px`,
-                            zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
                             opacity: isPreDiscarded ? 0.45 : undefined,
                             filter: isPreDiscarded ? 'grayscale(0.6)' : undefined,
                           }}

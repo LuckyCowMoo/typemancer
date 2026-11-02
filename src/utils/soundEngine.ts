@@ -254,12 +254,24 @@ class SoundEngine {
     for (let i = 0; i < total; i++) {
       window.setTimeout(() => {
         this.playSample('draw.wav', settings, 0.52, 0.12);
-      }, i * 65);
+      }, i * 120);
     }
   }
 
   public playDrawCard(settings: GameSettings): void {
     this.playDrawCards(1, settings);
+  }
+
+  /**
+   * Play card discard sound effect in succession for cards sliding out.
+   */
+  public playDiscardCards(count: number, settings: GameSettings): void {
+    const total = Math.max(1, Math.min(10, count));
+    for (let i = 0; i < total; i++) {
+      window.setTimeout(() => {
+        this.playSample('page_turn.mp3', settings, 0.48, 0.08);
+      }, i * 90);
+    }
   }
 
   public playCardCast(settings: GameSettings): void {
