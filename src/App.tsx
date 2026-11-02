@@ -2968,11 +2968,38 @@ export function App() {
     }
     for (const st of STATUS_DEFINITIONS) {
       if (matchCommand(raw, [st.name, `inspect ${st.name}`], 'easy')) {
+        const isExplicitInspect = Boolean(matchCommand(raw, [`inspect ${st.name}`], 'easy'));
         const collidesWithHandCard =
+          !isExplicitInspect &&
           screen === 'battle' &&
-          !selectedCard &&
-          evaluatedHand[0]?.isValidConfirm &&
-          normalizeText(evaluatedHand[0].phrase) === norm;
+          (
+            // 1. In discard confirmation mode, candidate matches
+            (isCardPlayAwaitingDiscard &&
+              (Boolean(evaluatedDiscardCandidates[0]?.isValidConfirm) ||
+                eligibleDiscardsInHand.some((c) => {
+                  const cName = normalizeText(resolveCardInstance(c, phraseDiff).name);
+                  return cName === norm || Boolean(matchCommand(raw, [cName], difficulty));
+                }))) ||
+            // 2. Normal hand card selection
+            (!selectedCard &&
+              (Boolean(evaluatedHand[0]?.isValidConfirm) ||
+                handCandidates.some((c) => {
+                  const cName = normalizeText(c.phrase);
+                  return cName === norm || Boolean(matchCommand(raw, [cName], difficulty));
+                }))) ||
+            // 3. Confirming selected self/all_enemies card by repeating its name
+            (Boolean(selectedCard) &&
+              (normalizeText(selectedCardResolved?.name || '') === norm ||
+                Object.values(getCardDefinition(selectedCard!.cardId)?.names || {})
+                  .map(normalizeText)
+                  .includes(norm))) ||
+            // 4. In pending discard / keep mode, hand has matching card
+            ((pendingDiscardCount > 0 || pendingKeepCount > 0) &&
+              hand.some((c) => {
+                const cName = normalizeText(resolveCardInstance(c, phraseDiff).name);
+                return cName === norm || Boolean(matchCommand(raw, [cName], difficulty));
+              }))
+          );
         if (!collidesWithHandCard) {
           soundEngine.playPageTurn(settings);
           triggerElementParticles('[data-cmd="status effects"]', [st.color, '#ffd166'], 74, 4);
@@ -2998,7 +3025,9 @@ export function App() {
     if (
       matchCommand(
         raw,
-        pendingDiscardCount > 0 ? ['view discard', 'discard pile'] : ['view discard', 'discard', 'discard pile'],
+        pendingDiscardCount > 0 || isCardPlayAwaitingDiscard
+          ? ['view discard', 'discard pile']
+          : ['view discard', 'discard', 'discard pile'],
         'easy'
       ) &&
       screen === 'battle'
@@ -4302,8 +4331,10 @@ export function App() {
         pool.push('new run');
       }
 
-      pool.push('help', 'options', 'save', 'relics', 'view deck', 'status effects', 'editor');
-      STATUS_DEFINITIONS.forEach((st) => pool.push(st.name));
+      if (!isCardPlayAwaitingDiscard && pendingDiscardCount === 0 && pendingKeepCount === 0) {
+        pool.push('help', 'options', 'save', 'relics', 'view deck', 'status effects', 'editor');
+        STATUS_DEFINITIONS.forEach((st) => pool.push(st.name));
+      }
     }
 
     const uniquePool = Array.from(new Set(pool));
