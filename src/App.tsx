@@ -4239,7 +4239,7 @@ export function App() {
                           <CardBanner
                             instance={{ ...campfireSelectedCard, upgraded: true }}
                             phraseDiff={phraseDiff}
-                            showUpgradeDelta={false}
+                            showUpgradeDelta={true}
                           />
                         </div>
                       </div>

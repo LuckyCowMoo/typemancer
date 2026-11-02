@@ -181,11 +181,13 @@ export function cleanCardDescriptionForPlay(desc: string): string {
  */
 export function formatUpgradePreviewDescription(def: {
   description: string;
-  effects?: Array<{ type: string; amount?: number }>;
+  effects?: Array<{ type: string; amount?: number; hits?: number }>;
   upgrade?: {
     description?: string;
-    effects?: Array<{ type: string; amount?: number }>;
+    effects?: Array<{ type: string; amount?: number; hits?: number }>;
+    cost?: number;
   };
+  cost?: number;
 }): string {
   if (!def) return '';
 
@@ -204,27 +206,56 @@ export function formatUpgradePreviewDescription(def: {
   }
 
   // 3. Automatically compute effect deltas between base and upgrade
-  let preview = def.description;
+  let preview = cleanCardDescriptionForPlay(def.description);
   const baseEffects = def.effects || [];
   const upEffects = def.upgrade.effects || [];
 
-  for (let i = 0; i < baseEffects.length; i++) {
-    const baseEff = baseEffects[i];
-    const upEff = upEffects[i];
-    if (!baseEff || !upEff) continue;
+  // Match by effect type across the full array rather than strictly by index
+  for (const baseEff of baseEffects) {
+    if (!baseEff || typeof baseEff.amount !== 'number') continue;
+    const upEff = upEffects.find((u) => u.type === baseEff.type);
+    if (!upEff || typeof upEff.amount !== 'number') continue;
 
-    if (
-      baseEff.type === upEff.type &&
-      typeof baseEff.amount === 'number' &&
-      typeof upEff.amount === 'number'
-    ) {
-      const diff = upEff.amount - baseEff.amount;
-      if (diff > 0) {
+    const diff = upEff.amount - baseEff.amount;
+    if (diff > 0) {
+      const deltaStr = `+${diff}`;
+      const amt = baseEff.amount;
+      const targetPattern = new RegExp(`(\\b${amt}\\b)(?!\\s*\\+)`, 'i');
+      if (targetPattern.test(preview)) {
+        preview = preview.replace(targetPattern, `$1 ${deltaStr}`);
+      }
+    }
+  }
+
+  // Check multi-hit count increases (e.g. hits: 2 -> 3)
+  for (const baseEff of baseEffects) {
+    if (baseEff && typeof baseEff.hits === 'number') {
+      const upEff = upEffects.find((u) => u.type === baseEff.type);
+      if (upEff && typeof upEff.hits === 'number' && upEff.hits > baseEff.hits) {
+        const diff = upEff.hits - baseEff.hits;
         const deltaStr = `+${diff}`;
-        const amt = baseEff.amount;
-        const targetPattern = new RegExp(`(\\b${amt}\\b)(?!\\s*\\+)`, 'i');
+        const targetPattern = new RegExp(`(\\b${baseEff.hits}\\b|twice)(?!\\s*\\+)`, 'i');
         if (targetPattern.test(preview)) {
           preview = preview.replace(targetPattern, `$1 ${deltaStr}`);
+        }
+      }
+    }
+  }
+
+  // If text is still unchanged but upgrade.description differs, compare numbers directly
+  if (preview === cleanCardDescriptionForPlay(def.description) && def.upgrade.description) {
+    const cleanUpDesc = cleanCardDescriptionForPlay(def.upgrade.description);
+    const baseNums = (cleanCardDescriptionForPlay(def.description).match(/\b\d+\b/g) || []).map(Number);
+    const upNums = (cleanUpDesc.match(/\b\d+\b/g) || []).map(Number);
+    if (baseNums.length === upNums.length && baseNums.length > 0) {
+      for (let i = 0; i < baseNums.length; i++) {
+        if (upNums[i] > baseNums[i]) {
+          const diff = upNums[i] - baseNums[i];
+          const deltaStr = `+${diff}`;
+          const targetPattern = new RegExp(`(\\b${baseNums[i]}\\b)(?!\\s*\\+)`, 'i');
+          if (targetPattern.test(preview)) {
+            preview = preview.replace(targetPattern, `$1 ${deltaStr}`);
+          }
         }
       }
     }

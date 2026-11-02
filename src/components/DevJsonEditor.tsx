@@ -36,6 +36,7 @@ import eventsRaw from '../data/events.json';
 import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
 import {
+  CardBanner,
   getCardVisualCategory,
   getCardColorTheme,
   CARD_CATEGORY_LABELS,
@@ -2334,8 +2335,22 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
 
             {/* Upgraded Card Section */}
             <section className="dev-section-card">
-              <h3>✨ Upgraded Version (+)</h3>
-              <div className="dev-three-col">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                <div>
+                  <h3 style={{ margin: 0 }}>✨ Upgraded Version (+)</h3>
+                  <p style={{ margin: '3px 0 0', fontSize: '0.78rem', color: '#64748b' }}>
+                    Calculates bonus deltas (+X) automatically from base vs upgraded stats, or honors optional &#123;+X&#125; markers.
+                  </p>
+                </div>
+                <div style={{ transform: 'scale(0.95)', transformOrigin: 'top right' }}>
+                  <CardBanner
+                    instance={{ instanceId: `dev_preview_${activeCard.id}`, cardId: activeCard.id, upgraded: true }}
+                    phraseDiff="easy"
+                    showUpgradeDelta={true}
+                  />
+                </div>
+              </div>
+              <div className="dev-three-col" style={{ marginTop: 12 }}>
                 {(['easy', 'medium', 'hard'] as const).map((diff) => (
                   <label key={diff} className="dev-field">
                     <span>Upgraded {diff.toUpperCase()} Name</span>
