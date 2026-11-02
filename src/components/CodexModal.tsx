@@ -460,18 +460,25 @@ export const CodexModal: React.FC<CodexModalProps> = ({
         .codex-header-bar {
           background: #eadfce;
           border-bottom: 2px solid #2b1e16;
-          padding: 10px 18px;
+          padding: 8px 16px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px;
-          flex-wrap: wrap;
+          gap: 12px;
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+
+        .codex-header-bar::-webkit-scrollbar {
+          display: none;
         }
 
         .codex-nav-arrows-group {
           display: flex;
           align-items: center;
           gap: 8px;
+          flex-shrink: 0;
         }
 
         .codex-type-label {
@@ -486,6 +493,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: flex;
           align-items: center;
           gap: 8px;
+          flex-wrap: nowrap;
+          flex-shrink: 0;
         }
 
         .codex-tab-pill {
@@ -499,6 +508,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: flex;
           align-items: center;
           gap: 6px;
+          cursor: pointer;
+          white-space: nowrap;
           transition: transform 0.14s ease, background 0.14s ease;
         }
 
@@ -534,11 +545,12 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          background: #fdf8ef;
-          border: 1.5px solid #7c674d;
-          border-radius: 7px;
-          padding: 3px 8px;
+          background: #fffbeb;
+          border: 1.5px solid #b45309;
+          border-radius: 9999px;
+          padding: 4px 11px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          white-space: nowrap;
         }
 
         .codex-key-chip {
@@ -616,7 +628,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
           gap: 12px;
-          padding-bottom: 74px;
+          padding-bottom: 84px;
         }
 
         .codex-entry-card {
@@ -633,7 +645,92 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           box-sizing: border-box;
           min-height: 125px;
           justify-content: space-between;
-          cursor: default;
+          cursor: pointer;
+        }
+
+        .codex-entry-card:hover {
+          border-color: #b45309;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(43, 30, 22, 0.15);
+        }
+
+        .codex-entry-card.is-selected {
+          border-color: #d97706;
+          background: #fffdf5;
+          box-shadow: 0 0 0 2.5px #d97706, 0 4px 12px rgba(217, 119, 6, 0.25);
+          transform: translateY(-2px);
+        }
+
+        .codex-entry-card.is-undiscovered {
+          background: #f1ebd8;
+          border-color: #8c7b6c;
+          border-style: dashed;
+        }
+
+        .codex-entry-card.is-undiscovered.is-selected {
+          border-color: #d97706;
+          border-style: solid;
+          background: #fdf6e6;
+          box-shadow: 0 0 0 2.5px #d97706, 0 4px 12px rgba(217, 119, 6, 0.25);
+        }
+
+        .codex-entry-card.is-highlighted {
+          background: #ffd166 !important;
+          color: #162229 !important;
+          border-color: #b45309 !important;
+          transform: translateY(-3px) scale(1.03);
+          box-shadow: 0 4px 12px rgba(180, 83, 9, 0.35);
+          z-index: 2;
+        }
+
+        .codex-entry-card.is-enter-ready {
+          background: #2ec4b6 !important;
+          color: #072227 !important;
+          border-color: #0b4f4a !important;
+          border-width: 2.5px !important;
+          transform: translateY(-4px) scale(1.06) !important;
+          box-shadow: 0 6px 16px rgba(19, 117, 71, 0.45) !important;
+          z-index: 4;
+        }
+
+        .codex-entry-sprite-frame {
+          width: 64px;
+          height: 64px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 6px;
+        }
+
+        .codex-entry-sprite {
+          width: 58px;
+          height: 58px;
+          max-width: 58px;
+          max-height: 58px;
+          object-fit: contain;
+          image-rendering: pixelated;
+        }
+
+        /* Undiscovered Silhouette Outline */
+        .codex-sprite-undiscovered {
+          filter: grayscale(1) brightness(0.18) contrast(2.5) drop-shadow(1px 0 0 #7c674d) drop-shadow(-1px 0 0 #7c674d) drop-shadow(0 1px 0 #7c674d) drop-shadow(0 -1px 0 #7c674d);
+          opacity: 0.55;
+        }
+
+        .codex-entry-name {
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #102027;
+          line-height: 1.15;
+          margin-top: 4px;
+          word-break: break-word;
+        }
+
+        .codex-entry-undiscovered-label {
+          font-size: 0.95rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          color: #7c674d;
         }
 
         .codex-floating-typing-bar {
@@ -653,13 +750,21 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: flex;
           align-items: center;
           background: #ffffff;
-          border: 2px solid #2b1e16;
-          border-radius: 8px;
-          padding: 4px 12px;
-          min-width: 260px;
-          max-width: 480px;
+          border: 2.5px solid #2b1e16;
+          border-radius: 10px;
+          padding: 7px 16px;
+          min-width: 312px;
+          max-width: 580px;
+          min-height: 44px;
+          box-sizing: border-box;
           width: 100%;
-          box-shadow: 0 4px 14px rgba(43, 30, 22, 0.18), 0 0 0 1px #7c674d;
+          box-shadow: 0 4px 16px rgba(43, 30, 22, 0.22), 0 0 0 1px #7c674d;
+        }
+
+        .codex-floating-typing-bar .modal-embedded-input {
+          font-size: 1.32rem;
+          padding: 0 4px;
+          height: auto;
         }
 
         .inspector-tier-corner-badge {
@@ -987,20 +1092,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
 
       <div className={`codex-cabinet-frame ${showEnemyStatusSidePanel ? 'has-side-panel' : ''}`}>
         <div className="codex-parchment-sheet">
-          {/* Header Bar: Arrow keys move prompt on left, Tabs on right with "Type:" */}
+          {/* Header Bar: Tabs and Arrow Keys prompt inline */}
           <div className="codex-header-bar">
-            <div className="codex-nav-arrows-group">
-              <div className="codex-key-group" style={{ borderColor: '#b45309', background: '#fffbeb' }}>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↑</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↓</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>←</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>→</kbd>
-                <span className="codex-key-label" style={{ color: '#92400e', fontWeight: 800 }}>
-                  Arrow Keys to Move
-                </span>
-              </div>
-            </div>
-
             <div className="codex-tabs-row">
               <span className="codex-type-label">Type:</span>
               {tabs.map((tab) => {
@@ -1048,6 +1141,18 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                   </div>
                 );
               })()}
+
+              <div className="codex-nav-arrows-group" style={{ marginLeft: 6 }}>
+                <div className="codex-key-group">
+                  <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↑</kbd>
+                  <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↓</kbd>
+                  <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>←</kbd>
+                  <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>→</kbd>
+                  <span className="codex-key-label" style={{ color: '#92400e', fontWeight: 800 }}>
+                    Arrow Keys to Move
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1087,7 +1192,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? primaryName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
+                        onClick={() => onSelectEntry?.(en.id)}
+                        title={isDiscovered ? primaryName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1135,7 +1241,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? cardName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
+                        onClick={() => onSelectEntry?.(c.id)}
+                        title={isDiscovered ? cardName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1187,7 +1294,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? env.name : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
+                        onClick={() => onSelectEntry?.(env.id)}
+                        title={isDiscovered ? env.name : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
@@ -1235,7 +1343,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        title={isDiscovered ? relicName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
+                        onClick={() => onSelectEntry?.(r.id)}
+                        title={isDiscovered ? relicName : 'Undiscovered Entry (Click or use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
                           <img
