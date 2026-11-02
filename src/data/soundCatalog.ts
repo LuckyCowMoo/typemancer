@@ -54,6 +54,7 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
 
   // Armor & Defense
   { id: 'ward_block.ogg', label: 'Ward Rune Block', category: 'Armor & Defense', description: 'Arcane parchment ward deflect', recommendedTypes: ['defence'] },
+  { id: 'cards/ward_break.wav', label: 'Ward Barrier Shatter', category: 'Armor & Defense', description: 'Crisp crystalline rupture when ward breaks from attack', recommendedTypes: ['defence', 'attack'] },
   { id: 'cards/metal_01.wav', label: 'Metallicize Plate Clank', category: 'Armor & Defense', description: 'Distinct heavy iron armor plate hardening clank', recommendedTypes: ['power', 'defence'] },
   { id: 'cards/metal_small1.wav', label: 'Metal Caltrops', category: 'Armor & Defense', description: 'Scattered iron caltrop clink', recommendedTypes: ['power', 'skill'] },
   { id: 'cards/metal_ringing.wav', label: 'Metal Ringing (Echo)', category: 'Armor & Defense', description: 'Resonating steel echo with multi-tap delay processing', recommendedTypes: ['power', 'attack'] },
@@ -106,6 +107,8 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
   { id: 'cards/shot.wav', label: 'Toxic Blowpipe Dart', category: 'Environment & Items', description: 'Fantasy wooden blowpipe puff and whistling dart', recommendedTypes: ['attack', 'debuff'] },
   { id: 'map_open.mp3', label: 'Map Parchment Unroll', category: 'Environment & Items', description: 'Stiff world map unrolling', recommendedTypes: ['skill'] },
   { id: 'road_choose.mp3', label: 'Road Step / Footsteps', category: 'Environment & Items', description: 'Dungeon travel footsteps', recommendedTypes: ['skill'] },
+  { id: 'cards/chest_open.wav', label: 'Antique Chest Latch Open', category: 'Environment & Items', description: 'Heavy iron latch unlatch and creaking chest lid', recommendedTypes: ['skill'] },
+  { id: 'cards/campfire_rest.wav', label: 'Warm Hearth Restoration', category: 'Environment & Items', description: 'Soothing celesta chord and crackling embers', recommendedTypes: ['skill', 'power'] },
 
   // UI & Combat Global
   { id: 'wheel_tick', label: 'Wheel Knob Flapper Tick', category: 'UI & Combat Global', description: 'Synthesized crisp mechanical flapper click' },
@@ -116,6 +119,11 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
   { id: 'carriage_bell', label: 'Typewriter Carriage Bell', category: 'UI & Combat Global', description: 'Authentic brass carriage return bell ding & lever slide' },
   { id: 'spell_chime', label: 'Spell Harmonizer Chime', category: 'UI & Combat Global', description: 'Resonant harmonic enchantment chime' },
   { id: 'heavy_stamp', label: 'Wax Seal Heavy Stamp', category: 'UI & Combat Global', description: 'Deep booming tome slam wax seal impact' },
+  { id: 'cards/relic_gain.wav', label: 'Ancient Relic Discovery', category: 'UI & Combat Global', description: 'Ascending celestial bell arpeggio upon relic claim' },
+  { id: 'cards/mystery_win.wav', label: 'Wheel of Fate Fortune Chime', category: 'UI & Combat Global', description: 'Lively uplifting fortune major triad chime' },
+  { id: 'cards/mystery_fail.wav', label: 'Wheel of Fate Dissonant Drop', category: 'UI & Combat Global', description: 'Suspenseful low hollow drop and dark tritone' },
+  { id: 'cards/victory.wav', label: 'Run Victory Fanfare', category: 'UI & Combat Global', description: 'Triumphant celebratory fanfare chords and high bell' },
+  { id: 'cards/game_over.wav', label: 'Defeat Dirge & Bell Toll', category: 'UI & Combat Global', description: 'Deep ominous earthquake sub-bass and funeral bell toll' },
 ];
 
 export const SOUND_CATEGORIES = Array.from(

@@ -491,6 +491,61 @@ class SoundEngine {
     osc.start(now);
     osc.stop(now + 0.19);
   }
+
+  public playWardBreak(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/ward_break.wav', settings, 0.82, 0.08);
+  }
+
+  public playChestOpen(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/chest_open.wav', settings, 0.78, 0.05);
+  }
+
+  public playRelicGain(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/relic_gain.wav', settings, 0.85, 0.04);
+  }
+
+  public playMysteryWin(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/mystery_win.wav', settings, 0.88, 0.04);
+  }
+
+  public playMysteryFail(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/mystery_fail.wav', settings, 0.82, 0.05);
+  }
+
+  public playVictoryFanfare(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/victory.wav', settings, 0.95, 0);
+  }
+
+  public playDefeatSound(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/game_over.wav', settings, 0.92, 0);
+  }
+
+  public playCampfireRest(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/campfire_rest.wav', settings, 0.85, 0.03);
+  }
+
+  public playEnemyBuff(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/curse2.ogg', settings, 0.65, 0.08);
+  }
+
+  public playEnemyHeal(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/heal.ogg', settings, 0.7, 0.05);
+  }
+
+  public playAllyDefeated(settings: GameSettings): void {
+    if (settings.muted || settings.volume <= 0) return;
+    this.playSample('cards/paper_tear.wav', settings, 0.68, 0.1);
+  }
 }
 
 export const soundEngine = new SoundEngine();

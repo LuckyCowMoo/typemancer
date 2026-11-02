@@ -582,6 +582,7 @@ export function App() {
           setExtraHardAvailable(true);
         }
         clearLocalRun();
+        soundEngine.playVictoryFanfare(settings);
         setScreen('victory');
         return;
       }
@@ -735,11 +736,18 @@ export function App() {
         enemyObj.hp = Math.max(0, enemyObj.hp - hpLoss);
         totalDmgDealtThisCard += hpLoss;
 
+        const enemyWardBroke = blocked > 0 && enemyObj.ward === 0;
+
         if (blocked > 0 && hpLoss > 0) {
+          if (enemyWardBroke) soundEngine.playWardBreak(settings);
           soundEngine.playHit(settings);
           spawnPopup(enemyObj.instanceId, `-${hpLoss} HP (${blocked} Blocked)`, '#e63946');
         } else if (blocked > 0) {
-          soundEngine.playWardBlock(settings);
+          if (enemyWardBroke) {
+            soundEngine.playWardBreak(settings);
+          } else {
+            soundEngine.playWardBlock(settings);
+          }
           spawnPopup(enemyObj.instanceId, `${blocked} Blocked`, '#1d6fa5');
         } else if (hpLoss > 0) {
           soundEngine.playHit(settings);
@@ -1218,7 +1226,7 @@ export function App() {
     const nextDiscardedPile = [...discardPile, ...discardedCards];
     if (discardedCards.length > 0) {
       setHandAnimState('discarding');
-      soundEngine.playDrawCard(settings);
+      soundEngine.playPageTurn(settings);
       await delay(340);
       setHand(keptCards);
       setDiscardPile(nextDiscardedPile);
@@ -1405,11 +1413,18 @@ export function App() {
               const unblocked = dmg - blocked;
               targetAlly.hp = Math.max(0, targetAlly.hp - unblocked);
 
+              const allyWardBroke = blocked > 0 && targetAlly.ward === 0;
+
               if (blocked > 0 && unblocked > 0) {
+                if (allyWardBroke) soundEngine.playWardBreak(settings);
                 soundEngine.playHit(settings);
                 spawnPopup(targetAlly.instanceId, `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
               } else if (blocked > 0) {
-                soundEngine.playWardBlock(settings);
+                if (allyWardBroke) {
+                  soundEngine.playWardBreak(settings);
+                } else {
+                  soundEngine.playWardBlock(settings);
+                }
                 spawnPopup(targetAlly.instanceId, `${blocked} Blocked`, '#1d6fa5');
               } else if (unblocked > 0) {
                 soundEngine.playHit(settings);
@@ -1424,6 +1439,7 @@ export function App() {
               }
 
               if (targetAlly.hp <= 0) {
+                soundEngine.playAllyDefeated(settings);
                 spawnPopup(targetAlly.instanceId, `${targetAlly.displayName} defeated!`, '#ef4444');
               }
 
@@ -1448,11 +1464,21 @@ export function App() {
               totalBlockedSummary += blocked;
               totalHpLostSummary += unblocked;
 
+              const playerWardBroke = blocked > 0 && nextPlayerWard === 0;
+
               if (blocked > 0 && unblocked > 0) {
+                if (playerWardBroke) soundEngine.playWardBreak(settings);
+                soundEngine.playHit(settings);
                 spawnPopup('player', `-${unblocked} HP (${blocked} Blocked)`, '#e63946');
               } else if (blocked > 0) {
+                if (playerWardBroke) {
+                  soundEngine.playWardBreak(settings);
+                } else {
+                  soundEngine.playWardBlock(settings);
+                }
                 spawnPopup('player', `${blocked} Blocked`, '#1d6fa5');
               } else if (unblocked > 0) {
+                soundEngine.playHit(settings);
                 spawnPopup('player', `-${unblocked} HP`, '#e63946');
               }
 
@@ -1470,6 +1496,7 @@ export function App() {
           }
         } else if (eff.type === 'ward' && eff.amount > 0) {
           executedAnyAction = true;
+          soundEngine.playWardBlock(settings);
           const enemyWardGained = Math.max(0, eff.amount + (envMod.wardBonus ?? 0));
           if (eff.target === 'all_allies') {
             workingEnemies.forEach((ally) => {
@@ -1485,6 +1512,7 @@ export function App() {
           await delay(200);
         } else if (eff.type === 'heal' && eff.amount > 0) {
           executedAnyAction = true;
+          soundEngine.playEnemyHeal(settings);
           const enemyHealAmt = Math.max(0, eff.amount + (envMod.healBonus ?? 0));
           if (eff.target === 'all_allies') {
             workingEnemies.forEach((ally) => {
@@ -1507,6 +1535,7 @@ export function App() {
           eff.type === 'thorns'
         ) {
           executedAnyAction = true;
+          soundEngine.playEnemyBuff(settings);
           const stKey: keyof StatusState = eff.type;
           const effAmt = Math.max(1, eff.amount + (envMod.statusBonus ?? 0));
           const target =
@@ -1617,6 +1646,7 @@ export function App() {
       setHp(0);
       setIsAnimatingTurn(false);
       clearLocalRun();
+      soundEngine.playDefeatSound(settings);
       setScreen('game_over');
       return;
     }
@@ -2004,6 +2034,7 @@ export function App() {
       }
 
       if (node.type === 'treasure') {
+        soundEngine.playChestOpen(settings);
         setRewardRelics(generateRelicRewards(relicIds, 3));
         resetTypingBuffer(true);
         setScreen('treasure');
@@ -2011,6 +2042,7 @@ export function App() {
       }
 
       if (node.type === 'mystery') {
+        soundEngine.playSample('cards/book_01.ogg', settings);
         const ev = pickRandom(EVENTS_CATALOG);
         setActiveEvent(ev);
         setEventOutcomeText(null);
@@ -2265,13 +2297,31 @@ export function App() {
         summaryItems.push('No stat changes — continued safely.');
       }
 
+      if (eff.gainRandomRelic) {
+        soundEngine.playRelicGain(settings);
+      } else if (eff.gainRareCard || eff.gainRandomCard) {
+        soundEngine.playDrawCard(settings);
+      } else if (eff.upgradeRandomCard) {
+        soundEngine.playCardCast(settings);
+      } else if (eff.removeRandomCard) {
+        soundEngine.playBurnCard(settings);
+      } else if (eff.goldChange && eff.goldChange > 0) {
+        soundEngine.playCoinClink(settings);
+      } else if (eff.hpChange && eff.hpChange > 0) {
+        soundEngine.playSample('cards/heal.ogg', settings);
+      } else if (eff.hpChange && eff.hpChange < 0) {
+        soundEngine.playHit(settings);
+      } else if (succeeded) {
+        soundEngine.playConfirm(settings);
+      }
+
       setEventRollSucceeded(succeeded);
       setEventOutcomeSummary(summaryItems);
       setEventOutcomeText(finalNarrative);
       setPendingChanceChoice(null);
       resetTypingBuffer(true);
     },
-    [deck, maxHp, phraseDiff, relicIds, resetTypingBuffer]
+    [deck, maxHp, phraseDiff, relicIds, resetTypingBuffer, settings]
   );
 
   const handleEnterSubmit = useCallback(() => {
@@ -3240,7 +3290,7 @@ export function App() {
           }));
           const evalRelics = evaluateCandidates(raw, relicCands, difficulty);
           if (evalRelics[0] && evalRelics[0].isValidConfirm) {
-            soundEngine.playConfirm(settings);
+            soundEngine.playRelicGain(settings);
             const pickedRelic = evalRelics[0].item;
             triggerElementParticles(
               undefined,
@@ -3269,7 +3319,7 @@ export function App() {
     if (screen === 'campfire') {
       if (campfireSubMode === 'choose') {
         if (matchCommand(raw, ['rest', 'sleep', 'heal', 'rest by the fire'], difficulty)) {
-          soundEngine.playConfirm(settings);
+          soundEngine.playCampfireRest(settings);
           triggerElementParticles(undefined, ['#3a8918', '#d95d16', '#ffd166'], 50, 58);
           let healAmt = Math.max(10, Math.round(maxHp * 0.3));
           relicIds.forEach((id) => {
@@ -3469,7 +3519,7 @@ export function App() {
           soundEngine.playError(settings);
           return;
         }
-        soundEngine.playConfirm(settings);
+        soundEngine.playRelicGain(settings);
         soundEngine.playCoinClink(settings);
         triggerElementParticles(
           undefined,
@@ -3506,7 +3556,7 @@ export function App() {
         difficulty
       );
       if (evalRelics[0] && evalRelics[0].isValidConfirm) {
-        soundEngine.playConfirm(settings);
+        soundEngine.playRelicGain(settings);
         const picked = evalRelics[0].item;
         triggerElementParticles(
           undefined,
@@ -3700,11 +3750,12 @@ export function App() {
 
       if (e.key === 'Escape') {
         e.preventDefault();
-        soundEngine.playBackspace(settings);
         if (overlay !== 'none') {
+          soundEngine.playPageTurn(settings);
           setOverlay('none');
           return;
         }
+        soundEngine.playBackspace(settings);
         if (selectedCard) {
           setSelectedCard(null);
         }
@@ -5694,7 +5745,15 @@ export function App() {
       )}
 
       {/* DEVELOPER JSON & SPRITE EDITOR GUI */}
-      {devEditorOpen && <DevJsonEditor onClose={() => setDevEditorOpen(false)} />}
+      {devEditorOpen && (
+        <DevJsonEditor
+          onClose={() => {
+            soundEngine.playPageTurn(settings);
+            setDevEditorOpen(false);
+          }}
+          settings={settings}
+        />
+      )}
     </div>
   );
 }

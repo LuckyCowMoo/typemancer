@@ -44,6 +44,7 @@ import {
   CARD_CATEGORY_LABELS,
 } from './CardBanner';
 import type { CardVisualCategory } from './CardBanner';
+import type { GameSettings } from '../types/game';
 import { soundEngine } from '../utils/soundEngine';
 import { SOUND_CATALOG, SOUND_CATEGORIES } from '../data/soundCatalog';
 
@@ -65,6 +66,7 @@ type EditorTab =
 
 interface DevJsonEditorProps {
   onClose: () => void;
+  settings?: GameSettings;
 }
 
 export interface EffectGroupDef {
@@ -242,7 +244,16 @@ const ensureUpgrade = (card: CardDefinition): CardUpgradeData => {
   );
 };
 
-export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
+export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings }) => {
+  const effectiveSettings: GameSettings = useMemo(() => ({
+    volume: 0.85,
+    typingSound: 'mechanical_typewriter',
+    confirmSound: 'carriage_bell',
+    highContrast: false,
+    muted: false,
+    ...settings,
+  }), [settings]);
+
   const [activeTab, setActiveTab] = useState<EditorTab>('enemies');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [saveBanner, setSaveBanner] = useState<{ text: string; isError?: boolean } | null>(null);
@@ -519,6 +530,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
         body: JSON.stringify({ fileName, data }),
       });
       if (res.ok) {
+        soundEngine.playConfirm(effectiveSettings);
         setSaveBanner({
           text: `✅ Saved src/data/${fileName} directly to disk & updated live game catalogs!`,
         });
@@ -532,10 +544,12 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     // 2. Dev server unreachable: automatically prompt File Explorer to pick/replace the file!
     const result = await saveJsonWithPicker(fileName, data);
     if (result.method === 'picker') {
+      soundEngine.playConfirm(effectiveSettings);
       setSaveBanner({
         text: `✅ Overwrote and saved ${fileName} via File Explorer! Live catalogs updated.`,
       });
     } else if (result.method === 'download') {
+      soundEngine.playConfirm(effectiveSettings);
       setSaveBanner({
         text: `⬇️ Downloaded ${fileName}. Move it to src/data/ to replace the old file.`,
       });
@@ -548,6 +562,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     const { fileName, data } = getTabPayload(activeTab);
     const result = await saveJsonWithPicker(fileName, data);
     if (result.method === 'picker') {
+      soundEngine.playConfirm(effectiveSettings);
       setSaveBanner({
         text: `✅ File chosen and replaced successfully on disk! Live catalogs updated.`,
       });
@@ -1084,6 +1099,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             type="button"
             className="dev-btn dev-btn-close"
             onClick={() => {
+              soundEngine.playPageTurn(effectiveSettings);
               syncLiveCatalogs();
               onClose();
             }}
@@ -1121,6 +1137,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             type="button"
             className={`dev-tab-btn ${activeTab === t.id ? 'dev-tab-active' : ''}`}
             onClick={() => {
+              soundEngine.playPageTurn(effectiveSettings);
               setActiveTab(t.id);
               setSearchQuery('');
             }}

@@ -138,10 +138,10 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
         setHasLanded(true);
 
         if (spinPlan.succeeded) {
-          soundEngine.playConfirm(settingsRef.current);
+          soundEngine.playMysteryWin(settingsRef.current);
           triggerParticles?.('.mystery-wheel-stage', ['#10b981', '#ffd166', '#3b82f6', '#f59e0b']);
         } else {
-          soundEngine.playError(settingsRef.current);
+          soundEngine.playMysteryFail(settingsRef.current);
           triggerParticles?.('.mystery-wheel-stage', ['#ef4444', '#b91c1c', '#7f1d1d']);
         }
 

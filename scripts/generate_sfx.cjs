@@ -818,4 +818,265 @@ saveSound('cards/paper_tear.wav', generatePaperTear());
 saveSound('cards/pencil_speedwrite.wav', generatePencilSpeedwrite());
 saveSound('cards/wind_trimmed.wav', generateFlowingBreeze());
 
+// 7. Contextual Game & Encounter Soundscapes
+
+// Crisp Crystal / Arcane Ward Shatter
+function generateWardBreak() {
+  const duration = 0.58;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const noise = whiteNoise(numSamples);
+  const out = new Float32Array(numSamples);
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    // Violent initial glass fracture crack
+    const crackEnv = Math.exp(-t * 90);
+    const crack = noise[i] * crackEnv * 0.7;
+
+    // Resonant crystalline modal partials
+    const m1 = Math.sin(2 * Math.PI * 1420 * t) * Math.exp(-t * 14) * 0.35;
+    const m2 = Math.sin(2 * Math.PI * 2150 * t) * Math.exp(-t * 18) * 0.28;
+    const m3 = Math.sin(2 * Math.PI * 3380 * t) * Math.exp(-t * 24) * 0.22;
+    const m4 = Math.sin(2 * Math.PI * 4920 * t) * Math.exp(-t * 32) * 0.18;
+
+    // Secondary micro-fractures scattering
+    const micro1 = t > 0.04 && t < 0.12 ? noise[i] * Math.exp(-(t - 0.04) * 60) * 0.35 : 0;
+    const micro2 = t > 0.09 && t < 0.18 ? noise[i] * Math.exp(-(t - 0.09) * 55) * 0.28 : 0;
+
+    out[i] = crack + m1 + m2 + m3 + m4 + micro1 + micro2;
+  }
+  return normalize(out, 0.94);
+}
+
+// Antique Chest Latch Click & Heavy Wooden Lid Open
+function generateChestOpen() {
+  const duration = 0.85;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const noise = whiteNoise(numSamples);
+  const out = new Float32Array(numSamples);
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    // Iron latch snap at t=0
+    const latch1 = (noise[i] * 0.4 + Math.sin(2 * Math.PI * 1780 * t) * 0.5) * Math.exp(-t * 95);
+    // Secondary mechanical unlatch clank at t=0.08
+    const latch2 = t > 0.08 ? (noise[i] * 0.3 + Math.sin(2 * Math.PI * 1150 * (t - 0.08)) * 0.45) * Math.exp(-(t - 0.08) * 80) : 0;
+    // Wooden friction creak
+    const creakFreq = 190 + t * 90 + Math.sin(t * 120) * 20;
+    const creakEnv = t > 0.12 && t < 0.65 ? Math.sin((t - 0.12) / 0.53 * Math.PI) : 0;
+    const creak = Math.sin(2 * Math.PI * creakFreq * t) * creakEnv * 0.38 + (noise[i] * 0.25 * creakEnv);
+    // Resonant interior box boom
+    const boom = Math.sin(2 * Math.PI * 135 * t) * Math.exp(-t * 12) * 0.32;
+
+    out[i] = latch1 + latch2 + creak + boom;
+  }
+  return normalize(out, 0.92);
+}
+
+// Inspiring Ancient Relic Discovery Chime
+function generateRelicGain() {
+  const duration = 1.6;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const out = new Float32Array(numSamples);
+
+  // Arpeggio notes: E5 (659Hz), G#5 (830Hz), B5 (987Hz), E6 (1318Hz), G#6 (1661Hz)
+  const notes = [
+    { freq: 659.25, time: 0.0 },
+    { freq: 830.61, time: 0.11 },
+    { freq: 987.77, time: 0.22 },
+    { freq: 1318.51, time: 0.33 },
+    { freq: 1661.22, time: 0.45 },
+  ];
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    let sum = 0;
+    for (const note of notes) {
+      if (t >= note.time) {
+        const dt = t - note.time;
+        const env = Math.exp(-dt * 4.5);
+        const fund = Math.sin(2 * Math.PI * note.freq * dt);
+        const harm2 = Math.sin(2 * Math.PI * (note.freq * 2.005) * dt) * 0.4;
+        const harm3 = Math.sin(2 * Math.PI * (note.freq * 2.76) * dt) * 0.2;
+        sum += (fund + harm2 + harm3) * env * 0.25;
+      }
+    }
+    // Warm low-mid celestial body
+    const body = Math.sin(2 * Math.PI * 220 * t) * Math.exp(-t * 2.5) * 0.15;
+    out[i] = sum + body;
+  }
+  return normalize(out, 0.92);
+}
+
+// Fortune / Mystery Success Chime
+function generateMysteryWin() {
+  const duration = 1.35;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const out = new Float32Array(numSamples);
+
+  const notes = [
+    { freq: 523.25, time: 0.0 },   // C5
+    { freq: 659.25, time: 0.09 },  // E5
+    { freq: 783.99, time: 0.18 },  // G5
+    { freq: 1046.50, time: 0.28 }, // C6
+    { freq: 1567.98, time: 0.40 }, // G6 shimmer
+  ];
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    let sum = 0;
+    for (const note of notes) {
+      if (t >= note.time) {
+        const dt = t - note.time;
+        const env = Math.exp(-dt * 5.2);
+        const fund = Math.sin(2 * Math.PI * note.freq * dt);
+        const sparkle = Math.sin(2 * Math.PI * note.freq * 3.01 * dt) * 0.25;
+        sum += (fund + sparkle) * env * 0.26;
+      }
+    }
+    out[i] = sum;
+  }
+  return normalize(out, 0.94);
+}
+
+// Suspenseful / Dissonant Mystery Failure
+function generateMysteryFail() {
+  const duration = 1.15;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const noise = whiteNoise(numSamples);
+  const out = new Float32Array(numSamples);
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    // Low hollow sub impact (130Hz falling to 50Hz)
+    const subFreq = Math.max(45, 130 - t * 160);
+    const sub = Math.sin(2 * Math.PI * subFreq * t) * Math.exp(-t * 7) * 0.65;
+    // Dissonant dark tritone drone (Bb3 233Hz & E4 329Hz)
+    const t1 = Math.sin(2 * Math.PI * 233 * t) * Math.exp(-t * 3.8) * 0.35;
+    const t2 = Math.sin(2 * Math.PI * 329 * t) * Math.exp(-t * 3.8) * 0.32;
+    // Muted hollow friction
+    const friction = noise[i] * Math.exp(-t * 45) * 0.35;
+
+    out[i] = sub + t1 + t2 + friction;
+  }
+  return normalize(out, 0.92);
+}
+
+// Triumphant Run Victory Fanfare
+function generateVictoryFanfare() {
+  const duration = 2.6;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const out = new Float32Array(numSamples);
+
+  const chords = [
+    // Chord 1 (C Major): C4 (261.6), G4 (392.0), C5 (523.25)
+    { time: 0.0, freqs: [261.63, 392.00, 523.25], decay: 3.5 },
+    // Chord 2 (F Major): F4 (349.2), A4 (440.0), C5 (523.25)
+    { time: 0.35, freqs: [349.23, 440.00, 523.25], decay: 3.5 },
+    // Chord 3 (G Major): G4 (392.0), B4 (493.8), D5 (587.3)
+    { time: 0.70, freqs: [392.00, 493.88, 587.33], decay: 3.2 },
+    // Final Grand Chord (C Major + High Golden Octave): C4, G4, E5, C6
+    { time: 1.10, freqs: [261.63, 392.00, 659.25, 1046.50, 2093.00], decay: 1.6 },
+  ];
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    let sum = 0;
+    for (const chord of chords) {
+      if (t >= chord.time) {
+        const dt = t - chord.time;
+        const env = Math.exp(-dt * chord.decay);
+        for (const freq of chord.freqs) {
+          const fund = Math.sin(2 * Math.PI * freq * dt);
+          const brass = Math.sin(2 * Math.PI * freq * 2.0 * dt) * 0.32;
+          const chime = Math.sin(2 * Math.PI * freq * 3.0 * dt) * 0.16;
+          sum += (fund + brass + chime) * env * 0.14;
+        }
+      }
+    }
+    out[i] = sum;
+  }
+  return normalize(out, 0.95);
+}
+
+// Dark Solemn Defeat Dirge (Funeral Bell & Sub Bass Tremor)
+function generateDefeatDirge() {
+  const duration = 2.8;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const out = new Float32Array(numSamples);
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    // Deep subterranean earthquake rumble (42Hz)
+    const sub = Math.sin(2 * Math.PI * 42 * t) * Math.exp(-t * 1.8) * 0.55;
+    // Heavy mourning iron bell (inharmonic partials: 110, 147, 222, 335, 460)
+    const bellEnv = Math.exp(-t * 1.4);
+    const b1 = Math.sin(2 * Math.PI * 110 * t) * 0.45;
+    const b2 = Math.sin(2 * Math.PI * 147.2 * t) * 0.38;
+    const b3 = Math.sin(2 * Math.PI * 222.1 * t) * 0.32;
+    const b4 = Math.sin(2 * Math.PI * 335.5 * t) * 0.24;
+    const b5 = Math.sin(2 * Math.PI * 460.0 * t) * 0.16;
+    const bell = (b1 + b2 + b3 + b4 + b5) * bellEnv;
+
+    out[i] = sub + bell;
+  }
+  return normalize(out, 0.93);
+}
+
+// Soothing Campfire Rest (Restorative Celesta Bloom & Warm Embers)
+function generateCampfireRest() {
+  const duration = 2.1;
+  const numSamples = Math.floor(duration * SAMPLE_RATE);
+  const noise = pinkNoise(numSamples);
+  const out = new Float32Array(numSamples);
+
+  // F-A-C-E healing bloom: F3 (174.6), A3 (220.0), C4 (261.6), E4 (329.6), A4 (440.0)
+  const notes = [
+    { freq: 174.61, time: 0.0 },
+    { freq: 220.00, time: 0.1 },
+    { freq: 261.63, time: 0.2 },
+    { freq: 329.63, time: 0.3 },
+    { freq: 440.00, time: 0.4 },
+  ];
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / SAMPLE_RATE;
+    let celesta = 0;
+    for (const note of notes) {
+      if (t >= note.time) {
+        const dt = t - note.time;
+        const env = Math.exp(-dt * 2.8);
+        const fund = Math.sin(2 * Math.PI * note.freq * dt);
+        const warm = Math.sin(2 * Math.PI * note.freq * 2.0 * dt) * 0.25;
+        celesta += (fund + warm) * env * 0.22;
+      }
+    }
+    // Warm crackling embers hiss and gentle micro pops
+    const embersEnv = Math.exp(-t * 1.5) * (1 - Math.exp(-t * 20));
+    const embers = noise[i] * embersEnv * 0.15;
+    const pop = (Math.random() < 0.002 ? Math.random() * 0.6 : 0) * embersEnv;
+
+    out[i] = celesta + embers + pop;
+  }
+  return normalize(out, 0.92);
+}
+
+// 7. Contextual Game & Encounter Soundscapes
+saveSound('cards/ward_break.wav', generateWardBreak());
+saveSound('cards/ward_break.ogg', generateWardBreak());
+saveSound('cards/chest_open.wav', generateChestOpen());
+saveSound('cards/chest_open.ogg', generateChestOpen());
+saveSound('cards/relic_gain.wav', generateRelicGain());
+saveSound('cards/relic_gain.ogg', generateRelicGain());
+saveSound('cards/mystery_win.wav', generateMysteryWin());
+saveSound('cards/mystery_win.ogg', generateMysteryWin());
+saveSound('cards/mystery_fail.wav', generateMysteryFail());
+saveSound('cards/mystery_fail.ogg', generateMysteryFail());
+saveSound('cards/victory.wav', generateVictoryFanfare());
+saveSound('cards/victory.ogg', generateVictoryFanfare());
+saveSound('cards/game_over.wav', generateDefeatDirge());
+saveSound('cards/game_over.ogg', generateDefeatDirge());
+saveSound('cards/campfire_rest.wav', generateCampfireRest());
+saveSound('cards/campfire_rest.ogg', generateCampfireRest());
+
 console.log('All Typemancer sound effects generated successfully!');

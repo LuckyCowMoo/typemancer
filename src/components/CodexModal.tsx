@@ -1066,6 +1066,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                         ? 'tab-highlighted'
                         : ''
                     }`}
+                    onClick={() => onChangeTab?.(tab)}
+                    style={{ cursor: 'pointer' }}
                     title={`Type "${tab}" or press Tab to switch`}
                   >
                     <span>{tab}</span>
@@ -1144,6 +1146,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        onClick={() => onSelectEntry?.(en.id)}
+                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? primaryName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
@@ -1192,6 +1196,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        onClick={() => onSelectEntry?.(c.id)}
+                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? cardName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
@@ -1244,6 +1250,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        onClick={() => onSelectEntry?.(env.id)}
+                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? env.name : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
@@ -1292,6 +1300,8 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
+                        onClick={() => onSelectEntry?.(r.id)}
+                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? relicName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
