@@ -228,7 +228,108 @@
         "hits": 3
       }
     ],
-    "description": "Harasses from long range with sharp precision shots and wide piercing volleys."
+    "description": "Harasses from long range with sharp precision shots and wide piercing volleys.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "shoot",
+            "name": "Shoot",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 7
+          },
+          {
+            "id": "multishot",
+            "name": "Multi Shot",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 2,
+            "hits": 3
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Panicked Hail (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "arrow_storm",
+            "name": "Arrow Storm",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "snap_shot",
+            "name": "Desperate Snap-Shot",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 3,
+            "hits": 3,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 3
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Cornered Archer",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "point_blank_jab",
+            "name": "Point-Blank Bayonet",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          },
+          {
+            "id": "rapid_needle_shot",
+            "name": "Rapid Needle Shot",
+            "intent": "multi_attack",
+            "weight": 50,
+            "damage": 3,
+            "hits": 3,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 3
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "goblin_drummer",
@@ -288,7 +389,112 @@
         "damage": 5
       }
     ],
-    "description": "Rallies the horde with booming war cadence that empowers all allies with Bold."
+    "description": "Rallies the horde with booming war cadence that empowers all allies with Bold.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "drum",
+            "name": "War Drum",
+            "intent": "buff",
+            "weight": 60,
+            "statusEffects": [
+              {
+                "status": "bold",
+                "amount": 1,
+                "target": "all_allies"
+              }
+            ]
+          },
+          {
+            "id": "bash",
+            "name": "Drum Bash",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 5
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Desperate Rhythm (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "drumstick_frenzy",
+            "name": "Drumstick Frenzy",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 3,
+            "hits": 3,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 3
+              }
+            ]
+          },
+          {
+            "id": "heavy_drum_slam",
+            "name": "Heavy Drum Slam",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Vengeful Drummer",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "furious_beatdown",
+            "name": "Furious Beatdown",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "cymbal_crash",
+            "name": "Cymbal Crash",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 7,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 7,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "goblin_brute",
@@ -343,7 +549,108 @@
         "hits": 3
       }
     ],
-    "description": "Overwhelms challengers through brute muscle, unleashing crushing slams and wild swings."
+    "description": "Overwhelms challengers through brute muscle, unleashing crushing slams and wild swings.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "smash",
+            "name": "Smash",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 10
+          },
+          {
+            "id": "wild_swings",
+            "name": "Wild Swings",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 4,
+            "hits": 3
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Berserk Rampage (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "wild_flailing",
+            "name": "Wild Flailing",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 3,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          },
+          {
+            "id": "blind_tantrum",
+            "name": "Blind Tantrum",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 2,
+            "hits": 6,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Unchecked Rage",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "frenzied_charge",
+            "name": "Frenzied Charge",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 3,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "desperate_club",
+            "name": "Desperate Club Slam",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 14,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 14,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "goblin_shaman",
@@ -403,7 +710,134 @@
         "heal": 10
       }
     ],
-    "description": "Mends wounded allies with tribal brews while cursing enemies with Exposed to magnify incoming harm."
+    "description": "Mends wounded allies with tribal brews while cursing enemies with Exposed to magnify incoming harm.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "curse",
+            "name": "Curse",
+            "intent": "debuff",
+            "weight": 50,
+            "statusEffects": [
+              {
+                "status": "exposed",
+                "amount": 1,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "heal",
+            "name": "Herbal Brew",
+            "intent": "heal",
+            "weight": 50,
+            "heal": 10
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Cornered Witchcraft (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "caustic_brew_throw",
+            "name": "Caustic Brew Throw",
+            "intent": "attack_debuff",
+            "weight": 55,
+            "damage": 8,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ],
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "hex_lightning",
+            "name": "Hex Lightning",
+            "intent": "attack",
+            "weight": 45,
+            "damage": 12,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 12,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Wrath of the Spirits",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "spirit_dagger",
+            "name": "Spirit Dagger",
+            "intent": "attack_debuff",
+            "weight": 50,
+            "damage": 8,
+            "statusEffects": [
+              {
+                "status": "exposed",
+                "amount": 2,
+                "target": "player"
+              }
+            ],
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "exposed",
+                "amount": 2,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "ancestral_hex_bolt",
+            "name": "Ancestral Hex Bolt",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 13,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 13,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "goblin_assassin",
@@ -458,7 +892,121 @@
         "hits": 4
       }
     ],
-    "description": "A lethal shadow-stalker specializing in devastating executions and dizzying flurry attacks."
+    "description": "A lethal shadow-stalker specializing in devastating executions and dizzying flurry attacks.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "assassinate",
+            "name": "Assassinate",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 15
+          },
+          {
+            "id": "flurry",
+            "name": "Thousand Cuts",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 4,
+            "hits": 4
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Maddened Bloodlust (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "frenzied_thousand_cuts",
+            "name": "Frenzied Thousand Cuts",
+            "intent": "multi_attack",
+            "weight": 65,
+            "damage": 2,
+            "hits": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 8
+              }
+            ]
+          },
+          {
+            "id": "dagger_storm",
+            "name": "Dagger Storm",
+            "intent": "multi_attack",
+            "weight": 35,
+            "damage": 3,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Cornered Assassin",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "death_dance",
+            "name": "Death Dance",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 7,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 7
+              }
+            ]
+          },
+          {
+            "id": "poisoned_kunai_flurry",
+            "name": "Poisoned Kunai Flurry",
+            "intent": "attack_debuff",
+            "weight": 40,
+            "damage": 2,
+            "hits": 4,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ],
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 4
+              },
+              {
+                "type": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "goblin_warlord",
@@ -530,7 +1078,123 @@
         "summonCount": 1
       }
     ],
-    "description": "Inspires troops with roaring commands that dramatically bolster ally strength before swinging heavy crushing blows."
+    "description": "Inspires troops with roaring commands that dramatically bolster ally strength before swinging heavy crushing blows.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "command",
+            "name": "Command",
+            "intent": "buff",
+            "weight": 50,
+            "statusEffects": [
+              {
+                "status": "bold",
+                "amount": 2,
+                "target": "all_allies"
+              }
+            ]
+          },
+          {
+            "id": "heavy_strike",
+            "name": "Heavy Strike",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 12
+          },
+          {
+            "id": "rally_goblins",
+            "name": "Rally Minions",
+            "intent": "summon",
+            "weight": 18,
+            "summonPool": [
+              "goblin_skirmisher",
+              "goblin_archer",
+              "goblin_drummer"
+            ],
+            "summonCount": 1
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Warlord's Berserk Fury (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "blood_frenzy_flurry",
+            "name": "Blood Frenzy Flurry",
+            "intent": "multi_attack",
+            "weight": 55,
+            "damage": 4,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 4,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          },
+          {
+            "id": "decapitating_cleave",
+            "name": "Decapitating Cleave",
+            "intent": "attack",
+            "weight": 45,
+            "damage": 22,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 22,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Warlord's Last Stand",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "vengeful_onslaught",
+            "name": "Vengeful Onslaught",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 4,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 4,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "iron_bulwark",
+            "name": "Iron Bulwark",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 22,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 22,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "rock_pebble",
@@ -584,7 +1248,113 @@
         "ward": 6
       }
     ],
-    "description": "A sturdy little sentinel that fortifies itself with solid stone Ward between stinging charges."
+    "description": "A sturdy little sentinel that fortifies itself with solid stone Ward between stinging charges.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "tackle",
+            "name": "Tackle",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 5
+          },
+          {
+            "id": "harden",
+            "name": "Harden",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 6
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Hunker Down (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "pebble_bunker",
+            "name": "Pebble Bunker",
+            "intent": "defend",
+            "weight": 60,
+            "ward": 14,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 14,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "mineral_stitching",
+            "name": "Mineral Stitching",
+            "intent": "heal",
+            "weight": 40,
+            "ward": 4,
+            "heal": 6,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 4,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 6,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Stubborn Pebble",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "stubborn_guard",
+            "name": "Stubborn Guard",
+            "intent": "attack_defend",
+            "weight": 60,
+            "damage": 4,
+            "ward": 10,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 4,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ward",
+                "amount": 10,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "tuck_and_roll",
+            "name": "Tuck and Roll",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 12,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 12,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "rock_roller",
@@ -639,7 +1409,117 @@
         "ward": 4
       }
     ],
-    "description": "Channels rolling kinetic momentum to smoothly alternate between heavy impacts and defensive bracing."
+    "description": "Channels rolling kinetic momentum to smoothly alternate between heavy impacts and defensive bracing.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "roll",
+            "name": "Roll Over",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 8
+          },
+          {
+            "id": "bump",
+            "name": "Bump",
+            "intent": "attack_defend",
+            "weight": 40,
+            "damage": 4,
+            "ward": 4
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Pinball Frenzy (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "spinning_pinball",
+            "name": "Spinning Pinball",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          },
+          {
+            "id": "hardened_shell",
+            "name": "Hardened Shell",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 10,
+            "heal": 4,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 10,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 4,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Momentum Roll",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "desperate_trample",
+            "name": "Desperate Trample",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 10,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 10,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          },
+          {
+            "id": "roll_barrier",
+            "name": "Roll Barrier",
+            "intent": "attack_defend",
+            "weight": 40,
+            "damage": 5,
+            "ward": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 5,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ward",
+                "amount": 8,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "rock_shield",
@@ -693,7 +1573,113 @@
         "damage": 6
       }
     ],
-    "description": "An impenetrable earthen bulwark designed to absorb devastating punishment before ramming forward."
+    "description": "An impenetrable earthen bulwark designed to absorb devastating punishment before ramming forward.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "guard",
+            "name": "Guard",
+            "intent": "defend",
+            "weight": 70,
+            "ward": 8
+          },
+          {
+            "id": "slam",
+            "name": "Shield Slam",
+            "intent": "attack",
+            "weight": 30,
+            "damage": 6
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Granite Bulwark (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "aegis_wall",
+            "name": "Aegis Wall",
+            "intent": "defend",
+            "weight": 55,
+            "ward": 18,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 18,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "stone_mending",
+            "name": "Stone Mending",
+            "intent": "heal",
+            "weight": 45,
+            "ward": 6,
+            "heal": 8,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 6,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 8,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Impenetrable Wall",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "fortress_stance",
+            "name": "Fortress Stance",
+            "intent": "defend",
+            "weight": 60,
+            "ward": 20,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 20,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "desperate_slam",
+            "name": "Desperate Slam",
+            "intent": "attack_defend",
+            "weight": 40,
+            "damage": 8,
+            "ward": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ward",
+                "amount": 8,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "rock_crusher",
@@ -747,7 +1733,107 @@
         "ward": 12
       }
     ],
-    "description": "Pounds through enemy lines by combining ironclad defensive stances with bone-crushing smashes."
+    "description": "Pounds through enemy lines by combining ironclad defensive stances with bone-crushing smashes.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "crush",
+            "name": "Crush",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 14
+          },
+          {
+            "id": "brace",
+            "name": "Brace",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 12
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Compacted Monolith (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "titan_bastion",
+            "name": "Titan Bastion",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 24,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 24,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "geological_repair",
+            "name": "Geological Repair",
+            "intent": "heal",
+            "weight": 50,
+            "ward": 10,
+            "heal": 14,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 10,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 14,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Lone Monolith",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "heavy_barrier",
+            "name": "Heavy Barrier",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 22,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 22,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "vengeful_pulverize",
+            "name": "Vengeful Pulverize",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 16,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 16,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "rock_golem",
@@ -802,7 +1888,116 @@
         "damage": 12
       }
     ],
-    "description": "Maintains an unyielding frontline presence, generating heavy protective Ward while shaking the ground with earthquakes."
+    "description": "Maintains an unyielding frontline presence, generating heavy protective Ward while shaking the ground with earthquakes.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "pound",
+            "name": "Pound",
+            "intent": "attack_defend",
+            "weight": 60,
+            "damage": 8,
+            "ward": 8
+          },
+          {
+            "id": "quake",
+            "name": "Earthquake",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 12
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Earthen Reconstruction (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "granite_shell",
+            "name": "Granite Shell",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 25,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 25,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "rebuild_limbs",
+            "name": "Rebuild Limbs",
+            "intent": "heal",
+            "weight": 50,
+            "ward": 10,
+            "heal": 15,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 10,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 15,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Rampaging Golem",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "stone_rampage",
+            "name": "Stone Rampage",
+            "intent": "multi_attack",
+            "weight": 50,
+            "damage": 5,
+            "hits": 3,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 5,
+                "target": "player",
+                "hits": 3
+              }
+            ]
+          },
+          {
+            "id": "fortified_fist",
+            "name": "Fortified Fist",
+            "intent": "attack_defend",
+            "weight": 50,
+            "damage": 10,
+            "ward": 15,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 10,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ward",
+                "amount": 15,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "rock_titan",
@@ -867,7 +2062,118 @@
         "summonCount": 1
       }
     ],
-    "description": "A colossal mountain monolith capable of erecting towering stone barriers and delivering earth-shattering slams."
+    "description": "A colossal mountain monolith capable of erecting towering stone barriers and delivering earth-shattering slams.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "megaslam",
+            "name": "Mega Slam",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 20
+          },
+          {
+            "id": "fortify",
+            "name": "Fortify",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 20
+          },
+          {
+            "id": "shatter_pebbles",
+            "name": "Shatter Fragments",
+            "intent": "summon",
+            "weight": 18,
+            "summonPool": [
+              "rock_pebble",
+              "rock_roller"
+            ],
+            "summonCount": 1
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Mountain Bulwark (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "colossal_citadel",
+            "name": "Colossal Citadel",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 40,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 40,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "tectonic_reconstitution",
+            "name": "Tectonic Reconstitution",
+            "intent": "heal",
+            "weight": 50,
+            "ward": 18,
+            "heal": 22,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 18,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 22,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Wrath of the Titan",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "earthshaker",
+            "name": "Earthshaker",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 26,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 26,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          },
+          {
+            "id": "granite_aegis",
+            "name": "Granite Aegis",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 35,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 35,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "rock_elemental",
@@ -921,7 +2227,105 @@
         "ward": 15
       }
     ],
-    "description": "Hurls immense granite boulders from behind a hardened crystalline core that shrugs off damage."
+    "description": "Hurls immense granite boulders from behind a hardened crystalline core that shrugs off damage.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "rock_throw",
+            "name": "Boulder Throw",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 18
+          },
+          {
+            "id": "harden_core",
+            "name": "Harden Core",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 15
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Granite Shard Storm (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "razor_shard_hail",
+            "name": "Razor Shard Hail",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 7,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 7
+              }
+            ]
+          },
+          {
+            "id": "splinter_spray",
+            "name": "Splinter Spray",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 3,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Core Resonance",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "seismic_pulse",
+            "name": "Seismic Pulse",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 20,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 20,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          },
+          {
+            "id": "crystalline_ward",
+            "name": "Crystalline Ward",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 25,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 25,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "evil_weed",
@@ -981,7 +2385,118 @@
         "damage": 5
       }
     ],
-    "description": "Drains player vigor with debilitating Faded spores while thrashing out with thorny barbed vines."
+    "description": "Drains player vigor with debilitating Faded spores while thrashing out with thorny barbed vines.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "sap",
+            "name": "Sap",
+            "intent": "debuff",
+            "weight": 50,
+            "statusEffects": [
+              {
+                "status": "faded",
+                "amount": 1,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "whip",
+            "name": "Vine Whip",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 5
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Thorny Retaliation (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "briar_thorn_volley",
+            "name": "Briar Thorn Volley",
+            "intent": "multi_attack",
+            "weight": 50,
+            "damage": 3,
+            "hits": 3,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 3
+              }
+            ]
+          },
+          {
+            "id": "thorny_retaliation",
+            "name": "Thorny Retaliation",
+            "intent": "attack_defend",
+            "weight": 50,
+            "damage": 6,
+            "ward": 6,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 6,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ward",
+                "amount": 6,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Constricting Briar",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "strangling_bind",
+            "name": "Strangling Bind",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          },
+          {
+            "id": "wild_vine_slap",
+            "name": "Wild Vine Slap",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 3,
+            "hits": 3,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 3
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "evil_spore",
@@ -1041,7 +2556,124 @@
         "damage": 4
       }
     ],
-    "description": "Erupts in choking clouds of corrosive Ink Burn that steadily dissolve defenses over time."
+    "description": "Erupts in choking clouds of corrosive Ink Burn that steadily dissolve defenses over time.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "ink_puff",
+            "name": "Ink Puff",
+            "intent": "debuff",
+            "weight": 60,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 2,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "bump",
+            "name": "Spore Bump",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 4
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Spore Needle Burst (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "needle_cloud",
+            "name": "Needle Cloud",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          },
+          {
+            "id": "toxic_discharge",
+            "name": "Toxic Discharge",
+            "intent": "attack_debuff",
+            "weight": 40,
+            "damage": 4,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ],
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 4,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Furious Spore",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "stinging_volley",
+            "name": "Stinging Volley",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "acid_rupture",
+            "name": "Acid Rupture",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "evil_flower",
@@ -1101,7 +2733,123 @@
         ]
       }
     ],
-    "description": "Restores its own vitality through photosynthetic blooming while scattering disorienting pollen that leaves targets Exposed."
+    "description": "Restores its own vitality through photosynthetic blooming while scattering disorienting pollen that leaves targets Exposed.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "photosynthesis",
+            "name": "Photosynthesis",
+            "intent": "heal",
+            "weight": 50,
+            "heal": 5
+          },
+          {
+            "id": "pollen",
+            "name": "Pollen",
+            "intent": "debuff",
+            "weight": 50,
+            "statusEffects": [
+              {
+                "status": "exposed",
+                "amount": 1,
+                "target": "player"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Venomous Bloom (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "stinging_petals",
+            "name": "Stinging Petals",
+            "intent": "multi_attack",
+            "weight": 50,
+            "damage": 2,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "nectar_lash",
+            "name": "Nectar Lash",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Carnivorous Mutation",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "corrosive_acid_spray",
+            "name": "Corrosive Acid Spray",
+            "intent": "attack_debuff",
+            "weight": 60,
+            "damage": 7,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ],
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 7,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "thorn_dart",
+            "name": "Thorn Dart",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 8,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "evil_tree",
@@ -1155,7 +2903,107 @@
         "heal": 10
       }
     ],
-    "description": "Deeply anchors its roots to regenerate health while sweeping wide arcs with heavy wooden boughs."
+    "description": "Deeply anchors its roots to regenerate health while sweeping wide arcs with heavy wooden boughs.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "branch_slam",
+            "name": "Branch Slam",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 12
+          },
+          {
+            "id": "root",
+            "name": "Take Root",
+            "intent": "heal",
+            "weight": 40,
+            "heal": 10
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Deep Root Recovery (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "bark_bastion",
+            "name": "Bark Bastion",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 22,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 22,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "ancient_earth_siphon",
+            "name": "Ancient Earth Siphon",
+            "intent": "heal",
+            "weight": 50,
+            "ward": 8,
+            "heal": 16,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 8,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 16,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Ancient Ironbark",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "colossal_bough_slam",
+            "name": "Colossal Bough Slam",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 16,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 16,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          },
+          {
+            "id": "root_fortress",
+            "name": "Root Fortress",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 20,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 20,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "evil_flytrap",
@@ -1216,7 +3064,126 @@
         ]
       }
     ],
-    "description": "Snaps shut with savage jaws and sprays caustic acidic bile that inflicts lingering Ink Burn."
+    "description": "Snaps shut with savage jaws and sprays caustic acidic bile that inflicts lingering Ink Burn.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "bite",
+            "name": "Bite",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 10
+          },
+          {
+            "id": "acid",
+            "name": "Acid Spit",
+            "intent": "attack_debuff",
+            "weight": 50,
+            "damage": 5,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 3,
+                "target": "player"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Frenzied Chomping (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "rapid_snapping_spree",
+            "name": "Rapid Snapping Spree",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 6,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 6
+              }
+            ]
+          },
+          {
+            "id": "savage_gnawing",
+            "name": "Savage Gnawing",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 3,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Ravenous Appetite",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "chomp_flurry",
+            "name": "Chomp Flurry",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          },
+          {
+            "id": "acid_gush",
+            "name": "Acid Gush",
+            "intent": "attack_debuff",
+            "weight": 40,
+            "damage": 6,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 4,
+                "target": "player"
+              }
+            ],
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 6,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ink_burn",
+                "amount": 4,
+                "target": "player"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "evil_treant",
@@ -1293,7 +3260,130 @@
         "summonCount": 1
       }
     ],
-    "description": "Spreads ancient decay by smothering foes in toxic Faded and Ink Burn spores while smashing with uprooted trunks."
+    "description": "Spreads ancient decay by smothering foes in toxic Faded and Ink Burn spores while smashing with uprooted trunks.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "uproot",
+            "name": "Uproot",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 16
+          },
+          {
+            "id": "spores",
+            "name": "Toxic Spores",
+            "intent": "debuff",
+            "weight": 50,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 4,
+                "target": "player"
+              },
+              {
+                "status": "faded",
+                "amount": 1,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "sprout_seedlings",
+            "name": "Sprout Seedlings",
+            "intent": "summon",
+            "weight": 18,
+            "summonPool": [
+              "evil_weed",
+              "evil_spore",
+              "evil_flower"
+            ],
+            "summonCount": 1
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Heartwood Fortification (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "ironwood_aegis",
+            "name": "Ironwood Aegis",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 32,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 32,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "primeval_sap_regen",
+            "name": "Primeval Sap Regeneration",
+            "intent": "heal",
+            "weight": 50,
+            "ward": 12,
+            "heal": 22,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 12,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 22,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Wrath of the Ancient Woods",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "ancient_crushing_roots",
+            "name": "Ancient Crushing Roots",
+            "intent": "attack",
+            "weight": 60,
+            "damage": 22,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 22,
+                "target": "player",
+                "hits": 1
+              }
+            ]
+          },
+          {
+            "id": "bramble_shield",
+            "name": "Bramble Shield",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 30,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 30,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "evil_mandragora",
@@ -1354,7 +3444,126 @@
         "damage": 8
       }
     ],
-    "description": "Stuns prey with ear-splitting shrieks that leave them Exposed, then leeches away their life force."
+    "description": "Stuns prey with ear-splitting shrieks that leave them Exposed, then leeches away their life force.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "scream",
+            "name": "Scream",
+            "intent": "attack_debuff",
+            "weight": 60,
+            "damage": 10,
+            "statusEffects": [
+              {
+                "status": "exposed",
+                "amount": 2,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "leech",
+            "name": "Leech Life",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 8
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Hysterical Screaming Frenzy (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "sonic_screeches",
+            "name": "Sonic Piercing Screeches",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 7,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 7
+              }
+            ]
+          },
+          {
+            "id": "convulsive_thrashing",
+            "name": "Convulsive Thrashing",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 3,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last_standing",
+        "name": "Maddened Wail",
+        "condition": "last_standing",
+        "moves": [
+          {
+            "id": "deafening_shriek",
+            "name": "Deafening Shriek",
+            "intent": "attack_debuff",
+            "weight": 60,
+            "damage": 12,
+            "statusEffects": [
+              {
+                "status": "exposed",
+                "amount": 2,
+                "target": "player"
+              }
+            ],
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 12,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "exposed",
+                "amount": 2,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "spastic_root_whip",
+            "name": "Spastic Root Whip",
+            "intent": "multi_attack",
+            "weight": 40,
+            "damage": 3,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "boss_goblin_king",
@@ -1428,7 +3637,110 @@
         "hits": 4
       }
     ],
-    "description": "Commands the battlefield with tyrannical buff anthems, violent multi-strike tantrums, and royal executions."
+    "description": "Commands the battlefield with tyrannical buff anthems, violent multi-strike tantrums, and royal executions.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "royal_slash",
+            "name": "Royal Slash",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 20
+          },
+          {
+            "id": "summon",
+            "name": "Call Guards",
+            "intent": "summon",
+            "weight": 30,
+            "statusEffects": [
+              {
+                "status": "bold",
+                "amount": 2,
+                "target": "all_allies"
+              }
+            ],
+            "summonPool": [
+              "goblin_skirmisher",
+              "goblin_archer",
+              "goblin_drummer"
+            ],
+            "summonCount": 2
+          },
+          {
+            "id": "tantrum",
+            "name": "Tantrum",
+            "intent": "multi_attack",
+            "weight": 30,
+            "damage": 6,
+            "hits": 4
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Royal Temper Tantrum (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "royal_flailing_frenzy",
+            "name": "Royal Flailing Frenzy",
+            "intent": "multi_attack",
+            "weight": 45,
+            "damage": 3,
+            "hits": 8,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 8
+              }
+            ]
+          },
+          {
+            "id": "scepter_whirlwind",
+            "name": "Scepter Whirlwind",
+            "intent": "multi_attack",
+            "weight": 35,
+            "damage": 4,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 4,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          },
+          {
+            "id": "desperate_royal_cleave",
+            "name": "Desperate Royal Cleave",
+            "intent": "attack_defend",
+            "weight": 20,
+            "damage": 18,
+            "ward": 15,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 18,
+                "target": "player",
+                "hits": 1
+              },
+              {
+                "type": "ward",
+                "amount": 15,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "boss_rock_mountain",
@@ -1494,7 +3806,99 @@
         "summonCount": 2
       }
     ],
-    "description": "An immovable apex behemoth that hardens itself in impenetrable armor before unleashing catastrophic avalanches."
+    "description": "An immovable apex behemoth that hardens itself in impenetrable armor before unleashing catastrophic avalanches.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "avalanche",
+            "name": "Avalanche",
+            "intent": "attack",
+            "weight": 50,
+            "damage": 25
+          },
+          {
+            "id": "stone_skin",
+            "name": "Stone Skin",
+            "intent": "defend",
+            "weight": 50,
+            "ward": 30
+          },
+          {
+            "id": "spawn_crushers",
+            "name": "Avalanche Birth",
+            "intent": "summon",
+            "weight": 20,
+            "summonPool": [
+              "rock_pebble",
+              "rock_roller",
+              "rock_shield"
+            ],
+            "summonCount": 2
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Continental Slumber Barrier (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "seismic_megalith_barrier",
+            "name": "Seismic Megalith Barrier",
+            "intent": "defend",
+            "weight": 45,
+            "ward": 60,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 60,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "magma_core_mending",
+            "name": "Magma Core Mending",
+            "intent": "heal",
+            "weight": 35,
+            "ward": 25,
+            "heal": 30,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 25,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 30,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "volcanic_tremor",
+            "name": "Volcanic Tremor",
+            "intent": "multi_attack",
+            "weight": 20,
+            "damage": 4,
+            "hits": 5,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 4,
+                "target": "player",
+                "hits": 5
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "boss_evil_world_tree",
@@ -1578,7 +3982,117 @@
         "summonCount": 2
       }
     ],
-    "description": "A primordial forest terror that siphons life back into itself while blanketing the field in lethal Ink Burn and Faded rot."
+    "description": "A primordial forest terror that siphons life back into itself while blanketing the field in lethal Ink Burn and Faded rot.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "nature_wrath",
+            "name": "Nature's Wrath",
+            "intent": "attack",
+            "weight": 40,
+            "damage": 22
+          },
+          {
+            "id": "toxic_bloom",
+            "name": "Toxic Bloom",
+            "intent": "debuff",
+            "weight": 30,
+            "statusEffects": [
+              {
+                "status": "ink_burn",
+                "amount": 5,
+                "target": "player"
+              },
+              {
+                "status": "faded",
+                "amount": 2,
+                "target": "player"
+              }
+            ]
+          },
+          {
+            "id": "siphon",
+            "name": "Siphon",
+            "intent": "heal",
+            "weight": 30,
+            "heal": 20
+          },
+          {
+            "id": "bloom_minions",
+            "name": "Canopy Bloom",
+            "intent": "summon",
+            "weight": 20,
+            "summonPool": [
+              "evil_weed",
+              "evil_flower",
+              "evil_spore"
+            ],
+            "summonCount": 2
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "World Tree Rejuvenation (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "yggdrasil_sanctuary",
+            "name": "Yggdrasil Sanctuary",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 50,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 50,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "photosynthetic_rebirth",
+            "name": "Photosynthetic Rebirth",
+            "intent": "heal",
+            "weight": 40,
+            "ward": 15,
+            "heal": 32,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 15,
+                "target": "self"
+              },
+              {
+                "type": "heal",
+                "amount": 32,
+                "target": "self"
+              }
+            ]
+          },
+          {
+            "id": "thorn_bramble_storm",
+            "name": "Thorn Bramble Storm",
+            "intent": "multi_attack",
+            "weight": 20,
+            "damage": 3,
+            "hits": 6,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 6
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "the_evil_wizard",
@@ -1839,7 +4353,67 @@
         "ward": 5
       }
     ],
-    "description": "A delicately folded paper cat. Slashes at enemies or curls its folded edges tightly to shield itself."
+    "description": "A delicately folded paper cat. Slashes at enemies or curls its folded edges tightly to shield itself.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "paper_scratch",
+            "name": "Paper Scratch",
+            "intent": "attack",
+            "weight": 55,
+            "damage": 6
+          },
+          {
+            "id": "paper_curl",
+            "name": "Paper Curl",
+            "intent": "defend",
+            "weight": 45,
+            "ward": 5
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Feral Scratching (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "frenzied_paws",
+            "name": "Frenzied Paws",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 2,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 2,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "cardboard_box_bunker",
+            "name": "Cardboard Box Bunker",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 12,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 12,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "origami_tiger",
@@ -1901,6 +4475,80 @@
         ]
       }
     ],
-    "description": "A powerful origami predator with razor folds. Pounces on foes, erects sturdy crease barriers, and roars to embolden itself or the Typemancer."
+    "description": "A powerful origami predator with razor folds. Pounces on foes, erects sturdy crease barriers, and roars to embolden itself or the Typemancer.",
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
+        "moves": [
+          {
+            "id": "origami_pounce",
+            "name": "Origami Pounce",
+            "intent": "attack",
+            "weight": 45,
+            "damage": 11
+          },
+          {
+            "id": "crease_barrier",
+            "name": "Crease Barrier",
+            "intent": "defend",
+            "weight": 30,
+            "ward": 8,
+            "target": "ally_or_player"
+          },
+          {
+            "id": "paper_roar",
+            "name": "Paper Roar",
+            "intent": "buff",
+            "weight": 25,
+            "statusEffects": [
+              {
+                "status": "bold",
+                "amount": 2,
+                "target": "ally_or_player"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "below_half_hp",
+        "name": "Cornered Apex (< 50% HP)",
+        "condition": "below_half_hp",
+        "moves": [
+          {
+            "id": "paper_shred_flurry",
+            "name": "Paper Shred Flurry",
+            "intent": "multi_attack",
+            "weight": 60,
+            "damage": 3,
+            "hits": 4,
+            "effects": [
+              {
+                "type": "damage",
+                "amount": 3,
+                "target": "player",
+                "hits": 4
+              }
+            ]
+          },
+          {
+            "id": "folded_iron_barrier",
+            "name": "Folded Iron Barrier",
+            "intent": "defend",
+            "weight": 40,
+            "ward": 18,
+            "effects": [
+              {
+                "type": "ward",
+                "amount": 18,
+                "target": "self"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

@@ -1152,9 +1152,29 @@ export function App() {
               resolved.moves.length > 0 ? resolved.moves : def.moves
             );
             if (resolved.condition === 'below_half_hp') {
-              spawnPopup(en.instanceId, '⚡ Enraged (< 50% HP)!', '#ef4444');
+              spawnPopup(en.instanceId, `⚡ ${resolved.name}!`, '#ef4444');
             } else if (resolved.condition === 'last_standing') {
-              spawnPopup(en.instanceId, '🐺 Last Stand!', '#f59e0b');
+              spawnPopup(en.instanceId, `🐺 ${resolved.name}!`, '#f59e0b');
+            }
+          }
+        }
+      });
+
+      nextAllies.forEach((ally) => {
+        if (ally.hp <= 0) return;
+        const aDef = ENEMIES_CATALOG.find((d) => d.id === ally.enemyId);
+        if (aDef && aDef.behaviors && aDef.behaviors.length > 0) {
+          const livingAlliesCount = nextAllies.filter((a) => a.hp > 0).length;
+          const resolved = resolveEnemyBehavior(aDef, ally.hp, ally.maxHp, livingAlliesCount);
+          if (ally.currentBehavior?.condition !== resolved.condition) {
+            ally.currentBehavior = { condition: resolved.condition, name: resolved.name };
+            ally.currentMove = chooseEnemyMove(
+              resolved.moves.length > 0 ? resolved.moves : aDef.moves
+            );
+            if (resolved.condition === 'below_half_hp') {
+              spawnPopup(ally.instanceId, `⚡ ${resolved.name}!`, '#10b981');
+            } else if (resolved.condition === 'last_standing') {
+              spawnPopup(ally.instanceId, `🐺 ${resolved.name}!`, '#10b981');
             }
           }
         }
