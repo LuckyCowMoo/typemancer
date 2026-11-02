@@ -130,7 +130,7 @@ export const EFFECT_TYPE_GROUPS: EffectGroupDef[] = [
     effects: [
       { type: 'faded', label: '💨 Faded (Target deals -1 attack damage per stack)' },
       { type: 'exposed', label: '🎯 Exposed (Target takes 50% more damage)' },
-      { type: 'ink_burn', label: '✒️ Ink Burn (Poison damage at turn start)' },
+      { type: 'ink_burn', label: '✒️ Ink Burn (Damage at turn end, blockable)' },
       { type: 'double_ink_burn', label: '💥 Double Ink Burn (Catalyst)' },
     ],
   },

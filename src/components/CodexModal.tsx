@@ -1760,7 +1760,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                       icon: '✒️',
                       color: '#6d28d9',
                       value: activeEnemyInstance.statuses.ink_burn,
-                      text: `Takes ${activeEnemyInstance.statuses.ink_burn} damage at start of turn, then decreases by 1.`,
+                      text: `Takes ${activeEnemyInstance.statuses.ink_burn} damage at the end of its turn (can be blocked by Ward), then decreases by 1.`,
                     });
                   }
                   if (activeEnemyInstance.statuses.plated_armor > 0) {

@@ -1359,32 +1359,54 @@ export function App() {
       }
     }
 
+    // Trigger player turn-end Ink Burn tick (can be blocked by Ward!)
+    if (nextPlayerStats.ink_burn > 0) {
+      const burnDmg = nextPlayerStats.ink_burn;
+      const blocked = Math.min(nextPlayerWard, burnDmg);
+      nextPlayerWard -= blocked;
+      const hpLoss = burnDmg - blocked;
+      nextPlayerHp = Math.max(0, nextPlayerHp - hpLoss);
+      totalHpLostSummary += hpLoss;
+      totalBlockedSummary += blocked;
+      nextPlayerStats.ink_burn = Math.max(0, nextPlayerStats.ink_burn - 1);
+      setPlayerWard(nextPlayerWard);
+      setHp(nextPlayerHp);
+      setPlayerStatuses({ ...nextPlayerStats });
+
+      if (blocked > 0) {
+        if (nextPlayerWard === 0) {
+          soundEngine.playWardBreak(settings);
+        } else {
+          soundEngine.playWardBlock(settings);
+        }
+      }
+      if (hpLoss > 0) {
+        soundEngine.playHit(settings);
+      }
+
+      if (blocked > 0 && hpLoss > 0) {
+        spawnPopup('player', `-${hpLoss} HP (${blocked} Blocked - Ink Burn)`, '#6d28d9');
+      } else if (blocked > 0) {
+        spawnPopup('player', `${blocked} Blocked (Ink Burn)`, '#1d6fa5');
+      } else {
+        spawnPopup('player', `-${hpLoss} Ink Burn`, '#6d28d9');
+      }
+
+      await delay(360);
+
+      if (nextPlayerHp <= 0) {
+        setHp(0);
+        setIsAnimatingTurn(false);
+        clearLocalRun();
+        soundEngine.playDefeatSound(settings);
+        setScreen('game_over');
+        return;
+      }
+    }
+
     for (let idx = 0; idx < workingEnemies.length; idx++) {
       const en = workingEnemies[idx];
       if (en.hp <= 0) continue;
-
-      if (en.statuses.ink_burn > 0) {
-        const burnDmg = en.statuses.ink_burn;
-        en.hp = Math.max(0, en.hp - burnDmg);
-        totalBurnDamage += burnDmg;
-        en.statuses.ink_burn = Math.max(0, en.statuses.ink_burn - 1);
-        spawnPopup(en.instanceId, `-${burnDmg} Ink Burn`, '#6d28d9');
-        setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
-        await delay(420);
-      }
-
-      if (en.hp <= 0) {
-        killedByInkBurn += 1;
-        if (
-          en.enemyId === 'rock_titan' ||
-          en.enemyId === 'boss_rock_mountain' ||
-          en.enemyId === 'rock_elemental' ||
-          en.enemyId === 'rock_golem'
-        ) {
-          soundEngine.playRockBossDefeat(settings);
-        }
-        continue;
-      }
 
       if (en.ward > 0) {
         en.ward = 0;
@@ -1648,6 +1670,59 @@ export function App() {
         spawnPopup(en.instanceId, woreOffList.join(', '), '#64748b');
       }
 
+      // Enemy turn-end Ink Burn tick (can be blocked by Ward gained or active this turn!)
+      if (en.statuses.ink_burn > 0) {
+        const burnDmg = en.statuses.ink_burn;
+        const blocked = Math.min(en.ward, burnDmg);
+        en.ward -= blocked;
+        const hpLoss = burnDmg - blocked;
+        en.hp = Math.max(0, en.hp - hpLoss);
+        totalBurnDamage += hpLoss;
+        en.statuses.ink_burn = Math.max(0, en.statuses.ink_burn - 1);
+
+        if (blocked > 0) {
+          if (en.ward === 0) {
+            soundEngine.playWardBreak(settings);
+          } else {
+            soundEngine.playWardBlock(settings);
+          }
+        }
+        if (hpLoss > 0) {
+          soundEngine.playHit(settings);
+        }
+
+        if (blocked > 0 && hpLoss > 0) {
+          spawnPopup(en.instanceId, `-${hpLoss} HP (${blocked} Blocked - Ink Burn)`, '#6d28d9');
+        } else if (blocked > 0) {
+          spawnPopup(en.instanceId, `${blocked} Blocked (Ink Burn)`, '#1d6fa5');
+        } else {
+          spawnPopup(en.instanceId, `-${hpLoss} Ink Burn`, '#6d28d9');
+        }
+
+        setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
+        await delay(360);
+
+        if (en.hp <= 0) {
+          killedByInkBurn += 1;
+          spawnPopup(en.instanceId, `${en.displayName} dissolved in ink!`, '#ef4444');
+          if (
+            en.enemyId === 'rock_titan' ||
+            en.enemyId === 'boss_rock_mountain' ||
+            en.enemyId === 'rock_elemental' ||
+            en.enemyId === 'rock_golem'
+          ) {
+            soundEngine.playRockBossDefeat(settings);
+          }
+          if (workingEnemies.filter((x) => x.hp > 0).length === 0) {
+            setEnemies([]);
+            setIsAnimatingTurn(false);
+            handleCombatVictory(nextPlayerHp);
+            return;
+          }
+          continue;
+        }
+      }
+
       const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
       if (def) {
         const aliveCount = workingEnemies.filter((x) => x.hp > 0).length;
@@ -1679,43 +1754,12 @@ export function App() {
       return;
     }
 
-    if (nextPlayerStats.ink_burn > 0) {
-      const pBurn = nextPlayerStats.ink_burn;
-      nextPlayerHp = Math.max(0, nextPlayerHp - pBurn);
-      totalHpLostSummary += pBurn;
-      nextPlayerStats.ink_burn -= 1;
-      spawnPopup('player', `-${pBurn} Ink Burn`, '#6d28d9');
-    }
-
-    if (nextPlayerHp <= 0) {
-      setHp(0);
-      setIsAnimatingTurn(false);
-      clearLocalRun();
-      soundEngine.playDefeatSound(settings);
-      setScreen('game_over');
-      return;
-    }
-
     // ==================== ALLY TURN EXECUTION ====================
     // Allies take their turn after enemies and before the player.
     // The player does not decide what they do.
     for (let aIdx = 0; aIdx < workingAllies.length; aIdx++) {
       const ally = workingAllies[aIdx];
       if (ally.hp <= 0) continue;
-
-      // Ally Ink Burn tick
-      if (ally.statuses.ink_burn > 0) {
-        const burnDmg = ally.statuses.ink_burn;
-        ally.hp = Math.max(0, ally.hp - burnDmg);
-        ally.statuses.ink_burn = Math.max(0, ally.statuses.ink_burn - 1);
-        spawnPopup(ally.instanceId, `-${burnDmg} Ink Burn`, '#6d28d9');
-        setAllies([...workingAllies.filter((x) => x.hp > 0)]);
-        await delay(300);
-      }
-      if (ally.hp <= 0) {
-        spawnPopup(ally.instanceId, `${ally.displayName} fell!`, '#ef4444');
-        continue;
-      }
 
       // Ally ward reset at turn start
       if (ally.ward > 0) {
@@ -1852,6 +1896,43 @@ export function App() {
       if (ally.statuses.plated_armor > 0) {
         ally.ward += ally.statuses.plated_armor;
         ally.statuses.plated_armor = Math.max(0, ally.statuses.plated_armor - 1);
+      }
+
+      // Ally turn-end Ink Burn tick (can be blocked by Ward!)
+      if (ally.statuses.ink_burn > 0) {
+        const burnDmg = ally.statuses.ink_burn;
+        const blocked = Math.min(ally.ward, burnDmg);
+        ally.ward -= blocked;
+        const hpLoss = burnDmg - blocked;
+        ally.hp = Math.max(0, ally.hp - hpLoss);
+        ally.statuses.ink_burn = Math.max(0, ally.statuses.ink_burn - 1);
+
+        if (blocked > 0) {
+          if (ally.ward === 0) {
+            soundEngine.playWardBreak(settings);
+          } else {
+            soundEngine.playWardBlock(settings);
+          }
+        }
+        if (hpLoss > 0) {
+          soundEngine.playHit(settings);
+        }
+
+        if (blocked > 0 && hpLoss > 0) {
+          spawnPopup(ally.instanceId, `-${hpLoss} HP (${blocked} Blocked - Ink Burn)`, '#6d28d9');
+        } else if (blocked > 0) {
+          spawnPopup(ally.instanceId, `${blocked} Blocked (Ink Burn)`, '#1d6fa5');
+        } else {
+          spawnPopup(ally.instanceId, `-${hpLoss} Ink Burn`, '#6d28d9');
+        }
+
+        setAllies([...workingAllies.filter((x) => x.hp > 0)]);
+        await delay(300);
+
+        if (ally.hp <= 0) {
+          spawnPopup(ally.instanceId, `${ally.displayName} fell!`, '#ef4444');
+          continue;
+        }
       }
 
       // Roll ally's next move for the upcoming round
@@ -5521,7 +5602,7 @@ export function App() {
                       )}
                       {playerStatuses.ink_burn > 0 && (
                         <li>
-                          <strong>Ink Burn ({playerStatuses.ink_burn}):</strong> Takes {playerStatuses.ink_burn} damage at turn end.
+                          <strong>Ink Burn ({playerStatuses.ink_burn}):</strong> Takes {playerStatuses.ink_burn} damage at the end of your turn (can be blocked by Ward), then decreases by 1.
                         </li>
                       )}
                       {playerStatuses.plated_armor > 0 && (
@@ -5598,7 +5679,7 @@ export function App() {
                       )}
                       {inspectedEntity.statuses.ink_burn > 0 && (
                         <li>
-                          <strong>Ink Burn ({inspectedEntity.statuses.ink_burn}):</strong> Takes {inspectedEntity.statuses.ink_burn} damage at start of its turn, then decreases by 1.
+                          <strong>Ink Burn ({inspectedEntity.statuses.ink_burn}):</strong> Takes {inspectedEntity.statuses.ink_burn} damage at the end of its turn (can be blocked by Ward), then decreases by 1.
                         </li>
                       )}
                       {inspectedEntity.statuses.plated_armor > 0 && (

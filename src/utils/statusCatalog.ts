@@ -42,7 +42,7 @@ export const STATUS_DEFINITIONS: StatusInfo[] = [
     name: 'Ink Burn',
     aliases: ['ink burn', 'burn', 'poison', 'bleed', 'ink'],
     color: '#6d28d9',
-    summary: 'Deals damage equal to its stacks at the start of the turn, then decreases by 1.',
+    summary: 'Deals damage equal to its stacks at the end of the turn (can be blocked by Ward), then decreases by 1.',
   },
   {
     id: 'burn_draft',
