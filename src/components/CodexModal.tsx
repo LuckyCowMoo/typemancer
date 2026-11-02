@@ -1335,7 +1335,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     <div className="inspector-content-box">
                       <div className="inspector-art-spotlight">
                         <span className="inspector-tier-corner-badge">Tier {en.tier}</span>
-                        {isEliteEnemy && <span className="inspector-elite-corner-badge">💀 Elite</span>}
+                        {isEliteEnemy && <span className="inspector-elite-corner-badge">Elite</span>}
 
                         <img
                           src={en.art.spriteUrl || './assets/entities/goblin_skirmisher.png'}

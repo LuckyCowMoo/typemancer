@@ -4948,11 +4948,6 @@ export function App() {
                       } ${isTargetEnterReady ? 'enemy-spot-enter-ready' : ''}`}
                     >
                       <div className="entity-name-label enemy-name-label">
-                        {Boolean(enemy.isElite || enemy.role === 'elite') && (
-                          <span style={{ color: '#d97706', marginRight: 4 }} title="Elite Monster (+25% sprite scale)">
-                            💀
-                          </span>
-                        )}
                         {enemy.displayName}
                       </div>
                       <div className="hp-shield-row hp-shield-scroll">
