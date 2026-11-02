@@ -995,31 +995,116 @@ class SoundEngine {
           hp.frequency.linearRampToValueAtTime(targetFreq, curr + rampDur);
         });
 
-        // Distinct, clearly audible sandstone rockfalls tumbling down canyon rockface (every 8-15s)
-        this.scheduleRandomEvent(8000, 15000, intervalIds, ctx, masterGain, () => {
-          const curr = ctx.currentTime;
-          const bounceCount = 4 + Math.floor(Math.random() * 3);
-          for (let i = 0; i < bounceCount; i++) {
-            const bDelay = i * 0.08 + Math.random() * 0.045;
-            const bNoise = this.createNoiseSource(ctx, 'white');
-            const bFilter = ctx.createBiquadFilter();
-            bFilter.type = 'bandpass';
-            bFilter.frequency.setValueAtTime(550 + Math.random() * 1100, curr + bDelay);
-            bFilter.Q.setValueAtTime(4.2, curr + bDelay);
-            const bGain = ctx.createGain();
-            const bVol = (0.16 - i * 0.018) * (0.85 + Math.random() * 0.3);
-            bGain.gain.setValueAtTime(Math.max(0.04, bVol), curr + bDelay);
-            bGain.gain.exponentialRampToValueAtTime(0.0001, curr + bDelay + 0.045);
-            bNoise.connect(bFilter);
-            bFilter.connect(bGain);
-            bGain.connect(masterGain);
-            bNoise.start(curr + bDelay);
-            bNoise.stop(curr + bDelay + 0.055);
+        // Helper to synthesize a distant sandstone rock bounce against a canyon cliff ledge
+        const playDistantRockBounce = (
+          impactTime: number,
+          mass: 'heavy' | 'medium' | 'small',
+          gainMul = 1.0,
+          triggerEcho = true
+        ) => {
+          // Distance lowpass filter: distance absorbs high frequencies, placing the sound deep into the canyon background
+          const distFilter = ctx.createBiquadFilter();
+          distFilter.type = 'lowpass';
+          distFilter.frequency.setValueAtTime(mass === 'heavy' ? 1000 : mass === 'medium' ? 1400 : 1800, impactTime);
+          distFilter.Q.setValueAtTime(0.7, impactTime);
+          distFilter.connect(masterGain);
+
+          // 1. Solid sandstone impact body resonance (sine pitch drop simulating rock mass)
+          const bodyOsc = ctx.createOscillator();
+          bodyOsc.type = 'sine';
+          const startPitch = mass === 'heavy' ? 150 + Math.random() * 25 : mass === 'medium' ? 220 + Math.random() * 35 : 320 + Math.random() * 50;
+          const endPitch = startPitch * 0.42;
+          const dur = mass === 'heavy' ? 0.055 : mass === 'medium' ? 0.042 : 0.030;
+          bodyOsc.frequency.setValueAtTime(startPitch, impactTime);
+          bodyOsc.frequency.exponentialRampToValueAtTime(endPitch, impactTime + dur);
+
+          const bodyGain = ctx.createGain();
+          const baseVol = (mass === 'heavy' ? 0.055 : mass === 'medium' ? 0.042 : 0.026) * gainMul;
+          bodyGain.gain.setValueAtTime(baseVol, impactTime);
+          bodyGain.gain.exponentialRampToValueAtTime(0.0001, impactTime + dur);
+
+          bodyOsc.connect(bodyGain);
+          bodyGain.connect(distFilter);
+          bodyOsc.start(impactTime);
+          bodyOsc.stop(impactTime + dur + 0.01);
+
+          // 2. Sandstone fracture crunch (bandpassed noise impulse)
+          const cNoise = this.createNoiseSource(ctx, 'pink');
+          const cFilter = ctx.createBiquadFilter();
+          cFilter.type = 'bandpass';
+          const centerFreq = mass === 'heavy' ? 620 : mass === 'medium' ? 950 : 1350;
+          cFilter.frequency.setValueAtTime(centerFreq + (Math.random() * 120 - 60), impactTime);
+          cFilter.Q.setValueAtTime(3.2, impactTime);
+
+          const cGain = ctx.createGain();
+          const cVol = (mass === 'heavy' ? 0.038 : mass === 'medium' ? 0.030 : 0.018) * gainMul;
+          cGain.gain.setValueAtTime(cVol, impactTime);
+          cGain.gain.exponentialRampToValueAtTime(0.0001, impactTime + dur * 1.1);
+
+          cNoise.connect(cFilter);
+          cFilter.connect(cGain);
+          cGain.connect(distFilter);
+          cNoise.start(impactTime);
+          cNoise.stop(impactTime + dur * 1.2);
+
+          // 3. Canyon wall slapback echo reflection (delayed 200-340ms, muffled reflection)
+          if (triggerEcho) {
+            const echoDelay = 0.20 + Math.random() * 0.14;
+            const echoTime = impactTime + echoDelay;
+            const echoOsc = ctx.createOscillator();
+            echoOsc.type = 'sine';
+            echoOsc.frequency.setValueAtTime(startPitch * 0.78, echoTime);
+            echoOsc.frequency.exponentialRampToValueAtTime(endPitch * 0.7, echoTime + 0.08);
+
+            const echoGain = ctx.createGain();
+            const echoVol = baseVol * 0.28;
+            echoGain.gain.setValueAtTime(echoVol, echoTime);
+            echoGain.gain.exponentialRampToValueAtTime(0.0001, echoTime + 0.12);
+
+            echoOsc.connect(echoGain);
+            echoGain.connect(distFilter);
+            echoOsc.start(echoTime);
+            echoOsc.stop(echoTime + 0.14);
           }
-          if (Math.random() > 0.35) {
-            window.setTimeout(() => {
-              this.playSample('cards/stones_01.ogg', settings, 0.42, 0.12);
-            }, 70);
+        };
+
+        // Distant sandstone rockfalls tumbling down cliff ledges (less frequent: every 24-52s, varied variations)
+        this.scheduleRandomEvent(24000, 52000, intervalIds, ctx, masterGain, () => {
+          const curr = ctx.currentTime;
+          const variation = Math.random();
+
+          if (variation < 0.45) {
+            // Variation 1: Multi-bounce boulder cascading down cliff ledges
+            // Impacts accelerate under gravity as distance between ledges decreases, finishing with tumbling pebbles
+            const bounces: { offset: number; mass: 'heavy' | 'medium' | 'small'; gain: number }[] = [
+              { offset: 0.00, mass: 'medium', gain: 0.85 }, // initial break & first ledge strike
+              { offset: 0.38, mass: 'heavy', gain: 1.00 },  // second lower ledge impact (hard hit)
+              { offset: 0.69, mass: 'medium', gain: 0.78 }, // third ledge bounce
+              { offset: 0.92, mass: 'small', gain: 0.60 },  // fourth ledge bounce
+              { offset: 1.10, mass: 'small', gain: 0.45 },  // rolls off onto scree
+              { offset: 1.24, mass: 'small', gain: 0.32 },  // tumbling pebble
+              { offset: 1.36, mass: 'small', gain: 0.20 },  // final settling stone
+            ];
+            bounces.forEach((b) => {
+              playDistantRockBounce(curr + b.offset, b.mass, b.gain, b.mass === 'heavy');
+            });
+          } else if (variation < 0.78) {
+            // Variation 2: Talus / Scree slope shower (loose gravel & stones skittering down a canyon chute)
+            playDistantRockBounce(curr, 'medium', 0.7, false);
+            const pebbleCount = 7 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < pebbleCount; i++) {
+              const pOffset = 0.12 + Math.pow(i / pebbleCount, 1.3) * 1.5 + Math.random() * 0.08;
+              const pGain = (0.2 + Math.random() * 0.35) * (1 - i / (pebbleCount * 1.2));
+              playDistantRockBounce(curr + pOffset, 'small', pGain, false);
+            }
+          } else {
+            // Variation 3: Distant high cliff slab drop (prolonged freefall followed by thunderous distant impact & secondary bounce)
+            playDistantRockBounce(curr, 'small', 0.5, false); // initial dislodge clink
+            // Freefall drop silence for 0.52s... then heavy canyon ledge collision!
+            playDistantRockBounce(curr + 0.52, 'heavy', 1.15, true);
+            playDistantRockBounce(curr + 0.94, 'medium', 0.80, true);
+            playDistantRockBounce(curr + 1.22, 'small', 0.50, false);
+            playDistantRockBounce(curr + 1.40, 'small', 0.30, false);
           }
         });
 
