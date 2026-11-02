@@ -41,6 +41,8 @@ import {
   CARD_CATEGORY_LABELS,
 } from './CardBanner';
 import type { CardVisualCategory } from './CardBanner';
+import { soundEngine } from '../utils/soundEngine';
+import { SOUND_CATALOG, SOUND_CATEGORIES } from '../data/soundCatalog';
 
 export interface SpriteManifestEntry {
   id: string;
@@ -49,7 +51,14 @@ export interface SpriteManifestEntry {
   url: string;
 }
 
-type EditorTab = 'enemies' | 'cards' | 'relics' | 'environments' | 'events' | 'map_phrases';
+type EditorTab =
+  | 'enemies'
+  | 'cards'
+  | 'relics'
+  | 'environments'
+  | 'events'
+  | 'map_phrases'
+  | 'sounds';
 
 interface DevJsonEditorProps {
   onClose: () => void;
@@ -251,6 +260,13 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
   const [selectedEnvIdx, setSelectedEnvIdx] = useState<number>(0);
   const [selectedEventIdx, setSelectedEventIdx] = useState<number>(0);
 
+  // Sound studio state
+  const [soundSubTab, setSoundSubTab] = useState<'library' | 'assignments' | 'global'>('library');
+  const [soundCategoryFilter, setSoundCategoryFilter] = useState<string>('all');
+  const [soundSearchQuery, setSoundSearchQuery] = useState<string>('');
+  const [playingSoundId, setPlayingSoundId] = useState<string | null>(null);
+  const [cardSoundFilter, setCardSoundFilter] = useState<string>('all');
+
   const detailPaneRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -419,6 +435,8 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
         return { fileName: 'events.json', data: eventsList };
       case 'map_phrases':
         return { fileName: 'map_phrases.json', data: mapPhrases };
+      case 'sounds':
+        return { fileName: 'cards.json', data: cardsList };
     }
   };
 
@@ -900,9 +918,13 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             type="button"
             className="dev-btn dev-btn-primary"
             onClick={handleSaveCurrentTabToDisk}
-            title={`Directly saves & overwrites src/data/${activeTab}.json on disk (with File Explorer fallback)`}
+            title={
+              activeTab === 'sounds'
+                ? 'Saves updated card SFX assignments to src/data/cards.json on disk'
+                : `Directly saves & overwrites src/data/${activeTab}.json on disk (with File Explorer fallback)`
+            }
           >
-            💾 Save {activeTab}.json to Disk
+            💾 {activeTab === 'sounds' ? 'Save Card SFX (cards.json)' : `Save ${activeTab}.json to Disk`}
           </button>
           <button
             type="button"
@@ -969,6 +991,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             { id: 'environments', label: `🌍 Battle Environments (${environmentsList.length})` },
             { id: 'events', label: `❓ Mystery Events (${eventsList.length})` },
             { id: 'map_phrases', label: `🗺️ Map Phrases` },
+            { id: 'sounds', label: `🔊 Sounds & SFX (${SOUND_CATALOG.length})` },
           ] as { id: EditorTab; label: string }[]
         ).map((t) => (
           <button
@@ -2026,6 +2049,81 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                   />
                   Once Per Combat (Burn Draft)
                 </label>
+
+                {/* Card Sound Effect Selector & Live Audition */}
+                <div
+                  className="dev-field dev-sound-field"
+                  style={{ gridColumn: '1 / -1', marginTop: 4, background: '#f8fafc', padding: '10px 12px', borderRadius: 8, border: '1.5px solid #cbd5e1' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontWeight: 800, color: '#1e293b' }}>🔊 Card Sound Effect (SFX)</span>
+                    <span style={{ fontSize: '0.74rem', color: '#64748b' }}>Plays on card cast</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <select
+                      style={{ flex: 1, padding: '7px 10px', fontSize: '0.86rem' }}
+                      value={activeCard.sfx || soundEngine.getCardSfx(activeCard.id) || 'cards/blade_01.ogg'}
+                      onChange={(e) => {
+                        const newSfx = e.target.value;
+                        updateActiveCard((c) => ({ ...c, sfx: newSfx }));
+                        soundEngine.updateCardSfx(activeCard.id, newSfx);
+                      }}
+                    >
+                      {SOUND_CATEGORIES.filter((c) => c !== 'UI & Combat Global').map((cat) => (
+                        <optgroup key={cat} label={cat}>
+                          {SOUND_CATALOG.filter((s) => s.category === cat).map((sound) => (
+                            <option key={sound.id} value={sound.id}>
+                              {sound.label} — {sound.description}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className="dev-btn-secondary"
+                      style={{
+                        padding: '7px 16px',
+                        background: '#047857',
+                        color: '#ffffff',
+                        border: '1.5px solid #065f46',
+                        borderRadius: 6,
+                        fontWeight: 800,
+                        fontSize: '0.86rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onClick={() => {
+                        const sfx = activeCard.sfx || soundEngine.getCardSfx(activeCard.id) || 'cards/blade_01.ogg';
+                        soundEngine.playCardSound(
+                          activeCard.id,
+                          { volume: 0.85, muted: false, typingSound: 'mechanical_typewriter', confirmSound: 'carriage_bell', highContrast: false },
+                          sfx
+                        );
+                      }}
+                      title="Audition this card's sound effect with card flick layer"
+                    >
+                      🔊 Listen
+                    </button>
+                  </div>
+                  {(() => {
+                    const currentSfx = activeCard.sfx || soundEngine.getCardSfx(activeCard.id) || 'cards/blade_01.ogg';
+                    const item = SOUND_CATALOG.find((s) => s.id === currentSfx);
+                    if (item) {
+                      return (
+                        <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: 5, display: 'flex', gap: 10, alignItems: 'center' }}>
+                          <span className="dev-sound-cat-badge">{item.category}</span>
+                          <span className="dev-sound-path-code">{item.id}</span>
+                          <span>{item.description}</span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                </div>
               </div>
             </div>
 
@@ -3324,6 +3422,469 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                 </div>
               ))}
             </section>
+          </main>
+        </div>
+      )}
+
+      {/* ==================== TAB 7: SOUNDS & AUDIO STUDIO ==================== */}
+      {activeTab === 'sounds' && (
+        <div className="dev-editor-body dev-sound-studio">
+          <main className="dev-detail-pane" style={{ width: '100%' }}>
+            {/* Top Toolbar Card */}
+            <section className="dev-section-card dev-sound-toolbar-card">
+              <div className="dev-sound-toolbar-header">
+                <div>
+                  <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+                    <span>🔊 Arcane Sound & SFX Studio</span>
+                    <span className="dev-badge-count">{SOUND_CATALOG.length} Sounds</span>
+                  </h3>
+                  <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+                    Listen to every sound effect, test layered audio, and edit card sound assignments in real-time.
+                  </p>
+                </div>
+                {/* Sub-tab Switcher */}
+                <div className="dev-sound-subtabs">
+                  <button
+                    type="button"
+                    className={`dev-btn ${soundSubTab === 'library' ? 'dev-btn-active' : ''}`}
+                    onClick={() => setSoundSubTab('library')}
+                  >
+                    🎵 Soundboard Library ({SOUND_CATALOG.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`dev-btn ${soundSubTab === 'assignments' ? 'dev-btn-active' : ''}`}
+                    onClick={() => setSoundSubTab('assignments')}
+                  >
+                    🃏 Card SFX Assignments ({cardsList.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`dev-btn ${soundSubTab === 'global' ? 'dev-btn-active' : ''}`}
+                    onClick={() => setSoundSubTab('global')}
+                  >
+                    ⚙️ Global Audio Profiles
+                  </button>
+                </div>
+              </div>
+
+              {/* Filters row for library & assignments */}
+              {soundSubTab === 'library' && (
+                <div className="dev-sound-filter-row">
+                  <input
+                    type="text"
+                    className="dev-search-input"
+                    placeholder="Search sounds by label, path, category, or description (e.g. blade, fire, curse, roar, metal, book)..."
+                    value={soundSearchQuery}
+                    onChange={(e) => setSoundSearchQuery(e.target.value)}
+                  />
+                  <div className="dev-sound-cat-pills">
+                    <button
+                      type="button"
+                      className={`dev-pack-pill ${soundCategoryFilter === 'all' ? 'dev-pack-pill-active' : ''}`}
+                      onClick={() => setSoundCategoryFilter('all')}
+                    >
+                      All ({SOUND_CATALOG.length})
+                    </button>
+                    {SOUND_CATEGORIES.map((cat) => {
+                      const count = SOUND_CATALOG.filter((s) => s.category === cat).length;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          className={`dev-pack-pill ${soundCategoryFilter === cat ? 'dev-pack-pill-active' : ''}`}
+                          onClick={() => setSoundCategoryFilter(cat)}
+                        >
+                          {cat} ({count})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {soundSubTab === 'assignments' && (
+                <div className="dev-sound-filter-row">
+                  <input
+                    type="text"
+                    className="dev-search-input"
+                    placeholder="Search cards by name or ID (e.g. Ink Strike, Vellum Coat, Smudge, Binding)..."
+                    value={soundSearchQuery}
+                    onChange={(e) => setSoundSearchQuery(e.target.value)}
+                  />
+                  <div className="dev-sound-cat-pills">
+                    {['all', 'attack', 'defence', 'skill', 'power', 'debuff'].map((cat) => {
+                      const count =
+                        cat === 'all'
+                          ? cardsList.length
+                          : cardsList.filter((c) => getCardVisualCategory(c as any) === cat).length;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          className={`dev-pack-pill ${cardSoundFilter === cat ? 'dev-pack-pill-active' : ''}`}
+                          onClick={() => setCardSoundFilter(cat)}
+                        >
+                          {cat.toUpperCase()} ({count})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* SUB-VIEW 1: SOUNDBOARD LIBRARY */}
+            {soundSubTab === 'library' && (() => {
+              const q = soundSearchQuery.toLowerCase().trim();
+              const filteredSounds = SOUND_CATALOG.filter((s) => {
+                if (soundCategoryFilter !== 'all' && s.category !== soundCategoryFilter) return false;
+                if (!q) return true;
+                return (
+                  s.label.toLowerCase().includes(q) ||
+                  s.id.toLowerCase().includes(q) ||
+                  s.category.toLowerCase().includes(q) ||
+                  s.description.toLowerCase().includes(q)
+                );
+              });
+
+              return (
+                <div className="dev-sound-grid">
+                  {filteredSounds.map((snd) => {
+                    const cardsUsing = cardsList.filter(
+                      (c) => (c.sfx || soundEngine.getCardSfx(c.id)) === snd.id
+                    );
+                    const isPlaying = playingSoundId === snd.id;
+
+                    return (
+                      <div
+                        key={snd.id}
+                        className={`dev-sound-card ${isPlaying ? 'is-playing' : ''}`}
+                      >
+                        <div>
+                          <div className="dev-sound-card-header">
+                            <div>
+                              <div className="dev-sound-card-title">{snd.label}</div>
+                              <span className="dev-sound-cat-badge">{snd.category}</span>
+                            </div>
+                            <button
+                              type="button"
+                              className="dev-btn dev-btn-primary"
+                              style={{
+                                padding: '6px 14px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => {
+                                setPlayingSoundId(snd.id);
+                                soundEngine.playAudition(snd.id);
+                                window.setTimeout(() => {
+                                  setPlayingSoundId((curr) => (curr === snd.id ? null : curr));
+                                }, 1200);
+                              }}
+                              title={`Play ${snd.label}`}
+                            >
+                              {isPlaying ? '🔊 Playing...' : '▶ Listen'}
+                            </button>
+                          </div>
+                          <div style={{ marginTop: 6, fontSize: '0.80rem', color: '#475569' }}>
+                            {snd.description}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div style={{ marginBottom: 6 }}>
+                            <span className="dev-sound-path-code">{snd.id}</span>
+                          </div>
+                          <div className="dev-sound-used-by">
+                            <span>Used by {cardsUsing.length} card{cardsUsing.length === 1 ? '' : 's'}:</span>
+                            {cardsUsing.length > 0 ? (
+                              cardsUsing.slice(0, 4).map((c) => (
+                                <span key={c.id} className="dev-sound-card-chip">
+                                  {c.names.easy || c.id}
+                                </span>
+                              ))
+                            ) : (
+                              <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>None</span>
+                            )}
+                            {cardsUsing.length > 4 && (
+                              <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                                +{cardsUsing.length - 4} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
+            {/* SUB-VIEW 2: CARD SFX ASSIGNMENTS */}
+            {soundSubTab === 'assignments' && (() => {
+              const q = soundSearchQuery.toLowerCase().trim();
+              const filteredCards = cardsList.filter((card) => {
+                const cat = getCardVisualCategory(card as any);
+                if (cardSoundFilter !== 'all' && cat !== cardSoundFilter) return false;
+                if (!q) return true;
+                const nameEasy = card.names.easy.toLowerCase();
+                const nameMed = (card.names.medium || '').toLowerCase();
+                const nameHard = (card.names.hard || '').toLowerCase();
+                const sfx = (card.sfx || soundEngine.getCardSfx(card.id) || '').toLowerCase();
+                return (
+                  nameEasy.includes(q) ||
+                  nameMed.includes(q) ||
+                  nameHard.includes(q) ||
+                  card.id.toLowerCase().includes(q) ||
+                  sfx.includes(q)
+                );
+              });
+
+              return (
+                <section className="dev-section-card" style={{ marginTop: 12 }}>
+                  <div className="dev-sound-table-wrap">
+                    <table className="dev-sound-table">
+                      <thead>
+                        <tr>
+                          <th>Card</th>
+                          <th>Category & Cost</th>
+                          <th>Rarity</th>
+                          <th>Assigned Sound Effect</th>
+                          <th>Audition & Test</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredCards.map((card) => {
+                          const cat = getCardVisualCategory(card as any);
+                          const currentSfx = card.sfx || soundEngine.getCardSfx(card.id) || 'cards/blade_01.ogg';
+                          const isPlaying = playingSoundId === `card_${card.id}`;
+
+                          return (
+                            <tr key={card.id}>
+                              <td>
+                                <div style={{ fontWeight: 800, color: '#0f172a' }}>{card.names.easy}</div>
+                                <div style={{ fontSize: '0.72rem', color: '#64748b', fontFamily: 'monospace' }}>
+                                  {card.id}
+                                </div>
+                              </td>
+                              <td>
+                                <span
+                                  style={{
+                                    display: 'inline-block',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 800,
+                                    padding: '2px 7px',
+                                    borderRadius: 4,
+                                    background: '#e2e8f0',
+                                    color: '#1e293b',
+                                    marginRight: 6,
+                                  }}
+                                >
+                                  {cat.toUpperCase()}
+                                </span>
+                                <span style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                                  {card.xCost ? 'X⚡' : `${card.cost}⚡`}
+                                </span>
+                              </td>
+                              <td>
+                                <span
+                                  style={{
+                                    fontSize: '0.72rem',
+                                    fontWeight: 800,
+                                    padding: '2px 6px',
+                                    borderRadius: 4,
+                                    textTransform: 'uppercase',
+                                    background:
+                                      card.rarity === 'rare'
+                                        ? '#fef08a'
+                                        : card.rarity === 'uncommon'
+                                        ? '#bae6fd'
+                                        : '#e2e8f0',
+                                    color:
+                                      card.rarity === 'rare'
+                                        ? '#713f12'
+                                        : card.rarity === 'uncommon'
+                                        ? '#0369a1'
+                                        : '#334155',
+                                  }}
+                                >
+                                  {card.rarity}
+                                </span>
+                              </td>
+                              <td>
+                                <select
+                                  style={{
+                                    width: '100%',
+                                    maxWidth: 360,
+                                    padding: '5px 8px',
+                                    fontSize: '0.82rem',
+                                    borderRadius: 6,
+                                  }}
+                                  value={currentSfx}
+                                  onChange={(e) => {
+                                    const newSfx = e.target.value;
+                                    setCardsList((prev) =>
+                                      prev.map((c) => (c.id === card.id ? { ...c, sfx: newSfx } : c))
+                                    );
+                                    soundEngine.updateCardSfx(card.id, newSfx);
+                                  }}
+                                >
+                                  {SOUND_CATEGORIES.filter((cCat) => cCat !== 'UI & Combat Global').map((cCat) => (
+                                    <optgroup key={cCat} label={cCat}>
+                                      {SOUND_CATALOG.filter((s) => s.category === cCat).map((s) => (
+                                        <option key={s.id} value={s.id}>
+                                          {s.label} ({s.id})
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                  ))}
+                                </select>
+                              </td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="dev-btn dev-btn-primary"
+                                  style={{
+                                    padding: '5px 12px',
+                                    fontSize: '0.80rem',
+                                    fontWeight: 800,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 5,
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                  onClick={() => {
+                                    setPlayingSoundId(`card_${card.id}`);
+                                    soundEngine.playCardSound(
+                                      card.id,
+                                      { volume: 0.85, muted: false, typingSound: 'mechanical_typewriter', confirmSound: 'carriage_bell', highContrast: false },
+                                      currentSfx
+                                    );
+                                    window.setTimeout(() => {
+                                      setPlayingSoundId((curr) => (curr === `card_${card.id}` ? null : curr));
+                                    }, 1200);
+                                  }}
+                                >
+                                  {isPlaying ? '🔊 Testing...' : '▶ Listen'}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              );
+            })()}
+
+            {/* SUB-VIEW 3: GLOBAL AUDIO PROFILES */}
+            {soundSubTab === 'global' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 12 }}>
+                {/* Typing sound profiles */}
+                <section className="dev-section-card">
+                  <h4 style={{ margin: 0, color: '#0f172a' }}>⌨️ Typing Sound Profiles</h4>
+                  <p style={{ margin: '4px 0 10px', fontSize: '0.82rem', color: '#64748b' }}>
+                    Interactive sound effects triggered with each keystroke as the player types.
+                  </p>
+                  <div className="dev-sound-grid">
+                    {[
+                      { id: 'typewriter', label: 'Mechanical Typewriter', desc: 'Crisp striker keystroke click and physical carriage tap.' },
+                      { id: 'telegraph', label: 'Vintage Telegraph', desc: 'Rapid electronic telegraph sound with sharp square-wave tone.' },
+                      { id: 'quill', label: 'Arcane Quill', desc: 'Textured parchment scraping quill pen sound.' },
+                      { id: 'chalk', label: 'Soft Chalk', desc: 'Muffled gentle blackboard slate tapping sound.' },
+                    ].map((item) => (
+                      <div key={item.id} className="dev-sound-card">
+                        <div>
+                          <div className="dev-sound-card-title">{item.label}</div>
+                          <div style={{ fontSize: '0.80rem', color: '#475569', marginTop: 4 }}>{item.desc}</div>
+                        </div>
+                        <button
+                          type="button"
+                          className="dev-btn dev-btn-primary"
+                          style={{ padding: '6px 14px', alignSelf: 'flex-start', cursor: 'pointer' }}
+                          onClick={() => soundEngine.playAudition(item.id)}
+                        >
+                          ▶ Listen Sample
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Confirmations & Chimes */}
+                <section className="dev-section-card">
+                  <h4 style={{ margin: 0, color: '#0f172a' }}>🔔 Confirmations & Bell Chimes</h4>
+                  <p style={{ margin: '4px 0 10px', fontSize: '0.82rem', color: '#64748b' }}>
+                    Audio played when pressing Enter to confirm selections and play cards.
+                  </p>
+                  <div className="dev-sound-grid">
+                    {[
+                      { id: 'carriage_bell', label: 'Carriage Bell', desc: 'Classic mechanical typewriter return bell chime.' },
+                      { id: 'spell_chime', label: 'Spell Harmonizer Chime', desc: 'Resonant crystalline arcane bell frequency.' },
+                      { id: 'heavy_stamp', label: 'Heavy Wax Seal Stamp', desc: 'Deep brass stamp reverberation with low sub-punch.' },
+                    ].map((item) => (
+                      <div key={item.id} className="dev-sound-card">
+                        <div>
+                          <div className="dev-sound-card-title">{item.label}</div>
+                          <div style={{ fontSize: '0.80rem', color: '#475569', marginTop: 4 }}>{item.desc}</div>
+                        </div>
+                        <button
+                          type="button"
+                          className="dev-btn dev-btn-primary"
+                          style={{ padding: '6px 14px', alignSelf: 'flex-start', cursor: 'pointer' }}
+                          onClick={() => soundEngine.playAudition(item.id)}
+                        >
+                          ▶ Listen Chime
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Combat & Gameplay SFX */}
+                <section className="dev-section-card">
+                  <h4 style={{ margin: 0, color: '#0f172a' }}>⚔️ Combat & Stage SFX</h4>
+                  <p style={{ margin: '4px 0 10px', fontSize: '0.82rem', color: '#64748b' }}>
+                    Engine sound effects for battle collisions, chance wheel, card drawing, and book navigation.
+                  </p>
+                  <div className="dev-sound-grid">
+                    {[
+                      { id: 'wheel_tick', label: 'Chance Wheel Flapper Tick', desc: 'Crisp mechanical tick as pointer strikes wheel knobs.' },
+                      { id: 'attack_hit.ogg', label: 'Combat Direct Hit', desc: 'Punchy melee combat impact on monster body.' },
+                      { id: 'ward_block.ogg', label: 'Ward Rune Deflect', desc: 'Firm protective ward rune shield block.' },
+                      { id: 'draw.wav', label: 'Card Draw', desc: 'Snappy card draw flick from the library deck.' },
+                      { id: 'play_card.wav', label: 'Card Cast Flick', desc: 'Tactile physical card flick onto the table.' },
+                      { id: 'shuffle.wav', label: 'Deck Shuffle', desc: 'Full card deck riffle and cut shuffle.' },
+                      { id: 'burn_card.mp3', label: 'Burn Draft / Exhaust', desc: 'Paper ash burning dissolve sound.' },
+                      { id: 'page_turn.mp3', label: 'Codex Page Turn', desc: 'Gentle parchment codex page turn.' },
+                      { id: 'map_open.mp3', label: 'Map Parchment Unroll', desc: 'Heavy ancient navigation map unrolling.' },
+                      { id: 'road_choose.mp3', label: 'Dungeon Footstep', desc: 'Firm boot step along dungeon road.' },
+                    ].map((item) => (
+                      <div key={item.id} className="dev-sound-card">
+                        <div>
+                          <div className="dev-sound-card-title">{item.label}</div>
+                          <div style={{ fontSize: '0.80rem', color: '#475569', marginTop: 4 }}>{item.desc}</div>
+                        </div>
+                        <button
+                          type="button"
+                          className="dev-btn dev-btn-primary"
+                          style={{ padding: '6px 14px', alignSelf: 'flex-start', cursor: 'pointer' }}
+                          onClick={() => soundEngine.playAudition(item.id)}
+                        >
+                          ▶ Listen SFX
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
           </main>
         </div>
       )}

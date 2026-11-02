@@ -181,6 +181,7 @@ export function resolveCardInstance(
   effects: CardEffect[];
   burnDraft: boolean;
   art: CardDefinition['art'];
+  sfx?: string;
 } {
   const def = getCardDefinition(instance.cardId);
   const isXCost =
@@ -214,6 +215,7 @@ export function resolveCardInstance(
           ? def.upgrade.burnDraft
           : Boolean(def.burnDraft),
       art: def.art,
+      sfx: def.sfx,
     };
   }
 
@@ -232,6 +234,7 @@ export function resolveCardInstance(
     effects: def.effects,
     burnDraft: Boolean(def.burnDraft),
     art: def.art,
+    sfx: def.sfx,
   };
 }
 

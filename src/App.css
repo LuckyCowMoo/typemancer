@@ -3268,6 +3268,173 @@ body,
   border-color: #115e59;
 }
 
+/* Dev Editor Sound Studio & SFX Controls */
+.dev-sound-studio {
+  width: 100%;
+}
+
+.dev-sound-toolbar-card {
+  gap: 12px;
+}
+
+.dev-sound-toolbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dev-sound-subtabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dev-sound-subtabs .dev-btn-active {
+  background: #1e3a8a !important;
+  color: #eff6ff !important;
+  border-color: #172554 !important;
+}
+
+.dev-sound-filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dev-sound-cat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.dev-sound-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.dev-sound-card {
+  background: #fbf7ee;
+  border: 1.5px solid #d4c3a3;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dev-sound-card:hover {
+  transform: translateY(-2px);
+  border-color: #047857;
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.15);
+}
+
+.dev-sound-card.is-playing {
+  border-color: #10b981 !important;
+  background: #ecfdf5 !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.45) !important;
+}
+
+.dev-sound-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dev-sound-card-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.dev-sound-cat-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #e2e8f0;
+  color: #334155;
+  margin-top: 3px;
+}
+
+.dev-sound-path-code {
+  font-family: monospace;
+  font-size: 0.72rem;
+  background: rgba(15, 23, 42, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #475569;
+  word-break: break-all;
+}
+
+.dev-sound-used-by {
+  font-size: 0.74rem;
+  color: #64748b;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.dev-sound-card-chip {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.dev-sound-table-wrap {
+  overflow-x: auto;
+  border: 1.5px solid #d4c3a3;
+  border-radius: 8px;
+  background: #fbf7ee;
+}
+
+.dev-sound-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  text-align: left;
+}
+
+.dev-sound-table th {
+  background: #ece3d2;
+  color: #1e293b;
+  font-weight: 800;
+  padding: 10px 12px;
+  border-bottom: 2px solid #d4c3a3;
+  white-space: nowrap;
+}
+
+.dev-sound-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e7dbca;
+  vertical-align: middle;
+}
+
+.dev-sound-table tr:hover {
+  background: #f5eedf;
+}
+
+.dev-badge-count {
+  font-size: 0.76rem;
+  font-weight: 800;
+  background: #1e3a8a;
+  color: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
 .dev-btn-add {
   background: #d97706;
   color: #ffffff;

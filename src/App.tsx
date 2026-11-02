@@ -615,7 +615,7 @@ export function App() {
       const xMultiplier = isXCost ? Math.max(0, energy) : 1;
       let nextEnergy = isXCost ? 0 : energy - resolved.cost;
 
-      soundEngine.playCardSound(resolved.cardId, settings);
+      soundEngine.playCardSound(resolved.cardId, settings, resolved.sfx);
       const cardPalette = [
         resolved.art.primaryColor || '#bc5215',
         resolved.art.secondaryColor || '#d97706',

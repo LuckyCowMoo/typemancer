@@ -127,9 +127,15 @@ class SoundEngine {
    * Plays the distinctive custom sound effect assigned to a specific card,
    * layering in the subtle tactile card flick for satisfying audio feedback.
    */
-  public playCardSound(cardId: string, settings: GameSettings): void {
+  public playCardSound(cardId: string, settings: GameSettings, sfxOverride?: string): void {
     // Subtle physical card flick sound
     this.playCardCast(settings);
+
+    // If an explicit SFX is provided (e.g. from editor or card JSON definition), play that directly
+    if (sfxOverride) {
+      this.playSample(sfxOverride, settings, 0.76, 0.05);
+      return;
+    }
 
     // Look up card's unique SFX from registry
     const mapped = CARD_SFX_MAP[cardId];
@@ -140,6 +146,83 @@ class SoundEngine {
 
     // Default fallback
     this.playSample('cards/blade_01.ogg', settings, 0.7, 0.05);
+  }
+
+  /**
+   * Play any audio sample directly by path for previewing in the Dev JSON Editor sound studio.
+   */
+  public playSampleDirect(
+    filename: string,
+    settings?: Partial<GameSettings>,
+    volumeMultiplier = 0.8
+  ): void {
+    const fullSettings: GameSettings = {
+      volume: 0.8,
+      typingSound: 'mechanical_typewriter',
+      confirmSound: 'carriage_bell',
+      highContrast: false,
+      muted: false,
+      ...settings,
+    };
+    this.playSample(filename, fullSettings, volumeMultiplier, 0);
+  }
+
+  /**
+   * Audition any sound by sound ID, handling both file samples and synthesized engine audio.
+   */
+  public playAudition(soundId: string, settings?: Partial<GameSettings>): void {
+    const fullSettings: GameSettings = {
+      volume: 0.85,
+      typingSound: 'mechanical_typewriter',
+      confirmSound: 'carriage_bell',
+      highContrast: false,
+      muted: false,
+      ...settings,
+    };
+
+    switch (soundId) {
+      case 'wheel_tick':
+        this.playWheelTick(fullSettings);
+        break;
+      case 'typewriter':
+        this.playKeystroke({ ...fullSettings, typingSound: 'mechanical_typewriter' });
+        break;
+      case 'telegraph':
+        this.playKeystroke({ ...fullSettings, typingSound: 'vintage_telegraph' });
+        break;
+      case 'quill':
+        this.playKeystroke({ ...fullSettings, typingSound: 'arcane_quill' });
+        break;
+      case 'chalk':
+        this.playKeystroke({ ...fullSettings, typingSound: 'soft_chalk' });
+        break;
+      case 'carriage_bell':
+        this.playConfirm({ ...fullSettings, confirmSound: 'carriage_bell' });
+        break;
+      case 'spell_chime':
+        this.playConfirm({ ...fullSettings, confirmSound: 'spell_chime' });
+        break;
+      case 'heavy_stamp':
+        this.playConfirm({ ...fullSettings, confirmSound: 'heavy_stamp' });
+        break;
+      default:
+        this.playSample(soundId, fullSettings, 0.8, 0);
+        break;
+    }
+  }
+
+  /**
+   * Update or override card SFX mapping in memory when edited in DevJsonEditor.
+   */
+  public updateCardSfx(cardId: string, sfx: string, volume = 0.76): void {
+    CARD_SFX_MAP[cardId] = { sfx, volume };
+  }
+
+  /**
+   * Retrieve current mapped SFX for a card.
+   */
+  public getCardSfx(cardId: string): string | undefined {
+    return CARD_SFX_MAP[cardId]?.sfx;
   }
 
   public playMapOpen(settings: GameSettings): void {
