@@ -40,6 +40,7 @@ export interface CodexModalProps {
   playerExposed?: number;
   onSelectEntry?: (id: string) => void;
   onChangeTab?: (tab: CodexTab) => void;
+  onClose?: () => void;
 }
 
 function formatFaction(faction: string): string {
@@ -72,6 +73,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
   playerExposed = 0,
   onSelectEntry,
   onChangeTab,
+  onClose,
 }) => {
   const gridContainerRef = useRef<HTMLDivElement>(null);
 
@@ -289,6 +291,13 @@ export const CodexModal: React.FC<CodexModalProps> = ({
         return;
       }
 
+      // Escape key closes codex
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose?.();
+        return;
+      }
+
       const gridContainer = gridContainerRef.current;
       const total = currentTabItems.length;
 
@@ -391,7 +400,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeTab, currentIndex, currentTabItems, onChangeTab, onSelectEntry, tabs]);
+  }, [activeTab, currentIndex, currentTabItems, onChangeTab, onClose, onSelectEntry, tabs]);
 
   return (
     <div className="codex-modal-overlay">
@@ -459,22 +468,18 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           flex-wrap: wrap;
         }
 
-        .codex-title-group {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .codex-title {
-          font-size: 1.35rem;
-          font-weight: 800;
-          color: #102027;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-          margin: 0;
+        .codex-nav-arrows-group {
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+
+        .codex-type-label {
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: #574837;
+          margin-right: 2px;
+          letter-spacing: 0.04em;
         }
 
         .codex-tabs-row {
@@ -525,29 +530,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           font-weight: 600;
         }
 
-        /* Prominent Navigation Toolbar */
-        .codex-nav-banner {
-          background: #dfd2be;
-          border-bottom: 2px solid #2b1e16;
-          padding: 7px 18px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 10px;
-          font-size: 0.82rem;
-          color: #2b1e16;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-        }
-
-        .codex-nav-banner-left,
-        .codex-nav-banner-right {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-
         .codex-key-group {
           display: inline-flex;
           align-items: center;
@@ -583,30 +565,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           color: #2b1e16;
         }
 
-        .codex-grid-action-hint {
-          background: #fdf8ef;
-          border: 1.5px dashed #7c674d;
-          border-radius: 8px;
-          padding: 6px 12px;
-          margin-bottom: 12px;
-          font-size: 0.78rem;
-          font-weight: 700;
-          color: #574837;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .codex-hint-kbd {
-          background: #3b281c;
-          color: #ffd166;
-          border: 1px solid #271911;
-          border-radius: 3px;
-          padding: 1px 5px;
-          font-size: 0.74rem;
-          font-weight: 900;
-        }
-
         /* Two-Pane Body */
         .codex-main-body {
           flex: 1;
@@ -615,14 +573,37 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           overflow: hidden;
         }
 
-        /* Left/Main Grid */
-        .codex-grid-pane {
-          flex: 1 1 58%;
+        /* Left Inspector Panel (Fully visible without scrolling) */
+        .codex-inspector-pane {
+          flex: 0 0 320px;
+          width: 320px;
+          background: #faf4e6;
+          padding: 12px 14px;
           overflow-y: auto;
-          padding: 16px;
-          border-right: 2px solid #2b1e16;
           box-sizing: border-box;
-          transition: flex 0.2s ease;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          border-right: 2px solid #2b1e16;
+          transition: width 0.2s ease, flex 0.2s ease;
+        }
+
+        .codex-inspector-pane.compact-inspector {
+          flex: 0 0 280px;
+          width: 280px;
+          padding: 10px 12px;
+        }
+
+        /* Right / Main Grid (All discovered & undiscovered entries) */
+        .codex-grid-pane {
+          flex: 1 1 0;
+          min-width: 0;
+          overflow-y: auto;
+          padding: 14px 16px 0 16px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          position: relative;
         }
 
         .codex-grid-pane.compact-grid {
@@ -634,6 +615,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
           gap: 12px;
+          padding-bottom: 74px;
         }
 
         .codex-entry-card {
@@ -653,102 +635,62 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           cursor: default;
         }
 
-        .codex-entry-card.is-selected {
-          border-color: #d97706;
-          background: #fffdf5;
-          box-shadow: 0 0 0 2.5px #d97706, 0 4px 12px rgba(217, 119, 6, 0.25);
-          transform: translateY(-2px);
+        .codex-floating-typing-bar {
+          position: sticky;
+          bottom: 0;
+          margin-top: auto;
+          display: flex;
+          justify-content: center;
+          padding: 8px 16px 12px 16px;
+          background: linear-gradient(180deg, rgba(253, 248, 239, 0) 0%, rgba(253, 248, 239, 0.94) 28%, #fdf8ef 100%);
+          z-index: 10;
+          pointer-events: none;
         }
 
-        .codex-entry-card.is-undiscovered {
-          background: #f1ebd8;
-          border-color: #8c7b6c;
-          border-style: dashed;
+        .codex-floating-typing-bar .codex-typing-input-wrapper {
+          pointer-events: auto;
+          display: flex;
+          align-items: center;
+          background: #ffffff;
+          border: 2px solid #2b1e16;
+          border-radius: 8px;
+          padding: 4px 12px;
+          min-width: 260px;
+          max-width: 480px;
+          width: 100%;
+          box-shadow: 0 4px 14px rgba(43, 30, 22, 0.18), 0 0 0 1px #7c674d;
         }
 
-        .codex-entry-card.is-undiscovered.is-selected {
-          border-color: #d97706;
-          border-style: solid;
-          background: #fdf6e6;
-          box-shadow: 0 0 0 2.5px #d97706, 0 4px 12px rgba(217, 119, 6, 0.25);
-        }
-
-        .codex-entry-card.is-highlighted {
-          background: #ffd166 !important;
-          color: #162229 !important;
-          border-color: #b45309 !important;
-          transform: translateY(-3px) scale(1.03);
-          box-shadow: 0 4px 12px rgba(180, 83, 9, 0.35);
+        .inspector-tier-corner-badge {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          background: #e0f2fe;
+          border: 1.5px solid #0284c7;
+          color: #0369a1;
+          font-size: 0.74rem;
+          font-weight: 800;
+          border-radius: 6px;
+          padding: 2px 7px;
+          line-height: 1.2;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
           z-index: 2;
         }
 
-        .codex-entry-card.is-enter-ready {
-          background: #2ec4b6 !important;
-          color: #072227 !important;
-          border-color: #0b4f4a !important;
-          border-width: 2.5px !important;
-          transform: translateY(-4px) scale(1.06) !important;
-          box-shadow: 0 6px 16px rgba(19, 117, 71, 0.45) !important;
-          z-index: 4;
-        }
-
-        .codex-entry-sprite-frame {
-          width: 64px;
-          height: 64px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 6px;
-        }
-
-        .codex-entry-sprite {
-          width: 58px;
-          height: 58px;
-          object-fit: contain;
-          image-rendering: pixelated;
-        }
-
-        /* Undiscovered Silhouette Outline */
-        .codex-sprite-undiscovered {
-          filter: grayscale(1) brightness(0.18) contrast(2.5) drop-shadow(1px 0 0 #7c674d) drop-shadow(-1px 0 0 #7c674d) drop-shadow(0 1px 0 #7c674d) drop-shadow(0 -1px 0 #7c674d);
-          opacity: 0.55;
-        }
-
-        .codex-entry-name {
-          font-size: 0.78rem;
-          font-weight: 700;
-          color: #102027;
-          line-height: 1.15;
-          margin-top: 4px;
-          word-break: break-word;
-        }
-
-        .codex-entry-undiscovered-label {
-          font-size: 0.95rem;
+        .inspector-elite-corner-badge {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: #fef3c7;
+          border: 1.5px solid #d97706;
+          color: #92400e;
+          font-size: 0.74rem;
           font-weight: 800;
-          letter-spacing: 0.1em;
-          color: #7c674d;
-        }
-
-        /* Right Inspector Panel */
-        .codex-inspector-pane {
-          flex: 0 0 380px;
-          width: 380px;
-          background: #faf4e6;
-          padding: 20px;
-          overflow-y: auto;
-          box-sizing: border-box;
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-          transition: width 0.2s ease, flex 0.2s ease;
-        }
-
-        .codex-inspector-pane.compact-inspector {
-          flex: 0 0 340px;
-          width: 340px;
-          padding: 16px;
-          border-right: 2px solid #2b1e16;
+          border-radius: 6px;
+          padding: 2px 7px;
+          line-height: 1.2;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+          z-index: 2;
         }
 
         /* Generic Blank View / Undiscovered Inspector Box */
@@ -843,10 +785,11 @@ export const CodexModal: React.FC<CodexModalProps> = ({
         .inspector-content-box {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
 
         .inspector-art-spotlight {
+          position: relative;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -854,7 +797,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           background: #fff;
           border: 2px solid #2b1e16;
           border-radius: 12px;
-          padding: 16px;
+          padding: 12px 10px;
           box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
@@ -1043,14 +986,22 @@ export const CodexModal: React.FC<CodexModalProps> = ({
 
       <div className={`codex-cabinet-frame ${showEnemyStatusSidePanel ? 'has-side-panel' : ''}`}>
         <div className="codex-parchment-sheet">
-          {/* Header Bar with Tabs */}
+          {/* Header Bar: Arrow keys move prompt on left, Tabs on right with "Type:" */}
           <div className="codex-header-bar">
-            <div className="codex-title-group">
-              <span style={{ fontSize: '1.4rem' }}>📖</span>
-              <h2 className="codex-title">Arcane Codex</h2>
+            <div className="codex-nav-arrows-group">
+              <div className="codex-key-group" style={{ borderColor: '#b45309', background: '#fffbeb' }}>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↑</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↓</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>←</kbd>
+                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>→</kbd>
+                <span className="codex-key-label" style={{ color: '#92400e', fontWeight: 800 }}>
+                  Arrow Keys to Move
+                </span>
+              </div>
             </div>
 
             <div className="codex-tabs-row">
+              <span className="codex-type-label">Type:</span>
               {tabs.map((tab) => {
                 const highlight = getPhraseHighlightState(tab, 'easy');
                 const isActive = activeTab === tab;
@@ -1077,46 +1028,248 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                   </div>
                 );
               })}
-            </div>
-          </div>
-
-          {/* Navigation Banner: Obvious Arrow Keys & Controls Prompt */}
-          <div className="codex-nav-banner">
-            <div className="codex-nav-banner-left">
-              <span style={{ fontSize: '1.05rem' }}>⌨️</span>
-              <span className="codex-key-label" style={{ fontWeight: 800 }}>Controls:</span>
-              <div className="codex-key-group" style={{ borderColor: '#b45309', background: '#fffbeb' }}>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↑</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↓</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>←</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>→</kbd>
-                <span className="codex-key-label" style={{ color: '#92400e', fontWeight: 800 }}>
-                  Arrow Keys Move Selection
-                </span>
-              </div>
-            </div>
-            <div className="codex-nav-banner-right">
-              <div className="codex-key-group">
-                <kbd className="codex-key-chip">Tab</kbd>
-                <span className="codex-key-label">Switch Category</span>
-              </div>
-              <div className="codex-key-group">
-                <span className="codex-key-label">Type Name or Arrow Keys</span>
-              </div>
+              {(() => {
+                const highlight = getPhraseHighlightState('back', 'easy');
+                return (
+                  <div
+                    className={`codex-tab-pill ${
+                      highlight.isEnterReady
+                        ? 'tab-enter-ready'
+                        : highlight.isHighlighted
+                        ? 'tab-highlighted'
+                        : ''
+                    }`}
+                    onClick={onClose}
+                    style={{ cursor: 'pointer' }}
+                    title="Type 'back' to close"
+                  >
+                    <span>back</span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
           {/* Two/Three-Pane Body */}
           <div className="codex-main-body">
-            {/* Left/Main Grid */}
+            {/* Left Inspector Panel (Fully visible without scrolling) */}
+            <div className={`codex-inspector-pane ${showEnemyStatusSidePanel ? 'compact-inspector' : ''}`}>
+              {!currentInspectItem ? (
+                <div className="inspector-empty-state">
+                  <span>✨</span>
+                  <p>No discovered entries in this compendium yet. Explore more floors to unlock!</p>
+                </div>
+              ) : !isCurrentItemDiscovered ? (
+                <div className="inspector-content-box inspector-undiscovered-box">
+                  <div className="inspector-art-spotlight undiscovered-spotlight">
+                    <div className="inspector-undiscovered-icon-frame">
+                      <span className="inspector-undiscovered-glyph">?</span>
+                    </div>
+                    <div className="inspector-title" style={{ color: '#7c674d', letterSpacing: '0.12em' }}>
+                      ???
+                    </div>
+                    <div className="inspector-meta-row">
+                      <span
+                        className="inspector-meta-pill"
+                        style={{
+                          fontStyle: 'italic',
+                          background: '#ece3d4',
+                          color: '#7c674d',
+                          borderColor: '#c4b5a0',
+                        }}
+                      >
+                        Uncharted Knowledge
+                      </span>
+                      <span
+                        className="inspector-meta-pill"
+                        style={{
+                          background: '#ece3d4',
+                          color: '#7c674d',
+                          borderColor: '#c4b5a0',
+                        }}
+                      >
+                        Locked
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    className="inspector-description-box"
+                    style={{
+                      borderColor: '#c4b5a0',
+                      background: 'rgba(234, 223, 206, 0.4)',
+                    }}
+                  >
+                    <div className="inspector-description-label" style={{ color: '#8c7b6c' }}>
+                      Compendium Record
+                    </div>
+                    <div style={{ color: '#574837', fontStyle: 'italic', lineHeight: 1.45, fontSize: '0.82rem' }}>
+                      This subject has not yet been discovered on your journeys. Continue venturing through the dungeon floors to reveal its identity, lore, and combat stats.
+                    </div>
+                  </div>
+                </div>
+              ) : activeTab === 'monsters' ? (
+                (() => {
+                  const en = currentInspectItem as EnemyDefinition;
+                  const primaryName = en.namePools[phraseDiff]?.[0] || en.namePools.easy[0];
+                  const avgHp = Math.round((en.minHp + en.maxHp) / 2);
+                  const isEliteEnemy = en.role === 'elite';
+                  const scaleFactor = calculateEnemySpriteScale(avgHp, isEliteEnemy);
+                  const spriteW = Math.round(96 * scaleFactor);
+                  const spriteH = Math.round(96 * scaleFactor);
+                  return (
+                    <div className="inspector-content-box">
+                      <div className="inspector-art-spotlight">
+                        <span className="inspector-tier-corner-badge">Tier {en.tier}</span>
+                        {isEliteEnemy && <span className="inspector-elite-corner-badge">💀 Elite</span>}
+
+                        <img
+                          src={en.art.spriteUrl || './assets/entities/goblin_skirmisher.png'}
+                          alt={primaryName}
+                          className="inspector-large-sprite"
+                          style={{
+                            width: spriteW,
+                            height: spriteH,
+                            maxWidth: 104,
+                            maxHeight: 104,
+                            transition: 'width 0.2s ease, height 0.2s ease',
+                          }}
+                        />
+                        <div className="inspector-title">{primaryName}</div>
+                        <div className="inspector-meta-row">
+                          <span className="inspector-meta-pill">
+                            Faction: {formatFaction(en.faction)}
+                          </span>
+                          <span className="inspector-meta-pill">
+                            HP: {en.minHp} – {en.maxHp}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Combat Specialty</div>
+                        <div>{en.description || 'A fearsome adversary lurking in the dungeon depths.'}</div>
+                      </div>
+
+                      <div className="inspector-names-pool-box">
+                        <div className="inspector-names-heading">
+                          Names:
+                        </div>
+                        <div className="inspector-names-chips">
+                          {en.namePools[phraseDiff]?.map((name) => (
+                            <span key={name} className="inspector-name-chip">
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : activeTab === 'cards' ? (
+                (() => {
+                  const c = currentInspectItem as CardDefinition;
+                  const cardInstance: CardInstance = {
+                    instanceId: `codex_preview_${c.id}`,
+                    cardId: c.id,
+                    upgraded: false,
+                  };
+                  return (
+                    <div className="inspector-content-box">
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <span className={`inspector-meta-pill rarity-${c.rarity}`}>
+                          {c.rarity.toUpperCase()}
+                        </span>
+                      </div>
+
+                      <div style={{ transform: 'scale(0.96)', transformOrigin: 'top center' }}>
+                        <CardBanner instance={cardInstance} phraseDiff={phraseDiff} />
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Card Details</div>
+                        <div style={{ marginBottom: 4 }}>
+                          <strong>Cost:</strong> {c.xCost ? 'X (All remaining Energy)' : `${c.cost} Energy (⚡)`}
+                        </div>
+                        <div style={{ marginBottom: 4 }}>
+                          <strong>Type:</strong> {c.type.toUpperCase()}
+                        </div>
+                        <div>
+                          <strong>Target:</strong> {c.target.replace(/_/g, ' ')}
+                        </div>
+                      </div>
+
+                      {c.upgrade && (
+                        <div className="inspector-description-box">
+                          <div className="inspector-description-label">Upgraded Form (+)</div>
+                          <div>{renderHighlightedCardText(c.upgrade.description)}</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
+              ) : activeTab === 'environments' ? (
+                (() => {
+                  const env = currentInspectItem as BattleEnvironmentDefinition;
+                  return (
+                    <div className="inspector-content-box">
+                      <div className="inspector-art-spotlight">
+                        <span className="inspector-tier-corner-badge">Floors {env.minFloor ?? 1}–{env.maxFloor ?? 26}</span>
+                        <img
+                          src={env.art.spriteUrl || './assets/sprite-library/ravenmore/Map.png'}
+                          alt={env.name}
+                          className="inspector-large-sprite"
+                          style={{ maxWidth: 104, maxHeight: 104 }}
+                        />
+                        <div className="inspector-title">{env.name}</div>
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Strengthened Rules</div>
+                        <div>{env.description}</div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : activeTab === 'relics' ? (
+                (() => {
+                  const r = currentInspectItem as RelicDefinition;
+                  const relicName = r.names[phraseDiff] || r.names.easy;
+                  return (
+                    <div className="inspector-content-box">
+                      <div className="inspector-art-spotlight">
+                        <span className={`inspector-tier-corner-badge rarity-${r.rarity}`}>
+                          {r.rarity.toUpperCase()}
+                        </span>
+                        <img
+                          src={r.art.spriteUrl || './assets/relics/Ac_Medal01.png'}
+                          alt={relicName}
+                          className="inspector-large-sprite"
+                          style={{ maxWidth: 104, maxHeight: 104 }}
+                        />
+                        <div className="inspector-title">{relicName}</div>
+                        <div className="inspector-meta-row">
+                          <span className="inspector-meta-pill">
+                            Trigger: {r.trigger.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Relic Blessing</div>
+                        <div>{r.description}</div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : null}
+            </div>
+
+            {/* Right/Main Grid: All Discovered & Undiscovered Entries */}
             <div
               className={`codex-grid-pane ${showEnemyStatusSidePanel ? 'compact-grid' : ''}`}
               ref={gridContainerRef}
             >
-              <div className="codex-grid-action-hint">
-                <span>Navigate entries using <kbd className="codex-hint-kbd">↑</kbd> <kbd className="codex-hint-kbd">↓</kbd> <kbd className="codex-hint-kbd">←</kbd> <kbd className="codex-hint-kbd">→</kbd> Arrow Keys</span>
-              </div>
-
               <div className="codex-entry-grid">
                 {activeTab === 'monsters' &&
                   ENEMIES_CATALOG.map((en) => {
@@ -1146,8 +1299,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        onClick={() => onSelectEntry?.(en.id)}
-                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? primaryName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
@@ -1196,8 +1347,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        onClick={() => onSelectEntry?.(c.id)}
-                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? cardName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
@@ -1250,8 +1399,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        onClick={() => onSelectEntry?.(env.id)}
-                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? env.name : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
@@ -1300,8 +1447,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                             ? 'is-highlighted'
                             : ''
                         }`}
-                        onClick={() => onSelectEntry?.(r.id)}
-                        style={{ cursor: 'pointer' }}
                         title={isDiscovered ? relicName : 'Undiscovered Entry (Use Arrow Keys to inspect)'}
                       >
                         <div className="codex-entry-sprite-frame">
@@ -1324,255 +1469,13 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                     );
                   })}
               </div>
-            </div>
 
-            {/* Right Inspector Panel */}
-            <div className={`codex-inspector-pane ${showEnemyStatusSidePanel ? 'compact-inspector' : ''}`}>
-              {!currentInspectItem ? (
-                <div className="inspector-empty-state">
-                  <span>✨</span>
-                  <p>No discovered entries in this compendium yet. Explore more floors to unlock!</p>
+              {/* Floating Typing Field inside Main Area */}
+              <div className="codex-floating-typing-bar">
+                <div className="codex-typing-input-wrapper">
+                  {renderTypingInputWithCaret()}
                 </div>
-              ) : !isCurrentItemDiscovered ? (
-                <div className="inspector-content-box inspector-undiscovered-box">
-                  <div className="inspector-header">
-                    <span className="inspector-section-tag" style={{ color: '#8c7b6c' }}>
-                      Undiscovered Subject
-                    </span>
-                    <span className="inspector-meta-pill undiscovered-pill">???</span>
-                  </div>
-
-                  <div className="inspector-art-spotlight undiscovered-spotlight">
-                    <div className="inspector-undiscovered-icon-frame">
-                      <span className="inspector-undiscovered-glyph">?</span>
-                    </div>
-                    <div className="inspector-title" style={{ color: '#7c674d', letterSpacing: '0.12em' }}>
-                      ???
-                    </div>
-                    <div className="inspector-meta-row">
-                      <span
-                        className="inspector-meta-pill"
-                        style={{
-                          fontStyle: 'italic',
-                          background: '#ece3d4',
-                          color: '#7c674d',
-                          borderColor: '#c4b5a0',
-                        }}
-                      >
-                        Uncharted Knowledge
-                      </span>
-                      <span
-                        className="inspector-meta-pill"
-                        style={{
-                          background: '#ece3d4',
-                          color: '#7c674d',
-                          borderColor: '#c4b5a0',
-                        }}
-                      >
-                        Locked
-                      </span>
-                    </div>
-                  </div>
-
-                  <div
-                    className="inspector-description-box"
-                    style={{
-                      borderColor: '#c4b5a0',
-                      background: 'rgba(234, 223, 206, 0.4)',
-                    }}
-                  >
-                    <div className="inspector-description-label" style={{ color: '#8c7b6c' }}>
-                      Compendium Record
-                    </div>
-                    <div style={{ color: '#574837', fontStyle: 'italic', lineHeight: 1.45 }}>
-                      This subject has not yet been discovered on your journeys. Continue venturing through the dungeon floors, confronting new encounters, and collecting rare artifacts to inscribe its true form, lore, and secrets into your Codex.
-                    </div>
-                  </div>
-
-                  <div
-                    className="inspector-names-pool-box"
-                    style={{
-                      borderColor: '#c4b5a0',
-                      background: 'rgba(234, 223, 206, 0.3)',
-                    }}
-                  >
-                    <div className="inspector-names-heading" style={{ color: '#8c7b6c' }}>
-                      Observations:
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '0.78rem', color: '#7c674d' }}>
-                      <div>• True name: <span style={{ fontWeight: 800 }}>???</span></div>
-                      <div>• Attributes & powers: <span style={{ fontStyle: 'italic' }}>Awaiting observation</span></div>
-                      <div>• Discovery condition: <span style={{ fontStyle: 'italic' }}>Encounter or acquire during an expedition</span></div>
-                    </div>
-                  </div>
-                </div>
-              ) : activeTab === 'monsters' ? (
-                (() => {
-                  const en = currentInspectItem as EnemyDefinition;
-                  const primaryName = en.namePools[phraseDiff]?.[0] || en.namePools.easy[0];
-                  const avgHp = Math.round((en.minHp + en.maxHp) / 2);
-                  const isEliteEnemy = en.role === 'elite';
-                  const scaleFactor = calculateEnemySpriteScale(avgHp, isEliteEnemy);
-                  const spriteW = Math.round(104 * scaleFactor);
-                  const spriteH = Math.round(104 * scaleFactor);
-                  return (
-                    <div className="inspector-content-box">
-                      <div className="inspector-header">
-                        <span className="inspector-section-tag">Bestiary Entry</span>
-                        <span className="inspector-meta-pill tier-pill">Tier {en.tier}</span>
-                      </div>
-
-                      <div className="inspector-art-spotlight">
-                        <img
-                          src={en.art.spriteUrl || './assets/entities/goblin_skirmisher.png'}
-                          alt={primaryName}
-                          className="inspector-large-sprite"
-                          style={{
-                            width: spriteW,
-                            height: spriteH,
-                            maxWidth: 160,
-                            maxHeight: 160,
-                            transition: 'width 0.2s ease, height 0.2s ease',
-                          }}
-                        />
-                        <div className="inspector-title">{primaryName}</div>
-                        <div className="inspector-meta-row">
-                          <span className="inspector-meta-pill">
-                            Faction: {formatFaction(en.faction)}
-                          </span>
-                          <span className="inspector-meta-pill">
-                            HP: {en.minHp} – {en.maxHp}
-                          </span>
-                          <span className="inspector-meta-pill">
-                            Scale: {Math.round(scaleFactor * 100)}%{isEliteEnemy ? ' (Elite +25%)' : ''}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Combat Specialty</div>
-                        <div>{en.description || 'A fearsome adversary lurking in the dungeon depths.'}</div>
-                      </div>
-
-                      <div className="inspector-names-pool-box">
-                        <div className="inspector-names-heading">
-                          Names:
-                        </div>
-                        <div className="inspector-names-chips">
-                          {en.namePools[phraseDiff]?.map((name) => (
-                            <span key={name} className="inspector-name-chip">
-                              {name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : activeTab === 'cards' ? (
-                (() => {
-                  const c = currentInspectItem as CardDefinition;
-                  const cardInstance: CardInstance = {
-                    instanceId: `codex_preview_${c.id}`,
-                    cardId: c.id,
-                    upgraded: false,
-                  };
-                  return (
-                    <div className="inspector-content-box">
-                      <div className="inspector-header">
-                        <span className="inspector-section-tag">Spell Card</span>
-                        <span className={`inspector-meta-pill rarity-${c.rarity}`}>
-                          {c.rarity.toUpperCase()}
-                        </span>
-                      </div>
-
-                      <div style={{ transform: 'scale(0.98)', transformOrigin: 'top center' }}>
-                        <CardBanner instance={cardInstance} phraseDiff={phraseDiff} />
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Card Details</div>
-                        <div style={{ marginBottom: 6 }}>
-                          <strong>Cost:</strong> {c.xCost ? 'X (All remaining Energy)' : `${c.cost} Energy (⚡)`}
-                        </div>
-                        <div style={{ marginBottom: 6 }}>
-                          <strong>Type:</strong> {c.type.toUpperCase()}
-                        </div>
-                        <div>
-                          <strong>Target:</strong> {c.target.replace(/_/g, ' ')}
-                        </div>
-                      </div>
-
-                      {c.upgrade && (
-                        <div className="inspector-description-box">
-                          <div className="inspector-description-label">Upgraded Form (+)</div>
-                          <div>{renderHighlightedCardText(c.upgrade.description)}</div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()
-              ) : activeTab === 'environments' ? (
-                (() => {
-                  const env = currentInspectItem as BattleEnvironmentDefinition;
-                  return (
-                    <div className="inspector-content-box">
-                      <div className="inspector-header">
-                        <span className="inspector-section-tag">Battle Environment</span>
-                        <span className="inspector-meta-pill">Floors {env.minFloor ?? 1}–{env.maxFloor ?? 26}</span>
-                      </div>
-
-                      <div className="inspector-art-spotlight">
-                        <img
-                          src={env.art.spriteUrl || './assets/sprite-library/ravenmore/Map.png'}
-                          alt={env.name}
-                          className="inspector-large-sprite"
-                        />
-                        <div className="inspector-title">{env.name}</div>
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Strengthened Rules</div>
-                        <div>{env.description}</div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : activeTab === 'relics' ? (
-                (() => {
-                  const r = currentInspectItem as RelicDefinition;
-                  const relicName = r.names[phraseDiff] || r.names.easy;
-                  return (
-                    <div className="inspector-content-box">
-                      <div className="inspector-header">
-                        <span className="inspector-section-tag">Arcane Relic</span>
-                        <span className={`inspector-meta-pill rarity-${r.rarity}`}>
-                          {r.rarity.toUpperCase()}
-                        </span>
-                      </div>
-
-                      <div className="inspector-art-spotlight">
-                        <img
-                          src={r.art.spriteUrl || './assets/relics/Ac_Medal01.png'}
-                          alt={relicName}
-                          className="inspector-large-sprite"
-                        />
-                        <div className="inspector-title">{relicName}</div>
-                        <div className="inspector-meta-row">
-                          <span className="inspector-meta-pill">
-                            Trigger: {r.trigger.replace(/_/g, ' ')}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Relic Blessing</div>
-                        <div>{r.description}</div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : null}
+              </div>
             </div>
 
             {/* Right Combat Status Side Panel (when inspecting active enemy in battle) */}
@@ -1847,54 +1750,6 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Footer Prompt Bar */}
-          <div className="codex-footer-prompt">
-            <div className="codex-prompt-instructions">
-              <div className="codex-key-group" style={{ borderColor: '#b45309', background: '#fffbeb' }}>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↑</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>↓</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>←</kbd>
-                <kbd className="codex-key-chip" style={{ background: '#b45309', borderColor: '#78350f' }}>→</kbd>
-                <span className="codex-key-label" style={{ color: '#92400e', fontWeight: 800 }}>Navigate</span>
-              </div>
-              <div className="codex-key-group">
-                <kbd className="codex-key-chip">Tab</kbd>
-                <span className="codex-key-label">Switch Category</span>
-              </div>
-              <span>Type:</span>
-              {tabs.map((tab) => {
-                const hl = getPhraseHighlightState(tab, 'easy');
-                return (
-                  <span
-                    key={tab}
-                    className={`codex-keyword-pill ${
-                      hl.isEnterReady ? 'enter-ready' : hl.isHighlighted ? 'highlighted' : ''
-                    }`}
-                  >
-                    ({tab})
-                  </span>
-                );
-              })}
-              {(() => {
-                const hl = getPhraseHighlightState('back', 'easy');
-                return (
-                  <span
-                    className={`codex-keyword-pill ${
-                      hl.isEnterReady ? 'enter-ready' : hl.isHighlighted ? 'highlighted' : ''
-                    }`}
-                  >
-                    (back)
-                  </span>
-                );
-              })()}
-              <span>or search by name:</span>
-            </div>
-
-            <div className="codex-typing-input-wrapper">
-              {renderTypingInputWithCaret()}
-            </div>
           </div>
         </div>
       </div>

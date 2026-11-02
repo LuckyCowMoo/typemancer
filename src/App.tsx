@@ -5752,6 +5752,11 @@ export function App() {
                 }
                 setInspectedEntity(null);
               }}
+              onClose={() => {
+                soundEngine.playPageTurn(settings);
+                setOverlay('none');
+                setInspectedEntity(null);
+              }}
               onChangeTab={(tab) => {
                 setCodexTab(tab);
                 setCodexSelectedId(null);
