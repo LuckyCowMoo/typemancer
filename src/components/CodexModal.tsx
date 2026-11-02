@@ -138,13 +138,13 @@ export const CodexModal: React.FC<CodexModalProps> = ({
       const catB = CATEGORY_ORDER[getCardVisualCategory(b as any)] ?? 99;
       if (catA !== catB) return catA - catB;
 
-      const costA = a.xCost || a.cost === -1 ? 999 : (a.cost ?? 0);
-      const costB = b.xCost || b.cost === -1 ? 999 : (b.cost ?? 0);
-      if (costA !== costB) return costA - costB;
-
       const rarA = RARITY_ORDER[a.rarity] ?? 99;
       const rarB = RARITY_ORDER[b.rarity] ?? 99;
       if (rarA !== rarB) return rarA - rarB;
+
+      const costA = a.xCost || a.cost === -1 ? 999 : (a.cost ?? 0);
+      const costB = b.xCost || b.cost === -1 ? 999 : (b.cost ?? 0);
+      if (costA !== costB) return costA - costB;
 
       const nameA = a.names[phraseDiff] || a.names.easy;
       const nameB = b.names[phraseDiff] || b.names.easy;

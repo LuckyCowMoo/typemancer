@@ -817,16 +817,16 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     for (const cat of CARD_CATEGORY_KEYS) {
       const catCards = groups[cat] || [];
       const sorted = [...catCards].sort((a, b) => {
-        const costA = a.card.xCost || a.card.cost === -1 ? 999 : (a.card.cost ?? 0);
-        const costB = b.card.xCost || b.card.cost === -1 ? 999 : (b.card.cost ?? 0);
-        if (costA !== costB) {
-          return costA - costB;
-        }
-
         const rarA = RARITY_ORDER[a.card.rarity] ?? 99;
         const rarB = RARITY_ORDER[b.card.rarity] ?? 99;
         if (rarA !== rarB) {
           return rarA - rarB;
+        }
+
+        const costA = a.card.xCost || a.card.cost === -1 ? 999 : (a.card.cost ?? 0);
+        const costB = b.card.xCost || b.card.cost === -1 ? 999 : (b.card.cost ?? 0);
+        if (costA !== costB) {
+          return costA - costB;
         }
 
         const nameA = a.card.names?.easy || a.card.id;
@@ -3877,6 +3877,35 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                 );
               });
 
+              const sortedCardsForSound = [...filteredCards].sort((a, b) => {
+                const CARD_CATEGORY_KEYS: CardVisualCategory[] = [
+                  'attack',
+                  'defence',
+                  'skill',
+                  'debuff',
+                  'power',
+                ];
+                const RARITY_ORDER: Record<string, number> = {
+                  starter: 0,
+                  common: 1,
+                  uncommon: 2,
+                  rare: 3,
+                };
+                const catA = CARD_CATEGORY_KEYS.indexOf(getCardVisualCategory(a as any));
+                const catB = CARD_CATEGORY_KEYS.indexOf(getCardVisualCategory(b as any));
+                if (catA !== catB) return catA - catB;
+
+                const rarA = RARITY_ORDER[a.rarity] ?? 99;
+                const rarB = RARITY_ORDER[b.rarity] ?? 99;
+                if (rarA !== rarB) return rarA - rarB;
+
+                const costA = a.xCost || a.cost === -1 ? 999 : (a.cost ?? 0);
+                const costB = b.xCost || b.cost === -1 ? 999 : (b.cost ?? 0);
+                if (costA !== costB) return costA - costB;
+
+                return a.names.easy.localeCompare(b.names.easy);
+              });
+
               return (
                 <section className="dev-section-card" style={{ marginTop: 12 }}>
                   <div className="dev-sound-table-wrap">
@@ -3891,7 +3920,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredCards.map((card) => {
+                        {sortedCardsForSound.map((card) => {
                           const cat = getCardVisualCategory(card as any);
                           const currentSfx = card.sfx || soundEngine.getCardSfx(card.id) || 'cards/blade_01.ogg';
                           const isPlaying = playingSoundId === `card_${card.id}`;
