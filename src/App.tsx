@@ -250,6 +250,7 @@ export function App() {
   const [rewardCards, setRewardCards] = useState<CardInstance[]>([]);
   const [rewardRelics, setRewardRelics] = useState<RelicDefinition[]>([]);
   const [rewardGoldClaimed, setRewardGoldClaimed] = useState<number>(0);
+  const [rewardStep, setRewardStep] = useState<'card' | 'relic'>('card');
   const [campfireSubMode, setCampfireSubMode] = useState<
     'choose' | 'revise_select' | 'revise_confirm'
   >('choose');
@@ -590,6 +591,7 @@ export function App() {
 
       setRewardCards(generateCardRewards(4, activeNodeType === 'elite'));
       setRewardRelics(activeNodeType === 'elite' ? generateRelicRewards(relicIds, 3) : []);
+      setRewardStep('card');
 
       setMetrics((prev) => ({
         ...prev,
@@ -2704,70 +2706,93 @@ export function App() {
 
     // 8. POST-BATTLE REWARD
     if (screen === 'reward') {
-      if (matchCommand(raw, ['skip', 'continue', 'next', 'leave', 'pass'], 'easy')) {
-        soundEngine.playConfirm(settings);
-        triggerElementParticles(undefined, ['#64748b', '#102a3a'], 50, 82);
-        advanceToMapNextFloor();
+      // Step 1: Card reward selection
+      if (rewardStep === 'card') {
+        if (matchCommand(raw, ['skip', 'continue', 'next', 'leave', 'pass'], 'easy')) {
+          soundEngine.playConfirm(settings);
+          triggerElementParticles(undefined, ['#64748b', '#102a3a'], 50, 82);
+          setRewardCards([]);
+          if (rewardRelics.length > 0) {
+            setRewardStep('relic');
+            resetTypingBuffer(true);
+          } else {
+            advanceToMapNextFloor();
+          }
+          return;
+        }
+
+        if (rewardCards.length > 0) {
+          const cardCands = rewardCards.map((c) => {
+            const res = resolveCardInstance(c, phraseDiff);
+            return { item: c, phrase: res.name };
+          });
+          const evalCards = evaluateCandidates(raw, cardCands, difficulty);
+          if (evalCards[0] && evalCards[0].isValidConfirm) {
+            soundEngine.playDrawCard(settings);
+            const picked = evalCards[0].item;
+            const resPicked = resolveCardInstance(picked, phraseDiff);
+            triggerElementParticles(
+              `[data-card-id="${picked.instanceId}"]`,
+              [resPicked.art.primaryColor, resPicked.art.secondaryColor, '#137547', '#ffd166'],
+              50,
+              55
+            );
+            setDeck((d) => [...d, picked]);
+            setRewardCards([]);
+            resetTypingBuffer(true);
+            if (rewardRelics.length > 0) {
+              setRewardStep('relic');
+            } else {
+              advanceToMapNextFloor();
+            }
+            return;
+          }
+        }
+
+        soundEngine.playError(settings);
         return;
       }
 
-      if (rewardCards.length > 0) {
-        const cardCands = rewardCards.map((c) => {
-          const res = resolveCardInstance(c, phraseDiff);
-          return { item: c, phrase: res.name };
-        });
-        const evalCards = evaluateCandidates(raw, cardCands, difficulty);
-        if (evalCards[0] && evalCards[0].isValidConfirm) {
-          soundEngine.playDrawCard(settings);
-          const picked = evalCards[0].item;
-          const resPicked = resolveCardInstance(picked, phraseDiff);
-          triggerElementParticles(
-            `[data-card-id="${picked.instanceId}"]`,
-            [resPicked.art.primaryColor, resPicked.art.secondaryColor, '#137547', '#ffd166'],
-            50,
-            55
-          );
-          setDeck((d) => [...d, picked]);
-          setRewardCards([]);
-          resetTypingBuffer(true);
-          if (rewardRelics.length === 0) {
-            advanceToMapNextFloor();
-          }
-          return;
-        }
-      }
-
-      if (rewardRelics.length > 0) {
-        const relicCands = rewardRelics.map((r) => ({
-          item: r,
-          phrase: r.names[phraseDiff],
-        }));
-        const evalRelics = evaluateCandidates(raw, relicCands, difficulty);
-        if (evalRelics[0] && evalRelics[0].isValidConfirm) {
+      // Step 2: Relic reward selection (for elite encounters)
+      if (rewardStep === 'relic') {
+        if (matchCommand(raw, ['skip', 'continue', 'next', 'leave', 'pass'], 'easy')) {
           soundEngine.playConfirm(settings);
-          const pickedRelic = evalRelics[0].item;
-          triggerElementParticles(
-            undefined,
-            [pickedRelic.art.primaryColor, pickedRelic.art.secondaryColor, '#ffd166'],
-            50,
-            62
-          );
-          setRelicIds((ids) => [...ids, pickedRelic.id]);
-          if (pickedRelic.trigger === 'passive_max_hp' && pickedRelic.effectType === 'max_hp') {
-            setMaxHp((m) => m + pickedRelic.amount);
-            setHp((h) => h + pickedRelic.amount);
-          }
+          triggerElementParticles(undefined, ['#64748b', '#102a3a'], 50, 82);
           setRewardRelics([]);
-          resetTypingBuffer(true);
-          if (rewardCards.length === 0) {
-            advanceToMapNextFloor();
-          }
+          advanceToMapNextFloor();
           return;
         }
-      }
 
-      soundEngine.playError(settings);
-      return;
+        if (rewardRelics.length > 0) {
+          const relicCands = rewardRelics.map((r) => ({
+            item: r,
+            phrase: r.names[phraseDiff],
+          }));
+          const evalRelics = evaluateCandidates(raw, relicCands, difficulty);
+          if (evalRelics[0] && evalRelics[0].isValidConfirm) {
+            soundEngine.playConfirm(settings);
+            const pickedRelic = evalRelics[0].item;
+            triggerElementParticles(
+              undefined,
+              [pickedRelic.art.primaryColor, pickedRelic.art.secondaryColor, '#ffd166'],
+              50,
+              62
+            );
+            setRelicIds((ids) => [...ids, pickedRelic.id]);
+            if (pickedRelic.trigger === 'passive_max_hp' && pickedRelic.effectType === 'max_hp') {
+              setMaxHp((m) => m + pickedRelic.amount);
+              setHp((h) => h + pickedRelic.amount);
+            }
+            setRewardRelics([]);
+            resetTypingBuffer(true);
+            advanceToMapNextFloor();
+            return;
+          }
+        }
+
+        soundEngine.playError(settings);
+        return;
+      }
     }
 
     // 9. CAMPFIRE
@@ -3120,6 +3145,7 @@ export function App() {
     retainedCardIds,
     rewardCards,
     rewardRelics,
+    rewardStep,
     screen,
     selectedCard,
     settings,
@@ -3344,8 +3370,11 @@ export function App() {
           }
         }
       } else if (screen === 'reward') {
-        rewardCards.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
-        rewardRelics.forEach((r) => pool.push(r.names[phraseDiff]));
+        if (rewardStep === 'card') {
+          rewardCards.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+        } else {
+          rewardRelics.forEach((r) => pool.push(r.names[phraseDiff]));
+        }
         pool.push('skip', 'continue');
       } else if (screen === 'campfire') {
         if (campfireSubMode === 'choose') {
@@ -3425,6 +3454,7 @@ export function App() {
     phraseDiff,
     rewardCards,
     rewardRelics,
+    rewardStep,
     screen,
     selectedCard,
     selectedCardResolved,
@@ -4287,48 +4317,74 @@ export function App() {
             {screen === 'reward' && (
               <div className="cabinet-story-frame paper-sheet-float">
                 <div className="story-card">
-                  <h2 className="story-title">Rewards (+{rewardGoldClaimed} Gold) — or type (skip)</h2>
-                  {rewardCards.length > 0 && (
-                    <div className="deck-banner-grid">
-                      {rewardCards.map((inst, idx) => {
-                        const res = resolveCardInstance(inst, phraseDiff);
-                        const st = getPhraseHighlightState(res.name, difficulty);
-                        return (
-                          <CardBanner
-                            key={inst.instanceId}
-                            instance={inst}
-                            phraseDiff={phraseDiff}
-                            index={idx}
-                            isHighlighted={st.isHighlighted}
-                            isEnterCandidate={st.isEnterReady}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {rewardRelics.length > 0 && (
-                    <div className="reward-cards-grid">
-                      {rewardRelics.map((rel) => {
-                        const st = getPhraseHighlightState(rel.names[phraseDiff], difficulty);
-                        return (
-                          <div
-                            key={rel.id}
-                            className={`structured-card-box ${
-                              st.isHighlighted ? 'option-highlighted' : ''
-                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                          >
-                            <div className="card-art-square">
-                              {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
-                            </div>
-                            <div className="card-info-right">
-                              <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
-                              <div className="card-tab-sub">{rel.description}</div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  {rewardStep === 'card' ? (
+                    <>
+                      <h2 className="story-title">
+                        {activeNodeType === 'elite'
+                          ? `Elite Victory — Choose a Card (+${rewardGoldClaimed} Gold) — or type (skip)`
+                          : `Rewards (+${rewardGoldClaimed} Gold) — or type (skip)`}
+                      </h2>
+                      {rewardCards.length > 0 && (
+                        <div className="deck-banner-grid">
+                          {rewardCards.map((inst, idx) => {
+                            const res = resolveCardInstance(inst, phraseDiff);
+                            const st = getPhraseHighlightState(res.name, difficulty);
+                            return (
+                              <CardBanner
+                                key={inst.instanceId}
+                                instance={inst}
+                                phraseDiff={phraseDiff}
+                                index={idx}
+                                isHighlighted={st.isHighlighted}
+                                isEnterCandidate={st.isEnterReady}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+                      {activeNodeType === 'elite' && rewardRelics.length > 0 && (
+                        <div
+                          style={{
+                            marginTop: 14,
+                            fontSize: '0.86rem',
+                            color: '#64748b',
+                            fontStyle: 'italic',
+                            textAlign: 'center',
+                          }}
+                        >
+                          ✨ Next Screen: Choose an Elite Relic reward
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="story-title">
+                        Elite Spoils — Choose 1 of 3 Relics — or type (skip)
+                      </h2>
+                      {rewardRelics.length > 0 && (
+                        <div className="reward-cards-grid">
+                          {rewardRelics.map((rel) => {
+                            const st = getPhraseHighlightState(rel.names[phraseDiff], difficulty);
+                            return (
+                              <div
+                                key={rel.id}
+                                className={`structured-card-box ${
+                                  st.isHighlighted ? 'option-highlighted' : ''
+                                } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                              >
+                                <div className="card-art-square">
+                                  {rel.art.spriteUrl && <img src={rel.art.spriteUrl} alt="" />}
+                                </div>
+                                <div className="card-info-right">
+                                  <div className="phrase-to-type">{rel.names[phraseDiff]}</div>
+                                  <div className="card-tab-sub">{rel.description}</div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
