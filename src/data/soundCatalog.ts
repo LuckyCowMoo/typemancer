@@ -1,7 +1,16 @@
 export interface SoundCatalogItem {
-  id: string; // File path relative to public/assets/sfx/
+  id: string; // File path relative to public/assets/sfx/ or procedural sound key
   label: string;
-  category: 'Blades & Weapons' | 'Magic & Spells' | 'Heavy & Explosive' | 'Armor & Defense' | 'Books & Paper' | 'Beasts & Slime' | 'Environment & Items' | 'UI & Combat Global';
+  category:
+    | 'Blades & Weapons'
+    | 'Magic & Spells'
+    | 'Heavy & Explosive'
+    | 'Armor & Defense'
+    | 'Books & Paper'
+    | 'Beasts & Slime'
+    | 'Environment & Items'
+    | 'UI & Combat Global'
+    | 'Ambiance';
   description: string;
   recommendedTypes?: ('attack' | 'defence' | 'skill' | 'power' | 'debuff')[];
 }
@@ -124,6 +133,98 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
   { id: 'cards/mystery_fail.wav', label: 'Wheel of Fate Dissonant Drop', category: 'UI & Combat Global', description: 'Suspenseful low hollow drop and dark tritone' },
   { id: 'cards/victory.wav', label: 'Run Victory Fanfare', category: 'UI & Combat Global', description: 'Triumphant celebratory fanfare chords and high bell' },
   { id: 'cards/game_over.wav', label: 'Defeat Dirge & Bell Toll', category: 'UI & Combat Global', description: 'Deep ominous earthquake sub-bass and funeral bell toll' },
+
+  // Ambiance (Procedural Soundscapes for Biomes and Encounters)
+  {
+    id: 'ambiance:rocky_desert',
+    label: 'Rocky Desert Canyon Ambiance',
+    category: 'Ambiance',
+    description: 'Dry howling canyon wind, shifting sandstone rumble, and swirling dust grains.',
+  },
+  {
+    id: 'ambiance:flowing_riverbank',
+    label: 'Flowing Riverbank Ambiance',
+    category: 'Ambiance',
+    description: 'Continuous rushing water rumble, bubbling current ripples, and crisp water froth.',
+  },
+  {
+    id: 'ambiance:magical_forest_clearing',
+    label: 'Magical Forest Clearing Ambiance',
+    category: 'Ambiance',
+    description: 'Gentle canopy rustle breeze, 432Hz & 648Hz ethereal leyline harmonic drones, and shimmering air.',
+  },
+  {
+    id: 'ambiance:volcanic_caldera',
+    label: 'Volcanic Caldera Ambiance',
+    category: 'Ambiance',
+    description: 'Deep subterranean magma drone (48Hz & 73Hz), low seismic rumble, and warm thermal steam vents.',
+  },
+  {
+    id: 'ambiance:crystal_bastion',
+    label: 'Crystal Bastion Ambiance',
+    category: 'Ambiance',
+    description: '528Hz Solfeggio & 792Hz quartz singing drones, resonant bandpass air, and procedural crystal ping chimes.',
+  },
+  {
+    id: 'ambiance:fuming_ink_marsh',
+    label: 'Fuming Ink Marsh Ambiance',
+    category: 'Ambiance',
+    description: 'Murky swamp bottom drone, fuming toxic vapor hiss, and simmering fluid bubble pops.',
+  },
+  {
+    id: 'ambiance:sunlit_sanctuary',
+    label: 'Sunlit Sanctuary Ambiance',
+    category: 'Ambiance',
+    description: 'Celestial A-major chord drone (220Hz, 277Hz, 329Hz, 440Hz) and radiant 25-second breathing breeze.',
+  },
+  {
+    id: 'ambiance:whispering_library_ruins',
+    label: 'Whispering Library Ruins Ambiance',
+    category: 'Ambiance',
+    description: 'Vaulted stone hall resonance, high arched draft whistle, and distant procedural paper flutter.',
+  },
+  {
+    id: 'ambiance:calm_parchment_meadow',
+    label: 'Calm Parchment Meadow Ambiance',
+    category: 'Ambiance',
+    description: 'Minimalist peaceful pastoral open field breeze through dual-band filters.',
+  },
+  {
+    id: 'ambiance:campfire',
+    label: 'Campfire Rest Site Ambiance',
+    category: 'Ambiance',
+    description: 'Intimate crackling hearth fire, warm combustion roar, and organic popping ember bursts.',
+  },
+  {
+    id: 'ambiance:merchant',
+    label: 'Merchant Curiosity Shop Ambiance',
+    category: 'Ambiance',
+    description: 'Polished mahogany room tone, steady 1.0s pendulum clock tick/tock, and occasional distant coin chime.',
+  },
+  {
+    id: 'ambiance:treasure',
+    label: 'Subterranean Treasure Vault Ambiance',
+    category: 'Ambiance',
+    description: 'Deep hollow vault tone (65.4Hz sub) and procedural echoing water droplets with delayed cavern reflections.',
+  },
+  {
+    id: 'ambiance:mystery',
+    label: 'Mystery / Event Chamber Ambiance',
+    category: 'Ambiance',
+    description: 'Cryptic tritone suspense drone (98Hz G2 & 138.6Hz C#3) and eerie swirling draft.',
+  },
+  {
+    id: 'ambiance:map',
+    label: 'Parchment Dungeon Map Ambiance',
+    category: 'Ambiance',
+    description: 'Open exploration road breeze and warm adventurous harmonic fifth drone (130.8Hz C3 & 196Hz G3).',
+  },
+  {
+    id: 'ambiance:main_menu',
+    label: 'Scribe Study / Main Menu Ambiance',
+    category: 'Ambiance',
+    description: 'Antiquarian library study room tone and steady 1.0s clockwork pendulum tick.',
+  },
 ];
 
 export const SOUND_CATEGORIES = Array.from(

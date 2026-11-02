@@ -391,6 +391,10 @@ export function App() {
 
   // Continuous background ambiance for every encounter and battle scene biome
   useEffect(() => {
+    if (devEditorOpen) {
+      soundEngine.stopAmbiance(0.2);
+      return;
+    }
     if (screen === 'battle' && activeEnvironment) {
       soundEngine.startAmbiance(activeEnvironment.id, settings);
     } else if (screen === 'campfire') {
@@ -414,7 +418,7 @@ export function App() {
     } else if (screen === 'victory' || screen === 'game_over') {
       soundEngine.stopAmbiance(1.5);
     }
-  }, [screen, activeEnvironment?.id, settings.muted, settings.volume]);
+  }, [devEditorOpen, screen, activeEnvironment?.id, settings.muted, settings.volume]);
 
   useEffect(() => {
     soundEngine.updateAmbianceVolume(settings);
@@ -2453,7 +2457,6 @@ export function App() {
           return;
         }
         if (matchCommand(raw, ['editor'], 'easy')) {
-          soundEngine.playPageTurn(settings);
           setDevEditorOpen(true);
           resetTypingBuffer(false);
           return;
@@ -2803,7 +2806,6 @@ export function App() {
         'easy'
       )
     ) {
-      soundEngine.playPageTurn(settings);
       triggerElementParticles(undefined, ['#137547', '#d97706', '#ffd166'], 50, 50);
       setDevEditorOpen(true);
       resetTypingBuffer(false);
@@ -5788,7 +5790,7 @@ export function App() {
       {devEditorOpen && (
         <DevJsonEditor
           onClose={() => {
-            soundEngine.playPageTurn(settings);
+            soundEngine.stopAmbiance(0.2);
             setDevEditorOpen(false);
           }}
           settings={settings}

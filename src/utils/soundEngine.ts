@@ -259,7 +259,7 @@ class SoundEngine {
   }
 
   /**
-   * Audition any sound by sound ID, handling both file samples and synthesized engine audio.
+   * Audition any sound by sound ID, handling file samples, synthesized engine audio, and continuous ambiances.
    */
   public playAudition(soundId: string, settings?: Partial<GameSettings>): void {
     const fullSettings: GameSettings = {
@@ -270,6 +270,43 @@ class SoundEngine {
       muted: false,
       ...settings,
     };
+
+    if (soundId.startsWith('ambiance:') || soundId.startsWith('ambiance/')) {
+      const ambianceKey = soundId.replace(/^ambiance[:/]/, '');
+      if (this.getCurrentAmbianceKey() === ambianceKey) {
+        this.stopAmbiance(0.4);
+      } else {
+        this.startAmbiance(ambianceKey, fullSettings);
+      }
+      return;
+    }
+
+    const AMBIANCE_KEYS = [
+      'rocky_desert',
+      'flowing_riverbank',
+      'magical_forest_clearing',
+      'volcanic_caldera',
+      'crystal_bastion',
+      'fuming_ink_marsh',
+      'sunlit_sanctuary',
+      'whispering_library_ruins',
+      'calm_parchment_meadow',
+      'campfire',
+      'merchant',
+      'treasure',
+      'mystery',
+      'map',
+      'main_menu',
+    ];
+
+    if (AMBIANCE_KEYS.includes(soundId)) {
+      if (this.getCurrentAmbianceKey() === soundId) {
+        this.stopAmbiance(0.4);
+      } else {
+        this.startAmbiance(soundId, fullSettings);
+      }
+      return;
+    }
 
     switch (soundId) {
       case 'wheel_tick':

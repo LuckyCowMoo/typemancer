@@ -245,18 +245,33 @@ const ensureUpgrade = (card: CardDefinition): CardUpgradeData => {
 };
 
 export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings }) => {
+  const [editorMuted, setEditorMuted] = useState<boolean>(true);
+
   const effectiveSettings: GameSettings = useMemo(() => ({
     volume: 0.85,
     typingSound: 'mechanical_typewriter',
     confirmSound: 'carriage_bell',
     highContrast: false,
-    muted: false,
     ...settings,
-  }), [settings]);
+    muted: editorMuted,
+  }), [settings, editorMuted]);
+
+  useEffect(() => {
+    return () => {
+      soundEngine.stopAmbiance(0.2);
+    };
+  }, []);
 
   const [activeTab, setActiveTab] = useState<EditorTab>('enemies');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [saveBanner, setSaveBanner] = useState<{ text: string; isError?: boolean } | null>(null);
+
+  useEffect(() => {
+    if (activeTab !== 'sounds') {
+      soundEngine.stopAmbiance(0.2);
+      setPlayingSoundId(null);
+    }
+  }, [activeTab]);
 
   // Editable state copies of all 6 JSON files
   const [enemiesList, setEnemiesList] = useState<EnemyDefinition[]>(() =>
@@ -1053,6 +1068,36 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
           </div>
           <button
             type="button"
+            className="dev-btn dev-btn-secondary"
+            onClick={() => {
+              const next = !editorMuted;
+              setEditorMuted(next);
+              if (next) {
+                soundEngine.stopAmbiance(0.2);
+              }
+            }}
+            title={
+              editorMuted
+                ? 'Editor sounds are currently muted. Click to enable sound effects.'
+                : 'Editor sounds are currently unmuted. Click to mute.'
+            }
+            style={{
+              padding: '5px 11px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: editorMuted ? '#f1f5f9' : '#e0f2fe',
+              borderColor: editorMuted ? '#94a3b8' : '#0284c7',
+              color: editorMuted ? '#475569' : '#0369a1',
+              cursor: 'pointer',
+            }}
+          >
+            <span>{editorMuted ? '🔇 Sounds Muted' : '🔊 Sounds Active'}</span>
+          </button>
+          <button
+            type="button"
             className="dev-btn dev-btn-primary"
             onClick={handleSaveCurrentTabToDisk}
             title={
@@ -1099,7 +1144,10 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
             type="button"
             className="dev-btn dev-btn-close"
             onClick={() => {
-              soundEngine.playPageTurn(effectiveSettings);
+              soundEngine.stopAmbiance(0.2);
+              if (!editorMuted) {
+                soundEngine.playPageTurn(effectiveSettings);
+              }
               syncLiveCatalogs();
               onClose();
             }}
@@ -1137,7 +1185,9 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
             type="button"
             className={`dev-tab-btn ${activeTab === t.id ? 'dev-tab-active' : ''}`}
             onClick={() => {
-              soundEngine.playPageTurn(effectiveSettings);
+              if (!editorMuted) {
+                soundEngine.playPageTurn(effectiveSettings);
+              }
               setActiveTab(t.id);
               setSearchQuery('');
             }}
@@ -2343,7 +2393,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                         soundEngine.updateCardSfx(activeCard.id, newSfx);
                       }}
                     >
-                      {SOUND_CATEGORIES.filter((c) => c !== 'UI & Combat Global').map((cat) => (
+                      {SOUND_CATEGORIES.filter((c) => c !== 'UI & Combat Global' && c !== 'Ambiance').map((cat) => (
                         <optgroup key={cat} label={cat}>
                           {SOUND_CATALOG.filter((s) => s.category === cat).map((sound) => (
                             <option key={sound.id} value={sound.id}>
@@ -3327,6 +3377,36 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                 >
                   🖼️ Choose Environment Icon...
                 </button>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-secondary"
+                  style={{
+                    marginTop: 8,
+                    background: soundEngine.getCurrentAmbianceKey() === activeEnv.id ? '#fee2e2' : '#f0fdf4',
+                    borderColor: soundEngine.getCurrentAmbianceKey() === activeEnv.id ? '#ef4444' : '#16a34a',
+                    color: soundEngine.getCurrentAmbianceKey() === activeEnv.id ? '#b91c1c' : '#15803d',
+                    fontWeight: 700,
+                  }}
+                  onClick={() => {
+                    if (soundEngine.getCurrentAmbianceKey() === activeEnv.id) {
+                      soundEngine.stopAmbiance(0.3);
+                      setPlayingSoundId(null);
+                    } else {
+                      setPlayingSoundId(activeEnv.id);
+                      soundEngine.startAmbiance(activeEnv.id, {
+                        volume: 0.85,
+                        muted: false,
+                        typingSound: 'mechanical_typewriter',
+                        confirmSound: 'carriage_bell',
+                        highContrast: false,
+                      });
+                    }
+                  }}
+                >
+                  {soundEngine.getCurrentAmbianceKey() === activeEnv.id
+                    ? '■ Stop Biome Ambiance'
+                    : '🔊 Audition Biome Ambiance'}
+                </button>
               </div>
 
               <div className="dev-fields-grid">
@@ -3918,13 +3998,62 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                 );
               });
 
+              const currentAmbianceKey = soundEngine.getCurrentAmbianceKey();
+
               return (
                 <div className="dev-sound-grid">
+                  {currentAmbianceKey && (
+                    <div
+                      style={{
+                        gridColumn: '1 / -1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '10px 16px',
+                        background: '#ecfdf5',
+                        border: '1.5px solid #059669',
+                        borderRadius: 8,
+                        color: '#065f46',
+                        fontWeight: 700,
+                        fontSize: '0.88rem',
+                      }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>🔊</span>
+                        <span>Now Playing Continuous Procedural Ambiance: <strong>{currentAmbianceKey}</strong></span>
+                      </span>
+                      <button
+                        type="button"
+                        className="dev-btn dev-btn-secondary"
+                        style={{
+                          padding: '5px 14px',
+                          fontSize: '0.80rem',
+                          background: '#fee2e2',
+                          borderColor: '#ef4444',
+                          color: '#b91c1c',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => {
+                          soundEngine.stopAmbiance(0.3);
+                          setPlayingSoundId(null);
+                        }}
+                      >
+                        ■ Stop Ambiance
+                      </button>
+                    </div>
+                  )}
+
                   {filteredSounds.map((snd) => {
+                    const isAmbiance = snd.category === 'Ambiance' || snd.id.startsWith('ambiance:');
+                    const ambianceKey = snd.id.replace(/^ambiance[:/]/, '');
+                    const isPlaying = isAmbiance
+                      ? currentAmbianceKey === ambianceKey
+                      : playingSoundId === snd.id;
+
                     const cardsUsing = cardsList.filter(
                       (c) => (c.sfx || soundEngine.getCardSfx(c.id)) === snd.id
                     );
-                    const isPlaying = playingSoundId === snd.id;
 
                     return (
                       <div
@@ -3939,7 +4068,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                             </div>
                             <button
                               type="button"
-                              className="dev-btn dev-btn-primary"
+                              className={`dev-btn ${isPlaying ? 'dev-btn-secondary' : 'dev-btn-primary'}`}
                               style={{
                                 padding: '6px 14px',
                                 display: 'inline-flex',
@@ -3947,17 +4076,54 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                 gap: 6,
                                 fontWeight: 800,
                                 cursor: 'pointer',
+                                background: isPlaying ? '#dc2626' : undefined,
+                                borderColor: isPlaying ? '#b91c1c' : undefined,
+                                color: isPlaying ? '#ffffff' : undefined,
                               }}
                               onClick={() => {
-                                setPlayingSoundId(snd.id);
-                                soundEngine.playAudition(snd.id);
-                                window.setTimeout(() => {
-                                  setPlayingSoundId((curr) => (curr === snd.id ? null : curr));
-                                }, 1200);
+                                if (isAmbiance) {
+                                  if (isPlaying) {
+                                    soundEngine.stopAmbiance(0.4);
+                                    setPlayingSoundId(null);
+                                  } else {
+                                    setPlayingSoundId(snd.id);
+                                    soundEngine.startAmbiance(ambianceKey, {
+                                      volume: 0.85,
+                                      muted: false,
+                                      typingSound: 'mechanical_typewriter',
+                                      confirmSound: 'carriage_bell',
+                                      highContrast: false,
+                                    });
+                                  }
+                                } else {
+                                  setPlayingSoundId(snd.id);
+                                  soundEngine.playAudition(snd.id, {
+                                    volume: 0.85,
+                                    muted: false,
+                                    typingSound: 'mechanical_typewriter',
+                                    confirmSound: 'carriage_bell',
+                                    highContrast: false,
+                                  });
+                                  window.setTimeout(() => {
+                                    setPlayingSoundId((curr) => (curr === snd.id ? null : curr));
+                                  }, 1200);
+                                }
                               }}
-                              title={`Play ${snd.label}`}
+                              title={
+                                isAmbiance
+                                  ? isPlaying
+                                    ? `Stop ${snd.label}`
+                                    : `Play continuous ${snd.label}`
+                                  : `Play ${snd.label}`
+                              }
                             >
-                              {isPlaying ? '🔊 Playing...' : '▶ Listen'}
+                              {isAmbiance
+                                ? isPlaying
+                                  ? '■ Stop Ambiance'
+                                  : '▶ Listen Ambiance'
+                                : isPlaying
+                                ? '🔊 Playing...'
+                                : '▶ Listen'}
                             </button>
                           </div>
                           <div style={{ marginTop: 6, fontSize: '0.80rem', color: '#475569' }}>
@@ -3969,23 +4135,44 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                           <div style={{ marginBottom: 6 }}>
                             <span className="dev-sound-path-code">{snd.id}</span>
                           </div>
-                          <div className="dev-sound-used-by">
-                            <span>Used by {cardsUsing.length} card{cardsUsing.length === 1 ? '' : 's'}:</span>
-                            {cardsUsing.length > 0 ? (
-                              cardsUsing.slice(0, 4).map((c) => (
-                                <span key={c.id} className="dev-sound-card-chip">
-                                  {c.names.easy || c.id}
-                                </span>
-                              ))
-                            ) : (
-                              <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>None</span>
-                            )}
-                            {cardsUsing.length > 4 && (
-                              <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                                +{cardsUsing.length - 4} more
+                          {isAmbiance ? (
+                            <div className="dev-sound-used-by">
+                              <span>
+                                Scope:{' '}
+                                <strong>
+                                  {snd.label.includes('Canyon') ||
+                                  snd.id.includes('riverbank') ||
+                                  snd.id.includes('clearing') ||
+                                  snd.id.includes('caldera') ||
+                                  snd.id.includes('bastion') ||
+                                  snd.id.includes('marsh') ||
+                                  snd.id.includes('sanctuary') ||
+                                  snd.id.includes('ruins') ||
+                                  snd.id.includes('meadow')
+                                    ? 'Battle Scene Biome'
+                                    : 'Encounter Screen'}
+                                </strong>
                               </span>
-                            )}
-                          </div>
+                            </div>
+                          ) : (
+                            <div className="dev-sound-used-by">
+                              <span>Used by {cardsUsing.length} card{cardsUsing.length === 1 ? '' : 's'}:</span>
+                              {cardsUsing.length > 0 ? (
+                                cardsUsing.slice(0, 4).map((c) => (
+                                  <span key={c.id} className="dev-sound-card-chip">
+                                    {c.names.easy || c.id}
+                                  </span>
+                                ))
+                              ) : (
+                                <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>None</span>
+                              )}
+                              {cardsUsing.length > 4 && (
+                                <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                                  +{cardsUsing.length - 4} more
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -4132,7 +4319,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                     soundEngine.updateCardSfx(card.id, newSfx);
                                   }}
                                 >
-                                  {SOUND_CATEGORIES.filter((cCat) => cCat !== 'UI & Combat Global').map((cCat) => (
+                                  {SOUND_CATEGORIES.filter((cCat) => cCat !== 'UI & Combat Global' && cCat !== 'Ambiance').map((cCat) => (
                                     <optgroup key={cCat} label={cCat}>
                                       {SOUND_CATALOG.filter((s) => s.category === cCat).map((s) => (
                                         <option key={s.id} value={s.id}>
