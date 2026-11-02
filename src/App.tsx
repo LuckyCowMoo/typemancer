@@ -1539,20 +1539,26 @@ export function App() {
       }
 
       if (node.type === 'merchant') {
+        // Randomise cost of each shop item +/- 25% (range: 0.75x to 1.25x)
+        const randomizePrice = (base: number): number => {
+          const variance = 0.75 + Math.random() * 0.5;
+          return Math.max(1, Math.round(base * variance));
+        };
+
         const shopCards = generateCardRewards(4, false).map((inst) => {
           const def = getCardDefinition(inst.cardId);
-          const price = def.rarity === 'rare' ? 130 : def.rarity === 'uncommon' ? 85 : 50;
-          return { instance: inst, price, sold: false };
+          const basePrice = def.rarity === 'rare' ? 130 : def.rarity === 'uncommon' ? 85 : 50;
+          return { instance: inst, price: randomizePrice(basePrice), sold: false };
         });
         const shopRelics = generateRelicRewards(relicIds, 2).map((rel) => ({
           relic: rel,
-          price: rel.price || 145,
+          price: randomizePrice(rel.price || 145),
           sold: false,
         }));
         setShopInventory({
           cards: shopCards,
           relics: shopRelics,
-          removeServicePrice: 65,
+          removeServicePrice: randomizePrice(65),
           removeUsed: false,
         });
         setShopSubMode('browse');
@@ -4398,16 +4404,27 @@ export function App() {
                             ? getPhraseHighlightState(res.name, difficulty)
                             : { isHighlighted: false, isEnterReady: false };
                           return (
-                            <CardBanner
-                              key={instance.instanceId}
-                              instance={instance}
-                              phraseDiff={phraseDiff}
-                              index={idx}
-                              isHighlighted={st.isHighlighted}
-                              isEnterCandidate={st.isEnterReady}
-                              isUnaffordable={sold || gold < price}
-                              priceBadge={sold ? 'SOLD' : `${price}g`}
-                            />
+                            <div key={instance.instanceId} className="shop-card-entry">
+                              <CardBanner
+                                instance={instance}
+                                phraseDiff={phraseDiff}
+                                index={idx}
+                                isHighlighted={st.isHighlighted}
+                                isEnterCandidate={st.isEnterReady}
+                                isUnaffordable={sold || gold < price}
+                              />
+                              <div
+                                className={`shop-card-price-tag ${
+                                  sold ? 'sold' : gold < price ? 'unaffordable' : 'affordable'
+                                } ${st.isHighlighted ? 'highlighted' : ''} ${
+                                  st.isEnterReady ? 'enter-ready' : ''
+                                }`}
+                                title={sold ? 'Sold' : `${price} Gold`}
+                              >
+                                <span className="shop-price-icon">{sold ? '🏷️' : '💰'}</span>
+                                <span className="shop-price-val">{sold ? 'SOLD' : `${price}g`}</span>
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
