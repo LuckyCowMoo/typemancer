@@ -24,6 +24,7 @@ export interface CardBannerProps {
   isKept?: boolean;
   isDiscardCandidate?: boolean;
   isPowerAlreadyActive?: boolean;
+  combatStatusGlow?: 'purple' | 'red' | 'green' | 'yellow' | null;
   priceBadge?: string;
   shopPrice?: string | number;
   subtitleOverride?: string;
@@ -215,6 +216,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   isKept = false,
   isDiscardCandidate = false,
   isPowerAlreadyActive = false,
+  combatStatusGlow,
   priceBadge,
   shopPrice,
   subtitleOverride,
@@ -274,6 +276,8 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         isEnterCandidate ? 'card-tab-enter-ready' : ''
       } ${isSelected ? 'card-tab-selected' : ''} ${
         isUnaffordable ? 'card-tab-unaffordable' : ''
+      } ${
+        combatStatusGlow ? `combat-glow-${combatStatusGlow}` : ''
       } rarity-${resolved.rarity} card-cat-${category} ${className}`}
       style={{
         width: 292,
@@ -287,6 +291,14 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             ? '3.5px solid #2ec4b6'
             : isHighlighted
             ? '3px solid #ffd166'
+            : combatStatusGlow === 'purple'
+            ? '2.5px solid #c084fc'
+            : combatStatusGlow === 'red'
+            ? '2.5px solid #f87171'
+            : combatStatusGlow === 'green'
+            ? '2.5px solid #34d399'
+            : combatStatusGlow === 'yellow'
+            ? '2.5px solid #fde047'
             : '2.5px solid #0d1b22',
         boxSizing: 'border-box',
         position: 'relative',
@@ -298,7 +310,16 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         color: theme.textColor,
         transition:
           'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, margin 0.18s ease, background-color 0.18s ease',
-        boxShadow: '2px 3px 8px rgba(13, 27, 34, 0.22)',
+        boxShadow:
+          combatStatusGlow === 'purple'
+            ? '0 0 0 2px #a855f7, 0 0 16px rgba(168, 85, 247, 0.75), 0 0 26px rgba(168, 85, 247, 0.4)'
+            : combatStatusGlow === 'red'
+            ? '0 0 0 2px #ef4444, 0 0 16px rgba(239, 68, 68, 0.75), 0 0 26px rgba(239, 68, 68, 0.4)'
+            : combatStatusGlow === 'green'
+            ? '0 0 0 2px #10b981, 0 0 16px rgba(16, 185, 129, 0.75), 0 0 26px rgba(16, 185, 129, 0.4)'
+            : combatStatusGlow === 'yellow'
+            ? '0 0 0 2px #eab308, 0 0 16px rgba(234, 179, 8, 0.75), 0 0 26px rgba(234, 179, 8, 0.4)'
+            : '2px 3px 8px rgba(13, 27, 34, 0.22)',
         animationDelay: `${(index % 7) * 0.22}s`,
         ...style,
       }}
@@ -387,6 +408,70 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           title="This power is already active this combat (usable once per combat)"
         >
           ⚡ ACTIVE (1/COMBAT)
+        </span>
+      )}
+
+      {/* Top-Left: Combat Pile Location Badge (Deck Modal in Combat) */}
+      {combatStatusGlow && !isKept && !isDiscardCandidate && !isPowerAlreadyActive && (
+        <span
+          className={`card-combat-pile-badge pile-${combatStatusGlow}`}
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 4,
+            borderRadius: 7,
+            padding: '2px 7px',
+            fontSize: '0.64rem',
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: '0.04em',
+            zIndex: 8,
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.35)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+            backgroundColor:
+              combatStatusGlow === 'purple'
+                ? '#581c87'
+                : combatStatusGlow === 'red'
+                ? '#7f1d1d'
+                : combatStatusGlow === 'green'
+                ? '#064e3b'
+                : '#713f12',
+            color:
+              combatStatusGlow === 'purple'
+                ? '#f3e8ff'
+                : combatStatusGlow === 'red'
+                ? '#fee2e2'
+                : combatStatusGlow === 'green'
+                ? '#d1fae5'
+                : '#fef9c3',
+            border:
+              combatStatusGlow === 'purple'
+                ? '1.5px solid #c084fc'
+                : combatStatusGlow === 'red'
+                ? '1.5px solid #f87171'
+                : combatStatusGlow === 'green'
+                ? '1.5px solid #34d399'
+                : '1.5px solid #fde047',
+          }}
+          title={
+            combatStatusGlow === 'purple'
+              ? 'In Discard Pile'
+              : combatStatusGlow === 'red'
+              ? 'Exhausted this combat'
+              : combatStatusGlow === 'green'
+              ? 'Currently in Hand'
+              : 'In Deck (Draw Pile)'
+          }
+        >
+          {combatStatusGlow === 'purple'
+            ? 'DISCARD'
+            : combatStatusGlow === 'red'
+            ? 'EXHAUSTED'
+            : combatStatusGlow === 'green'
+            ? 'IN HAND'
+            : 'IN DECK'}
         </span>
       )}
 

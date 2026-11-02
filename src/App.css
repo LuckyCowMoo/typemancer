@@ -1696,9 +1696,34 @@ body,
 }
 
 /* ==================== CABINET FRAMES (PIXEL WOOD BEZEL) ==================== */
+.cabinet-modal-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1040px;
+  max-height: 94vh;
+  display: flex;
+  align-items: stretch;
+  transition: transform 0.2s ease, max-width 0.2s ease;
+}
+
+@media (min-width: 1040px) and (max-width: 1360px) {
+  .cabinet-modal-wrapper.with-combat-key {
+    max-width: min(920px, calc(100vw - 220px));
+    transform: translateX(-40px);
+  }
+}
+
+@media (max-width: 1039px) {
+  .cabinet-modal-wrapper.with-combat-key {
+    transform: none;
+  }
+}
+
 .cabinet-modal-frame {
   width: 100%;
   max-width: 1040px;
+  flex: 1;
+  min-width: 0;
   max-height: 94vh;
   background-color: #3b281c;
   background-image: url('/assets/ui/cabinet_wood_pixel.png');
@@ -1713,6 +1738,218 @@ body,
   padding: 14px;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+/* ==================== COMBAT DECK PILE KEY TAB ==================== */
+.deck-combat-key-tab {
+  position: absolute;
+  top: 56px;
+  left: calc(100% - 4px);
+  width: 148px;
+  background-color: #3b281c;
+  background-image: url('/assets/ui/cabinet_wood_pixel.png');
+  background-repeat: repeat;
+  background-size: 96px 96px;
+  image-rendering: pixelated;
+  border: 4px solid #271911;
+  border-left: none;
+  border-radius: 0 16px 16px 0;
+  box-shadow: 6px 10px 24px rgba(0, 0, 0, 0.6), inset 0 0 0 1.5px #5d422f;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  animation: slide-in-key-tab 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+@keyframes slide-in-key-tab {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 1039px) {
+  .deck-combat-key-tab {
+    left: auto;
+    right: 14px;
+    top: 14px;
+    border-left: 4px solid #271911;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  }
+}
+
+.deck-key-header {
+  background: #271911;
+  border-bottom: 2px solid #5d422f;
+  padding: 6px 10px;
+  border-top-right-radius: 12px;
+  text-align: center;
+}
+
+.deck-key-title {
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #ffd166;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.deck-key-items {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 8px;
+}
+
+.deck-key-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  background: rgba(16, 32, 39, 0.85);
+  border: 1.5px solid #271911;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.deck-key-item:hover {
+  background: rgba(22, 44, 54, 0.95);
+  transform: translateX(2px);
+}
+
+.key-glow-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.key-glow-indicator.glow-yellow {
+  background: #facc15;
+  border: 1.5px solid #fef08a;
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.95), 0 0 14px rgba(250, 204, 21, 0.55);
+}
+
+.key-glow-indicator.glow-green {
+  background: #10b981;
+  border: 1.5px solid #a7f3d0;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.95), 0 0 14px rgba(16, 185, 129, 0.55);
+}
+
+.key-glow-indicator.glow-purple {
+  background: #a855f7;
+  border: 1.5px solid #e9d5ff;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.95), 0 0 14px rgba(168, 85, 247, 0.55);
+}
+
+.key-glow-indicator.glow-red {
+  background: #ef4444;
+  border: 1.5px solid #fecaca;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.95), 0 0 14px rgba(239, 68, 68, 0.55);
+}
+
+.key-item-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fdf8ef;
+  letter-spacing: 0.02em;
+  flex: 1;
+  white-space: nowrap;
+}
+
+.key-item-count {
+  font-size: 0.74rem;
+  font-weight: 900;
+  color: #ffd166;
+  background: #141a1f;
+  border: 1px solid rgba(255, 209, 102, 0.3);
+  border-radius: 5px;
+  padding: 1px 5px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* ==================== COMBAT PILE CARD GLOWS ==================== */
+@keyframes combat-purple-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #a855f7, 0 0 14px rgba(168, 85, 247, 0.75), 0 0 24px rgba(168, 85, 247, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 2.5px #c084fc, 0 0 20px rgba(168, 85, 247, 0.9), 0 0 32px rgba(168, 85, 247, 0.5);
+  }
+}
+
+@keyframes combat-red-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #ef4444, 0 0 14px rgba(239, 68, 68, 0.75), 0 0 24px rgba(239, 68, 68, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 2.5px #f87171, 0 0 20px rgba(239, 68, 68, 0.9), 0 0 32px rgba(239, 68, 68, 0.5);
+  }
+}
+
+@keyframes combat-green-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #10b981, 0 0 14px rgba(16, 185, 129, 0.75), 0 0 24px rgba(16, 185, 129, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 2.5px #34d399, 0 0 20px rgba(16, 185, 129, 0.9), 0 0 32px rgba(16, 185, 129, 0.5);
+  }
+}
+
+@keyframes combat-yellow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #eab308, 0 0 14px rgba(234, 179, 8, 0.75), 0 0 24px rgba(234, 179, 8, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 2.5px #fde047, 0 0 20px rgba(234, 179, 8, 0.9), 0 0 32px rgba(234, 179, 8, 0.5);
+  }
+}
+
+.card-tab.combat-glow-purple {
+  border-color: #c084fc !important;
+  animation: combat-purple-pulse 2.4s ease-in-out infinite;
+}
+
+.card-tab.combat-glow-red {
+  border-color: #f87171 !important;
+  animation: combat-red-pulse 2.4s ease-in-out infinite;
+}
+
+.card-tab.combat-glow-green {
+  border-color: #34d399 !important;
+  animation: combat-green-pulse 2.4s ease-in-out infinite;
+}
+
+.card-tab.combat-glow-yellow {
+  border-color: #fde047 !important;
+  animation: combat-yellow-pulse 2.4s ease-in-out infinite;
+}
+
+.card-tab.combat-glow-purple.card-tab-highlighted,
+.card-tab.combat-glow-red.card-tab-highlighted,
+.card-tab.combat-glow-green.card-tab-highlighted,
+.card-tab.combat-glow-yellow.card-tab-highlighted {
+  border-color: #ffd166 !important;
+}
+
+.card-tab.combat-glow-purple.card-tab-enter-ready,
+.card-tab.combat-glow-red.card-tab-enter-ready,
+.card-tab.combat-glow-green.card-tab-enter-ready,
+.card-tab.combat-glow-yellow.card-tab-enter-ready,
+.card-tab.combat-glow-purple.card-tab-selected,
+.card-tab.combat-glow-red.card-tab-selected,
+.card-tab.combat-glow-green.card-tab-selected,
+.card-tab.combat-glow-yellow.card-tab-selected {
+  border-color: #2ec4b6 !important;
 }
 
 .cabinet-menu-frame {

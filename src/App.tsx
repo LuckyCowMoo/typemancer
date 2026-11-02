@@ -4394,13 +4394,22 @@ export function App() {
     </div>
   );
 
-  const renderCategorizedCardGrid = (cards: CardInstance[], emptyLabel = 'No cards') => {
+  const renderCategorizedCardGrid = (
+    cards: CardInstance[],
+    emptyLabel = 'No cards',
+    enableCombatGlows = false
+  ) => {
     if (cards.length === 0) {
       return <p className="deck-empty-note">{emptyLabel}</p>;
     }
 
     const categoryOrder: CardVisualCategory[] = ['attack', 'defence', 'skill', 'debuff', 'power'];
     const sortedAll = sortCardsByCategoryAndRarity(cards, (c) => c, phraseDiff);
+
+    const isCombatDeck = enableCombatGlows && screen === 'battle';
+    const handInstanceIds = isCombatDeck ? new Set(hand.map((c) => c.instanceId)) : null;
+    const discardInstanceIds = isCombatDeck ? new Set(discardPile.map((c) => c.instanceId)) : null;
+    const burnInstanceIds = isCombatDeck ? new Set(burnDraftPile.map((c) => c.instanceId)) : null;
 
     return (
       <div className="categorized-deck-container">
@@ -4415,14 +4424,30 @@ export function App() {
                 {CARD_CATEGORY_LABELS[cat]} ({catCards.length})
               </h3>
               <div className="deck-banner-grid">
-                {catCards.map((inst, idx) => (
-                  <CardBanner
-                    key={inst.instanceId}
-                    instance={inst}
-                    phraseDiff={phraseDiff}
-                    index={idx}
-                  />
-                ))}
+                {catCards.map((inst, idx) => {
+                  let combatGlow: 'purple' | 'red' | 'green' | 'yellow' | undefined = undefined;
+                  if (isCombatDeck) {
+                    if (discardInstanceIds?.has(inst.instanceId)) {
+                      combatGlow = 'purple';
+                    } else if (burnInstanceIds?.has(inst.instanceId)) {
+                      combatGlow = 'red';
+                    } else if (handInstanceIds?.has(inst.instanceId)) {
+                      combatGlow = 'green';
+                    } else {
+                      combatGlow = 'yellow';
+                    }
+                  }
+
+                  return (
+                    <CardBanner
+                      key={inst.instanceId}
+                      instance={inst}
+                      phraseDiff={phraseDiff}
+                      index={idx}
+                      combatStatusGlow={combatGlow}
+                    />
+                  );
+                })}
               </div>
             </div>
           );
@@ -5770,8 +5795,9 @@ export function App() {
               }}
             />
           ) : (
-            <div className="cabinet-modal-frame paper-sheet-float">
-              <div className="keyboard-modal-card">
+            <div className={`cabinet-modal-wrapper ${screen === 'battle' && overlay === 'deck' ? 'with-combat-key' : ''}`}>
+              <div className="cabinet-modal-frame paper-sheet-float">
+                <div className="keyboard-modal-card">
             {overlay === 'help' && (
               <>
                 <h2>Commands</h2>
@@ -6055,8 +6081,23 @@ export function App() {
             {/* VIEW DECK / DISCARD / BURNED: Categorized by visual theme and rarity */}
             {overlay === 'deck' && (
               <>
-                <h2>Deck ({deck.length} Cards)</h2>
-                {renderCategorizedCardGrid(deck)}
+                <h2>
+                  Deck ({deck.length} Cards)
+                  {screen === 'battle' && (
+                    <span
+                      style={{
+                        fontSize: '0.86rem',
+                        fontWeight: 700,
+                        color: '#b45309',
+                        marginLeft: 12,
+                        letterSpacing: '0.02em',
+                      }}
+                    >
+                      (Combat Pile Key Active)
+                    </span>
+                  )}
+                </h2>
+                {renderCategorizedCardGrid(deck, 'No cards', screen === 'battle')}
               </>
             )}
 
@@ -6113,6 +6154,38 @@ export function App() {
             </div>
               </div>
             </div>
+
+            {/* Combat Deck Pile Key poking out the side of the window (only in battle & overlay === 'deck') */}
+            {screen === 'battle' && overlay === 'deck' && (
+              <aside className="deck-combat-key-tab" aria-label="Combat Deck Pile Key">
+                <div className="deck-key-header">
+                  <span className="deck-key-title">KEY</span>
+                </div>
+                <div className="deck-key-items">
+                  <div className="deck-key-item key-item-yellow" title="Cards in Deck (Draw Pile) — Yellow Glow">
+                    <span className="key-glow-indicator glow-yellow" />
+                    <span className="key-item-label">Deck</span>
+                    <span className="key-item-count">{drawPile.length}</span>
+                  </div>
+                  <div className="deck-key-item key-item-green" title="Cards in Hand — Green Glow">
+                    <span className="key-glow-indicator glow-green" />
+                    <span className="key-item-label">Hand</span>
+                    <span className="key-item-count">{hand.length}</span>
+                  </div>
+                  <div className="deck-key-item key-item-purple" title="Cards in Discard Pile — Purple Glow">
+                    <span className="key-glow-indicator glow-purple" />
+                    <span className="key-item-label">Discard</span>
+                    <span className="key-item-count">{discardPile.length}</span>
+                  </div>
+                  <div className="deck-key-item key-item-red" title="Cards Exhausted this Combat — Red Glow">
+                    <span className="key-glow-indicator glow-red" />
+                    <span className="key-item-label">Exhausted</span>
+                    <span className="key-item-count">{burnDraftPile.length}</span>
+                  </div>
+                </div>
+              </aside>
+            )}
+          </div>
           )}
         </div>
       )}
