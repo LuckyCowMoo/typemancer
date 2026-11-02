@@ -19,6 +19,7 @@ import type {
   RelicTrigger,
 } from '../types/game';
 import {
+  calculateEnemySpriteScale,
   CARDS_CATALOG,
   clearSessionCatalogs,
   ENEMIES_CATALOG,
@@ -1225,18 +1226,44 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
             {/* Top Hero Card: Big Sprite Preview + Basic Stats */}
             <div className="dev-hero-panel">
               <div className="dev-sprite-preview-box">
-                {activeEnemy.art.spriteUrl ? (
-                  <img
-                    src={activeEnemy.art.spriteUrl}
-                    alt={activeEnemy.id}
-                    className="dev-sprite-big"
-                    style={{
-                      transform: activeEnemy.art.flip ? 'scaleX(-1)' : 'none',
-                    }}
-                  />
-                ) : (
-                  <div className="dev-sprite-placeholder">No Sprite</div>
-                )}
+                {(() => {
+                  const enemyAvgHp = Math.round((activeEnemy.minHp + activeEnemy.maxHp) / 2);
+                  const isEliteEnemy = activeEnemy.role === 'elite';
+                  const previewScale = calculateEnemySpriteScale(enemyAvgHp, isEliteEnemy);
+
+                  return (
+                    <>
+                      {activeEnemy.art.spriteUrl ? (
+                        <img
+                          src={activeEnemy.art.spriteUrl}
+                          alt={activeEnemy.id}
+                          className="dev-sprite-big"
+                          style={{
+                            transform: `${activeEnemy.art.flip ? 'scaleX(-1)' : ''} scale(${previewScale})`,
+                            transformOrigin: 'bottom center',
+                            transition: 'transform 0.2s ease',
+                          }}
+                        />
+                      ) : (
+                        <div className="dev-sprite-placeholder">No Sprite</div>
+                      )}
+                      <div
+                        style={{
+                          fontSize: '0.78rem',
+                          color: '#574130',
+                          fontWeight: 700,
+                          margin: '4px 0',
+                          background: '#ede3d1',
+                          padding: '3px 8px',
+                          borderRadius: 6,
+                        }}
+                      >
+                        📐 Scale: <strong>{Math.round(previewScale * 100)}%</strong>
+                        {isEliteEnemy ? ' (Elite +25%)' : ' (Max HP)'}
+                      </div>
+                    </>
+                  );
+                })()}
                 <button
                   type="button"
                   className="dev-btn dev-btn-primary"

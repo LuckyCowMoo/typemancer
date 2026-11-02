@@ -177,6 +177,7 @@ export interface ActiveEnemy {
   displayName: string; // Assigned unique name for current difficulty
   faction: EnemyFaction;
   role: EnemyRole;
+  isElite?: boolean;
   hp: number;
   maxHp: number;
   ward: number;

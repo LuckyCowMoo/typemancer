@@ -1,26 +1,46 @@
 import React from 'react';
 import type { ArtPlaceholder, EnemyIntentType } from '../types/game';
+import { calculateEnemySpriteScale } from '../utils/gameContent';
 
-interface SpriteProps {
+export interface SpriteProps {
   art: ArtPlaceholder;
   width?: number;
   height?: number;
+  scale?: number;
+  maxHp?: number;
+  isElite?: boolean;
   isHighlighted?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
  * Renders either a custom non-AI sprite image (once added to `art.spriteUrl` in JSON)
  * or a clean, expressive SVG shape matching the mockup's capsule/geometric style.
+ * Supports diminishing-returns scaling based on max health, plus flat 25% extra size for elites.
  */
 export const EntitySprite: React.FC<SpriteProps> = ({
   art,
   width = 96,
   height = 96,
+  scale,
+  maxHp,
+  isElite = false,
   isHighlighted = false,
   className = '',
+  style,
 }) => {
   const isFlipped = Boolean(art.flip);
+
+  const effectiveScale =
+    scale !== undefined
+      ? scale
+      : maxHp !== undefined
+      ? calculateEnemySpriteScale(maxHp, isElite)
+      : 1;
+
+  const renderW = Math.round(width * effectiveScale);
+  const renderH = Math.round(height * effectiveScale);
 
   if (art.spriteUrl) {
     const scaleVal = isHighlighted ? 1.1 : 1;
@@ -32,15 +52,18 @@ export const EntitySprite: React.FC<SpriteProps> = ({
         alt=""
         className={className}
         style={{
-          width,
-          height,
+          width: renderW,
+          height: renderH,
           objectFit: 'contain',
           imageRendering: 'pixelated',
           filter: isHighlighted
             ? 'drop-shadow(0 0 10px rgba(255, 209, 102, 0.95)) drop-shadow(0 4px 4px rgba(43, 30, 22, 0.35))'
             : 'drop-shadow(0 4px 4px rgba(43, 30, 22, 0.32))',
-          transition: 'transform 0.16s ease, filter 0.16s ease',
+          transition:
+            'transform 0.16s ease, filter 0.16s ease, width 0.2s ease, height 0.2s ease',
           transform: flipScale,
+          transformOrigin: 'bottom center',
+          ...style,
         }}
       />
     );
@@ -48,20 +71,24 @@ export const EntitySprite: React.FC<SpriteProps> = ({
 
   const strokeColor = isHighlighted ? '#ffd166' : '#0b2b3c';
   const strokeWidth = isHighlighted ? 4 : 3;
-  const transform = isHighlighted
-    ? (isFlipped ? 'scaleX(-1) scale(1.06)' : 'scale(1.06)')
-    : (isFlipped ? 'scaleX(-1)' : 'scale(1)');
+  const highlightScale = isHighlighted ? 1.06 : 1;
+  const transform = isFlipped
+    ? `scaleX(-1) scale(${highlightScale})`
+    : `scale(${highlightScale})`;
 
   return (
     <svg
-      width={width}
-      height={height}
+      width={renderW}
+      height={renderH}
       viewBox="0 0 100 160"
       className={className}
       style={{
         filter: isHighlighted ? 'drop-shadow(0 0 10px rgba(255, 209, 102, 0.85))' : 'none',
-        transition: 'transform 0.15s ease, filter 0.15s ease',
+        transition:
+          'transform 0.15s ease, filter 0.15s ease, width 0.2s ease, height 0.2s ease',
         transform,
+        transformOrigin: 'bottom center',
+        ...style,
       }}
     >
       <defs>

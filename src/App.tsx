@@ -3924,7 +3924,14 @@ export function App() {
                         isTargetHighlighted ? 'enemy-spot-highlighted' : ''
                       } ${isTargetEnterReady ? 'enemy-spot-enter-ready' : ''}`}
                     >
-                      <div className="entity-name-label enemy-name-label">{enemy.displayName}</div>
+                      <div className="entity-name-label enemy-name-label">
+                        {Boolean(enemy.isElite || enemy.role === 'elite') && (
+                          <span style={{ color: '#d97706', marginRight: 4 }} title="Elite Monster (+25% sprite scale)">
+                            💀
+                          </span>
+                        )}
+                        {enemy.displayName}
+                      </div>
                       <div className="hp-shield-row hp-shield-scroll">
                         <div className="hp-shield-trough">
                           <div className={`hp-bar-frame enemy-hp-bar ${enemy.ward > 0 ? 'has-ward' : ''}`}>
@@ -3966,8 +3973,10 @@ export function App() {
 
                       <EntitySprite
                         art={enemy.art}
-                        width={enemy.faction === 'boss' ? 112 : 96}
-                        height={enemy.faction === 'boss' ? 112 : 96}
+                        width={96}
+                        height={96}
+                        maxHp={enemy.maxHp}
+                        isElite={Boolean(enemy.isElite || enemy.role === 'elite')}
                         isHighlighted={isTargetHighlighted || isTargetEnterReady}
                       />
                       <IntentBadge

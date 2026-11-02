@@ -455,6 +455,19 @@ export function chooseEnemyMoveForContext(
 }
 
 /**
+ * Calculates the visual sprite scale factor for an enemy:
+ * - Scales up with diminishing effectiveness (sub-linear logarithmic growth) based on max health.
+ * - Elite enemies gain a flat 25% (+0.25) extra size.
+ */
+export function calculateEnemySpriteScale(maxHp: number = 20, isElite: boolean = false): number {
+  const baseHp = 20;
+  // Sub-linear diminishing returns curve: as HP increases, size grows, but each additional HP yields progressively less scale
+  const hpBonus = 0.22 * Math.log(1 + Math.max(0, maxHp - baseHp) / 40);
+  const eliteBonus = isElite ? 0.25 : 0;
+  return Number((1 + hpBonus + eliteBonus).toFixed(3));
+}
+
+/**
  * Generates an encounter for a given floor (1 to 24) and node type ('battle' | 'elite' | 'boss').
  * Ensures:
  * - All 3 factions ('goblins', 'rock_monsters', 'evil_plants') have an equal chance of being encountered.
@@ -469,7 +482,11 @@ export function generateEncounter(
 ): ActiveEnemy[] {
   const usedNames = new Set<string>();
 
-  const instantiateEnemy = (def: EnemyDefinition, hpScale: number = 1): ActiveEnemy => {
+  const instantiateEnemy = (
+    def: EnemyDefinition,
+    hpScale: number = 1,
+    isEliteEnemy: boolean = false
+  ): ActiveEnemy => {
     const pool = def.namePools[phraseDiff] || def.namePools.easy;
     const availableNames = pool.filter((n) => !usedNames.has(n.toLowerCase()));
     let chosenName =
@@ -492,6 +509,7 @@ export function generateEncounter(
       def.minHp + Math.floor(Math.random() * Math.max(1, def.maxHp - def.minHp + 1));
     const scaledHp = Math.max(10, Math.round(baseHp * hpScale));
     const { move, behavior } = chooseEnemyMoveForContext(def, scaledHp, scaledHp, 1);
+    const isElite = Boolean(isEliteEnemy || def.role === 'elite');
 
     return {
       instanceId: nextUid('enemy'),
@@ -499,6 +517,7 @@ export function generateEncounter(
       displayName: chosenName,
       faction: def.faction,
       role: def.role,
+      isElite,
       hp: scaledHp,
       maxHp: scaledHp,
       ward: 0,
@@ -557,7 +576,7 @@ export function generateEncounter(
     const elites = poolToUse.filter((e) => e.role === 'elite' || e.tier === 3);
     const mainElite = elites.length > 0 ? pickRandom(elites) : pickRandom(poolToUse);
     const hpScale = 1 + floor * 0.04;
-    const result = [instantiateEnemy(mainElite, elites.length > 0 ? hpScale : hpScale * 1.5)];
+    const result = [instantiateEnemy(mainElite, elites.length > 0 ? hpScale : hpScale * 1.5, true)];
 
     // Later elites bring a support or skirmisher minion
     if (floor >= 12) {

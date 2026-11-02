@@ -10,6 +10,7 @@ import type {
 } from '../types/game';
 import type { CodexDiscoveryState } from '../utils/codexEngine';
 import {
+  calculateEnemySpriteScale,
   CARDS_CATALOG,
   ENEMIES_CATALOG,
   ENVIRONMENTS_CATALOG,
@@ -1399,6 +1400,11 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                 (() => {
                   const en = currentInspectItem as EnemyDefinition;
                   const primaryName = en.namePools[phraseDiff]?.[0] || en.namePools.easy[0];
+                  const avgHp = Math.round((en.minHp + en.maxHp) / 2);
+                  const isEliteEnemy = en.role === 'elite';
+                  const scaleFactor = calculateEnemySpriteScale(avgHp, isEliteEnemy);
+                  const spriteW = Math.round(104 * scaleFactor);
+                  const spriteH = Math.round(104 * scaleFactor);
                   return (
                     <div className="inspector-content-box">
                       <div className="inspector-header">
@@ -1411,6 +1417,13 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                           src={en.art.spriteUrl || './assets/entities/goblin_skirmisher.png'}
                           alt={primaryName}
                           className="inspector-large-sprite"
+                          style={{
+                            width: spriteW,
+                            height: spriteH,
+                            maxWidth: 160,
+                            maxHeight: 160,
+                            transition: 'width 0.2s ease, height 0.2s ease',
+                          }}
                         />
                         <div className="inspector-title">{primaryName}</div>
                         <div className="inspector-meta-row">
@@ -1419,6 +1432,9 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                           </span>
                           <span className="inspector-meta-pill">
                             HP: {en.minHp} – {en.maxHp}
+                          </span>
+                          <span className="inspector-meta-pill">
+                            Scale: {Math.round(scaleFactor * 100)}%{isEliteEnemy ? ' (Elite +25%)' : ''}
                           </span>
                         </div>
                       </div>
