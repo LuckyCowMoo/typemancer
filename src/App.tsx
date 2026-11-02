@@ -142,7 +142,10 @@ export interface InkParticleBurst {
   id: string;
   x: number;
   y: number;
+  isPixel?: boolean;
   particles: {
+    x?: number;
+    y?: number;
     dx: number;
     dy: number;
     size: number;
@@ -278,65 +281,65 @@ export function App() {
   const [liveWpm, setLiveWpm] = useState<number>(40);
 
   /**
-   * Spawns a tactile ink-splatter / parchment-spark particle burst at the given viewport %
-   * and with a contextual color palette matching whatever was selected or acted upon.
+   * Spawns tactile ink-splatter / parchment-spark particle bursts along the top edge
+   * of the typing console area (.typing-console-box / .modal-footer-prompt) when pressing Enter.
    */
-  const triggerActionParticles = useCallback(
-    (
-      xPct: number = 50,
-      yPct: number = 88,
-      customPalette?: string[]
-    ) => {
-      const id = nextUid('burst');
+  const triggerElementParticles = useCallback(
+    (_selector?: string, customPalette?: string[], _fallbackX = 50, _fallbackY = 82) => {
+      let left = window.innerWidth * 0.15;
+      let width = window.innerWidth * 0.7;
+      let top = window.innerHeight * 0.88;
+
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const typingBox =
+          document.querySelector('.typing-console-box') ||
+          document.querySelector('.modal-footer-prompt');
+        if (typingBox) {
+          const rect = typingBox.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            left = rect.left;
+            width = rect.width;
+            top = rect.top;
+          }
+        }
+      }
+
       const colors =
         customPalette && customPalette.length > 0
           ? customPalette
           : ['#137547', '#bc5215', '#102a3a', '#d97706', '#ffd166'];
-      const particles = Array.from({ length: 26 }, (_, idx) => {
-        const angle = (Math.PI * 2 * idx) / 26 + (Math.random() - 0.5) * 0.35;
-        const dist = 38 + Math.random() * 120;
+
+      const id = nextUid('burst_enter');
+      const particleCount = 32;
+      const particles = Array.from({ length: particleCount }, (_, idx) => {
+        const normalizedX = (idx + 0.5) / particleCount;
+        const jitter = (Math.random() - 0.5) * (1 / particleCount) * 1.5;
+        const xOffset = Math.max(8, Math.min(width - 8, (normalizedX + jitter) * width));
+        const yOffset = (Math.random() - 0.5) * 4;
+        const centerFactor = 1 - Math.abs(normalizedX - 0.5) * 0.8;
+        const upDistance = (45 + Math.random() * 85) * (0.85 + centerFactor * 0.35);
+        const xDrift = (normalizedX - 0.5) * 35 + (Math.random() - 0.5) * 45;
+
         return {
-          dx: Math.cos(angle) * dist,
-          dy: Math.sin(angle) * dist - 18,
-          size: 5 + Math.random() * 7.5,
+          x: xOffset,
+          y: yOffset,
+          dx: xDrift,
+          dy: -upDistance,
+          size: 5 + Math.random() * 6.5,
           color: colors[idx % colors.length],
           rot: Math.floor(Math.random() * 360),
         };
       });
-      setParticleBursts((prev) => [...prev, { id, x: xPct, y: yPct, particles }]);
+
+      setParticleBursts((prev) => [
+        ...prev,
+        { id, x: left, y: top, isPixel: true, particles },
+      ]);
       window.setTimeout(() => {
         setParticleBursts((prev) => prev.filter((b) => b.id !== id));
       }, 750);
     },
     []
-  );
-
-  /**
-   * Locates a DOM element by CSS selector (or falls back to any currently `.option-enter-ready` /
-   * `.card-tab-enter-ready` / `.top-cmd-enter-ready` element) and bursts colored particles directly
-   * from that element's center on screen!
-   */
-  const triggerElementParticles = useCallback(
-    (selector?: string, customPalette?: string[], fallbackX = 50, fallbackY = 82) => {
-      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-        const el =
-          (selector ? document.querySelector(selector) : null) ||
-          document.querySelector(
-            '.card-tab-enter-ready, .enemy-spot-enter-ready, .map-symbol-enter-ready, .option-enter-ready, .top-cmd-enter-ready'
-          );
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.width > 0 && rect.height > 0) {
-            const xPct = Math.max(4, Math.min(96, ((rect.left + rect.width / 2) / window.innerWidth) * 100));
-            const yPct = Math.max(4, Math.min(96, ((rect.top + rect.height / 2) / window.innerHeight) * 100));
-            triggerActionParticles(xPct, yPct, customPalette);
-            return;
-          }
-        }
-      }
-      triggerActionParticles(fallbackX, fallbackY, customPalette);
-    },
-    [triggerActionParticles]
   );
 
   const spawnPopup = useCallback((target: 'player' | string, text: string, color: string) => {
@@ -4579,7 +4582,10 @@ export function App() {
           <div
             key={burst.id}
             className="particle-burst-origin"
-            style={{ left: `${burst.x}%`, top: `${burst.y}%` }}
+            style={{
+              left: burst.isPixel ? `${burst.x}px` : `${burst.x}%`,
+              top: burst.isPixel ? `${burst.y}px` : `${burst.y}%`,
+            }}
           >
             {burst.particles.map((p, idx) => (
               <span
@@ -4587,6 +4593,8 @@ export function App() {
                 className="ink-particle-dot"
                 style={
                   {
+                    left: p.x !== undefined ? `${p.x}px` : 0,
+                    top: p.y !== undefined ? `${p.y}px` : 0,
                     '--dx': `${p.dx}px`,
                     '--dy': `${p.dy}px`,
                     '--rot': `${p.rot}deg`,

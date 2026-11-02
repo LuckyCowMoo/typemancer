@@ -111,6 +111,7 @@ body,
   top: 0;
   border-radius: 35% 65% 60% 40%;
   border: 1px solid rgba(16, 42, 58, 0.55);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.45);
   animation: inkSplatterBurst 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
