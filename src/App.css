@@ -2017,12 +2017,16 @@ body,
   top: -8px;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: 50% 10px;
+  will-change: transform;
   z-index: 20;
   pointer-events: none;
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
 }
 
 .mystery-wheel-svg {
+  transform-origin: 140px 140px;
+  will-change: transform;
   filter: drop-shadow(0 6px 16px rgba(43, 30, 22, 0.28));
   user-select: none;
 }

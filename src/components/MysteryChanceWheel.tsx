@@ -71,31 +71,39 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
     };
   }, [successDegrees]);
 
-  const [currentRotation, setCurrentRotation] = useState<number>(spinPlan.thetaStart);
-  const [pointerAngle, setPointerAngle] = useState<number>(0);
-  const [isSpinning, setIsSpinning] = useState<boolean>(false);
+  const [isSpinning, setIsSpinning] = useState<boolean>(true);
   const [hasLanded, setHasLanded] = useState<boolean>(false);
 
-  const rafRef = useRef<number | null>(null);
-  const completeTimerRef = useRef<number | null>(null);
-  const hasStartedRef = useRef<boolean>(false);
+  const wheelRef = useRef<SVGSVGElement | null>(null);
+  const pointerRef = useRef<HTMLDivElement | null>(null);
 
   const onSpinCompleteRef = useRef(onSpinComplete);
   onSpinCompleteRef.current = onSpinComplete;
 
+  const triggerParticlesRef = useRef(triggerParticles);
+  triggerParticlesRef.current = triggerParticles;
+
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
-  // Start smooth physics spin on mount
+  // Start smooth physics spin immediately on mount
   useEffect(() => {
-    if (hasStartedRef.current) return;
-    hasStartedRef.current = true;
-
-    const SPIN_DURATION = 6200; // 6.2s smooth decelerating spin with lower resistance
+    const SPIN_DURATION = 6200; // 6.2s smooth decelerating spin
+    let animId: number | null = null;
+    let timerId: number | null = null;
     let startTime: number | null = null;
     let lastKnobIndex = Math.floor(spinPlan.thetaStart / 22.5);
 
     setIsSpinning(true);
+    setHasLanded(false);
+
+    // Apply initial starting angle
+    if (wheelRef.current) {
+      wheelRef.current.style.transform = `rotate(${spinPlan.thetaStart.toFixed(2)}deg)`;
+    }
+    if (pointerRef.current) {
+      pointerRef.current.style.transform = 'translateX(-50%) rotate(0deg)';
+    }
 
     const step = (now: number) => {
       if (startTime === null) startTime = now;
@@ -117,7 +125,7 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
       // Pointer deflection physics:
       // Inside each 22.5 deg sector, as knob approaches (offset 14.5 to 22.5 deg),
       // the pointer deflects clockwise up to 14 deg, then snaps back as knob slips past.
-      const subAngle = rot % 22.5;
+      const subAngle = ((rot % 22.5) + 22.5) % 22.5;
       let needleDeflection = 0;
       if (subAngle >= 14.5) {
         needleDeflection = ((subAngle - 14.5) / 8.0) * 14;
@@ -125,43 +133,62 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
         needleDeflection = (1 - subAngle / 4.0) * -3;
       }
 
-      setCurrentRotation(rot);
-      setPointerAngle(needleDeflection);
+      // Update DOM styles directly for instantaneous 60fps/120fps hardware-accelerated transforms
+      // without incurring 370+ full React component re-renders
+      if (wheelRef.current) {
+        wheelRef.current.style.transform = `rotate(${rot.toFixed(2)}deg)`;
+      }
+      if (pointerRef.current) {
+        pointerRef.current.style.transform = `translateX(-50%) rotate(${needleDeflection.toFixed(2)}deg)`;
+      }
 
       if (progress < 1) {
-        rafRef.current = requestAnimationFrame(step);
+        animId = requestAnimationFrame(step);
       } else {
         // Spin finished: lock precisely onto target rotation and zero out needle
-        setCurrentRotation(spinPlan.targetRotation);
-        setPointerAngle(0);
+        if (wheelRef.current) {
+          wheelRef.current.style.transform = `rotate(${spinPlan.targetRotation.toFixed(2)}deg)`;
+        }
+        if (pointerRef.current) {
+          pointerRef.current.style.transform = 'translateX(-50%) rotate(0deg)';
+        }
+
         setIsSpinning(false);
         setHasLanded(true);
 
         if (spinPlan.succeeded) {
           soundEngine.playMysteryWin(settingsRef.current);
-          triggerParticles?.('.mystery-wheel-stage', ['#10b981', '#ffd166', '#3b82f6', '#f59e0b']);
+          triggerParticlesRef.current?.('.mystery-wheel-stage', ['#10b981', '#ffd166', '#3b82f6', '#f59e0b']);
         } else {
           soundEngine.playMysteryFail(settingsRef.current);
-          triggerParticles?.('.mystery-wheel-stage', ['#ef4444', '#b91c1c', '#7f1d1d']);
+          triggerParticlesRef.current?.('.mystery-wheel-stage', ['#ef4444', '#b91c1c', '#7f1d1d']);
         }
 
         // Wait 3.2s on the stopped wheel before transitioning to the outcome screen
-        completeTimerRef.current = window.setTimeout(() => {
+        timerId = window.setTimeout(() => {
           onSpinCompleteRef.current(spinPlan.succeeded);
         }, 3200);
       }
     };
 
-    const startTimeout = window.setTimeout(() => {
-      rafRef.current = requestAnimationFrame(step);
-    }, 80);
+    // Begin animation immediately on mount (no arbitrary setTimeout delay)
+    animId = requestAnimationFrame(step);
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible' && !hasLanded) {
+        if (!animId) {
+          animId = requestAnimationFrame(step);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
-      clearTimeout(startTimeout);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (animId) cancelAnimationFrame(animId);
+      if (timerId) clearTimeout(timerId);
     };
-  }, [spinPlan, triggerParticles]);
+  }, [spinPlan]);
 
   // Sector mid-angles for text labels
   const midSuccess = successDegrees / 2;
@@ -190,10 +217,12 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
       <div className="mystery-wheel-stage">
         {/* Stationary Pointer Needle at the Top */}
         <div
+          ref={pointerRef}
           className="mystery-wheel-pointer-wrapper"
           style={{
-            transform: `translateX(-50%) rotate(${pointerAngle.toFixed(2)}deg)`,
+            transform: 'translateX(-50%) rotate(0deg)',
             transformOrigin: '50% 10px',
+            willChange: 'transform',
           }}
         >
           <svg width="34" height="42" viewBox="0 0 34 42" className="mystery-wheel-pointer-svg">
@@ -211,12 +240,15 @@ export const MysteryChanceWheel: React.FC<MysteryChanceWheelProps> = ({
 
         {/* The Rotating Wheel */}
         <svg
+          ref={wheelRef}
           width="280"
           height="280"
           viewBox="0 0 280 280"
           className="mystery-wheel-svg"
           style={{
-            transform: `rotate(${currentRotation.toFixed(2)}deg)`,
+            transform: `rotate(${spinPlan.thetaStart.toFixed(2)}deg)`,
+            transformOrigin: '140px 140px',
+            willChange: 'transform',
           }}
         >
           <defs>
