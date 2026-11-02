@@ -389,6 +389,43 @@ export function App() {
     }
   }, [deck, relicIds]);
 
+  // Continuous background ambiance for every encounter and battle scene biome
+  useEffect(() => {
+    if (screen === 'battle' && activeEnvironment) {
+      soundEngine.startAmbiance(activeEnvironment.id, settings);
+    } else if (screen === 'campfire') {
+      soundEngine.startAmbiance('campfire', settings);
+    } else if (screen === 'merchant') {
+      soundEngine.startAmbiance('merchant', settings);
+    } else if (screen === 'treasure') {
+      soundEngine.startAmbiance('treasure', settings);
+    } else if (screen === 'mystery') {
+      soundEngine.startAmbiance('mystery', settings);
+    } else if (screen === 'map') {
+      soundEngine.startAmbiance('map', settings);
+    } else if (screen === 'main_menu' || screen === 'peasant_intro' || screen === 'tutorial') {
+      soundEngine.startAmbiance('main_menu', settings);
+    } else if (screen === 'reward') {
+      if (activeEnvironment) {
+        soundEngine.startAmbiance(activeEnvironment.id, settings);
+      } else {
+        soundEngine.startAmbiance('map', settings);
+      }
+    } else if (screen === 'victory' || screen === 'game_over') {
+      soundEngine.stopAmbiance(1.5);
+    }
+  }, [screen, activeEnvironment?.id, settings.muted, settings.volume]);
+
+  useEffect(() => {
+    soundEngine.updateAmbianceVolume(settings);
+  }, [settings.muted, settings.volume]);
+
+  useEffect(() => {
+    return () => {
+      soundEngine.stopAmbiance(0.3);
+    };
+  }, []);
+
   const wpmRelicBonus = useMemo(() => {
     return relicIds.reduce((sum, id) => {
       const r = getRelicDefinition(id);

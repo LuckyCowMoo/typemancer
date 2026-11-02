@@ -84,6 +84,25 @@ export const CARD_SFX_MAP: Record<string, { sfx: string; volume?: number }> = {
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private sampleCache: Map<string, HTMLAudioElement> = new Map();
+  private activeAmbiance: {
+    key: string;
+    gain: GainNode;
+    sources: (AudioScheduledSourceNode | AudioNode)[];
+    intervalIds: number[];
+  } | null = null;
+  private noiseBuffers: Map<string, AudioBuffer> = new Map();
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      const resumeAudio = () => {
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+      };
+      window.addEventListener('pointerdown', resumeAudio, { passive: true });
+      window.addEventListener('keydown', resumeAudio, { passive: true });
+    }
+  }
 
   // Multi-sample pools for natural acoustic typing variations
   private typewriterSamples: string[] = [
@@ -569,6 +588,861 @@ class SoundEngine {
   public playAllyDefeated(settings: GameSettings): void {
     if (settings.muted || settings.volume <= 0) return;
     this.playSample('cards/paper_tear.wav', settings, 0.68, 0.1);
+  }
+
+  // ==========================================
+  // PROCEDURAL CONTINUOUS AMBIANCE ENGINE
+  // ==========================================
+
+  public getCurrentAmbianceKey(): string | null {
+    return this.activeAmbiance?.key || null;
+  }
+
+  public updateAmbianceVolume(settings: GameSettings): void {
+    if (!this.activeAmbiance) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const targetVol = settings.muted ? 0 : Math.min(1, Math.max(0, settings.volume)) * 0.28;
+    const now = ctx.currentTime;
+    this.activeAmbiance.gain.gain.cancelScheduledValues(now);
+    this.activeAmbiance.gain.gain.linearRampToValueAtTime(Math.max(0.0001, targetVol), now + 0.15);
+  }
+
+  public stopAmbiance(fadeSec = 1.0): void {
+    if (!this.activeAmbiance) return;
+    const current = this.activeAmbiance;
+    this.activeAmbiance = null;
+
+    current.intervalIds.forEach((id) => window.clearInterval(id));
+
+    const ctx = this.getContext();
+    if (ctx && ctx.state === 'running') {
+      const now = ctx.currentTime;
+      current.gain.gain.cancelScheduledValues(now);
+      current.gain.gain.setValueAtTime(current.gain.gain.value, now);
+      current.gain.gain.linearRampToValueAtTime(0.0001, now + fadeSec);
+      window.setTimeout(() => {
+        current.sources.forEach((s) => {
+          try {
+            if ('stop' in s && typeof (s as AudioScheduledSourceNode).stop === 'function') {
+              (s as AudioScheduledSourceNode).stop();
+            }
+          } catch {}
+          try {
+            s.disconnect();
+          } catch {}
+        });
+        try {
+          current.gain.disconnect();
+        } catch {}
+      }, fadeSec * 1000 + 120);
+    } else {
+      current.sources.forEach((s) => {
+        try {
+          s.disconnect();
+        } catch {}
+      });
+      try {
+        current.gain.disconnect();
+      } catch {}
+    }
+  }
+
+  public startAmbiance(key: string, settings: GameSettings): void {
+    if (this.activeAmbiance && this.activeAmbiance.key === key) {
+      this.updateAmbianceVolume(settings);
+      return;
+    }
+
+    if (this.activeAmbiance) {
+      this.stopAmbiance(1.2);
+    }
+
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const masterGain = ctx.createGain();
+    const targetVol = settings.muted ? 0 : Math.min(1, Math.max(0, settings.volume)) * 0.28;
+    const now = ctx.currentTime;
+    masterGain.gain.setValueAtTime(0.0001, now);
+    masterGain.gain.linearRampToValueAtTime(Math.max(0.0001, targetVol), now + 1.2);
+    masterGain.connect(ctx.destination);
+
+    const sources: (AudioScheduledSourceNode | AudioNode)[] = [];
+    const intervalIds: number[] = [];
+
+    this.buildAmbianceGraph(key, ctx, masterGain, sources, intervalIds);
+
+    this.activeAmbiance = {
+      key,
+      gain: masterGain,
+      sources,
+      intervalIds,
+    };
+  }
+
+  private generateNoiseBuffer(
+    ctx: AudioContext,
+    type: 'pink' | 'white' | 'brown',
+    durationSeconds = 6.0
+  ): AudioBuffer {
+    const sampleRate = ctx.sampleRate;
+    const numSamples = Math.floor(sampleRate * durationSeconds);
+    const buffer = ctx.createBuffer(2, numSamples, sampleRate);
+
+    for (let channel = 0; channel < 2; channel++) {
+      const data = buffer.getChannelData(channel);
+      if (type === 'white') {
+        for (let i = 0; i < numSamples; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+      } else if (type === 'pink') {
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < numSamples; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.969 * b2 + white * 0.153852;
+          b3 = 0.8665 * b3 + white * 0.3104856;
+          b4 = 0.55 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.016898;
+          data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+          b6 = white * 0.115926;
+        }
+      } else if (type === 'brown') {
+        let lastOut = 0.0;
+        for (let i = 0; i < numSamples; i++) {
+          const white = Math.random() * 2 - 1;
+          data[i] = (lastOut + 0.02 * white) / 1.02;
+          lastOut = data[i];
+          data[i] *= 3.5;
+        }
+      }
+    }
+    return buffer;
+  }
+
+  private createNoiseSource(
+    ctx: AudioContext,
+    type: 'pink' | 'white' | 'brown'
+  ): AudioBufferSourceNode {
+    let buf = this.noiseBuffers.get(type);
+    if (!buf) {
+      buf = this.generateNoiseBuffer(ctx, type, 6.0);
+      this.noiseBuffers.set(type, buf);
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    return src;
+  }
+
+  private createLfo(
+    ctx: AudioContext,
+    freq: number,
+    depth: number,
+    target: AudioParam,
+    sources: (AudioScheduledSourceNode | AudioNode)[]
+  ): OscillatorNode {
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(freq, ctx.currentTime);
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.setValueAtTime(depth, ctx.currentTime);
+    lfo.connect(lfoGain);
+    lfoGain.connect(target);
+    lfo.start();
+    sources.push(lfo, lfoGain);
+    return lfo;
+  }
+
+  private buildAmbianceGraph(
+    key: string,
+    ctx: AudioContext,
+    masterGain: GainNode,
+    sources: (AudioScheduledSourceNode | AudioNode)[],
+    intervalIds: number[]
+  ): void {
+    const now = ctx.currentTime;
+
+    switch (key) {
+      // 1. Rocky Desert: Canyon wind, howling dust & sandstone rumble
+      case 'rocky_desert': {
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(460, now);
+        bp.Q.setValueAtTime(2.2, now);
+        this.createLfo(ctx, 0.065, 180, bp.frequency, sources);
+        const windGain = ctx.createGain();
+        windGain.gain.setValueAtTime(0.14, now);
+        pink.connect(bp);
+        bp.connect(windGain);
+        windGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, windGain);
+
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(140, now);
+        lp.Q.setValueAtTime(1.0, now);
+        const brownGain = ctx.createGain();
+        brownGain.gain.setValueAtTime(0.12, now);
+        brown.connect(lp);
+        lp.connect(brownGain);
+        brownGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, brownGain);
+
+        const white = this.createNoiseSource(ctx, 'white');
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.setValueAtTime(1600, now);
+        const sandGain = ctx.createGain();
+        sandGain.gain.setValueAtTime(0.035, now);
+        this.createLfo(ctx, 0.11, 0.02, sandGain.gain, sources);
+        white.connect(hp);
+        hp.connect(sandGain);
+        sandGain.connect(masterGain);
+        white.start();
+        sources.push(white, hp, sandGain);
+        break;
+      }
+
+      // 2. Flowing Riverbank: Rushing currents, bubbling ripples & froth
+      case 'flowing_riverbank': {
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(380, now);
+        lp.Q.setValueAtTime(1.4, now);
+        const brownGain = ctx.createGain();
+        brownGain.gain.setValueAtTime(0.13, now);
+        brown.connect(lp);
+        lp.connect(brownGain);
+        brownGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, brownGain);
+
+        const pink1 = this.createNoiseSource(ctx, 'pink');
+        const bp1 = ctx.createBiquadFilter();
+        bp1.type = 'bandpass';
+        bp1.frequency.setValueAtTime(820, now);
+        bp1.Q.setValueAtTime(3.0, now);
+        const ripGain = ctx.createGain();
+        ripGain.gain.setValueAtTime(0.08, now);
+        this.createLfo(ctx, 0.23, 0.035, ripGain.gain, sources);
+        pink1.connect(bp1);
+        bp1.connect(ripGain);
+        ripGain.connect(masterGain);
+        pink1.start();
+        sources.push(pink1, bp1, ripGain);
+
+        const pink2 = this.createNoiseSource(ctx, 'pink');
+        const bp2 = ctx.createBiquadFilter();
+        bp2.type = 'bandpass';
+        bp2.frequency.setValueAtTime(1550, now);
+        bp2.Q.setValueAtTime(3.8, now);
+        const frothGain = ctx.createGain();
+        frothGain.gain.setValueAtTime(0.045, now);
+        this.createLfo(ctx, 0.36, 0.025, frothGain.gain, sources);
+        pink2.connect(bp2);
+        bp2.connect(frothGain);
+        frothGain.connect(masterGain);
+        pink2.start();
+        sources.push(pink2, bp2, frothGain);
+        break;
+      }
+
+      // 3. Magical Forest Clearing: Canopy whisper & leyline shimmer
+      case 'magical_forest_clearing': {
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(520, now);
+        bp.Q.setValueAtTime(1.1, now);
+        this.createLfo(ctx, 0.08, 140, bp.frequency, sources);
+        const breezeGain = ctx.createGain();
+        breezeGain.gain.setValueAtTime(0.09, now);
+        pink.connect(bp);
+        bp.connect(breezeGain);
+        breezeGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, breezeGain);
+
+        const osc1 = ctx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(432, now);
+        const droneGain1 = ctx.createGain();
+        droneGain1.gain.setValueAtTime(0.016, now);
+        this.createLfo(ctx, 0.09, 2.5, osc1.frequency, sources);
+        osc1.connect(droneGain1);
+        droneGain1.connect(masterGain);
+        osc1.start();
+        sources.push(osc1, droneGain1);
+
+        const osc2 = ctx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(648, now);
+        const droneGain2 = ctx.createGain();
+        droneGain2.gain.setValueAtTime(0.012, now);
+        osc2.connect(droneGain2);
+        droneGain2.connect(masterGain);
+        osc2.start();
+        sources.push(osc2, droneGain2);
+
+        const white = this.createNoiseSource(ctx, 'white');
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.setValueAtTime(2800, now);
+        const shimGain = ctx.createGain();
+        shimGain.gain.setValueAtTime(0.02, now);
+        this.createLfo(ctx, 0.14, 0.012, shimGain.gain, sources);
+        white.connect(hp);
+        hp.connect(shimGain);
+        shimGain.connect(masterGain);
+        white.start();
+        sources.push(white, hp, shimGain);
+        break;
+      }
+
+      // 4. Volcanic Caldera: Magma drone, seismic rumble & steam vents
+      case 'volcanic_caldera': {
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(85, now);
+        lp.Q.setValueAtTime(2.8, now);
+        this.createLfo(ctx, 0.055, 25, lp.frequency, sources);
+        const brownGain = ctx.createGain();
+        brownGain.gain.setValueAtTime(0.18, now);
+        brown.connect(lp);
+        lp.connect(brownGain);
+        brownGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, brownGain);
+
+        const osc1 = ctx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(48, now);
+        const subGain1 = ctx.createGain();
+        subGain1.gain.setValueAtTime(0.038, now);
+        osc1.connect(subGain1);
+        subGain1.connect(masterGain);
+        osc1.start();
+        sources.push(osc1, subGain1);
+
+        const osc2 = ctx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(73, now);
+        const subGain2 = ctx.createGain();
+        subGain2.gain.setValueAtTime(0.024, now);
+        osc2.connect(subGain2);
+        subGain2.connect(masterGain);
+        osc2.start();
+        sources.push(osc2, subGain2);
+
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(460, now);
+        bp.Q.setValueAtTime(1.8, now);
+        const steamGain = ctx.createGain();
+        steamGain.gain.setValueAtTime(0.04, now);
+        this.createLfo(ctx, 0.07, 0.02, steamGain.gain, sources);
+        pink.connect(bp);
+        bp.connect(steamGain);
+        steamGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, steamGain);
+        break;
+      }
+
+      // 5. Crystal Bastion: Quartz harmonic drone & resonant chimes
+      case 'crystal_bastion': {
+        const osc1 = ctx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(528, now);
+        const g1 = ctx.createGain();
+        g1.gain.setValueAtTime(0.022, now);
+        this.createLfo(ctx, 0.04, 1.2, osc1.frequency, sources);
+        osc1.connect(g1);
+        g1.connect(masterGain);
+        osc1.start();
+        sources.push(osc1, g1);
+
+        const osc2 = ctx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(792, now);
+        const g2 = ctx.createGain();
+        g2.gain.setValueAtTime(0.015, now);
+        this.createLfo(ctx, 0.06, 1.5, osc2.frequency, sources);
+        osc2.connect(g2);
+        g2.connect(masterGain);
+        osc2.start();
+        sources.push(osc2, g2);
+
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(528, now);
+        bp.Q.setValueAtTime(8.5, now);
+        const airGain = ctx.createGain();
+        airGain.gain.setValueAtTime(0.035, now);
+        pink.connect(bp);
+        bp.connect(airGain);
+        airGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, airGain);
+
+        const pingInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const pitches = [1056, 1584, 2112, 2640];
+          const pitch = pitches[Math.floor(Math.random() * pitches.length)];
+          const pOsc = ctx.createOscillator();
+          const pGain = ctx.createGain();
+          pOsc.type = 'sine';
+          pOsc.frequency.setValueAtTime(pitch, ctx.currentTime);
+          pGain.gain.setValueAtTime(0.028, ctx.currentTime);
+          pGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.3);
+          pOsc.connect(pGain);
+          pGain.connect(masterGain);
+          pOsc.start(ctx.currentTime);
+          pOsc.stop(ctx.currentTime + 1.35);
+        }, 4800);
+        intervalIds.push(pingInterval);
+        break;
+      }
+
+      // 6. Fuming Ink Marsh: Murky swamp drone & simmering mud/ink bubbles
+      case 'fuming_ink_marsh': {
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(175, now);
+        lp.Q.setValueAtTime(2.0, now);
+        const swampGain = ctx.createGain();
+        swampGain.gain.setValueAtTime(0.14, now);
+        brown.connect(lp);
+        lp.connect(swampGain);
+        swampGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, swampGain);
+
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(480, now);
+        bp.Q.setValueAtTime(2.2, now);
+        const vaporGain = ctx.createGain();
+        vaporGain.gain.setValueAtTime(0.05, now);
+        this.createLfo(ctx, 0.12, 0.025, vaporGain.gain, sources);
+        pink.connect(bp);
+        bp.connect(vaporGain);
+        vaporGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, vaporGain);
+
+        const bubbleInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const curr = ctx.currentTime;
+          const bOsc = ctx.createOscillator();
+          const bGain = ctx.createGain();
+          const startFreq = 220 + Math.random() * 80;
+          bOsc.type = 'sine';
+          bOsc.frequency.setValueAtTime(startFreq, curr);
+          bOsc.frequency.exponentialRampToValueAtTime(startFreq * 0.45, curr + 0.08);
+          bGain.gain.setValueAtTime(0.035, curr);
+          bGain.gain.exponentialRampToValueAtTime(0.0001, curr + 0.08);
+          bOsc.connect(bGain);
+          bGain.connect(masterGain);
+          bOsc.start(curr);
+          bOsc.stop(curr + 0.09);
+        }, 2200);
+        intervalIds.push(bubbleInterval);
+        break;
+      }
+
+      // 7. Sunlit Sanctuary: Celestial major triad & warm radiant air
+      case 'sunlit_sanctuary': {
+        const chord = [220.0, 277.18, 329.63, 440.0];
+        const chordGains = [0.016, 0.014, 0.012, 0.008];
+        chord.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(chordGains[idx], now);
+          this.createLfo(ctx, 0.04 + idx * 0.015, 0.8, osc.frequency, sources);
+          osc.connect(g);
+          g.connect(masterGain);
+          osc.start();
+          sources.push(osc, g);
+        });
+
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(620, now);
+        const breezeGain = ctx.createGain();
+        breezeGain.gain.setValueAtTime(0.065, now);
+        this.createLfo(ctx, 0.04, 0.025, breezeGain.gain, sources);
+        pink.connect(lp);
+        lp.connect(breezeGain);
+        breezeGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, lp, breezeGain);
+        break;
+      }
+
+      // 8. Whispering Library Ruins: Vaulted stone room tone, drafts & faint flutter
+      case 'whispering_library_ruins': {
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(105, now);
+        lp.Q.setValueAtTime(1.5, now);
+        const roomGain = ctx.createGain();
+        roomGain.gain.setValueAtTime(0.12, now);
+        brown.connect(lp);
+        lp.connect(roomGain);
+        roomGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, roomGain);
+
+        const stoneOsc = ctx.createOscillator();
+        stoneOsc.type = 'sine';
+        stoneOsc.frequency.setValueAtTime(110, now);
+        const stoneGain = ctx.createGain();
+        stoneGain.gain.setValueAtTime(0.016, now);
+        stoneOsc.connect(stoneGain);
+        stoneGain.connect(masterGain);
+        stoneOsc.start();
+        sources.push(stoneOsc, stoneGain);
+
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(880, now);
+        bp.Q.setValueAtTime(3.4, now);
+        this.createLfo(ctx, 0.06, 200, bp.frequency, sources);
+        const draftGain = ctx.createGain();
+        draftGain.gain.setValueAtTime(0.045, now);
+        pink.connect(bp);
+        bp.connect(draftGain);
+        draftGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, draftGain);
+
+        const flutterInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const curr = ctx.currentTime;
+          const fPink = this.createNoiseSource(ctx, 'pink');
+          const fFilter = ctx.createBiquadFilter();
+          fFilter.type = 'bandpass';
+          fFilter.frequency.setValueAtTime(1200 + Math.random() * 300, curr);
+          fFilter.Q.setValueAtTime(2.0, curr);
+          const fGain = ctx.createGain();
+          fGain.gain.setValueAtTime(0.024, curr);
+          fGain.gain.exponentialRampToValueAtTime(0.0001, curr + 0.16);
+          fPink.connect(fFilter);
+          fFilter.connect(fGain);
+          fGain.connect(masterGain);
+          fPink.start(curr);
+          fPink.stop(curr + 0.18);
+        }, 6500);
+        intervalIds.push(flutterInterval);
+        break;
+      }
+
+      // 9. Calm Parchment Meadow: Minimalist gentle open field breeze
+      case 'calm_parchment_meadow': {
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(380, now);
+        lp.Q.setValueAtTime(0.8, now);
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.setValueAtTime(120, now);
+        const breezeGain = ctx.createGain();
+        breezeGain.gain.setValueAtTime(0.12, now);
+        this.createLfo(ctx, 0.05, 0.035, breezeGain.gain, sources);
+        this.createLfo(ctx, 0.082, 45, lp.frequency, sources);
+        pink.connect(lp);
+        lp.connect(hp);
+        hp.connect(breezeGain);
+        breezeGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, lp, hp, breezeGain);
+        break;
+      }
+
+      // 10. Campfire: Warm crackling hearth & natural popping embers
+      case 'campfire': {
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(360, now);
+        bp.Q.setValueAtTime(1.6, now);
+        const fireGain = ctx.createGain();
+        fireGain.gain.setValueAtTime(0.09, now);
+        pink.connect(bp);
+        bp.connect(fireGain);
+        fireGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, fireGain);
+
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(200, now);
+        const brownGain = ctx.createGain();
+        brownGain.gain.setValueAtTime(0.08, now);
+        brown.connect(lp);
+        lp.connect(brownGain);
+        brownGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, brownGain);
+
+        const emberInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const curr = ctx.currentTime;
+          const clickSrc = this.createNoiseSource(ctx, 'white');
+          const cFilter = ctx.createBiquadFilter();
+          cFilter.type = 'bandpass';
+          cFilter.frequency.setValueAtTime(1400 + Math.random() * 1800, curr);
+          cFilter.Q.setValueAtTime(3.5, curr);
+          const cGain = ctx.createGain();
+          const dur = 0.012 + Math.random() * 0.016;
+          cGain.gain.setValueAtTime(0.02 + Math.random() * 0.025, curr);
+          cGain.gain.exponentialRampToValueAtTime(0.0001, curr + dur);
+          clickSrc.connect(cFilter);
+          cFilter.connect(cGain);
+          cGain.connect(masterGain);
+          clickSrc.start(curr);
+          clickSrc.stop(curr + dur + 0.01);
+        }, 260);
+        intervalIds.push(emberInterval);
+        break;
+      }
+
+      // 11. Merchant: Curiosity shop interior, pendulum clock & subtle coin chime
+      case 'merchant': {
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(160, now);
+        lp.Q.setValueAtTime(1.0, now);
+        const roomGain = ctx.createGain();
+        roomGain.gain.setValueAtTime(0.10, now);
+        brown.connect(lp);
+        lp.connect(roomGain);
+        roomGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, roomGain);
+
+        let tickToggle = false;
+        const clockInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const curr = ctx.currentTime;
+          tickToggle = !tickToggle;
+          const freq = tickToggle ? 740 : 560;
+          const osc = ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, curr);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.028, curr);
+          g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.022);
+          osc.connect(g);
+          g.connect(masterGain);
+          osc.start(curr);
+          osc.stop(curr + 0.025);
+        }, 1000);
+        intervalIds.push(clockInterval);
+
+        const chimeInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const curr = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(Math.random() > 0.5 ? 880 : 1174, curr);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.018, curr);
+          g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.9);
+          osc.connect(g);
+          g.connect(masterGain);
+          osc.start(curr);
+          osc.stop(curr + 0.95);
+        }, 14000);
+        intervalIds.push(chimeInterval);
+        break;
+      }
+
+      // 12. Treasure: Subterranean chamber & echoing water drips
+      case 'treasure': {
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(110, now);
+        lp.Q.setValueAtTime(2.2, now);
+        const vaultGain = ctx.createGain();
+        vaultGain.gain.setValueAtTime(0.13, now);
+        brown.connect(lp);
+        lp.connect(vaultGain);
+        vaultGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, vaultGain);
+
+        const subOsc = ctx.createOscillator();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(65.4, now);
+        const subGain = ctx.createGain();
+        subGain.gain.setValueAtTime(0.022, now);
+        subOsc.connect(subGain);
+        subGain.connect(masterGain);
+        subOsc.start();
+        sources.push(subOsc, subGain);
+
+        const dripInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const playDrip = (offsetSec: number, pitchStart: number, pitchEnd: number, vol: number) => {
+            const curr = ctx.currentTime + offsetSec;
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(pitchStart, curr);
+            osc.frequency.exponentialRampToValueAtTime(pitchEnd, curr + 0.035);
+            const g = ctx.createGain();
+            g.gain.setValueAtTime(vol, curr);
+            g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.035);
+            osc.connect(g);
+            g.connect(masterGain);
+            osc.start(curr);
+            osc.stop(curr + 0.04);
+          };
+          playDrip(0, 1750, 1350, 0.038);
+          playDrip(0.18, 1550, 1200, 0.014);
+          playDrip(0.36, 1400, 1100, 0.006);
+        }, 4400);
+        intervalIds.push(dripInterval);
+        break;
+      }
+
+      // 13. Mystery: Tritone curiosity drone & eerie draft
+      case 'mystery': {
+        const osc1 = ctx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(98, now);
+        const g1 = ctx.createGain();
+        g1.gain.setValueAtTime(0.022, now);
+        osc1.connect(g1);
+        g1.connect(masterGain);
+        osc1.start();
+        sources.push(osc1, g1);
+
+        const osc2 = ctx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(138.6, now);
+        const g2 = ctx.createGain();
+        g2.gain.setValueAtTime(0.016, now);
+        this.createLfo(ctx, 0.07, 0.008, g2.gain, sources);
+        osc2.connect(g2);
+        g2.connect(masterGain);
+        osc2.start();
+        sources.push(osc2, g2);
+
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(1650, now);
+        bp.Q.setValueAtTime(3.2, now);
+        this.createLfo(ctx, 0.09, 250, bp.frequency, sources);
+        const draftGain = ctx.createGain();
+        draftGain.gain.setValueAtTime(0.035, now);
+        pink.connect(bp);
+        bp.connect(draftGain);
+        draftGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, draftGain);
+        break;
+      }
+
+      // 14. Map: Open road breeze & adventurous fifth drone
+      case 'map': {
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(440, now);
+        bp.Q.setValueAtTime(1.3, now);
+        const breezeGain = ctx.createGain();
+        breezeGain.gain.setValueAtTime(0.11, now);
+        this.createLfo(ctx, 0.05, 0.035, breezeGain.gain, sources);
+        pink.connect(bp);
+        bp.connect(breezeGain);
+        breezeGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, breezeGain);
+
+        const osc1 = ctx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(130.8, now);
+        const g1 = ctx.createGain();
+        g1.gain.setValueAtTime(0.015, now);
+        osc1.connect(g1);
+        g1.connect(masterGain);
+        osc1.start();
+        sources.push(osc1, g1);
+
+        const osc2 = ctx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(196.0, now);
+        const g2 = ctx.createGain();
+        g2.gain.setValueAtTime(0.012, now);
+        osc2.connect(g2);
+        g2.connect(masterGain);
+        osc2.start();
+        sources.push(osc2, g2);
+        break;
+      }
+
+      // 15. Main Menu: Antiquarian study & clockwork pendulum
+      case 'main_menu':
+      default: {
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(170, now);
+        lp.Q.setValueAtTime(0.9, now);
+        const roomGain = ctx.createGain();
+        roomGain.gain.setValueAtTime(0.09, now);
+        pink.connect(lp);
+        lp.connect(roomGain);
+        roomGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, lp, roomGain);
+
+        let toggle = false;
+        const clockInterval = window.setInterval(() => {
+          if (ctx.state !== 'running' || !this.activeAmbiance || this.activeAmbiance.gain !== masterGain) return;
+          const curr = ctx.currentTime;
+          toggle = !toggle;
+          const freq = toggle ? 680 : 510;
+          const osc = ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, curr);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.022, curr);
+          g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.02);
+          osc.connect(g);
+          g.connect(masterGain);
+          osc.start(curr);
+          osc.stop(curr + 0.024);
+        }, 1000);
+        intervalIds.push(clockInterval);
+        break;
+      }
+    }
   }
 }
 
