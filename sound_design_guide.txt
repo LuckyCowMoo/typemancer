@@ -1,0 +1,138 @@
+================================================================================
+TYPEMANCER - SOUND DESIGN & AUDIO SYNTHESIS GUIDE
+A Guide for Autonomous Agents & Developers Working on Typemancer Audio
+================================================================================
+
+1. CORE GAME THEME & AESTHETIC IDENTITY
+--------------------------------------------------------------------------------
+Typemancer is an antiquarian, tactile, arcane typing roguelike deckbuilder.
+The thematic pillar is: "Tactile Antiquarian Scholar meets Visceral Spellcraft."
+
+* Key aesthetic motifs:
+  - Worn parchment, dried vellum, quill pens, and iron gall ink.
+  - Antiquarian study rooms: solid mahogany wood, brass clockwork, dusty tomes.
+  - Mechanical typing: typewriter keybars, escapement clicks, return bells, chalk on slate.
+  - Ancient magical subterranean realms: echoing stone, bubbling ink marshes, crystal bastions, volcanic caldera steam vents, quiet sunlit sanctuaries.
+
+* Sound design philosophy:
+  All sounds must feel grounded in real physical materials—wood, paper, stone,
+  iron, brass, water, fire, and organic air—blended with celestial and mystical
+  harmonics. Digital or arcade aesthetics break immersion immediately.
+
+
+2. USER PREFERENCES & CRITICAL "WHAT TO AVOID"
+--------------------------------------------------------------------------------
+Through iterative user feedback on sound design, clear rules and preferences
+have been established. Follow these strictly:
+
+[AVOID: 8-Bit & Chiptune Artifacts]
+- Never use raw square waves, simple bleeps, or arcade coin chirps.
+- Clocks, coins, and clicks must sound like authentic acoustic objects.
+- Clocks should sound like antique wooden grandfather clocks with pendulum resonance,
+  ticking on relaxed 1.5s–2.0s intervals, and occasionally "skipping a beat" like a real mechanical clockwork.
+- Coins must sound like real metal discs rustling, clinking on wood, or jingling in leather pouches—not high-pitched digital dings.
+
+[AVOID: Predictable, Rigid, or Mechanical Modulation]
+- Never use simple fixed-frequency LFOs for wind, water, or background drones.
+  The user can immediately spot obvious sine-wave volume oscillations.
+- Modulate wind and water with randomized depth, drifting frequencies, and stochastic amplitude jitter.
+- Avoid repetitive cyclic highlight cues (e.g. descending 3-note chime patterns repeating constantly).
+
+[AVOID: Constant Monotonous Drones]
+- Ethereal or mystical pads (Crystal Bastion, Magic Forest, Sunlit Sanctuary) must
+  NEVER sit at a single unchanging frequency or steady volume in the foreground.
+- They must breathe naturally: dynamic swell, gentle melodic movement, shifting
+  intervals, and long quiet pauses so they do not cause listening fatigue.
+
+[AVOID: Rapid Inhuman Speed]
+- Writing sounds must reflect deliberate human handwriting on parchment, not a frantic,
+  harsh machine-gun scribbling.
+- Keep paper rustles, turns, and quill scratches paced and organic.
+
+[DO: Dynamic Range & Restrained Backgrounds]
+- Keep constant atmospheric background noise quiet and unobtrusive (so the player can focus on typing).
+- Atmospheric highlights (falling pebbles in canyons, bursting ink bubbles, rare steam vents) should be distinct, infrequent, and obvious when they occur.
+- Provide editor controls: ensure sounds can be auditioned cleanly and muted when editing gameplay parameters.
+
+
+3. ARCHITECTURE & TOOLING
+--------------------------------------------------------------------------------
+Typemancer utilizes a dual audio architecture:
+
+A. Offline DSP Physical Modeling Generator (`scripts/generate_sfx.cjs`)
+   - Generates standalone, sample-accurate 44.1kHz 16-bit PCM RIFF WAV & OGG files.
+   - Stored in `public/assets/sfx/`.
+   - Used for one-shot typing strikes, card plays, blade slashes, anvil strikes,
+     paper tears, chest opens, and victory/defeat stingers.
+   - Can be run anytime via `node scripts/generate_sfx.cjs` and tested with `node scripts/verify_sfx.cjs`.
+
+B. Real-Time Procedural Web Audio Engine (`src/utils/soundEngine.ts`)
+   - Employs the browser's native `AudioContext` to construct real-time node graphs.
+   - Combines oscillators, custom white/pink noise audio buffers, biquad filters,
+     stereo panners, gain nodes, and seamless streaming buffer loops.
+   - Generates endless, non-repeating dynamic biomes and non-battle room ambiances.
+   - Handles randomized event scheduling (falling rocks, steam vents, bubbling marshes, grandfather clock ticks).
+
+
+4. SYNTHESIS METHODS & MATHEMATICAL DSP RECIPES
+--------------------------------------------------------------------------------
+
+A. Sound File Generation (Node.js Buffer Creation)
+   - Writes valid 44-byte RIFF/WAVE headers followed by 16-bit signed PCM data:
+     ```javascript
+     const sample = Math.max(-1, Math.min(1, floatVal));
+     buffer.writeInt16LE(Math.round(sample * 32767), 44 + i * 2);
+     ```
+   - Soft-clipping saturation via hyperbolic tangent: `Math.tanh(x)`.
+   - Peak normalization with headroom (typically 0.88 to 0.95 peak).
+
+B. Noise Types
+   - White Noise: Uniform random `Math.random() * 2 - 1`.
+   - Pink Noise: Paul Kellet's filtered noise algorithm (equal energy per octave)
+     providing warm, organic basis for wind, fire, water, and paper.
+
+C. Physical Modeling Envelopes & Filters
+   - Exponential Decays: `Math.exp(-t * decayFactor)`.
+   - Resonant Biquad Bandpass Filters: 2nd-order IIR filters modeling body cavities,
+     pipes, slate surfaces, and wooden enclosures.
+   - Modal Synthesis: Sum of inharmonic sinusoidal partials modeling bells, anvils,
+     crystal fractures, and metallicize plate armor:
+     - Anvil strikes: Tuned harmonics (D6, F#6, A6) with soft strike transients.
+     - Ward shatter: High glass fracture noise + crystal modal partials (1420Hz, 2150Hz, 3380Hz, 4920Hz).
+     - Defeat bell: Dark inharmonic low iron partials (110Hz, 147Hz, 222Hz, 335Hz, 460Hz) over a 42Hz sub-bass tremor.
+
+D. Procedural Real-Time Web Audio Ambiances
+   - Grandfather Clock:
+     Two low resonant bandpass nodes (180Hz / 420Hz) stimulated by micro-transients,
+     spaced at ~1.8s, with small random timing jitter and a ~6% chance to drop a beat.
+   - Riverbank:
+     Low-frequency pink noise filtered through resonant bands with randomized phase
+     blended with authentic stony stream audio loop (`ambiance/river_stony.ogg`).
+   - Campfire:
+     Organic crackle and ember pops generated via sparse Poisson bursts blended with
+     combustion roar and authentic wood-fire loop (`ambiance/campfire_loop.ogg`).
+   - Rocky Desert Canyon:
+     Dynamic wind howling modulated by low-frequency noise (not a sine LFO),
+     paired with sporadic, randomized pebble cascades (decaying burst series).
+   - Inking Marsh:
+     Sub-bass swamp rumble (55Hz–75Hz) paired with dynamic envelope-shaped bubble
+     inflation (rising pitch 140Hz -> 260Hz) followed by an acoustic burst "plop".
+   - Steam Vents & Volcanic Caldera:
+     Deep subterranean rumble with rare, prominent high-pressure hiss bursts
+     (bandpass filtered noise sweeping 1200Hz to 3800Hz with fast attack and long vapor decay).
+
+
+5. CHECKLIST FOR FUTURE AUDIO WORK
+--------------------------------------------------------------------------------
+When tasked with creating, revising, or tuning sounds for Typemancer:
+1. Does it sound acoustic and natural, or does it sound digital/8-bit?
+   -> If it sounds like an 8-bit game, replace it with physical modeling or realistic samples.
+2. Does the ambiance loop cause fatigue after 3 minutes of listening?
+   -> Introduce stochastic volume variance, tone modulation, and breathing room.
+3. Are atmospheric highlight events (pebbles, steam, bubbles) firing too frequently?
+   -> Increase intervals, randomize timers, and vary pitch/volume per occurrence.
+4. Are UI and card sounds tactile and satisfying to type with?
+   -> Prioritize typewriter clicks, quill scratches, and clean mechanical thocks.
+5. Did you test the sound inside the Dev Editor?
+   -> Verify auditioning works cleanly and that sound effects respect the editor mute flags.
+================================================================================
