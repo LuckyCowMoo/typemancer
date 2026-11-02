@@ -3782,6 +3782,28 @@ body,
   letter-spacing: 0.03em;
 }
 
+.card-tab-discard-candidate {
+  cursor: pointer;
+  animation: cardDiscardCandidatePulse 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes cardDiscardCandidatePulse {
+  0% {
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 16px rgba(225, 29, 72, 0.9), 0 0 24px rgba(251, 113, 133, 0.5);
+  }
+}
+
+.sentence-discard-card-hint {
+  color: #e11d48;
+  font-weight: 900;
+  margin-right: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .card-kw-discard {
   color: #fb923c !important;
   text-shadow: 0 0 6px rgba(234, 88, 12, 0.5);

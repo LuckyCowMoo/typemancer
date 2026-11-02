@@ -239,6 +239,7 @@ export function App() {
   const [selectedCard, setSelectedCard] = useState<CardInstance | null>(null);
   const [retainedCardIds, setRetainedCardIds] = useState<Set<string>>(() => new Set());
   const [pendingKeepCount, setPendingKeepCount] = useState<number>(0);
+  const [pendingDiscardCount, setPendingDiscardCount] = useState<number>(0);
   const [isAnimatingTurn, setIsAnimatingTurn] = useState<boolean>(false);
   const [activeProjectile, setActiveProjectile] = useState<CombatProjectile | null>(null);
   const [floatingPopups, setFloatingPopups] = useState<FloatingCombatPopup[]>([]);
@@ -531,6 +532,7 @@ export function App() {
       setActivePowers([]);
       setRetainedCardIds(new Set());
       setPendingKeepCount(0);
+      setPendingDiscardCount(0);
       setEnemies(spawnedEnemies);
       setSelectedCard(null);
       setFloatingPopups([]);
@@ -595,6 +597,7 @@ export function App() {
       setSelectedCard(null);
       setRetainedCardIds(new Set());
       setPendingKeepCount(0);
+      setPendingDiscardCount(0);
       resetTypingBuffer(true);
       setScreen('reward');
     },
@@ -658,6 +661,8 @@ export function App() {
       let extraDraw = 0;
       let hasKeepCardEffect = false;
       let keepCardCount = 0;
+      let hasDiscardChoiceEffect = false;
+      let discardChoiceCount = 0;
 
       const scaleAmount = (raw: number): number => {
         if (difficulty !== 'extra_hard') return raw;
@@ -864,19 +869,8 @@ export function App() {
             break;
           }
           case 'discard': {
-            const count = Math.max(1, eff.amount * xMultiplier);
-            const eligible = nextHand.filter((c) => c.instanceId !== cardInst.instanceId);
-            const picked = eligible.slice(0, count);
-            if (picked.length > 0) {
-              const pickedIds = new Set(picked.map((p) => p.instanceId));
-              nextHand = nextHand.filter((c) => !pickedIds.has(c.instanceId));
-              nextDiscard = [...nextDiscard, ...picked];
-              soundEngine.playPageTurn(settings);
-              picked.forEach((c) => {
-                const def = getCardDefinition(c.cardId);
-                spawnPopup('player', `Discarded ${def.names[phraseDiff]}`, '#64748b');
-              });
-            }
+            hasDiscardChoiceEffect = true;
+            discardChoiceCount += Math.max(1, eff.amount * xMultiplier);
             break;
           }
           case 'self_damage': {
@@ -1014,19 +1008,30 @@ export function App() {
 
       setIsAnimatingTurn(false);
 
+      if (aliveEnemies.length > 0 && hasDiscardChoiceEffect) {
+        const eligible = drawnResult.nextHand;
+        if (eligible.length === 0) {
+          spawnPopup('player', 'No cards in hand to discard', '#64748b');
+        } else {
+          setPendingDiscardCount((prev) => prev + discardChoiceCount);
+          soundEngine.playPageTurn(settings);
+          spawnPopup('player', `🗑️ Choose ${discardChoiceCount} card${discardChoiceCount > 1 ? 's' : ''} to DISCARD!`, '#e11d48');
+        }
+      }
+
       if (aliveEnemies.length > 0 && hasKeepCardEffect) {
         const eligible = drawnResult.nextHand.filter((c) => !retainedCardIds.has(c.instanceId));
         if (eligible.length === 0) {
           if (drawnResult.nextHand.length === 0) {
-            spawnPopup('player', 'No cards in hand to keep', '#64748b');
+            spawnPopup('player', '📌 Card will be kept once drawn or before discard', '#10b981');
           } else {
             spawnPopup('player', 'All hand cards already kept!', '#059669');
           }
         } else {
-          setPendingKeepCount((prev) => prev + keepCardCount);
           soundEngine.playPageTurn(settings);
           spawnPopup('player', '📌 Choose a card to KEEP!', '#10b981');
         }
+        setPendingKeepCount((prev) => prev + keepCardCount);
       }
 
       if (aliveEnemies.length === 0) {
@@ -1068,6 +1073,8 @@ export function App() {
     soundEngine.playConfirm(settings);
     triggerElementParticles('[data-cmd="end turn"]', ['#d97706', '#bc5215', '#102a3a', '#ffd166'], 58, 4);
     setSelectedCard(null);
+    setPendingKeepCount(0);
+    setPendingDiscardCount(0);
     resetTypingBuffer(true);
 
     const envMod = activeEnvironment?.modifiers || {};
@@ -1459,6 +1466,7 @@ export function App() {
     setDiscardPile(nextDiscard);
     setRetainedCardIds(new Set());
     setPendingKeepCount(0);
+    setPendingDiscardCount(0);
     setEnemies(survivingEnemies);
     setHandAnimState('drawing');
     window.setTimeout(() => setHandAnimState('idle'), 420);
@@ -2446,11 +2454,63 @@ export function App() {
         return;
       }
 
-      if (pendingKeepCount > 0) {
+      if (pendingDiscardCount > 0) {
         if (matchCommand(raw, ['skip', 'pass', 'cancel', 'none', 'done', 'continue'], 'easy')) {
+          setPendingDiscardCount(0);
+          spawnPopup('player', 'Discarded no card', '#64748b');
+          resetTypingBuffer(true);
+          return;
+        }
+
+        const candidateInstances = hand;
+        if (candidateInstances.length === 0) {
+          setPendingDiscardCount(0);
+          resetTypingBuffer(true);
+          return;
+        }
+
+        const candidateItems = candidateInstances.map((c) => ({
+          item: c,
+          phrase: resolveCardInstance(c, phraseDiff).name,
+        }));
+        const evalCandidates = evaluateCandidates(raw, candidateItems, difficulty);
+        const best = evalCandidates[0];
+        if (best && best.isValidConfirm) {
+          const chosen = best.item;
+          const def = getCardDefinition(chosen.cardId);
+          setHand((prev) => prev.filter((c) => c.instanceId !== chosen.instanceId));
+          setDiscardPile((prev) => [...prev, chosen]);
+          if (retainedCardIds.has(chosen.instanceId)) {
+            setRetainedCardIds((prev) => {
+              const next = new Set(prev);
+              next.delete(chosen.instanceId);
+              return next;
+            });
+          }
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles(
+            `[data-card-id="${chosen.instanceId}"]`,
+            ['#e11d48', '#f43f5e', '#ffd166'],
+            48,
+            4
+          );
+          spawnPopup('player', `🗑️ Discarded "${def.names[phraseDiff]}"!`, '#e11d48');
+          setPendingDiscardCount((c) => Math.max(0, c - 1));
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (pendingKeepCount > 0) {
+        if (matchCommand(raw, ['skip', 'pass', 'cancel', 'none', 'done', 'continue', 'end turn', 'pass turn', 'end'], 'easy')) {
           setPendingKeepCount(0);
           spawnPopup('player', 'Kept no card', '#64748b');
           resetTypingBuffer(true);
+          if (matchCommand(raw, ['end turn', 'pass turn', 'end'], 'easy')) {
+            executeEndTurn();
+          }
           return;
         }
 
@@ -3016,12 +3076,15 @@ export function App() {
     maxHp,
     overlay,
     pendingChanceChoice,
+    pendingDiscardCount,
+    pendingKeepCount,
     phraseDiff,
     playerName,
     recordActionMetrics,
     relicIds,
     resetTypingBuffer,
     restoreFromSavePayload,
+    retainedCardIds,
     rewardCards,
     rewardRelics,
     screen,
@@ -3217,11 +3280,14 @@ export function App() {
       } else if (screen === 'map') {
         availableMapNodes.forEach((n) => pool.push(n.phrases[phraseDiff]));
       } else if (screen === 'battle') {
-        if (pendingKeepCount > 0) {
+        if (pendingDiscardCount > 0) {
+          hand.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('skip', 'pass');
+        } else if (pendingKeepCount > 0) {
           hand
             .filter((c) => !retainedCardIds.has(c.instanceId))
             .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
-          pool.push('skip', 'pass');
+          pool.push('skip', 'pass', 'end turn');
         } else {
           if (biomePopupExpanded && biomePopupManual) {
             pool.push('close', 'back');
@@ -3583,10 +3649,17 @@ export function App() {
                     const canAfford = energy >= resolved.cost;
                     const isKept = retainedCardIds.has(item.instanceId);
                     const isKeepCandidate = pendingKeepCount > 0 && !isKept;
+                    const isDiscardCandidate = pendingDiscardCount > 0;
                     return (
                       <div
                         key={item.instanceId}
-                        className={isKeepCandidate ? 'card-tab-keep-candidate' : undefined}
+                        className={
+                          isDiscardCandidate
+                            ? 'card-tab-discard-candidate'
+                            : isKeepCandidate
+                            ? 'card-tab-keep-candidate'
+                            : undefined
+                        }
                       >
                         <CardBanner
                           instance={item}
@@ -3597,6 +3670,7 @@ export function App() {
                           isSelected={isSelected}
                           isUnaffordable={!canAfford}
                           isKept={isKept}
+                          isDiscardCandidate={isDiscardCandidate}
                           style={{
                             marginTop: idx === 0 ? 0 : `-${overlap}px`,
                             zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
@@ -3611,13 +3685,21 @@ export function App() {
 
             {/* Cabinet Footer */}
             <div className="cards-footer-box">
-              {pendingKeepCount > 0 ? (
+              {pendingDiscardCount > 0 ? (
+                <div
+                  className="cards-footer-title"
+                  style={{ color: '#e11d48', fontWeight: 900 }}
+                  title="Type card name or 'skip' to discard a card"
+                >
+                  🗑️ DISCARD A CARD (type card or 'skip')
+                </div>
+              ) : pendingKeepCount > 0 ? (
                 <div
                   className="cards-footer-title"
                   style={{ color: '#10b981', fontWeight: 900 }}
                   title="Type card name or 'skip' to skip keeping a card"
                 >
-                  📌 KEEP A CARD (type card name or 'skip')
+                  📌 KEEP A CARD (type card or 'skip')
                 </div>
               ) : (
                 <div className="cards-footer-title">type [view deck]</div>
@@ -3908,7 +3990,11 @@ export function App() {
             <section className="typing-console-box">
               <TypingConsoleDisplay
                 prefix={
-                  pendingKeepCount > 0 ? (
+                  pendingDiscardCount > 0 ? (
+                    <span className="sentence-discard-card-hint">
+                      🗑️ DISCARD A CARD (type card or "skip"):
+                    </span>
+                  ) : pendingKeepCount > 0 ? (
                     <span className="sentence-keep-card-hint">
                       📌 KEEP A CARD (type card or "skip"):
                     </span>

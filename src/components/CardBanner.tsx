@@ -22,6 +22,7 @@ export interface CardBannerProps {
   isSelected?: boolean;
   isUnaffordable?: boolean;
   isKept?: boolean;
+  isDiscardCandidate?: boolean;
   priceBadge?: string;
   shopPrice?: string | number;
   subtitleOverride?: string;
@@ -193,6 +194,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   isSelected = false,
   isUnaffordable = false,
   isKept = false,
+  isDiscardCandidate = false,
   priceBadge,
   shopPrice,
   subtitleOverride,
@@ -301,6 +303,35 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           title="Kept from being discarded at end of turn"
         >
           📌 KEPT
+        </span>
+      )}
+
+      {/* Top-Left: Discard Target Badge */}
+      {isDiscardCandidate && !isKept && (
+        <span
+          className="card-discard-target-badge"
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 4,
+            background: '#be123c',
+            color: '#fff1f2',
+            border: '1.5px solid #881337',
+            borderRadius: 7,
+            padding: '2px 7px',
+            fontSize: '0.68rem',
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: '0.04em',
+            zIndex: 8,
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.35)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+          title="Choose this card to discard"
+        >
+          🗑️ DISCARD
         </span>
       )}
 
