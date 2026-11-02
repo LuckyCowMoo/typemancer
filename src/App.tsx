@@ -2768,7 +2768,14 @@ export function App() {
       resetTypingBuffer(false);
       return;
     }
-    if (matchCommand(raw, ['view discard', 'discard', 'discard pile'], 'easy') && screen === 'battle') {
+    if (
+      matchCommand(
+        raw,
+        pendingDiscardCount > 0 ? ['view discard', 'discard pile'] : ['view discard', 'discard', 'discard pile'],
+        'easy'
+      ) &&
+      screen === 'battle'
+    ) {
       soundEngine.playPageTurn(settings);
       triggerElementParticles('.cards-footer-box', ['#bc5215', '#102a3a'], 12, 92);
       setOverlay('discard');
@@ -2990,26 +2997,16 @@ export function App() {
       }
 
       if (pendingDiscardCount > 0) {
-        if (matchCommand(raw, ['skip', 'pass', 'cancel', 'none', 'done', 'continue'], 'easy')) {
-          setPendingDiscardCount(0);
-          spawnPopup('player', 'Discarded no card', '#64748b');
+        if (
+          matchCommand(
+            raw,
+            ['skip', 'pass', 'cancel', 'none', 'done', 'continue', 'end turn', 'pass turn', 'end'],
+            'easy'
+          )
+        ) {
+          spawnPopup('player', 'Cannot skip! Choose a card to discard', '#e11d48');
           resetTypingBuffer(true);
-          if (pendingFollowUpDraw > 0) {
-            const drawn = drawCards(
-              pendingFollowUpDraw,
-              hand,
-              drawPile,
-              discardPile,
-              turnLockedCardIds
-            );
-            setHand(drawn.nextHand);
-            setDrawPile(drawn.nextDraw);
-            setDiscardPile(drawn.nextDiscard);
-            soundEngine.playDrawCards(pendingFollowUpDraw, settings);
-            setPendingFollowUpDraw(0);
-            setHandAnimState('drawing');
-            window.setTimeout(() => setHandAnimState('idle'), 380);
-          }
+          soundEngine.playError(settings);
           return;
         }
 
@@ -3069,10 +3066,11 @@ export function App() {
           );
           spawnPopup('player', `🗑️ Discarded "${def.names[phraseDiff]}"!`, '#e11d48');
           const nextRemainingCount = Math.max(0, pendingDiscardCount - 1);
-          setPendingDiscardCount(nextRemainingCount);
+          const finalRemaining = nextHandAfterDiscard.length === 0 ? 0 : nextRemainingCount;
+          setPendingDiscardCount(finalRemaining);
           resetTypingBuffer(true);
 
-          if (nextRemainingCount === 0 && pendingFollowUpDraw > 0) {
+          if (finalRemaining === 0 && pendingFollowUpDraw > 0) {
             const drawn = drawCards(
               pendingFollowUpDraw,
               nextHandAfterDiscard,
@@ -3916,7 +3914,6 @@ export function App() {
       } else if (screen === 'battle') {
         if (pendingDiscardCount > 0) {
           hand.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
-          pool.push('skip', 'pass');
         } else if (pendingKeepCount > 0) {
           hand
             .filter((c) => !retainedCardIds.has(c.instanceId))
@@ -4331,9 +4328,9 @@ export function App() {
                 <div
                   className="cards-footer-title"
                   style={{ color: '#e11d48', fontWeight: 900 }}
-                  title="Type card name or 'skip' to discard a card"
+                  title="Type card name to discard"
                 >
-                  🗑️ DISCARD A CARD (type card or 'skip')
+                  🗑️ DISCARD {pendingDiscardCount > 1 ? `${pendingDiscardCount} CARDS` : 'A CARD'} (cannot skip)
                 </div>
               ) : pendingKeepCount > 0 ? (
                 <div
@@ -4766,7 +4763,7 @@ export function App() {
                 prefix={
                   pendingDiscardCount > 0 ? (
                     <span className="sentence-discard-card-hint">
-                      🗑️ DISCARD A CARD (type card or "skip"):
+                      🗑️ DISCARD {pendingDiscardCount > 1 ? `${pendingDiscardCount} CARDS` : 'A CARD'} (type card name):
                     </span>
                   ) : pendingKeepCount > 0 ? (
                     <span className="sentence-keep-card-hint">
