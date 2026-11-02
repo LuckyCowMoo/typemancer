@@ -2598,6 +2598,18 @@ body,
   margin-left: 4px;
 }
 
+.sentence-discard-hint {
+  font-size: 0.88rem;
+  font-style: normal;
+  font-weight: 800;
+  color: #e11d48;
+  background: #ffe4e6;
+  border: 1.5px solid #f43f5e;
+  border-radius: 8px;
+  padding: 1px 8px;
+  margin-left: 4px;
+}
+
 /* ==================== FOREST ENTRANCE LANDMARK ON MAP ==================== */
 .map-forest-entrance {
   position: absolute;

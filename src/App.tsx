@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import {
   CardBanner,
@@ -242,6 +242,8 @@ export function App() {
   );
   const [handAnimState, setHandAnimState] = useState<'idle' | 'discarding' | 'drawing'>('idle');
   const [selectedCard, setSelectedCard] = useState<CardInstance | null>(null);
+  const [selectedTargetEnemy, setSelectedTargetEnemy] = useState<ActiveEnemy | null>(null);
+  const [selectedDiscardInstances, setSelectedDiscardInstances] = useState<CardInstance[]>([]);
   const [retainedCardIds, setRetainedCardIds] = useState<Set<string>>(() => new Set());
   const [pendingKeepCount, setPendingKeepCount] = useState<number>(0);
   const [pendingDiscardCount, setPendingDiscardCount] = useState<number>(0);
@@ -599,6 +601,8 @@ export function App() {
       setEnemies(spawnedEnemies);
       setAllies([]);
       setSelectedCard(null);
+      setSelectedTargetEnemy(null);
+      setSelectedDiscardInstances([]);
       setFloatingPopups([]);
       resetTypingBuffer(true);
       setBiomePopupExpanded(true);
@@ -665,6 +669,8 @@ export function App() {
       }));
 
       setSelectedCard(null);
+      setSelectedTargetEnemy(null);
+      setSelectedDiscardInstances([]);
       setRetainedCardIds(new Set());
       setPendingKeepCount(0);
       setPendingDiscardCount(0);
@@ -679,7 +685,12 @@ export function App() {
   );
 
   const executeCardPlay = useCallback(
-    async (cardInst: CardInstance, targetEnemy: ActiveEnemy | null, speedMult: number) => {
+    async (
+      cardInst: CardInstance,
+      targetEnemy: ActiveEnemy | null,
+      speedMult: number,
+      preConfirmedDiscards: CardInstance[] = []
+    ) => {
       const resolved = resolveCardInstance(cardInst, phraseDiff);
       const isXCost = Boolean((resolved as any).xCost || resolved.cost === -1);
       if (resolved.type === 'power' && usedPowerCardIdsThisCombat.has(cardInst.cardId)) {
@@ -715,6 +726,8 @@ export function App() {
       setBiomePopupExpanded(false);
       setBiomePopupManual(false);
       setSelectedCard(null);
+      setSelectedTargetEnemy(null);
+      setSelectedDiscardInstances([]);
       resetTypingBuffer(true);
 
       let nextWard = playerWard;
@@ -742,6 +755,25 @@ export function App() {
 
       const activeTurnLockedIds = new Set(turnLockedCardIds);
       activeTurnLockedIds.add(cardInst.instanceId);
+
+      if (preConfirmedDiscards.length > 0) {
+        const preDiscardIds = new Set(preConfirmedDiscards.map((c) => c.instanceId));
+        nextHand = nextHand.filter((c) => !preDiscardIds.has(c.instanceId));
+        nextDiscard = [...nextDiscard, ...preConfirmedDiscards];
+        preConfirmedDiscards.forEach((c) => {
+          activeTurnLockedIds.add(c.instanceId);
+          if (retainedCardIds.has(c.instanceId)) {
+            setRetainedCardIds((prev) => {
+              const next = new Set(prev);
+              next.delete(c.instanceId);
+              return next;
+            });
+          }
+          const def = getCardDefinition(c.cardId);
+          spawnPopup('player', `🗑️ Discarded "${def.names[phraseDiff]}"!`, '#e11d48');
+          triggerElementParticles(`[data-card-id="${c.instanceId}"]`, ['#e11d48', '#f43f5e', '#ffd166'], 48, 4);
+        });
+      }
 
       let totalDmgDealtThisCard = 0;
       let extraDraw = 0;
@@ -1000,8 +1032,12 @@ export function App() {
             break;
           }
           case 'discard': {
-            hasDiscardChoiceEffect = true;
-            discardChoiceCount += Math.max(1, eff.amount * xMultiplier);
+            const rawDiscardCount = Math.max(1, eff.amount * xMultiplier);
+            const remainingDiscardChoice = Math.max(0, rawDiscardCount - preConfirmedDiscards.length);
+            if (remainingDiscardChoice > 0 && preConfirmedDiscards.length === 0) {
+              hasDiscardChoiceEffect = true;
+              discardChoiceCount += remainingDiscardChoice;
+            }
             break;
           }
           case 'power_ward_each_turn':
@@ -1278,6 +1314,8 @@ export function App() {
     soundEngine.playConfirm(settings);
     triggerElementParticles('[data-cmd="end turn"]', ['#d97706', '#bc5215', '#102a3a', '#ffd166'], 58, 4);
     setSelectedCard(null);
+    setSelectedTargetEnemy(null);
+    setSelectedDiscardInstances([]);
     setPendingKeepCount(0);
     setPendingDiscardCount(0);
     setPendingFollowUpDraw(0);
@@ -2248,6 +2286,48 @@ export function App() {
     return sortCardsByCategoryAndRarity(handCandidates, (c) => c.item, phraseDiff);
   }, [handCandidates, phraseDiff]);
 
+  const selectedCardResolved = useMemo(
+    () => (selectedCard ? resolveCardInstance(selectedCard, phraseDiff) : null),
+    [phraseDiff, selectedCard]
+  );
+
+  const selectedCardDiscardEffect = useMemo(() => {
+    if (!selectedCardResolved) return null;
+    return selectedCardResolved.effects.find((e) => e.type === 'discard') ?? null;
+  }, [selectedCardResolved]);
+
+  const selectedCardRequiredDiscardCount = useMemo(() => {
+    if (!selectedCardDiscardEffect) return 0;
+    const isXCost = Boolean((selectedCardResolved as any)?.xCost || selectedCardResolved?.cost === -1);
+    const xMultiplier = isXCost ? Math.max(0, energy) : 1;
+    return Math.max(1, (selectedCardDiscardEffect.amount || 1) * xMultiplier);
+  }, [energy, selectedCardDiscardEffect, selectedCardResolved]);
+
+  const eligibleDiscardsInHand = useMemo(() => {
+    if (!selectedCard) return [];
+    const chosenDiscardIds = new Set(selectedDiscardInstances.map((c) => c.instanceId));
+    return hand.filter(
+      (c) => c.instanceId !== selectedCard.instanceId && !chosenDiscardIds.has(c.instanceId)
+    );
+  }, [hand, selectedCard, selectedDiscardInstances]);
+
+  const isCardPlayAwaitingDiscard = Boolean(
+    selectedCard &&
+      selectedCardRequiredDiscardCount > 0 &&
+      selectedDiscardInstances.length < selectedCardRequiredDiscardCount &&
+      eligibleDiscardsInHand.length > 0 &&
+      (selectedCardResolved?.target !== 'enemy' || selectedTargetEnemy !== null)
+  );
+
+  const evaluatedDiscardCandidates = useMemo(() => {
+    if (screen !== 'battle' || !isCardPlayAwaitingDiscard) return [];
+    const candidateItems = eligibleDiscardsInHand.map((c) => ({
+      item: c,
+      phrase: resolveCardInstance(c, phraseDiff).name,
+    }));
+    return evaluateCandidates(typedInput, candidateItems, difficulty);
+  }, [difficulty, eligibleDiscardsInHand, isCardPlayAwaitingDiscard, phraseDiff, screen, typedInput]);
+
   const evaluatedHand = useMemo(() => {
     if (screen !== 'battle' || selectedCard) return [];
     return evaluateCandidates(
@@ -2258,7 +2338,18 @@ export function App() {
   }, [difficulty, handCandidates, screen, selectedCard, typedInput]);
 
   const { highlightedCardIds, enterReadyCardId } = useMemo(() => {
-    if (!typedInput.trim() || selectedCard) {
+    if (!typedInput.trim()) {
+      return { highlightedCardIds: new Set<string>(), enterReadyCardId: null as string | null };
+    }
+    if (isCardPlayAwaitingDiscard) {
+      const matches = evaluatedDiscardCandidates.filter((m) => m.isPrefixMatch);
+      const top = evaluatedDiscardCandidates[0];
+      return {
+        highlightedCardIds: new Set(matches.map((m) => m.item.instanceId)),
+        enterReadyCardId: top && top.isValidConfirm ? top.item.instanceId : null,
+      };
+    }
+    if (selectedCard) {
       return { highlightedCardIds: new Set<string>(), enterReadyCardId: null as string | null };
     }
     const matches = evaluatedHand.filter((m) => m.isPrefixMatch);
@@ -2267,7 +2358,7 @@ export function App() {
       highlightedCardIds: new Set(matches.map((m) => m.item.item.instanceId)),
       enterReadyCardId: top && top.isValidConfirm ? top.item.item.instanceId : null,
     };
-  }, [evaluatedHand, selectedCard, typedInput]);
+  }, [evaluatedDiscardCandidates, evaluatedHand, isCardPlayAwaitingDiscard, selectedCard, typedInput]);
 
   const inspectedCard = useMemo(() => {
     if (selectedCard) {
@@ -2291,16 +2382,24 @@ export function App() {
   }, [difficulty, enemies, screen, typedInput]);
 
   const { highlightedEnemyIds, enterReadyEnemyId } = useMemo(() => {
-    if (!typedInput.trim()) {
-      return { highlightedEnemyIds: new Set<string>(), enterReadyEnemyId: null as string | null };
+    if (!typedInput.trim() || isCardPlayAwaitingDiscard) {
+      return {
+        highlightedEnemyIds: selectedTargetEnemy
+          ? new Set([selectedTargetEnemy.instanceId])
+          : new Set<string>(),
+        enterReadyEnemyId: null as string | null,
+      };
     }
     const matches = evaluatedEnemies.filter((m) => m.isPrefixMatch);
     const top = evaluatedEnemies[0];
     return {
-      highlightedEnemyIds: new Set(matches.map((m) => m.item.instanceId)),
+      highlightedEnemyIds: new Set([
+        ...matches.map((m) => m.item.instanceId),
+        ...(selectedTargetEnemy ? [selectedTargetEnemy.instanceId] : []),
+      ]),
       enterReadyEnemyId: top && top.isValidConfirm ? top.item.instanceId : null,
     };
-  }, [evaluatedEnemies, typedInput]);
+  }, [evaluatedEnemies, isCardPlayAwaitingDiscard, selectedTargetEnemy, typedInput]);
 
   // Helper to check highlight & enter-ready state on any generic option phrase (Menu, Campfire, Mystery, etc.)
   const getPhraseHighlightState = useCallback(
@@ -3231,7 +3330,13 @@ export function App() {
         matchCommand(raw, ['back', 'return', 'cancel', 'deselect', 'abort'], 'easy')
       ) {
         soundEngine.playBackspace(settings);
-        setSelectedCard(null);
+        if (selectedDiscardInstances.length > 0) {
+          setSelectedDiscardInstances((prev) => prev.slice(0, -1));
+        } else if (selectedTargetEnemy) {
+          setSelectedTargetEnemy(null);
+        } else {
+          setSelectedCard(null);
+        }
         resetTypingBuffer(true);
         return;
       }
@@ -3282,6 +3387,8 @@ export function App() {
             45
           );
           setSelectedCard(chosenInst);
+          setSelectedTargetEnemy(null);
+          setSelectedDiscardInstances([]);
           setActionCharAccum((prev) => prev + resolved.name.length);
           setTypedInput('');
           return;
@@ -3321,8 +3428,57 @@ export function App() {
         return;
       }
 
-      const resolvedSelected = resolveCardInstance(selectedCard, phraseDiff);
-      if (resolvedSelected.target === 'self' || resolvedSelected.target === 'all_enemies') {
+      if (isCardPlayAwaitingDiscard) {
+        const bestDiscard = evaluatedDiscardCandidates[0];
+        if (bestDiscard && bestDiscard.isValidConfirm) {
+          const chosen = bestDiscard.item;
+          const nextDiscards = [...selectedDiscardInstances, chosen];
+          const remainingDiscardsNeeded = selectedCardRequiredDiscardCount - nextDiscards.length;
+          const remainingEligibleCards = eligibleDiscardsInHand.filter((c) => c.instanceId !== chosen.instanceId);
+
+          if (remainingDiscardsNeeded > 0 && remainingEligibleCards.length > 0) {
+            setSelectedDiscardInstances(nextDiscards);
+            setActionCharAccum((prev) => prev + bestDiscard.phrase.length);
+            resetTypingBuffer(true);
+            soundEngine.playPageTurn(settings);
+            const def = getCardDefinition(chosen.cardId);
+            spawnPopup('player', `Selected ${def.names[phraseDiff]} to discard`, '#e11d48');
+            return;
+          } else {
+            soundEngine.playConfirm(settings);
+            const speedMult = recordActionMetrics(bestDiscard.phrase, bestDiscard.distance);
+            executeCardPlay(selectedCard, selectedTargetEnemy, speedMult, nextDiscards);
+            return;
+          }
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (selectedCardResolved && selectedCardResolved.target === 'enemy' && !selectedTargetEnemy) {
+        const bestEnemy = evaluatedEnemies[0];
+        if (bestEnemy && bestEnemy.isValidConfirm) {
+          soundEngine.playConfirm(settings);
+          setActionCharAccum((prev) => prev + bestEnemy.phrase.length);
+          if (selectedCardRequiredDiscardCount > 0 && eligibleDiscardsInHand.length > 0) {
+            setSelectedTargetEnemy(bestEnemy.item);
+            resetTypingBuffer(true);
+            soundEngine.playPageTurn(settings);
+            return;
+          } else {
+            const speedMult = recordActionMetrics(bestEnemy.phrase, bestEnemy.distance);
+            executeCardPlay(selectedCard, bestEnemy.item, speedMult, []);
+            return;
+          }
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (
+        selectedCardResolved &&
+        (selectedCardResolved.target === 'self' || selectedCardResolved.target === 'all_enemies')
+      ) {
         const enemyMatch = evaluatedEnemies[0]?.isValidConfirm;
         if (
           !norm ||
@@ -3340,14 +3496,14 @@ export function App() {
               'enemies',
               'all enemies',
               playerName,
-              resolvedSelected.connector,
+              selectedCardResolved.connector,
             ],
             'easy'
           )
         ) {
           soundEngine.playConfirm(settings);
           const speedMult = recordActionMetrics(raw, 0);
-          executeCardPlay(selectedCard, null, speedMult);
+          executeCardPlay(selectedCard, null, speedMult, selectedDiscardInstances);
           return;
         }
         soundEngine.playError(settings);
@@ -3358,7 +3514,7 @@ export function App() {
       if (bestEnemy && bestEnemy.isValidConfirm) {
         soundEngine.playConfirm(settings);
         const speedMult = recordActionMetrics(bestEnemy.phrase, bestEnemy.distance);
-        executeCardPlay(selectedCard, bestEnemy.item, speedMult);
+        executeCardPlay(selectedCard, bestEnemy.item, speedMult, selectedDiscardInstances);
         return;
       }
 
@@ -3819,6 +3975,13 @@ export function App() {
     rewardStep,
     screen,
     selectedCard,
+    selectedCardRequiredDiscardCount,
+    selectedCardResolved,
+    selectedDiscardInstances,
+    selectedTargetEnemy,
+    eligibleDiscardsInHand,
+    evaluatedDiscardCandidates,
+    isCardPlayAwaitingDiscard,
     settings,
     shopInventory,
     shopSubMode,
@@ -3878,6 +4041,20 @@ export function App() {
       if (e.key === 'Backspace') {
         e.preventDefault();
         soundEngine.playBackspace(settings);
+        if (typedInput.length === 0) {
+          if (selectedDiscardInstances.length > 0) {
+            setSelectedDiscardInstances((prev) => prev.slice(0, -1));
+            return;
+          }
+          if (selectedTargetEnemy) {
+            setSelectedTargetEnemy(null);
+            return;
+          }
+          if (selectedCard) {
+            setSelectedCard(null);
+            return;
+          }
+        }
         setTypedInput((prev) => {
           const next = prev.slice(0, -1);
           if (next.trim().length === 0 && !selectedCard) {
@@ -3900,6 +4077,8 @@ export function App() {
         soundEngine.playBackspace(settings);
         if (selectedCard) {
           setSelectedCard(null);
+          setSelectedTargetEnemy(null);
+          setSelectedDiscardInstances([]);
         }
         resetTypingBuffer(true);
         return;
@@ -3932,12 +4111,7 @@ export function App() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('paste', onPaste);
     };
-  }, [actionStartTime, devEditorOpen, overlay, resetTypingBuffer, screen, selectedCard, settings]);
-
-  const selectedCardResolved = useMemo(
-    () => (selectedCard ? resolveCardInstance(selectedCard, phraseDiff) : null),
-    [phraseDiff, selectedCard]
-  );
+  }, [actionStartTime, devEditorOpen, overlay, resetTypingBuffer, screen, selectedCard, selectedDiscardInstances, selectedTargetEnemy, settings, typedInput.length]);
 
   /**
    * Computes the faint ghost autocomplete suffix shown in front of (after) the cursor
@@ -4020,6 +4194,9 @@ export function App() {
             .filter((c) => !retainedCardIds.has(c.instanceId))
             .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
           pool.push('skip', 'pass', 'end turn');
+        } else if (isCardPlayAwaitingDiscard) {
+          eligibleDiscardsInHand.forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('back', 'cancel');
         } else {
           if (biomePopupExpanded && biomePopupManual) {
             pool.push('close', 'back');
@@ -4117,11 +4294,13 @@ export function App() {
     campfireSubMode,
     deck,
     difficulty,
+    eligibleDiscardsInHand,
     enemies,
     eventOutcomeText,
     extraHardAvailable,
     handCandidates,
     introStep,
+    isCardPlayAwaitingDiscard,
     overlay,
     pendingChanceChoice,
     phraseDiff,
@@ -4387,7 +4566,11 @@ export function App() {
                     const canAfford = energy >= resolved.cost && !isPowerAlreadyActive;
                     const isKept = retainedCardIds.has(item.instanceId);
                     const isKeepCandidate = pendingKeepCount > 0 && !isKept;
-                    const isDiscardCandidate = pendingDiscardCount > 0;
+                    const isDiscardCandidate =
+                      pendingDiscardCount > 0 ||
+                      (isCardPlayAwaitingDiscard &&
+                        eligibleDiscardsInHand.some((c) => c.instanceId === item.instanceId));
+                    const isPreDiscarded = selectedDiscardInstances.some((c) => c.instanceId === item.instanceId);
                     return (
                       <div
                         key={item.instanceId}
@@ -4409,11 +4592,14 @@ export function App() {
                           isUnaffordable={!canAfford}
                           isKept={isKept}
                           isDiscardCandidate={isDiscardCandidate}
+                          subtitleOverride={isPreDiscarded ? '🗑️ Queued Discard' : undefined}
                           isPowerAlreadyActive={isPowerAlreadyActive}
                           environmentModifiers={activeEnvironment?.modifiers}
                           style={{
                             marginTop: idx === 0 ? 0 : `-${overlap}px`,
                             zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
+                            opacity: isPreDiscarded ? 0.45 : undefined,
+                            filter: isPreDiscarded ? 'grayscale(0.6)' : undefined,
                           }}
                         />
                       </div>
@@ -4425,7 +4611,15 @@ export function App() {
 
             {/* Cabinet Footer */}
             <div className="cards-footer-box">
-              {pendingDiscardCount > 0 ? (
+              {isCardPlayAwaitingDiscard ? (
+                <div
+                  className="cards-footer-title"
+                  style={{ color: '#e11d48', fontWeight: 900 }}
+                  title="Type card name to discard"
+                >
+                  🗑️ CONFIRM VIA DISCARD ({selectedCardRequiredDiscardCount - selectedDiscardInstances.length} more)
+                </div>
+              ) : pendingDiscardCount > 0 ? (
                 <div
                   className="cards-footer-title"
                   style={{ color: '#e11d48', fontWeight: 900 }}
@@ -4876,11 +5070,32 @@ export function App() {
                       <span className="sentence-connector">
                         {' '}
                         -{selectedCardResolved.connector}-{' '}
-                        {(selectedCardResolved.target === 'self' ||
+                      </span>
+                      {selectedTargetEnemy && (
+                        <>
+                          <span className="sentence-locked-card">"{selectedTargetEnemy.displayName}"</span>
+                          <span className="sentence-connector"> -and- </span>
+                        </>
+                      )}
+                      {selectedDiscardInstances.map((discInst) => (
+                        <Fragment key={discInst.instanceId}>
+                          <span className="sentence-locked-card" style={{ color: '#e11d48' }}>
+                            "{resolveCardInstance(discInst, phraseDiff).name}"
+                          </span>
+                          <span className="sentence-connector"> -and- </span>
+                        </Fragment>
+                      ))}
+                      {isCardPlayAwaitingDiscard && typedInput.length === 0 && (
+                        <span className="sentence-discard-hint">
+                          🗑️ Discard ({selectedCardRequiredDiscardCount - selectedDiscardInstances.length} needed)
+                        </span>
+                      )}
+                      {!isCardPlayAwaitingDiscard &&
+                        !selectedTargetEnemy &&
+                        (selectedCardResolved.target === 'self' ||
                           selectedCardResolved.target === 'all_enemies') && (
                           <span className="sentence-enter-hint">(Press Enter) </span>
                         )}
-                      </span>
                     </>
                   ) : undefined
                 }
