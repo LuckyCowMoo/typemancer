@@ -1331,11 +1331,12 @@ body,
 
 /* Bottom Row: Paper Typing Strip */
 .typing-console-box {
-  min-height: 74px;
+  min-height: 56px;
+  height: 58px;
   background-color: #fdf8ef;
   border: 2.5px solid #2b1e16;
-  border-radius: 20px;
-  padding: 10px 18px;
+  border-radius: 16px;
+  padding: 6px 18px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -1344,10 +1345,24 @@ body,
   z-index: 30;
   overflow: hidden;
   box-sizing: border-box;
+  margin: 0 auto 14px auto;
+  width: calc(100% - 48px);
+  max-width: 1400px;
+}
+
+.battle-main .typing-console-box {
+  margin: 0 24px 14px 24px;
+  width: calc(100% - 48px);
+}
+
+.narrative-screen-layout .narrative-console {
+  margin: 0 auto 6px auto;
+  width: 100%;
+  max-width: 960px;
 }
 
 .typing-sentence-display {
-  font-size: 1.38rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #162229;
   width: 100%;
@@ -1535,6 +1550,7 @@ body,
   left: 50%;
   transform: translateX(-50%);
   width: min(860px, 92vw);
+  margin: 0;
   background: rgba(253, 248, 239, 0.94);
 }
 
