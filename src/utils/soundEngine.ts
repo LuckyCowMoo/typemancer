@@ -123,7 +123,9 @@ class SoundEngine {
       const ctx = this.getContext();
       if (!ctx) return null;
       try {
-        const src = path.startsWith('/') || path.startsWith('./') ? path : `./assets/sfx/${path}`;
+        const cleanPath = path.replace(/^\.?\/?(assets\/sfx\/)?/, '');
+        const base = typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : '/';
+        const src = `${base.replace(/\/$/, '')}/assets/sfx/${cleanPath}`;
         const resp = await fetch(src);
         if (!resp.ok) {
           throw new Error(`HTTP ${resp.status} fetching ${src}`);
@@ -223,7 +225,9 @@ class SoundEngine {
   ): void {
     if (typeof window === 'undefined' || settings.muted || settings.volume <= 0) return;
     try {
-      const src = filename.startsWith('/') || filename.startsWith('./') ? filename : `./assets/sfx/${filename}`;
+      const cleanPath = filename.replace(/^\.?\/?(assets\/sfx\/)?/, '');
+      const base = typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : '/';
+      const src = `${base.replace(/\/$/, '')}/assets/sfx/${cleanPath}`;
       let baseAudio = this.sampleCache.get(src);
       if (!baseAudio) {
         baseAudio = new Audio(src);
@@ -808,14 +812,17 @@ class SoundEngine {
     const sources: (AudioScheduledSourceNode | AudioNode)[] = [];
     const intervalIds: number[] = [];
 
-    this.buildAmbianceGraph(key, ctx, masterGain, sources, intervalIds, settings);
-
+    // CRITICAL: Initialize activeAmbiance BEFORE buildAmbianceGraph so that any
+    // preloaded/cached AudioBuffers (e.g. campfire_loop, river_stony) pass the
+    // activeAmbiance check and immediately begin looping!
     this.activeAmbiance = {
       key,
       gain: masterGain,
       sources,
       intervalIds,
     };
+
+    this.buildAmbianceGraph(key, ctx, masterGain, sources, intervalIds, settings);
   }
 
   private scheduleRandomEvent(
@@ -1039,7 +1046,7 @@ class SoundEngine {
         break;
       }
 
-      // 2. Flowing Riverbank: Authentic recorded mountain river stream with stone bed & liquid trickles (NO engine-like synthetic hum)
+      // 2. Flowing Riverbank: Authentic recorded mountain river stream with stone bed & liquid trickles + Andy Farnell physical acoustics
       case 'flowing_riverbank': {
         const riverHp = ctx.createBiquadFilter();
         riverHp.type = 'highpass';
@@ -1049,21 +1056,75 @@ class SoundEngine {
         // Seamless authentic audio recording of stony river stream
         this.playLoopSource('ambiance/river_stony.ogg', ctx, masterGain, sources, 0.22, riverHp);
 
-        // Faint crystalline water trickles & droplet splashes over mossy rocks (every 3-7s)
-        this.scheduleRandomEvent(3000, 7000, intervalIds, ctx, masterGain, () => {
+        // Layer 1: Deep rolling river body (brown noise filtered through lowpass with slow swell LFO)
+        const brown = this.createNoiseSource(ctx, 'brown');
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(340, now);
+        lp.Q.setValueAtTime(1.3, now);
+        this.createLfo(ctx, 0.16, 45, lp.frequency, sources);
+        const currentGain = ctx.createGain();
+        currentGain.gain.setValueAtTime(0.065, now);
+        this.createLfo(ctx, 0.12, 0.02, currentGain.gain, sources);
+        brown.connect(lp);
+        lp.connect(currentGain);
+        currentGain.connect(masterGain);
+        brown.start();
+        sources.push(brown, lp, currentGain);
+
+        // Layer 2: Surface churning foam & white water rush (bandpassed pink noise with slow turbulence)
+        const pink = this.createNoiseSource(ctx, 'pink');
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(1350, now);
+        bp.Q.setValueAtTime(1.1, now);
+        this.createLfo(ctx, 0.22, 180, bp.frequency, sources);
+        const surfGain = ctx.createGain();
+        surfGain.gain.setValueAtTime(0.038, now);
+        this.createLfo(ctx, 0.18, 0.012, surfGain.gain, sources);
+        pink.connect(bp);
+        bp.connect(surfGain);
+        surfGain.connect(masterGain);
+        pink.start();
+        sources.push(pink, bp, surfGain);
+
+        // Layer 3: Stochastic water bubbles & droplet ripples (Andy Farnell resonant cavity model)
+        // Frequent natural bubbling plops every 120ms to 360ms
+        this.scheduleRandomEvent(120, 360, intervalIds, ctx, masterGain, () => {
           const curr = ctx.currentTime;
           const osc = ctx.createOscillator();
           const g = ctx.createGain();
-          const freq = 1350 + Math.random() * 700;
+          const baseFreq = 950 + Math.random() * 1250;
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, curr);
-          osc.frequency.exponentialRampToValueAtTime(freq * 0.7, curr + 0.032);
-          g.gain.setValueAtTime(0.015, curr);
-          g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.032);
+          osc.frequency.setValueAtTime(baseFreq, curr);
+          osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.65, curr + 0.042);
+          g.gain.setValueAtTime(0.001, curr);
+          g.gain.linearRampToValueAtTime(0.022 + Math.random() * 0.012, curr + 0.004);
+          g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.048);
           osc.connect(g);
           g.connect(masterGain);
           osc.start(curr);
-          osc.stop(curr + 0.04);
+          osc.stop(curr + 0.052);
+        });
+
+        // Layer 4: Occasional clear water eddy splash over mossy river stones (every 3.5-7.5s)
+        this.scheduleRandomEvent(3500, 7500, intervalIds, ctx, masterGain, () => {
+          const curr = ctx.currentTime;
+          [0, 0.06].forEach((offset, idx) => {
+            const t = curr + offset;
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            const freq = (1400 + Math.random() * 600) * (idx === 0 ? 1 : 1.25);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.68, t + 0.035);
+            g.gain.setValueAtTime(0.016, t);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+            osc.connect(g);
+            g.connect(masterGain);
+            osc.start(t);
+            osc.stop(t + 0.04);
+          });
         });
         break;
       }
@@ -1433,7 +1494,8 @@ class SoundEngine {
         break;
       }
 
-      // 7. Sunlit Sanctuary: Breathing celestial chord progressions that gently billow in and out
+      // 7. Sunlit Sanctuary & Main Menu: Breathing celestial chord progressions that gently billow in and out
+      case 'main_menu':
       case 'sunlit_sanctuary': {
         // Serene cathedral air presence
         const pink = this.createNoiseSource(ctx, 'pink');
@@ -1568,24 +1630,93 @@ class SoundEngine {
         break;
       }
 
-      // 10. Campfire: Authentic recorded campfire with crackling wood embers & gentle combustion roar
+      // 10. Campfire: Authentic recorded campfire with crackling wood embers + Andy Farnell physical acoustics
       case 'campfire': {
         // Seamless authentic audio loop of real crackling campfire
-        this.playLoopSource('ambiance/campfire_loop.ogg', ctx, masterGain, sources, 0.24);
+        this.playLoopSource('ambiance/campfire_loop.ogg', ctx, masterGain, sources, 0.25);
 
-        // Gentle warm combustion body presence
+        // Layer 1: Warm thermal combustion roar (pink noise in low-mid bandpass with thermal convection drift)
         const pink = this.createNoiseSource(ctx, 'pink');
         const bp = ctx.createBiquadFilter();
         bp.type = 'bandpass';
-        bp.frequency.setValueAtTime(260, now);
-        bp.Q.setValueAtTime(1.2, now);
+        bp.frequency.setValueAtTime(250, now);
+        bp.Q.setValueAtTime(1.1, now);
+        this.createLfo(ctx, 0.08, 40, bp.frequency, sources);
         const airGain = ctx.createGain();
-        airGain.gain.setValueAtTime(0.035, now);
+        airGain.gain.setValueAtTime(0.038, now);
+        this.createLfo(ctx, 0.11, 0.012, airGain.gain, sources);
         pink.connect(bp);
         bp.connect(airGain);
         airGain.connect(masterGain);
         pink.start();
         sources.push(pink, bp, airGain);
+
+        // Layer 2: Fire combustion hiss / oxygen flow (bandpassed pink noise at 1150Hz)
+        const hissNoise = this.createNoiseSource(ctx, 'pink');
+        const hissBp = ctx.createBiquadFilter();
+        hissBp.type = 'bandpass';
+        hissBp.frequency.setValueAtTime(1150, now);
+        hissBp.Q.setValueAtTime(0.9, now);
+        this.createLfo(ctx, 0.14, 160, hissBp.frequency, sources);
+        const hissGain = ctx.createGain();
+        hissGain.gain.setValueAtTime(0.022, now);
+        hissNoise.connect(hissBp);
+        hissBp.connect(hissGain);
+        hissGain.connect(masterGain);
+        hissNoise.start();
+        sources.push(hissNoise, hissBp, hissGain);
+
+        // Layer 3: Stochastic micro-crackles (Andy Farnell procedural fire transient model)
+        // High-frequency decaying noise impulses simulating escaping pockets of superheated resin (every 45ms - 150ms)
+        this.scheduleRandomEvent(45, 150, intervalIds, ctx, masterGain, () => {
+          const curr = ctx.currentTime;
+          const dur = 0.012 + Math.random() * 0.018; // 12ms to 30ms impulse
+          const cNoise = this.createNoiseSource(ctx, 'white');
+          const cFilter = ctx.createBiquadFilter();
+          cFilter.type = 'bandpass';
+          cFilter.frequency.setValueAtTime(2400 + Math.random() * 2800, curr);
+          cFilter.Q.setValueAtTime(4.5 + Math.random() * 2.5, curr);
+          const cGain = ctx.createGain();
+          const amp = 0.05 + Math.random() * 0.08;
+          cGain.gain.setValueAtTime(amp, curr);
+          cGain.gain.exponentialRampToValueAtTime(0.0001, curr + dur);
+          cNoise.connect(cFilter);
+          cFilter.connect(cGain);
+          cGain.connect(masterGain);
+          cNoise.start(curr);
+          cNoise.stop(curr + dur + 0.005);
+        });
+
+        // Layer 4: Deep wood pop & thermal fissure snap (every 2.2s - 5.0s)
+        this.scheduleRandomEvent(2200, 5000, intervalIds, ctx, masterGain, () => {
+          const curr = ctx.currentTime;
+          // Resonant hollow wood pop
+          const popOsc = ctx.createOscillator();
+          const popGain = ctx.createGain();
+          popOsc.type = 'sine';
+          popOsc.frequency.setValueAtTime(340, curr);
+          popOsc.frequency.exponentialRampToValueAtTime(80, curr + 0.035);
+          popGain.gain.setValueAtTime(0.045, curr);
+          popGain.gain.exponentialRampToValueAtTime(0.0001, curr + 0.038);
+          popOsc.connect(popGain);
+          popGain.connect(masterGain);
+          popOsc.start(curr);
+          popOsc.stop(curr + 0.042);
+
+          // Accompanied by a sharp high snap
+          const snapNoise = this.createNoiseSource(ctx, 'white');
+          const snapFilter = ctx.createBiquadFilter();
+          snapFilter.type = 'highpass';
+          snapFilter.frequency.setValueAtTime(3200, curr);
+          const snapGain = ctx.createGain();
+          snapGain.gain.setValueAtTime(0.035, curr);
+          snapGain.gain.exponentialRampToValueAtTime(0.0001, curr + 0.02);
+          snapNoise.connect(snapFilter);
+          snapFilter.connect(snapGain);
+          snapGain.connect(masterGain);
+          snapNoise.start(curr);
+          snapNoise.stop(curr + 0.025);
+        });
         break;
       }
 
@@ -1885,60 +2016,7 @@ class SoundEngine {
         break;
       }
 
-      // 15. Main Menu: Antiquarian study room tone & natural acoustic grandfather clock (1.8s, misses a beat, NO merchant objects)
-      case 'main_menu':
       default: {
-        const pink = this.createNoiseSource(ctx, 'pink');
-        const lp = ctx.createBiquadFilter();
-        lp.type = 'lowpass';
-        lp.frequency.setValueAtTime(160, now);
-        lp.Q.setValueAtTime(0.9, now);
-        const roomGain = ctx.createGain();
-        roomGain.gain.setValueAtTime(0.08, now);
-        pink.connect(lp);
-        lp.connect(roomGain);
-        roomGain.connect(masterGain);
-        pink.start();
-        sources.push(pink, lp, roomGain);
-
-        // Natural Acoustic Grandfather Clock: 1.8s cadence, escapement click + cabinet wood resonance, skips a beat
-        let toggle = false;
-        let menuTickCounter = 0;
-        this.scheduleRandomEvent(1780, 1820, intervalIds, ctx, masterGain, () => {
-          menuTickCounter++;
-          // Misses a beat every now and then (15% chance after 6 ticks)
-          if (menuTickCounter > 6 && Math.random() < 0.16) {
-            menuTickCounter = 0;
-            return;
-          }
-
-          const curr = ctx.currentTime;
-          toggle = !toggle;
-
-          // 1. Escapement anchor pallet drop
-          const escOsc = ctx.createOscillator();
-          const escGain = ctx.createGain();
-          escOsc.type = 'sine';
-          escOsc.frequency.setValueAtTime(2800, curr);
-          escGain.gain.setValueAtTime(0.022, curr);
-          escGain.gain.exponentialRampToValueAtTime(0.0001, curr + 0.008);
-          escOsc.connect(escGain);
-          escGain.connect(masterGain);
-          escOsc.start(curr);
-          escOsc.stop(curr + 0.01);
-
-          // 2. Oak cabinet hollow body resonance (380Hz tick / 295Hz tock)
-          const bodyOsc = ctx.createOscillator();
-          const bodyGain = ctx.createGain();
-          bodyOsc.type = 'sine';
-          bodyOsc.frequency.setValueAtTime(toggle ? 380 : 295, curr);
-          bodyGain.gain.setValueAtTime(0.028, curr);
-          bodyGain.gain.exponentialRampToValueAtTime(0.0001, curr + 0.038);
-          bodyOsc.connect(bodyGain);
-          bodyGain.connect(masterGain);
-          bodyOsc.start(curr);
-          bodyOsc.stop(curr + 0.042);
-        });
         break;
       }
     }

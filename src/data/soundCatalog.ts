@@ -221,9 +221,9 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
   },
   {
     id: 'ambiance:main_menu',
-    label: 'Scribe Study / Main Menu Ambiance',
+    label: 'Main Menu / Sunlit Sanctuary Ambiance',
     category: 'Ambiance',
-    description: 'Antiquarian library study room tone and steady 1.0s clockwork pendulum tick.',
+    description: 'Serene cathedral air presence and radiant celestial chord progressions that gently billow in and out.',
   },
 ];
 

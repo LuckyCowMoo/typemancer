@@ -426,7 +426,7 @@ export function App() {
     } else if (screen === 'map') {
       soundEngine.startAmbiance('map', settings);
     } else if (screen === 'main_menu' || screen === 'peasant_intro' || screen === 'tutorial') {
-      soundEngine.startAmbiance('main_menu', settings);
+      soundEngine.startAmbiance('sunlit_sanctuary', settings);
     } else if (screen === 'reward') {
       if (activeEnvironment) {
         soundEngine.startAmbiance(activeEnvironment.id, settings);
