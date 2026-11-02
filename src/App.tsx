@@ -34,6 +34,8 @@ import {
   CARDS_CATALOG,
   chooseBattleEnvironment,
   chooseEnemyMove,
+  chooseEnemyMoveForContext,
+  resolveEnemyBehavior,
   createStarterDeck,
   ENEMIES_CATALOG,
   ENVIRONMENTS_CATALOG,
@@ -997,6 +999,26 @@ export function App() {
       setDrawPile(drawnResult.nextDraw);
       setDiscardPile(drawnResult.nextDiscard);
       setBurnDraftPile(nextBurn);
+
+      // Check for dynamic behavior phase shifts (e.g. below 1/2 HP, last standing)
+      aliveEnemies.forEach((en) => {
+        const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
+        if (def && def.behaviors && def.behaviors.length > 0) {
+          const resolved = resolveEnemyBehavior(def, en.hp, en.maxHp, aliveEnemies.length);
+          if (en.currentBehavior?.condition !== resolved.condition) {
+            en.currentBehavior = { condition: resolved.condition, name: resolved.name };
+            en.currentMove = chooseEnemyMove(
+              resolved.moves.length > 0 ? resolved.moves : def.moves
+            );
+            if (resolved.condition === 'below_half_hp') {
+              spawnPopup(en.instanceId, '⚡ Enraged (< 50% HP)!', '#ef4444');
+            } else if (resolved.condition === 'last_standing') {
+              spawnPopup(en.instanceId, '🐺 Last Stand!', '#f59e0b');
+            }
+          }
+        }
+      });
+
       setEnemies(aliveEnemies);
 
       setMetrics((prev) => ({
@@ -1331,7 +1353,12 @@ export function App() {
       }
 
       const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
-      en.currentMove = def ? chooseEnemyMove(def.moves) : en.currentMove;
+      if (def) {
+        const aliveCount = workingEnemies.filter((x) => x.hp > 0).length;
+        const { move, behavior } = chooseEnemyMoveForContext(def, en.hp, en.maxHp, aliveCount);
+        en.currentMove = move;
+        en.currentBehavior = behavior;
+      }
 
       setPlayerStatuses({ ...nextPlayerStats });
       setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
@@ -3978,6 +4005,16 @@ export function App() {
                         }
                       />
                       <div className="status-pills-row">
+                        {enemy.currentBehavior && enemy.currentBehavior.condition === 'below_half_hp' && (
+                          <span className="status-pill enrage-pill" title="Below 1/2 HP Phase">
+                            ⚡ Enraged
+                          </span>
+                        )}
+                        {enemy.currentBehavior && enemy.currentBehavior.condition === 'last_standing' && (
+                          <span className="status-pill last-stand-pill" title="Last Standing Phase">
+                            🐺 Last Stand
+                          </span>
+                        )}
                         {enemy.ward > 0 && <span className="status-pill ward-pill">Ward {enemy.ward}</span>}
                         {enemy.statuses.bold > 0 && <span className="status-pill bold-pill">Bold +{enemy.statuses.bold}</span>}
                         {enemy.statuses.faded > 0 && <span className="status-pill faded-pill">Faded {enemy.statuses.faded}</span>}
@@ -4757,6 +4794,9 @@ export function App() {
                     <h2>{inspectedEntity.displayName}</h2>
                     <p>
                       HP: {inspectedEntity.hp}/{inspectedEntity.maxHp} · Ward: {inspectedEntity.ward}
+                      {inspectedEntity.currentBehavior && inspectedEntity.currentBehavior.condition !== 'normal' && (
+                        <span> · Phase: <strong>{inspectedEntity.currentBehavior.name}</strong></span>
+                      )}
                     </p>
                     <div className="entity-intent-english-box">
                       <IntentBadge

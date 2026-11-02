@@ -139,6 +139,15 @@ export interface EnemyMove {
   effects?: CardEffect[];
 }
 
+export type EnemyBehaviorCondition = 'normal' | 'below_half_hp' | 'last_standing';
+
+export interface EnemyBehaviorSet {
+  id: string;
+  name: string;
+  condition: EnemyBehaviorCondition;
+  moves: EnemyMove[];
+}
+
 export interface EnemyDefinition {
   id: string;
   faction: EnemyFaction;
@@ -150,6 +159,7 @@ export interface EnemyDefinition {
   namePools: DifficultyStringPools;
   art: ArtPlaceholder;
   moves: EnemyMove[];
+  behaviors?: EnemyBehaviorSet[];
 }
 
 export interface StatusState {
@@ -172,6 +182,10 @@ export interface ActiveEnemy {
   ward: number;
   statuses: StatusState;
   currentMove: EnemyMove;
+  currentBehavior?: {
+    condition: EnemyBehaviorCondition;
+    name: string;
+  };
   art: ArtPlaceholder;
 }
 

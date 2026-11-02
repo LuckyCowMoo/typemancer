@@ -1102,6 +1102,8 @@ body,
 .burn-pill { background: #6d28d9; }
 .plated-armor-pill { background: #dbeafe; color: #1e40af; border: 1.5px solid #2563eb; }
 .thorns-pill { background: #d1fae5; color: #065f46; border: 1.5px solid #059669; }
+.enrage-pill { background: linear-gradient(135deg, #b91c1c, #991b1b); color: #fef2f2; border: 1.5px solid #ef4444; font-weight: 800; animation: pulse 1.6s ease-in-out infinite alternate; }
+.last-stand-pill { background: linear-gradient(135deg, #b45309, #92400e); color: #fffbeb; border: 1.5px solid #f59e0b; font-weight: 800; animation: pulse 1.8s ease-in-out infinite alternate; }
 
 .arena-center-inspector {
   display: flex;

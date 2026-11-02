@@ -5,6 +5,7 @@ import type {
   CardEffect,
   CardUpgradeData,
   EffectType,
+  EnemyBehaviorCondition,
   EnemyDefinition,
   EnemyFaction,
   EnemyIntentType,
@@ -601,6 +602,114 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
     setEnemiesList((prev) =>
       prev.map((item, idx) => (idx === selectedEnemyIdx ? updater({ ...item }) : item))
     );
+  };
+
+  const [selectedBehaviorCondition, setSelectedBehaviorCondition] =
+    useState<EnemyBehaviorCondition>('normal');
+
+  const getMovesForCondition = (condition: EnemyBehaviorCondition): EnemyMove[] => {
+    if (!activeEnemy) return [];
+    if (condition === 'normal') {
+      return activeEnemy.moves || [];
+    }
+    const bSet = activeEnemy.behaviors?.find((b) => b.condition === condition);
+    return bSet ? bSet.moves : [];
+  };
+
+  const hasBehaviorCondition = (condition: EnemyBehaviorCondition): boolean => {
+    if (!activeEnemy) return false;
+    if (condition === 'normal') return true;
+    return !!activeEnemy.behaviors?.some((b) => b.condition === condition);
+  };
+
+  const updateMovesForCondition = (
+    condition: EnemyBehaviorCondition,
+    updater: (currentMoves: EnemyMove[]) => EnemyMove[]
+  ) => {
+    updateActiveEnemy((en) => {
+      if (condition === 'normal') {
+        const nextMoves = updater(en.moves || []);
+        const nextBehaviors = en.behaviors
+          ? en.behaviors.map((b) => (b.condition === 'normal' ? { ...b, moves: nextMoves } : b))
+          : undefined;
+        return { ...en, moves: nextMoves, behaviors: nextBehaviors };
+      }
+
+      const existing = en.behaviors ? [...en.behaviors] : [];
+      const idx = existing.findIndex((b) => b.condition === condition);
+      if (idx >= 0) {
+        existing[idx] = {
+          ...existing[idx],
+          moves: updater(existing[idx].moves || []),
+        };
+      } else {
+        const nameMap: Record<EnemyBehaviorCondition, string> = {
+          normal: 'Normal Behaviour',
+          below_half_hp: 'Enraged (< 50% HP)',
+          last_standing: 'Last Stand',
+        };
+        existing.push({
+          id: condition,
+          name: nameMap[condition],
+          condition,
+          moves: updater([]),
+        });
+      }
+      return { ...en, behaviors: existing };
+    });
+  };
+
+  const enableBehaviorCondition = (condition: EnemyBehaviorCondition) => {
+    const nameMap: Record<EnemyBehaviorCondition, string> = {
+      normal: 'Normal Behaviour',
+      below_half_hp: 'Enraged (< 50% HP)',
+      last_standing: 'Last Stand',
+    };
+    updateActiveEnemy((en) => {
+      const existing = en.behaviors ? [...en.behaviors] : [];
+      if (!existing.some((b) => b.condition === condition)) {
+        const starterMoves: EnemyMove[] =
+          en.moves && en.moves.length > 0
+            ? JSON.parse(JSON.stringify(en.moves))
+            : [
+                syncEnemyMoveStats({
+                  id: `${condition}_move_1`,
+                  name: condition === 'below_half_hp' ? 'Enraged Slam' : 'Desperate Strike',
+                  intent: 'attack',
+                  weight: 50,
+                  damage: condition === 'below_half_hp' ? 12 : 10,
+                  effects: [
+                    {
+                      type: 'damage',
+                      amount: condition === 'below_half_hp' ? 12 : 10,
+                      target: 'player',
+                      hits: 1,
+                    },
+                  ],
+                }),
+              ];
+        existing.push({
+          id: condition,
+          name: nameMap[condition],
+          condition,
+          moves: starterMoves,
+        });
+      }
+      return { ...en, behaviors: existing };
+    });
+    setSelectedBehaviorCondition(condition);
+  };
+
+  const removeBehaviorCondition = (condition: EnemyBehaviorCondition) => {
+    updateActiveEnemy((en) => {
+      if (!en.behaviors) return en;
+      const nextBehaviors = en.behaviors.filter((b) => b.condition !== condition);
+      return {
+        ...en,
+        behaviors: nextBehaviors.length > 0 ? nextBehaviors : undefined,
+      };
+    });
+    setSelectedBehaviorCondition('normal');
   };
 
   const handleAddNewEnemy = () => {
@@ -1353,36 +1462,142 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
               </div>
             </section>
 
-            {/* Enemy Moves Section */}
+            {/* Enemy Moves & Behaviors Section */}
             <section className="dev-section-card">
               <div className="dev-section-header">
-                <h3>⚔️ Enemy Moves & Intents ({activeEnemy.moves.length})</h3>
+                <div>
+                  <h3 style={{ margin: 0 }}>🎭 Enemy Behaviors & Moves</h3>
+                  <span style={{ fontSize: '0.8rem', color: '#66513d', fontWeight: 600 }}>
+                    Configure move sets for Normal behaviour, Below 1/2 HP, or Last Standing.
+                  </span>
+                </div>
+                {hasBehaviorCondition(selectedBehaviorCondition) && (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {selectedBehaviorCondition !== 'normal' && (
+                      <button
+                        type="button"
+                        className="dev-btn dev-btn-danger dev-btn-mini"
+                        onClick={() => removeBehaviorCondition(selectedBehaviorCondition)}
+                        title="Remove this behavior set (revert to normal moves)"
+                      >
+                        🗑️ Remove Phase
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="dev-btn dev-btn-add"
+                      onClick={() =>
+                        updateMovesForCondition(selectedBehaviorCondition, (moves) => [
+                          ...moves,
+                          syncEnemyMoveStats({
+                            id: `${selectedBehaviorCondition}_move_${moves.length + 1}`,
+                            name:
+                              selectedBehaviorCondition === 'below_half_hp'
+                                ? 'Enraged Attack'
+                                : selectedBehaviorCondition === 'last_standing'
+                                ? 'Desperate Strike'
+                                : 'New Attack',
+                            intent: 'attack',
+                            weight: 50,
+                            damage: selectedBehaviorCondition === 'below_half_hp' ? 10 : 6,
+                            effects: [
+                              {
+                                type: 'damage',
+                                amount: selectedBehaviorCondition === 'below_half_hp' ? 10 : 6,
+                                target: 'player',
+                                hits: 1,
+                              },
+                            ],
+                          }),
+                        ])
+                      }
+                    >
+                      + Add Move
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Behavior Selector Tabs */}
+              <div
+                className="dev-behavior-tabs"
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  margin: '12px 0 16px 0',
+                  borderBottom: '2px solid #e2d7c5',
+                  paddingBottom: 10,
+                  flexWrap: 'wrap',
+                }}
+              >
                 <button
                   type="button"
-                  className="dev-btn dev-btn-add"
-                  onClick={() =>
-                    updateActiveEnemy((en) => ({
-                      ...en,
-                      moves: [
-                        ...en.moves,
-                        syncEnemyMoveStats({
-                          id: `move_${en.moves.length + 1}`,
-                          name: 'New Attack',
-                          intent: 'attack',
-                          weight: 50,
-                          damage: 6,
-                          effects: [{ type: 'damage', amount: 6, target: 'player', hits: 1 }],
-                        }),
-                      ],
-                    }))
-                  }
+                  className={`dev-btn ${selectedBehaviorCondition === 'normal' ? 'dev-btn-active' : ''}`}
+                  onClick={() => setSelectedBehaviorCondition('normal')}
+                  style={{
+                    backgroundColor: selectedBehaviorCondition === 'normal' ? '#2ec4b6' : '#ede3d1',
+                    color: selectedBehaviorCondition === 'normal' ? '#fff' : '#2b1e16',
+                    fontWeight: 800,
+                  }}
                 >
-                  + Add Move
+                  🟢 Normal ({getMovesForCondition('normal').length} moves)
+                </button>
+                <button
+                  type="button"
+                  className={`dev-btn ${selectedBehaviorCondition === 'below_half_hp' ? 'dev-btn-active' : ''}`}
+                  onClick={() => setSelectedBehaviorCondition('below_half_hp')}
+                  style={{
+                    backgroundColor: selectedBehaviorCondition === 'below_half_hp' ? '#e11d48' : '#ede3d1',
+                    color: selectedBehaviorCondition === 'below_half_hp' ? '#fff' : '#2b1e16',
+                    fontWeight: 800,
+                  }}
+                >
+                  🩸 Below 1/2 HP {hasBehaviorCondition('below_half_hp') ? `(${getMovesForCondition('below_half_hp').length} moves)` : '(Inherits Normal)'}
+                </button>
+                <button
+                  type="button"
+                  className={`dev-btn ${selectedBehaviorCondition === 'last_standing' ? 'dev-btn-active' : ''}`}
+                  onClick={() => setSelectedBehaviorCondition('last_standing')}
+                  style={{
+                    backgroundColor: selectedBehaviorCondition === 'last_standing' ? '#d97706' : '#ede3d1',
+                    color: selectedBehaviorCondition === 'last_standing' ? '#fff' : '#2b1e16',
+                    fontWeight: 800,
+                  }}
+                >
+                  🐺 Last Enemy Standing {hasBehaviorCondition('last_standing') ? `(${getMovesForCondition('last_standing').length} moves)` : '(Inherits Normal)'}
                 </button>
               </div>
 
-              <div className="dev-moves-list">
-                {activeEnemy.moves.map((mv: EnemyMove, mIdx: number) => {
+              {!hasBehaviorCondition(selectedBehaviorCondition) ? (
+                <div
+                  style={{
+                    padding: '24px 20px',
+                    textAlign: 'center',
+                    background: '#fdfbf7',
+                    border: '2px dashed #c5b393',
+                    borderRadius: 12,
+                    margin: '8px 0',
+                  }}
+                >
+                  <p style={{ margin: '0 0 14px 0', fontSize: '0.95rem', color: '#574130', fontWeight: 600 }}>
+                    {selectedBehaviorCondition === 'below_half_hp'
+                      ? 'This enemy currently uses its Normal Behaviour when below 1/2 HP.'
+                      : 'This enemy currently uses its Normal Behaviour when it is the last enemy standing.'}
+                  </p>
+                  <button
+                    type="button"
+                    className="dev-btn dev-btn-primary"
+                    style={{ fontSize: '0.9rem', padding: '8px 18px' }}
+                    onClick={() => enableBehaviorCondition(selectedBehaviorCondition)}
+                  >
+                    {selectedBehaviorCondition === 'below_half_hp'
+                      ? '➕ Enable Below 1/2 HP Behaviour'
+                      : '➕ Enable Last Standing Behaviour'}
+                  </button>
+                </div>
+              ) : (
+                <div className="dev-moves-list">
+                  {getMovesForCondition(selectedBehaviorCondition).map((mv: EnemyMove, mIdx: number) => {
                   const moveEffects =
                     mv.effects && mv.effects.length > 0 ? mv.effects : getEnemyMoveEffects(mv);
                   return (
@@ -1394,9 +1609,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                             type="text"
                             value={mv.name}
                             onChange={(e) => {
-                              const nextMoves = [...activeEnemy.moves];
-                              nextMoves[mIdx] = { ...mv, name: e.target.value };
-                              updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                              updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                const nextMoves = [...moves];
+                                nextMoves[mIdx] = { ...mv, name: e.target.value };
+                                return nextMoves;
+                              });
                             }}
                           />
                         </label>
@@ -1405,12 +1622,14 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                           <select
                             value={mv.intent}
                             onChange={(e) => {
-                              const nextMoves = [...activeEnemy.moves];
-                              nextMoves[mIdx] = {
-                                ...mv,
-                                intent: e.target.value as EnemyIntentType,
-                              };
-                              updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                              updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                const nextMoves = [...moves];
+                                nextMoves[mIdx] = {
+                                  ...mv,
+                                  intent: e.target.value as EnemyIntentType,
+                                };
+                                return nextMoves;
+                              });
                             }}
                           >
                             {ALL_INTENTS.map((intType) => (
@@ -1426,13 +1645,15 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                             type="number"
                             value={mv.weight}
                             onChange={(e) => {
-                              const nextMoves = [...activeEnemy.moves];
-                              nextMoves[mIdx] = { ...mv, weight: Number(e.target.value) };
-                              updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                              updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                const nextMoves = [...moves];
+                                nextMoves[mIdx] = { ...mv, weight: Number(e.target.value) };
+                                return nextMoves;
+                              });
                             }}
                           />
                         </label>
-                        {activeEnemy.moves.length > 1 && (
+                        {getMovesForCondition(selectedBehaviorCondition).length > 1 && (
                           <div
                             className="dev-field"
                             style={{ alignSelf: 'flex-end', marginLeft: 'auto' }}
@@ -1442,10 +1663,9 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                               type="button"
                               className="dev-btn dev-btn-danger"
                               onClick={() => {
-                                const nextMoves = activeEnemy.moves.filter(
-                                  (_, i) => i !== mIdx
+                                updateMovesForCondition(selectedBehaviorCondition, (moves) =>
+                                  moves.filter((_, i) => i !== mIdx)
                                 );
-                                updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
                               }}
                             >
                               Remove Move
@@ -1507,9 +1727,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                   ...mv,
                                   effects: nextEffects,
                                 });
-                                const nextMoves = [...activeEnemy.moves];
-                                nextMoves[mIdx] = nextMove;
-                                updateActiveEnemy((en) => ({ ...en, moves: nextMoves }));
+                                updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                  const nextMoves = [...moves];
+                                  nextMoves[mIdx] = nextMove;
+                                  return nextMoves;
+                                });
                               }
                             }}
                           >
@@ -1586,12 +1808,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                           ...mv,
                                           effects: nextEffects,
                                         });
-                                        const nextMoves = [...activeEnemy.moves];
-                                        nextMoves[mIdx] = nextMove;
-                                        updateActiveEnemy((en) => ({
-                                          ...en,
-                                          moves: nextMoves,
-                                        }));
+                                        updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                          const nextMoves = [...moves];
+                                          nextMoves[mIdx] = nextMove;
+                                          return nextMoves;
+                                        });
                                       }}
                                     >
                                       Remove
@@ -1614,12 +1835,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                             ...mv,
                                             effects: nextEffects,
                                           });
-                                          const nextMoves = [...activeEnemy.moves];
-                                          nextMoves[mIdx] = nextMove;
-                                          updateActiveEnemy((en) => ({
-                                            ...en,
-                                            moves: nextMoves,
-                                          }));
+                                          updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                            const nextMoves = [...moves];
+                                            nextMoves[mIdx] = nextMove;
+                                            return nextMoves;
+                                          });
                                         }}
                                       >
                                         {EFFECT_TYPE_GROUPS.map((g) => (
@@ -1651,12 +1871,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                             ...mv,
                                             effects: nextEffects,
                                           });
-                                          const nextMoves = [...activeEnemy.moves];
-                                          nextMoves[mIdx] = nextMove;
-                                          updateActiveEnemy((en) => ({
-                                            ...en,
-                                            moves: nextMoves,
-                                          }));
+                                          updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                            const nextMoves = [...moves];
+                                            nextMoves[mIdx] = nextMove;
+                                            return nextMoves;
+                                          });
                                         }}
                                       />
                                     </label>
@@ -1682,12 +1901,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                             ...mv,
                                             effects: nextEffects,
                                           });
-                                          const nextMoves = [...activeEnemy.moves];
-                                          nextMoves[mIdx] = nextMove;
-                                          updateActiveEnemy((en) => ({
-                                            ...en,
-                                            moves: nextMoves,
-                                          }));
+                                          updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                            const nextMoves = [...moves];
+                                            nextMoves[mIdx] = nextMove;
+                                            return nextMoves;
+                                          });
                                         }}
                                       >
                                         <option value="player">Player (Hero)</option>
@@ -1714,12 +1932,11 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                                               ...mv,
                                               effects: nextEffects,
                                             });
-                                            const nextMoves = [...activeEnemy.moves];
-                                            nextMoves[mIdx] = nextMove;
-                                            updateActiveEnemy((en) => ({
-                                              ...en,
-                                              moves: nextMoves,
-                                            }));
+                                            updateMovesForCondition(selectedBehaviorCondition, (moves) => {
+                                              const nextMoves = [...moves];
+                                              nextMoves[mIdx] = nextMove;
+                                              return nextMoves;
+                                            });
                                           }}
                                         />
                                       </label>
@@ -1735,6 +1952,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose }) => {
                   );
                 })}
               </div>
+              )}
             </section>
           </main>
         </div>

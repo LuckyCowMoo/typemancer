@@ -5,6 +5,7 @@ import type {
   CardEffect,
   CardInstance,
   DifficultyStrings,
+  EnemyBehaviorCondition,
   EnemyDefinition,
   EnemyFaction,
   EnemyMove,
@@ -373,6 +374,15 @@ export function syncEnemyMoveStats(move: EnemyMove): EnemyMove {
  * Picks a weighted random move from an enemy's move list.
  */
 export function chooseEnemyMove(moves: EnemyMove[]): EnemyMove {
+  if (!moves || moves.length === 0) {
+    return syncEnemyMoveStats({
+      id: 'default_attack',
+      name: 'Strike',
+      intent: 'attack',
+      weight: 10,
+      damage: 5,
+    });
+  }
   const totalWeight = moves.reduce((sum, m) => sum + (m.weight || 10), 0);
   let roll = Math.random() * totalWeight;
   for (const m of moves) {
@@ -380,6 +390,68 @@ export function chooseEnemyMove(moves: EnemyMove[]): EnemyMove {
     if (roll <= 0) return syncEnemyMoveStats({ ...m });
   }
   return syncEnemyMoveStats({ ...moves[0] });
+}
+
+/**
+ * Resolves the active behavior profile for an enemy based on current battle circumstances:
+ * - 'last_standing': Sole survivor remaining in combat
+ * - 'below_half_hp': Current HP <= 50% of Max HP
+ * - 'normal': Default baseline behaviour
+ */
+export function resolveEnemyBehavior(
+  def: EnemyDefinition,
+  enemyHp: number,
+  enemyMaxHp: number,
+  totalAliveEnemies: number = 1
+): { condition: EnemyBehaviorCondition; name: string; moves: EnemyMove[] } {
+  if (def.behaviors && def.behaviors.length > 0) {
+    // 1. Check for matching conditional behaviors in the order defined
+    for (const b of def.behaviors) {
+      if (!b.moves || b.moves.length === 0) continue;
+      if (b.condition === 'last_standing' && totalAliveEnemies === 1) {
+        return { condition: 'last_standing', name: b.name || 'Last Stand', moves: b.moves };
+      }
+      if (b.condition === 'below_half_hp' && enemyHp <= enemyMaxHp * 0.5) {
+        return { condition: 'below_half_hp', name: b.name || 'Below 1/2 HP', moves: b.moves };
+      }
+    }
+
+    // 2. Fallback to normal behavior set if configured
+    const normalSet = def.behaviors.find(
+      (b) => b.condition === 'normal' && b.moves && b.moves.length > 0
+    );
+    if (normalSet) {
+      return { condition: 'normal', name: normalSet.name || 'Normal Behaviour', moves: normalSet.moves };
+    }
+  }
+
+  // 3. Fallback to default def.moves
+  return {
+    condition: 'normal',
+    name: 'Normal Behaviour',
+    moves: def.moves && def.moves.length > 0 ? def.moves : [],
+  };
+}
+
+/**
+ * Picks an enemy move and its behavior tag based on battle circumstances.
+ */
+export function chooseEnemyMoveForContext(
+  def: EnemyDefinition,
+  enemyHp: number,
+  enemyMaxHp: number,
+  totalAliveEnemies: number = 1
+): { move: EnemyMove; behavior: { condition: EnemyBehaviorCondition; name: string } } {
+  const behavior = resolveEnemyBehavior(def, enemyHp, enemyMaxHp, totalAliveEnemies);
+  const pickedMove =
+    behavior.moves.length > 0 ? chooseEnemyMove(behavior.moves) : chooseEnemyMove(def.moves);
+  return {
+    move: pickedMove,
+    behavior: {
+      condition: behavior.condition,
+      name: behavior.name,
+    },
+  };
 }
 
 /**
@@ -419,6 +491,7 @@ export function generateEncounter(
     const baseHp =
       def.minHp + Math.floor(Math.random() * Math.max(1, def.maxHp - def.minHp + 1));
     const scaledHp = Math.max(10, Math.round(baseHp * hpScale));
+    const { move, behavior } = chooseEnemyMoveForContext(def, scaledHp, scaledHp, 1);
 
     return {
       instanceId: nextUid('enemy'),
@@ -437,9 +510,22 @@ export function generateEncounter(
         plated_armor: 0,
         thorns: 0,
       },
-      currentMove: chooseEnemyMove(def.moves),
+      currentMove: move,
+      currentBehavior: behavior,
       art: def.art,
     };
+  };
+
+  const finalizeEncounter = (list: ActiveEnemy[]): ActiveEnemy[] => {
+    list.forEach((en) => {
+      const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
+      if (def) {
+        const { move, behavior } = chooseEnemyMoveForContext(def, en.hp, en.maxHp, list.length);
+        en.currentMove = move;
+        en.currentBehavior = behavior;
+      }
+    });
+    return list;
   };
 
   // Boss floor (Floor 24 or mid-boss Floor 12)
@@ -449,11 +535,11 @@ export function generateEncounter(
       // Prefer 'the_evil_wizard' on floor 24 if present
       const wizard = bosses.find((b) => b.id.includes('wizard'));
       const chosenBoss = floor >= 20 && wizard ? wizard : pickRandom(bosses);
-      return [instantiateEnemy(chosenBoss, floor >= 20 ? 1.15 : 1.0)];
+      return finalizeEncounter([instantiateEnemy(chosenBoss, floor >= 20 ? 1.15 : 1.0)]);
     }
     // Fallback if boss catalog is still loading
     const fallback = ENEMIES_CATALOG[ENEMIES_CATALOG.length - 1];
-    return [instantiateEnemy(fallback, 2.8)];
+    return finalizeEncounter([instantiateEnemy(fallback, 2.8)]);
   }
 
   // Pick one of the 3 factions with equal 1/3 probability
@@ -480,7 +566,7 @@ export function generateEncounter(
         result.push(instantiateEnemy(pickRandom(minions), hpScale * 0.85));
       }
     }
-    return result;
+    return finalizeEncounter(result);
   }
 
   // Standard Battle scaling across 24 floors (~150% StS act length)
@@ -506,7 +592,7 @@ export function generateEncounter(
     spawned.push(instantiateEnemy(def, hpScale));
   }
 
-  return spawned;
+  return finalizeEncounter(spawned);
 }
 
 /**
