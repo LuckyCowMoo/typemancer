@@ -499,8 +499,17 @@ export function App() {
           nextDraw = shuffleArray(eligibleToReshuffle);
           nextDiscard = nextDiscard.filter((c) => locked.has(c.instanceId));
         }
+        if (nextDraw.length === 0) break;
         const drawn = nextDraw.shift();
-        if (drawn) nextHand.push(drawn);
+        if (drawn) {
+          if (locked.has(drawn.instanceId)) {
+            // Guard: Never draw a card that was used or discarded this turn! Put it into nextDiscard
+            nextDiscard.push(drawn);
+            i--; // Retry this draw iteration
+            continue;
+          }
+          nextHand.push(drawn);
+        }
       }
 
       return { nextHand, nextDraw, nextDiscard };
@@ -584,7 +593,7 @@ export function App() {
 
       const shuffled = shuffleArray(currentDeck);
       const initialDrawCount = Math.min(8, 5 + bonusDraw);
-      const { nextHand, nextDraw, nextDiscard } = drawCards(initialDrawCount, [], shuffled, []);
+      const { nextHand, nextDraw, nextDiscard } = drawCards(initialDrawCount, [], shuffled, [], new Set());
 
       soundEngine.playShuffle(settings);
       soundEngine.playDrawCards(initialDrawCount, settings);
@@ -2302,7 +2311,16 @@ export function App() {
 
   const selectedCardDiscardEffect = useMemo(() => {
     if (!selectedCardResolved) return null;
-    return selectedCardResolved.effects.find((e) => e.type === 'discard') ?? null;
+    const effects = selectedCardResolved.effects || [];
+    const firstDiscardIdx = effects.findIndex((e) => e.type === 'discard');
+    if (firstDiscardIdx === -1) return null;
+    const firstDrawIdx = effects.findIndex((e) => e.type === 'draw');
+    // If draw occurs before discard (e.g. Index: draw 2, discard 1), discard happens AFTER the draw
+    // using the combat pending discard workflow so drawn cards can also be discarded.
+    if (firstDrawIdx !== -1 && firstDrawIdx < firstDiscardIdx) {
+      return null;
+    }
+    return effects[firstDiscardIdx];
   }, [selectedCardResolved]);
 
   const selectedCardRequiredDiscardCount = useMemo(() => {
@@ -3489,6 +3507,8 @@ export function App() {
         (selectedCardResolved.target === 'self' || selectedCardResolved.target === 'all_enemies')
       ) {
         const enemyMatch = evaluatedEnemies[0]?.isValidConfirm;
+        const cardDef = getCardDefinition(selectedCard.cardId);
+        const nameVariants = cardDef ? Object.values(cardDef.names) : [];
         if (
           !norm ||
           enemyMatch ||
@@ -3506,6 +3526,8 @@ export function App() {
               'all enemies',
               playerName,
               selectedCardResolved.connector,
+              selectedCardResolved.name,
+              ...nameVariants,
             ],
             'easy'
           )
@@ -4222,7 +4244,13 @@ export function App() {
             (selectedCardResolved.target === 'self' ||
               selectedCardResolved.target === 'all_enemies')
           ) {
-            pool.push(selectedCardResolved.connector, 'confirm', 'back', 'cancel');
+            pool.push(
+              selectedCardResolved.connector,
+              selectedCardResolved.name,
+              'confirm',
+              'back',
+              'cancel'
+            );
           } else {
             enemies.forEach((e) => pool.push(e.displayName));
             pool.push('back', 'cancel');
