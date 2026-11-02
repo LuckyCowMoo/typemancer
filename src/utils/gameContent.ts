@@ -212,7 +212,9 @@ export function resolveCardInstance(
       description: def.upgrade.description || def.description,
       effects: upEffects,
       burnDraft:
-        def.upgrade.burnDraft !== undefined
+        def.type === 'power'
+          ? true
+          : def.upgrade.burnDraft !== undefined
           ? def.upgrade.burnDraft
           : Boolean(def.burnDraft),
       art: def.art,
@@ -233,7 +235,7 @@ export function resolveCardInstance(
     target: deriveEffectiveTarget(def.target, def.effects),
     description: cleanCardDescriptionForPlay(def.description),
     effects: def.effects,
-    burnDraft: Boolean(def.burnDraft),
+    burnDraft: def.type === 'power' ? true : Boolean(def.burnDraft),
     art: def.art,
     sfx: def.sfx,
   };

@@ -37,7 +37,7 @@ export type EffectType =
   | 'keep_card' // Choose X card(s) in hand to keep from being discarded at the end of this turn
   | 'plated_armor'
   | 'thorns'
-  // ---- Persistent "rest of this combat" powers (stack if played more than once) ----
+  // ---- Persistent "rest of this combat" powers (once per combat) ----
   | 'power_ward_each_turn' // Gain X Ward at the start of each of your turns
   | 'power_bold_each_turn' // Gain X Bold at the start of each of your turns
   | 'power_draw_each_turn' // Draw X extra cards at the start of each of your turns

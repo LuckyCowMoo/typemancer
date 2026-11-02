@@ -23,6 +23,7 @@ export interface CardBannerProps {
   isUnaffordable?: boolean;
   isKept?: boolean;
   isDiscardCandidate?: boolean;
+  isPowerAlreadyActive?: boolean;
   priceBadge?: string;
   shopPrice?: string | number;
   subtitleOverride?: string;
@@ -212,6 +213,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   isUnaffordable = false,
   isKept = false,
   isDiscardCandidate = false,
+  isPowerAlreadyActive = false,
   priceBadge,
   shopPrice,
   subtitleOverride,
@@ -234,6 +236,9 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   // Build bottom pill rarity text: starter, common, uncommon, rare + ' · +'
   const isUpgraded = instance.upgraded || resolved.upgraded;
   let rarityText: string = resolved.rarity;
+  if (resolved.type === 'power') {
+    rarityText = `${resolved.rarity} · 1/combat`;
+  }
   if (isUpgraded) {
     rarityText += ' · +';
   }
@@ -349,6 +354,35 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           title="Choose this card to discard"
         >
           🗑️ DISCARD
+        </span>
+      )}
+
+      {/* Top-Left: Already Active Power Badge */}
+      {isPowerAlreadyActive && !isDiscardCandidate && !isKept && (
+        <span
+          className="card-power-active-badge"
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 4,
+            background: '#78350f',
+            color: '#fef3c7',
+            border: '1.5px solid #d97706',
+            borderRadius: 7,
+            padding: '2px 7px',
+            fontSize: '0.68rem',
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: '0.04em',
+            zIndex: 8,
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.35)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+          title="This power is already active this combat (usable once per combat)"
+        >
+          ⚡ ACTIVE (1/COMBAT)
         </span>
       )}
 
@@ -501,7 +535,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             color: theme.textColor,
             textAlign: 'center',
             padding: '0 4px',
-            fontSize: '0.67rem',
+            fontSize: resolved.type === 'power' ? '0.61rem' : '0.67rem',
             fontWeight: 700,
             letterSpacing: '0.02em',
             lineHeight: '17px',

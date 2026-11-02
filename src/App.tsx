@@ -242,6 +242,9 @@ export function App() {
   const [retainedCardIds, setRetainedCardIds] = useState<Set<string>>(() => new Set());
   const [pendingKeepCount, setPendingKeepCount] = useState<number>(0);
   const [pendingDiscardCount, setPendingDiscardCount] = useState<number>(0);
+  const [pendingFollowUpDraw, setPendingFollowUpDraw] = useState<number>(0);
+  const [turnLockedCardIds, setTurnLockedCardIds] = useState<Set<string>>(() => new Set());
+  const [usedPowerCardIdsThisCombat, setUsedPowerCardIdsThisCombat] = useState<Set<string>>(() => new Set());
   const [isAnimatingTurn, setIsAnimatingTurn] = useState<boolean>(false);
   const [activeProjectile, setActiveProjectile] = useState<CombatProjectile | null>(null);
   const [floatingPopups, setFloatingPopups] = useState<FloatingCombatPopup[]>([]);
@@ -432,18 +435,22 @@ export function App() {
       count: number,
       currentHand: CardInstance[],
       currentDraw: CardInstance[],
-      currentDiscard: CardInstance[]
+      currentDiscard: CardInstance[],
+      lockedCardIds?: Set<string>
     ): { nextHand: CardInstance[]; nextDraw: CardInstance[]; nextDiscard: CardInstance[] } => {
       const nextHand = [...currentHand];
       let nextDraw = [...currentDraw];
       let nextDiscard = [...currentDiscard];
+      const locked = lockedCardIds ?? turnLockedCardIds;
 
       for (let i = 0; i < count; i++) {
         if (nextHand.length >= 10) break;
         if (nextDraw.length === 0) {
-          if (nextDiscard.length === 0) break;
-          nextDraw = shuffleArray(nextDiscard);
-          nextDiscard = [];
+          // Exclude cards used or discarded this turn from mid-turn reshuffles
+          const eligibleToReshuffle = nextDiscard.filter((c) => !locked.has(c.instanceId));
+          if (eligibleToReshuffle.length === 0) break;
+          nextDraw = shuffleArray(eligibleToReshuffle);
+          nextDiscard = nextDiscard.filter((c) => locked.has(c.instanceId));
         }
         const drawn = nextDraw.shift();
         if (drawn) nextHand.push(drawn);
@@ -451,7 +458,7 @@ export function App() {
 
       return { nextHand, nextDraw, nextDiscard };
     },
-    []
+    [turnLockedCardIds]
   );
 
   const startBattle = useCallback(
@@ -536,6 +543,9 @@ export function App() {
       setRetainedCardIds(new Set());
       setPendingKeepCount(0);
       setPendingDiscardCount(0);
+      setPendingFollowUpDraw(0);
+      setTurnLockedCardIds(new Set());
+      setUsedPowerCardIdsThisCombat(new Set());
       setEnemies(spawnedEnemies);
       setSelectedCard(null);
       setFloatingPopups([]);
@@ -602,6 +612,9 @@ export function App() {
       setRetainedCardIds(new Set());
       setPendingKeepCount(0);
       setPendingDiscardCount(0);
+      setPendingFollowUpDraw(0);
+      setTurnLockedCardIds(new Set());
+      setUsedPowerCardIdsThisCombat(new Set());
       resetTypingBuffer(true);
       setScreen('reward');
     },
@@ -612,6 +625,11 @@ export function App() {
     async (cardInst: CardInstance, targetEnemy: ActiveEnemy | null, speedMult: number) => {
       const resolved = resolveCardInstance(cardInst, phraseDiff);
       const isXCost = Boolean((resolved as any).xCost || resolved.cost === -1);
+      if (resolved.type === 'power' && usedPowerCardIdsThisCombat.has(cardInst.cardId)) {
+        soundEngine.playError(settings);
+        spawnPopup('player', 'Power already active this combat!', '#ef4444');
+        return;
+      }
       if ((!isXCost && energy < resolved.cost) || isAnimatingTurn) {
         soundEngine.playError(settings);
         if (!isXCost && energy < resolved.cost) {
@@ -661,12 +679,16 @@ export function App() {
       let nextDiscard = [...discardPile];
       let nextBurn = [...burnDraftPile];
 
+      const activeTurnLockedIds = new Set(turnLockedCardIds);
+      activeTurnLockedIds.add(cardInst.instanceId);
+
       let totalDmgDealtThisCard = 0;
       let extraDraw = 0;
       let hasKeepCardEffect = false;
       let keepCardCount = 0;
       let hasDiscardChoiceEffect = false;
       let discardChoiceCount = 0;
+      let followUpDraw = 0;
 
       const scaleAmount = (raw: number): number => {
         if (difficulty !== 'extra_hard') return raw;
@@ -810,7 +832,11 @@ export function App() {
             break;
           }
           case 'draw': {
-            extraDraw += eff.amount * xMultiplier;
+            if (hasDiscardChoiceEffect) {
+              followUpDraw += eff.amount * xMultiplier;
+            } else {
+              extraDraw += eff.amount * xMultiplier;
+            }
             break;
           }
           case 'energy': {
@@ -866,6 +892,7 @@ export function App() {
               nextDiscard = [...nextDiscard, ...picked];
               soundEngine.playPageTurn(settings);
               picked.forEach((c) => {
+                activeTurnLockedIds.add(c.instanceId);
                 const def = getCardDefinition(c.cardId);
                 spawnPopup('player', `Discarded ${def.names[phraseDiff]}`, '#64748b');
               });
@@ -979,6 +1006,9 @@ export function App() {
       if (resolved.burnDraft || resolved.type === 'power') {
         soundEngine.playBurnCard(settings);
         nextBurn.push(cardInst);
+        if (resolved.type === 'power') {
+          setUsedPowerCardIdsThisCombat((prev) => new Set([...prev, cardInst.cardId]));
+        }
       } else {
         nextDiscard.push(cardInst);
       }
@@ -990,8 +1020,10 @@ export function App() {
       }
       const drawnResult =
         extraDraw > 0
-          ? drawCards(extraDraw, nextHand, drawPile, nextDiscard)
+          ? drawCards(extraDraw, nextHand, drawPile, nextDiscard, activeTurnLockedIds)
           : { nextHand, nextDraw: drawPile, nextDiscard };
+
+      setTurnLockedCardIds(activeTurnLockedIds);
 
       setEnergy(nextEnergy);
       setPlayerWard(nextWard);
@@ -1036,8 +1068,26 @@ export function App() {
         const eligible = drawnResult.nextHand;
         if (eligible.length === 0) {
           spawnPopup('player', 'No cards in hand to discard', '#64748b');
+          if (followUpDraw > 0) {
+            const drawn = drawCards(
+              followUpDraw,
+              drawnResult.nextHand,
+              drawnResult.nextDraw,
+              drawnResult.nextDiscard,
+              activeTurnLockedIds
+            );
+            setHand(drawn.nextHand);
+            setDrawPile(drawn.nextDraw);
+            setDiscardPile(drawn.nextDiscard);
+            soundEngine.playDrawCard(settings);
+            setHandAnimState('drawing');
+            window.setTimeout(() => setHandAnimState('idle'), 380);
+          }
         } else {
           setPendingDiscardCount((prev) => prev + discardChoiceCount);
+          if (followUpDraw > 0) {
+            setPendingFollowUpDraw((prev) => prev + followUpDraw);
+          }
           soundEngine.playPageTurn(settings);
           spawnPopup('player', `🗑️ Choose ${discardChoiceCount} card${discardChoiceCount > 1 ? 's' : ''} to DISCARD!`, '#e11d48');
         }
@@ -1088,6 +1138,8 @@ export function App() {
       spawnPopup,
       triggerElementParticles,
       triggerProjectile,
+      turnLockedCardIds,
+      usedPowerCardIdsThisCombat,
     ]
   );
 
@@ -1099,6 +1151,7 @@ export function App() {
     setSelectedCard(null);
     setPendingKeepCount(0);
     setPendingDiscardCount(0);
+    setPendingFollowUpDraw(0);
     resetTypingBuffer(true);
 
     const envMod = activeEnvironment?.modifiers || {};
@@ -1482,7 +1535,8 @@ export function App() {
       Math.min(10, Math.max(1, turnDrawCount)),
       keptCards,
       drawPile,
-      nextDiscardedPile
+      nextDiscardedPile,
+      new Set()
     );
 
     soundEngine.playDrawCard(settings);
@@ -1496,6 +1550,8 @@ export function App() {
     setRetainedCardIds(new Set());
     setPendingKeepCount(0);
     setPendingDiscardCount(0);
+    setPendingFollowUpDraw(0);
+    setTurnLockedCardIds(new Set());
     setEnemies(survivingEnemies);
     setHandAnimState('drawing');
     window.setTimeout(() => setHandAnimState('idle'), 420);
@@ -2494,6 +2550,22 @@ export function App() {
           setPendingDiscardCount(0);
           spawnPopup('player', 'Discarded no card', '#64748b');
           resetTypingBuffer(true);
+          if (pendingFollowUpDraw > 0) {
+            const drawn = drawCards(
+              pendingFollowUpDraw,
+              hand,
+              drawPile,
+              discardPile,
+              turnLockedCardIds
+            );
+            setHand(drawn.nextHand);
+            setDrawPile(drawn.nextDraw);
+            setDiscardPile(drawn.nextDiscard);
+            setPendingFollowUpDraw(0);
+            soundEngine.playDrawCard(settings);
+            setHandAnimState('drawing');
+            window.setTimeout(() => setHandAnimState('idle'), 380);
+          }
           return;
         }
 
@@ -2501,6 +2573,22 @@ export function App() {
         if (candidateInstances.length === 0) {
           setPendingDiscardCount(0);
           resetTypingBuffer(true);
+          if (pendingFollowUpDraw > 0) {
+            const drawn = drawCards(
+              pendingFollowUpDraw,
+              hand,
+              drawPile,
+              discardPile,
+              turnLockedCardIds
+            );
+            setHand(drawn.nextHand);
+            setDrawPile(drawn.nextDraw);
+            setDiscardPile(drawn.nextDiscard);
+            setPendingFollowUpDraw(0);
+            soundEngine.playDrawCard(settings);
+            setHandAnimState('drawing');
+            window.setTimeout(() => setHandAnimState('idle'), 380);
+          }
           return;
         }
 
@@ -2513,8 +2601,14 @@ export function App() {
         if (best && best.isValidConfirm) {
           const chosen = best.item;
           const def = getCardDefinition(chosen.cardId);
-          setHand((prev) => prev.filter((c) => c.instanceId !== chosen.instanceId));
-          setDiscardPile((prev) => [...prev, chosen]);
+          const nextHandAfterDiscard = hand.filter((c) => c.instanceId !== chosen.instanceId);
+          const nextDiscardAfterDiscard = [...discardPile, chosen];
+          const nextTurnLockedIds = new Set(turnLockedCardIds);
+          nextTurnLockedIds.add(chosen.instanceId);
+
+          setHand(nextHandAfterDiscard);
+          setDiscardPile(nextDiscardAfterDiscard);
+          setTurnLockedCardIds(nextTurnLockedIds);
           if (retainedCardIds.has(chosen.instanceId)) {
             setRetainedCardIds((prev) => {
               const next = new Set(prev);
@@ -2530,8 +2624,26 @@ export function App() {
             4
           );
           spawnPopup('player', `🗑️ Discarded "${def.names[phraseDiff]}"!`, '#e11d48');
-          setPendingDiscardCount((c) => Math.max(0, c - 1));
+          const nextRemainingCount = Math.max(0, pendingDiscardCount - 1);
+          setPendingDiscardCount(nextRemainingCount);
           resetTypingBuffer(true);
+
+          if (nextRemainingCount === 0 && pendingFollowUpDraw > 0) {
+            const drawn = drawCards(
+              pendingFollowUpDraw,
+              nextHandAfterDiscard,
+              drawPile,
+              nextDiscardAfterDiscard,
+              nextTurnLockedIds
+            );
+            setHand(drawn.nextHand);
+            setDrawPile(drawn.nextDraw);
+            setDiscardPile(drawn.nextDiscard);
+            setPendingFollowUpDraw(0);
+            soundEngine.playDrawCard(settings);
+            setHandAnimState('drawing');
+            window.setTimeout(() => setHandAnimState('idle'), 380);
+          }
           return;
         }
         soundEngine.playError(settings);
@@ -2599,6 +2711,13 @@ export function App() {
         if (bestCard && bestCard.isValidConfirm) {
           const chosenInst = bestCard.item.item;
           const resolved = bestCard.item.resolved;
+
+          if (resolved.type === 'power' && usedPowerCardIdsThisCombat.has(chosenInst.cardId)) {
+            soundEngine.playError(settings);
+            spawnPopup('player', 'Power already active this combat!', '#ef4444');
+            resetTypingBuffer(true);
+            return;
+          }
 
           if (energy < resolved.cost) {
             soundEngine.playError(settings);
@@ -3135,6 +3254,7 @@ export function App() {
     overlay,
     pendingChanceChoice,
     pendingDiscardCount,
+    pendingFollowUpDraw,
     pendingKeepCount,
     phraseDiff,
     playerName,
@@ -3156,6 +3276,8 @@ export function App() {
     triggerElementParticles,
     tutorialStep,
     typedInput,
+    turnLockedCardIds,
+    usedPowerCardIdsThisCombat,
   ]);
 
   const handleEnterRef = useRef(handleEnterSubmit);
@@ -3709,7 +3831,9 @@ export function App() {
                     const isSelected = selectedCard?.instanceId === item.instanceId;
                     const isHighlighted = highlightedCardIds.has(item.instanceId);
                     const isEnterReady = enterReadyCardId === item.instanceId;
-                    const canAfford = energy >= resolved.cost;
+                    const isPowerAlreadyActive =
+                      resolved.type === 'power' && usedPowerCardIdsThisCombat.has(item.cardId);
+                    const canAfford = energy >= resolved.cost && !isPowerAlreadyActive;
                     const isKept = retainedCardIds.has(item.instanceId);
                     const isKeepCandidate = pendingKeepCount > 0 && !isKept;
                     const isDiscardCandidate = pendingDiscardCount > 0;
@@ -3734,6 +3858,7 @@ export function App() {
                           isUnaffordable={!canAfford}
                           isKept={isKept}
                           isDiscardCandidate={isDiscardCandidate}
+                          isPowerAlreadyActive={isPowerAlreadyActive}
                           style={{
                             marginTop: idx === 0 ? 0 : `-${overlap}px`,
                             zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
@@ -3940,7 +4065,7 @@ export function App() {
                         : '...'}
                     </div>
                     {inspectedCard.type === 'power' && (
-                      <div className="inspected-burn-tag">Persistent Power (Rest of Combat)</div>
+                      <div className="inspected-burn-tag">⚡ Persistent Power (Once Per Combat)</div>
                     )}
                     {inspectedCard.burnDraft && inspectedCard.type !== 'power' && (
                       <div className="inspected-burn-tag">Once Per Combat (Burn Draft)</div>

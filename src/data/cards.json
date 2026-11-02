@@ -239,9 +239,11 @@
           "type": "power_damage_all_each_turn",
           "amount": 3
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/flamethrower.ogg"
+    "sfx": "cards/flamethrower.ogg",
+    "burnDraft": true
   },
   {
     "id": "metallicize",
@@ -283,9 +285,11 @@
           "type": "power_ward_each_turn",
           "amount": 6
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/metal_01.ogg"
+    "sfx": "cards/metal_01.ogg",
+    "burnDraft": true
   },
   {
     "id": "well_laid_plans",
@@ -335,9 +339,11 @@
           "type": "power_draw_each_turn",
           "amount": 1
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/book_01.ogg"
+    "sfx": "cards/book_01.ogg",
+    "burnDraft": true
   },
   {
     "id": "noxious_fumes",
@@ -379,9 +385,11 @@
           "type": "power_ink_burn_all_each_turn",
           "amount": 5
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/steam.ogg"
+    "sfx": "cards/steam.ogg",
+    "burnDraft": true
   },
   {
     "id": "demon_form",
@@ -423,9 +431,11 @@
           "type": "power_bold_each_turn",
           "amount": 3
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/creature_roar_01.ogg"
+    "sfx": "cards/creature_roar_01.ogg",
+    "burnDraft": true
   },
   {
     "id": "evolve",
@@ -475,9 +485,11 @@
           "type": "power_ward_each_turn",
           "amount": 3
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/enchant.ogg"
+    "sfx": "cards/enchant.ogg",
+    "burnDraft": true
   },
   {
     "id": "tools_of_the_trade",
@@ -528,9 +540,11 @@
           "type": "power_bold_each_turn",
           "amount": 1
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/metalClick.ogg"
+    "sfx": "cards/metalClick.ogg",
+    "burnDraft": true
   },
   {
     "id": "caltrops",
@@ -572,9 +586,11 @@
           "type": "thorns",
           "amount": 6
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/metal_small1.wav"
+    "sfx": "cards/metal_small1.wav",
+    "burnDraft": true
   },
   {
     "id": "berserk",
@@ -624,9 +640,11 @@
           "type": "power_energy_each_turn",
           "amount": 1
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/creature_roar_02.ogg"
+    "sfx": "cards/creature_roar_02.ogg",
+    "burnDraft": true
   },
   {
     "id": "echo_form",
@@ -677,9 +695,11 @@
           "type": "power_draw_each_turn",
           "amount": 1
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/forcepulse.ogg"
+    "sfx": "cards/forcepulse.ogg",
+    "burnDraft": true
   },
   {
     "id": "accuracy",
@@ -729,9 +749,11 @@
           "type": "power_damage_all_on_attack",
           "amount": 3
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/metalLatch.ogg"
+    "sfx": "cards/metalLatch.ogg",
+    "burnDraft": true
   },
   {
     "id": "juggernaut",
@@ -789,9 +811,11 @@
           "type": "power_ward_on_card_play",
           "amount": 3
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/metalPot1.ogg"
+    "sfx": "cards/metalPot1.ogg",
+    "burnDraft": true
   },
   {
     "id": "inflame",
@@ -841,9 +865,11 @@
           "type": "power_bold_each_turn",
           "amount": 1
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/spell_fire_01.ogg"
+    "sfx": "cards/spell_fire_01.ogg",
+    "burnDraft": true
   },
   {
     "id": "feel_no_pain",
@@ -885,9 +911,11 @@
           "type": "power_ward_on_card_play",
           "amount": 3
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/magicshield.ogg"
+    "sfx": "cards/magicshield.ogg",
+    "burnDraft": true
   },
   {
     "id": "steady_margins",
@@ -937,9 +965,11 @@
           "type": "plated_armor",
           "amount": 9
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/item_wood_01.ogg"
+    "sfx": "cards/item_wood_01.ogg",
+    "burnDraft": true
   },
   {
     "id": "flowing_quill",
@@ -989,9 +1019,11 @@
           "type": "power_draw_each_turn",
           "amount": 1
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/wind.ogg"
+    "sfx": "cards/wind.ogg",
+    "burnDraft": true
   },
   {
     "id": "rain_of_full_stops",
@@ -1041,9 +1073,11 @@
           "type": "power_ink_burn_all_each_turn",
           "amount": 2
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/forcepush.ogg"
+    "sfx": "cards/forcepush.ogg",
+    "burnDraft": true
   },
   {
     "id": "echoing_exclamations",
@@ -1085,9 +1119,11 @@
           "type": "power_damage_all_on_attack",
           "amount": 5
         }
-      ]
+      ],
+      "burnDraft": true
     },
-    "sfx": "cards/metal_ringing.wav"
+    "sfx": "cards/metal_ringing.wav",
+    "burnDraft": true
   },
   {
     "id": "wraith_form",
