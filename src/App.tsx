@@ -7,6 +7,7 @@ import {
   sortCardsByCategoryAndRarity,
 } from './components/CardBanner';
 import type { CardVisualCategory } from './components/CardBanner';
+import { renderHighlightedCardText, formatCardDescription } from './utils/textHighlight';
 import { CodexModal } from './components/CodexModal';
 import type { CodexTab } from './components/CodexModal';
 import { DevJsonEditor } from './components/DevJsonEditor';
@@ -4311,6 +4312,7 @@ export function App() {
                           isKept={isKept}
                           isDiscardCandidate={isDiscardCandidate}
                           isPowerAlreadyActive={isPowerAlreadyActive}
+                          environmentModifiers={activeEnvironment?.modifiers}
                           style={{
                             marginTop: idx === 0 ? 0 : `-${overlap}px`,
                             zIndex: isSelected || isEnterReady || isHighlighted ? 100 : idx + 1,
@@ -4607,7 +4609,14 @@ export function App() {
                       </span>
                     </div>
                     <h3 className="inspected-card-title">{inspectedCard.name}</h3>
-                    <p className="inspected-card-desc">{inspectedCard.description}</p>
+                    <p className="inspected-card-desc">
+                      {renderHighlightedCardText(
+                        formatCardDescription(getCardDefinition(inspectedCard.cardId), {
+                          environmentModifiers: activeEnvironment?.modifiers,
+                          isAlreadyUpgraded: inspectedCard.upgraded,
+                        })
+                      )}
+                    </p>
                     <div className="inspected-card-connector">
                       "{inspectedCard.name}" -{inspectedCard.connector}-{' '}
                       {inspectedCard.target === 'self' || inspectedCard.target === 'all_enemies'

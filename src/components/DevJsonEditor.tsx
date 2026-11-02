@@ -2490,7 +2490,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                 <span>
                   Card Description{' '}
                   <span style={{ fontSize: '0.72rem', color: '#9a6a3b', fontWeight: 500 }}>
-                    (Optional: Use <code>{'{+2}'}</code> or <code>{'[+2]'}</code> to define upgrade delta position)
+                    (Auto-detects numbers & keywords; optional <code>{'{+2}'}</code> or <code>{'[+2]'}</code> as backup marker)
                   </span>
                 </span>
                 <input

@@ -1,7 +1,7 @@
 import React from 'react';
-import type { CardInstance, CardRarity, PhraseDifficulty } from '../types/game';
+import type { CardInstance, CardRarity, PhraseDifficulty, BattleEnvironmentModifiers } from '../types/game';
 import { resolveCardInstance, getCardDefinition } from '../utils/gameContent';
-import { renderHighlightedCardText, formatUpgradePreviewDescription } from '../utils/textHighlight';
+import { renderHighlightedCardText, formatCardDescription } from '../utils/textHighlight';
 
 export type ResolvedCard = ReturnType<typeof resolveCardInstance>;
 export type CardVisualCategory = 'attack' | 'defence' | 'skill' | 'debuff' | 'power';
@@ -28,6 +28,7 @@ export interface CardBannerProps {
   shopPrice?: string | number;
   subtitleOverride?: string;
   showUpgradeDelta?: boolean;
+  environmentModifiers?: BattleEnvironmentModifiers;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -218,6 +219,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   shopPrice,
   subtitleOverride,
   showUpgradeDelta = false,
+  environmentModifiers,
   className = '',
   style,
 }) => {
@@ -258,9 +260,11 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   // Description dynamic font size if long description or campfire subtitle override
   const descText =
     subtitleOverride ??
-    (showUpgradeDelta
-      ? formatUpgradePreviewDescription(def)
-      : resolved.description);
+    formatCardDescription(def, {
+      showUpgradeDelta,
+      environmentModifiers,
+      isAlreadyUpgraded: instance.upgraded,
+    });
   const descFontSize = descText.length > 85 ? '0.70rem' : '0.74rem';
 
   return (
