@@ -466,6 +466,9 @@ export function App() {
   const startBattle = useCallback(
     (floorNum: number, nodeType: 'battle' | 'elite' | 'boss', currentDeck: CardInstance[], currentRelics: string[]) => {
       setActiveNodeType(nodeType);
+      if (nodeType === 'elite' || nodeType === 'boss') {
+        soundEngine.playEliteBossEntrance(settings);
+      }
       const spawnedEnemies = generateEncounter(floorNum, nodeType, phraseDiff);
 
       let startWard = 0;
@@ -537,6 +540,7 @@ export function App() {
       const { nextHand, nextDraw, nextDiscard } = drawCards(initialDrawCount, [], shuffled, []);
 
       soundEngine.playShuffle(settings);
+      soundEngine.playDrawCards(initialDrawCount, settings);
       setHand(nextHand);
       setDrawPile(nextDraw);
       setDiscardPile(nextDiscard);
@@ -601,6 +605,9 @@ export function App() {
           : 18 + Math.floor(Math.random() * 12)) + bonusGold;
       setGold((g) => g + goldEarned);
       setRewardGoldClaimed(goldEarned);
+      if (goldEarned > 0) {
+        soundEngine.playCoinClink(settings);
+      }
 
       setRewardCards(generateCardRewards(4, activeNodeType === 'elite'));
       setRewardRelics(activeNodeType === 'elite' ? generateRelicRewards(relicIds, 3) : []);
@@ -1025,8 +1032,20 @@ export function App() {
         }
       });
 
-      const killedCount = nextEnemies.filter((e) => e.hp <= 0).length;
+      const deadEnemies = nextEnemies.filter((e) => e.hp <= 0);
+      const killedCount = deadEnemies.length;
       if (killedCount > 0) {
+        if (
+          deadEnemies.some(
+            (e) =>
+              e.enemyId === 'rock_titan' ||
+              e.enemyId === 'boss_rock_mountain' ||
+              e.enemyId === 'rock_elemental' ||
+              e.enemyId === 'rock_golem'
+          )
+        ) {
+          soundEngine.playRockBossDefeat(settings);
+        }
         relicIds.forEach((rId) => {
           const rel = getRelicDefinition(rId);
           if (rel && rel.trigger === 'on_kill') {
@@ -1049,7 +1068,7 @@ export function App() {
       }
 
       if (extraDraw > 0) {
-        soundEngine.playDrawCard(settings);
+        soundEngine.playDrawCards(extraDraw, settings);
         setHandAnimState('drawing');
         window.setTimeout(() => setHandAnimState('idle'), 380);
       }
@@ -1115,7 +1134,7 @@ export function App() {
             setHand(drawn.nextHand);
             setDrawPile(drawn.nextDraw);
             setDiscardPile(drawn.nextDiscard);
-            soundEngine.playDrawCard(settings);
+            soundEngine.playDrawCards(followUpDraw, settings);
             setHandAnimState('drawing');
             window.setTimeout(() => setHandAnimState('idle'), 380);
           }
@@ -1303,6 +1322,14 @@ export function App() {
 
       if (en.hp <= 0) {
         killedByInkBurn += 1;
+        if (
+          en.enemyId === 'rock_titan' ||
+          en.enemyId === 'boss_rock_mountain' ||
+          en.enemyId === 'rock_elemental' ||
+          en.enemyId === 'rock_golem'
+        ) {
+          soundEngine.playRockBossDefeat(settings);
+        }
         continue;
       }
 
@@ -1674,6 +1701,14 @@ export function App() {
 
             if (targetEnemy.hp <= 0) {
               spawnPopup(targetEnemy.instanceId, 'Defeated!', '#e63946');
+              if (
+                targetEnemy.enemyId === 'rock_titan' ||
+                targetEnemy.enemyId === 'boss_rock_mountain' ||
+                targetEnemy.enemyId === 'rock_elemental' ||
+                targetEnemy.enemyId === 'rock_golem'
+              ) {
+                soundEngine.playRockBossDefeat(settings);
+              }
               break;
             }
           }
@@ -1842,15 +1877,16 @@ export function App() {
       }
     });
 
+    const finalTurnDraw = Math.min(10, Math.max(1, turnDrawCount));
     const { nextHand, nextDraw, nextDiscard } = drawCards(
-      Math.min(10, Math.max(1, turnDrawCount)),
+      finalTurnDraw,
       keptCards,
       drawPile,
       nextDiscardedPile,
       new Set()
     );
 
-    soundEngine.playDrawCard(settings);
+    soundEngine.playDrawCards(finalTurnDraw, settings);
     setHp(nextPlayerHp);
     setPlayerWard(newTurnWard);
     setPlayerStatuses(nextPlayerStats);
@@ -1929,6 +1965,7 @@ export function App() {
       }
 
       if (node.type === 'campfire') {
+        soundEngine.playCampfireEntrance(settings);
         setCampfireSubMode('choose');
         setCampfireSelectedCard(null);
         resetTypingBuffer(true);
@@ -1937,6 +1974,7 @@ export function App() {
       }
 
       if (node.type === 'merchant') {
+        soundEngine.playShopEntrance(settings);
         // Randomise cost of each shop item +/- 25% (range: 0.75x to 1.25x)
         const randomizePrice = (base: number): number => {
           const variance = 0.75 + Math.random() * 0.5;
@@ -2874,8 +2912,8 @@ export function App() {
             setHand(drawn.nextHand);
             setDrawPile(drawn.nextDraw);
             setDiscardPile(drawn.nextDiscard);
+            soundEngine.playDrawCards(pendingFollowUpDraw, settings);
             setPendingFollowUpDraw(0);
-            soundEngine.playDrawCard(settings);
             setHandAnimState('drawing');
             window.setTimeout(() => setHandAnimState('idle'), 380);
           }
@@ -2897,8 +2935,8 @@ export function App() {
             setHand(drawn.nextHand);
             setDrawPile(drawn.nextDraw);
             setDiscardPile(drawn.nextDiscard);
+            soundEngine.playDrawCards(pendingFollowUpDraw, settings);
             setPendingFollowUpDraw(0);
-            soundEngine.playDrawCard(settings);
             setHandAnimState('drawing');
             window.setTimeout(() => setHandAnimState('idle'), 380);
           }
@@ -2952,8 +2990,8 @@ export function App() {
             setHand(drawn.nextHand);
             setDrawPile(drawn.nextDraw);
             setDiscardPile(drawn.nextDiscard);
+            soundEngine.playDrawCards(pendingFollowUpDraw, settings);
             setPendingFollowUpDraw(0);
-            soundEngine.playDrawCard(settings);
             setHandAnimState('drawing');
             window.setTimeout(() => setHandAnimState('idle'), 380);
           }
@@ -3302,7 +3340,12 @@ export function App() {
             resetTypingBuffer(true);
             return;
           }
-          soundEngine.playCardCast(settings);
+          const isStrike = campfireSelectedCard.cardId.toLowerCase().includes('strike');
+          if (isStrike) {
+            soundEngine.playStrikeUpgrade(settings);
+          } else {
+            soundEngine.playCardCast(settings);
+          }
           triggerElementParticles(
             undefined,
             ['#137547', '#ffd166', '#d95d16'],
@@ -3338,6 +3381,7 @@ export function App() {
         const evalRem = evaluateCandidates(raw, cands, difficulty);
         if (evalRem[0] && evalRem[0].isValidConfirm) {
           soundEngine.playBurnCard(settings);
+          soundEngine.playCoinClink(settings);
           const toRemove = evalRem[0].item;
           triggerElementParticles(
             `[data-card-id="${toRemove.instanceId}"]`,
@@ -3391,6 +3435,7 @@ export function App() {
           return;
         }
         soundEngine.playDrawCard(settings);
+        soundEngine.playCoinClink(settings);
         triggerElementParticles(
           `[data-card-id="${entry.instance.instanceId}"]`,
           ['#1b7a58', '#b67d10', '#ffd166'],
@@ -3425,6 +3470,7 @@ export function App() {
           return;
         }
         soundEngine.playConfirm(settings);
+        soundEngine.playCoinClink(settings);
         triggerElementParticles(
           undefined,
           [entry.relic.art.primaryColor, entry.relic.art.secondaryColor, '#ffd166'],
@@ -5287,7 +5333,7 @@ export function App() {
                 if (codexTab === 'cards') {
                   soundEngine.playCardSound(id, settings);
                 } else {
-                  soundEngine.playKeystroke(settings);
+                  soundEngine.playCodexNav(settings);
                 }
                 setInspectedEntity(null);
               }}
@@ -5296,7 +5342,7 @@ export function App() {
                 setCodexSelectedId(null);
                 setCodexScrollOffset(0);
                 setInspectedEntity(null);
-                soundEngine.playPageTurn(settings);
+                soundEngine.playCodexNav(settings);
               }}
             />
           ) : (

@@ -1,12 +1,12 @@
 import type { ConfirmSoundProfile, GameSettings, SoundProfile } from '../types/game';
 
 export const CARD_SFX_MAP: Record<string, { sfx: string; volume?: number }> = {
-  ink_strike: { sfx: 'cards/blade_01.ogg', volume: 0.75 },
+  ink_strike: { sfx: 'cards/blade_01.wav', volume: 0.75 },
   page_ward: { sfx: 'ward_block.ogg', volume: 0.78 },
-  boulder_barrage: { sfx: 'cards/stones_01.ogg', volume: 0.85 },
-  blotting_cloud: { sfx: 'cards/magicerase.ogg', volume: 0.72 },
+  boulder_barrage: { sfx: 'cards/boulder_smash.wav', volume: 0.85 },
+  blotting_cloud: { sfx: 'spell_cast.ogg', volume: 0.75 },
   fire_breathing: { sfx: 'cards/flamethrower.ogg', volume: 0.78 },
-  metallicize: { sfx: 'cards/metal_01.ogg', volume: 0.75 },
+  metallicize: { sfx: 'cards/metal_01.wav', volume: 0.75 },
   well_laid_plans: { sfx: 'cards/book_01.ogg', volume: 0.7 },
   noxious_fumes: { sfx: 'cards/steam.ogg', volume: 0.72 },
   demon_form: { sfx: 'cards/creature_roar_01.ogg', volume: 0.82 },
@@ -16,67 +16,67 @@ export const CARD_SFX_MAP: Record<string, { sfx: string; volume?: number }> = {
   berserk: { sfx: 'cards/creature_roar_02.ogg', volume: 0.85 },
   echo_form: { sfx: 'cards/forcepulse.ogg', volume: 0.8 },
   accuracy: { sfx: 'cards/metalLatch.ogg', volume: 0.72 },
-  juggernaut: { sfx: 'cards/metalPot1.ogg', volume: 0.82 },
+  juggernaut: { sfx: 'cards/metalPot1.wav', volume: 0.82 },
   inflame: { sfx: 'cards/spell_fire_01.ogg', volume: 0.78 },
-  feel_no_pain: { sfx: 'cards/magicshield.ogg', volume: 0.75 },
-  steady_margins: { sfx: 'cards/item_wood_01.ogg', volume: 0.75 },
-  flowing_quill: { sfx: 'cards/wind.ogg', volume: 0.7 },
+  feel_no_pain: { sfx: 'cards/magicshield.wav', volume: 0.75 },
+  steady_margins: { sfx: 'cards/item_wood_01.wav', volume: 0.75 },
+  flowing_quill: { sfx: 'cards/wind_trimmed.wav', volume: 0.7 },
   rain_of_full_stops: { sfx: 'cards/forcepush.ogg', volume: 0.8 },
   echoing_exclamations: { sfx: 'cards/metal_ringing.wav', volume: 0.75 },
-  wraith_form: { sfx: 'cards/curse.ogg', volume: 0.75 },
+  wraith_form: { sfx: 'cards/curse3.ogg', volume: 0.75 },
   venomous_bite: { sfx: 'cards/bite_small.wav', volume: 0.75 },
   flurry_of_blows: { sfx: 'cards/swing3.wav', volume: 0.78 },
-  heavy_blow: { sfx: 'cards/doorClose_1.ogg', volume: 0.85 },
-  vampiric_bite: { sfx: 'cards/curse2.ogg', volume: 0.75 },
+  heavy_blow: { sfx: 'cards/doorClose_1.wav', volume: 0.85 },
+  vampiric_bite: { sfx: 'cards/curse2.wav', volume: 0.75 },
   barricade: { sfx: 'cards/bookClose.ogg', volume: 0.82 },
   twin_strike: { sfx: 'cards/swing2.wav', volume: 0.74 },
   prepare: { sfx: 'cards/bookFlip1.ogg', volume: 0.7 },
   reckless_charge: { sfx: 'cards/chop.ogg', volume: 0.82 },
-  fortify: { sfx: 'cards/chain_01.ogg', volume: 0.78 },
-  expose_weakness: { sfx: 'cards/knifeSlice.ogg', volume: 0.72 },
-  shadow_strike: { sfx: 'cards/sword_unsheathe.wav', volume: 0.75 },
+  fortify: { sfx: 'cards/chainmail1.wav', volume: 0.78 },
+  expose_weakness: { sfx: 'cards/knifeSlice.wav', volume: 0.72 },
+  shadow_strike: { sfx: 'cards/knifeSlice2.wav', volume: 0.75 },
   adrenaline: { sfx: 'cards/bubble.wav', volume: 0.75 },
   shield_bash: { sfx: 'cards/bookPlace1.ogg', volume: 0.8 },
-  lacerate: { sfx: 'cards/knifeSlice2.ogg', volume: 0.74 },
-  execute: { sfx: 'cards/blade_02.ogg', volume: 0.85 },
-  blur: { sfx: 'cards/wind2.ogg', volume: 0.72 },
-  defend: { sfx: 'cards/blade_03.ogg', volume: 0.75 },
+  lacerate: { sfx: 'cards/knifeSlice2.wav', volume: 0.74 },
+  execute: { sfx: 'cards/blade_guillotine.wav', volume: 0.88 },
+  blur: { sfx: 'cards/pencil_speedwrite.wav', volume: 0.74 },
+  defend: { sfx: 'cards/blade_03.wav', volume: 0.75 },
   backflip: { sfx: 'cards/bookFlip2.ogg', volume: 0.72 },
   fiery_slash: { sfx: 'cards/spell_fire_02.ogg', volume: 0.78 },
   weaken: { sfx: 'cards/steam.ogg', volume: 0.7 },
   corrosive_spit: { sfx: 'cards/creature_slime_01.ogg', volume: 0.78 },
-  toxic_dart: { sfx: 'cards/shot.ogg', volume: 0.75 },
+  toxic_dart: { sfx: 'cards/shot.wav', volume: 0.76 },
   cleave: { sfx: 'cards/swing.wav', volume: 0.8 },
   meteor_smash: { sfx: 'cards/explode.ogg', volume: 0.9 },
   warcry: { sfx: 'cards/creature_monster_01.ogg', volume: 0.8 },
-  quick_slash: { sfx: 'cards/drawKnife1.ogg', volume: 0.74 },
+  quick_slash: { sfx: 'cards/quick_slash.wav', volume: 0.74 },
   outmaneuver: { sfx: 'cards/clothBelt.ogg', volume: 0.7 },
-  panic_button: { sfx: 'cards/metalPot2.ogg', volume: 0.82 },
+  panic_button: { sfx: 'cards/metalPot2.wav', volume: 0.82 },
   draining_touch: { sfx: 'cards/curse3.ogg', volume: 0.74 },
-  thunder_strike: { sfx: 'cards/zap.ogg', volume: 0.82 },
+  thunder_strike: { sfx: 'cards/zap.wav', volume: 0.82 },
   concentrate: { sfx: 'cards/spell_fire_03.ogg', volume: 0.76 },
   expertise: { sfx: 'cards/book_02.ogg', volume: 0.7 },
   iron_skin: { sfx: 'cards/chainmail1.wav', volume: 0.78 },
-  piercing_stab: { sfx: 'cards/knifeSlice.ogg', volume: 0.75 },
+  piercing_stab: { sfx: 'cards/knifeSlice.wav', volume: 0.75 },
   ink_spill: { sfx: 'cards/creature_slime_02.ogg', volume: 0.76 },
-  wild_swing: { sfx: 'cards/metalPot3.ogg', volume: 0.8 },
+  wild_swing: { sfx: 'cards/metalPot3.wav', volume: 0.8 },
   blunt_force: { sfx: 'cards/bookPlace2.ogg', volume: 0.82 },
   sweeping_blow: { sfx: 'cards/clothBelt2.ogg', volume: 0.74 },
-  sunder: { sfx: 'cards/cloth4.ogg', volume: 0.78 },
-  smoke_bomb: { sfx: 'cards/magicdrop.ogg', volume: 0.74 },
+  sunder: { sfx: 'cards/paper_tear.wav', volume: 0.82 },
+  smoke_bomb: { sfx: 'cards/magicdrop.wav', volume: 0.74 },
   tactics: { sfx: 'cards/beltHandle1.ogg', volume: 0.7 },
-  entrench: { sfx: 'cards/chain_02.ogg', volume: 0.82 },
-  catalyst: { sfx: 'cards/bottle.wav', volume: 0.78 },
-  empower: { sfx: 'cards/blessing.ogg', volume: 0.8 },
-  bandaging: { sfx: 'cards/heal.ogg', volume: 0.82 },
+  entrench: { sfx: 'cards/bookClose.ogg', volume: 0.82 },
+  catalyst: { sfx: 'cards/bubble.wav', volume: 0.78 },
+  empower: { sfx: 'cards/enchant.ogg', volume: 0.8 },
+  bandaging: { sfx: 'cards/heal.wav', volume: 0.78 },
   meditate: { sfx: 'cards/blessing2.ogg', volume: 0.76 },
   calculated_gamble: { sfx: 'cards/bookFlip3.ogg', volume: 0.72 },
   acrobatics: { sfx: 'cards/book_03.ogg', volume: 0.7 },
   dodge: { sfx: 'cards/cloth1.ogg', volume: 0.68 },
   deflect: { sfx: 'cards/spell_01.ogg', volume: 0.78 },
-  deep_breath: { sfx: 'cards/wind.ogg', volume: 0.68 },
+  deep_breath: { sfx: 'cards/wind_trimmed.wav', volume: 0.68 },
   final_draft: { sfx: 'cards/explode1.ogg', volume: 0.88 },
-  blank_page_sanctuary: { sfx: 'cards/blessing3.ogg', volume: 0.82 },
+  blank_page_sanctuary: { sfx: 'cards/blessing3.wav', volume: 0.82 },
   bookmark: { sfx: 'cards/bookFlip1.ogg', volume: 0.75 },
   dog_ear: { sfx: 'cards/bookFlip2.ogg', volume: 0.75 },
 };
@@ -85,7 +85,33 @@ class SoundEngine {
   private ctx: AudioContext | null = null;
   private sampleCache: Map<string, HTMLAudioElement> = new Map();
 
-  private playSample(
+  // Multi-sample pools for natural acoustic typing variations
+  private typewriterSamples: string[] = [
+    'typing/typewriter_1.wav',
+    'typing/typewriter_2.wav',
+    'typing/typewriter_3.wav',
+    'typing/typewriter_4.wav',
+  ];
+  private keyboardSamples: string[] = [
+    'typing/keyboard_1.wav',
+    'typing/keyboard_2.wav',
+    'typing/keyboard_3.wav',
+    'typing/keyboard_4.wav',
+  ];
+  private quillSamples: string[] = [
+    'typing/quill_1.wav',
+    'typing/quill_2.wav',
+    'typing/quill_3.wav',
+    'typing/quill_4.wav',
+  ];
+  private chalkSamples: string[] = [
+    'typing/chalk_1.wav',
+    'typing/chalk_2.wav',
+    'typing/chalk_3.wav',
+    'typing/chalk_4.wav',
+  ];
+
+  public playSample(
     filename: string,
     settings: GameSettings,
     volumeMultiplier = 0.65,
@@ -103,7 +129,7 @@ class SoundEngine {
       const instance = baseAudio.cloneNode(true) as HTMLAudioElement;
       instance.volume = Math.min(1, Math.max(0, settings.volume * volumeMultiplier));
       if (rateJitter > 0) {
-        instance.playbackRate = 1 + (Math.random() * 2 - 1) * rateJitter;
+        instance.playbackRate = Math.max(0.6, 1 + (Math.random() * 2 - 1) * rateJitter);
       }
       instance.play().catch(() => {});
     } catch {
@@ -115,8 +141,21 @@ class SoundEngine {
     this.playSample('shuffle.wav', settings, 0.7, 0.04);
   }
 
+  /**
+   * Play card draw sound effect.
+   * When drawing multiple cards, plays a rapid staggered cascade with slight pitch variation.
+   */
+  public playDrawCards(count: number, settings: GameSettings): void {
+    const total = Math.max(1, Math.min(10, count));
+    for (let i = 0; i < total; i++) {
+      window.setTimeout(() => {
+        this.playSample('draw.wav', settings, 0.52, 0.12);
+      }, i * 65);
+    }
+  }
+
   public playDrawCard(settings: GameSettings): void {
-    this.playSample('draw.wav', settings, 0.55, 0.08);
+    this.playDrawCards(1, settings);
   }
 
   public playCardCast(settings: GameSettings): void {
@@ -126,10 +165,43 @@ class SoundEngine {
   /**
    * Plays the distinctive custom sound effect assigned to a specific card,
    * layering in the subtle tactile card flick for satisfying audio feedback.
+   * Handles special audio processing for Twin Strike, Echo cards, and Flurry.
    */
   public playCardSound(cardId: string, settings: GameSettings, sfxOverride?: string): void {
     // Subtle physical card flick sound
     this.playCardCast(settings);
+
+    // Twin strike / double tap: play twice with offset
+    if (cardId === 'twin_strike' || cardId.includes('twin') || cardId.includes('double')) {
+      const sfx = sfxOverride || CARD_SFX_MAP[cardId]?.sfx || 'cards/swing2.wav';
+      this.playSample(sfx, settings, 0.75, 0.04);
+      window.setTimeout(() => {
+        this.playSample(sfx, settings, 0.72, 0.08);
+      }, 110);
+      return;
+    }
+
+    // Echo card: apply multi-tap echo processing
+    if (cardId === 'echoing_exclamations' || cardId === 'echo_form') {
+      const sfx = sfxOverride || CARD_SFX_MAP[cardId]?.sfx || 'cards/metal_ringing.wav';
+      this.playSample(sfx, settings, 0.78, 0.02);
+      window.setTimeout(() => {
+        this.playSample(sfx, settings, 0.44, 0.05);
+      }, 140);
+      window.setTimeout(() => {
+        this.playSample(sfx, settings, 0.22, 0.08);
+      }, 290);
+      return;
+    }
+
+    // Flurry of blows: play rapid triple swing
+    if (cardId === 'flurry_of_blows') {
+      const sfx = sfxOverride || CARD_SFX_MAP[cardId]?.sfx || 'cards/swing3.wav';
+      this.playSample(sfx, settings, 0.76, 0.04);
+      window.setTimeout(() => this.playSample(sfx, settings, 0.7, 0.06), 85);
+      window.setTimeout(() => this.playSample(sfx, settings, 0.65, 0.09), 175);
+      return;
+    }
 
     // If an explicit SFX is provided (e.g. from editor or card JSON definition), play that directly
     if (sfxOverride) {
@@ -145,7 +217,7 @@ class SoundEngine {
     }
 
     // Default fallback
-    this.playSample('cards/blade_01.ogg', settings, 0.7, 0.05);
+    this.playSample('cards/blade_01.wav', settings, 0.7, 0.05);
   }
 
   /**
@@ -242,11 +314,66 @@ class SoundEngine {
   }
 
   public playHit(settings: GameSettings): void {
-    this.playSample('attack_hit.ogg', settings, 0.65, 0.08);
+    this.playSample('attack_hit.wav', settings, 0.72, 0.08);
   }
 
   public playWardBlock(settings: GameSettings): void {
     this.playSample('ward_block.ogg', settings, 0.65, 0.06);
+  }
+
+  /**
+   * UI sound for navigating in the Codex (changing tabs or selecting entries).
+   * Uses drawKnife1.ogg with slight pitch randomization.
+   */
+  public playCodexNav(settings: GameSettings): void {
+    this.playSample('cards/drawKnife1.ogg', settings, 0.48, 0.14);
+  }
+
+  /**
+   * Special entrance audio when entering the Merchant / Shop.
+   * Layers the divine choir tone with merchant counter pebbles and coin clinks.
+   */
+  public playShopEntrance(settings: GameSettings): void {
+    this.playSample('cards/blessing.ogg', settings, 0.65, 0.02);
+    window.setTimeout(() => {
+      this.playSample('cards/stones_01.ogg', settings, 0.5, 0.08);
+      this.playSample('cards/chain_01.ogg', settings, 0.6, 0.06);
+    }, 180);
+  }
+
+  /**
+   * Peaceful restorative chime when entering the Campfire rest site.
+   */
+  public playCampfireEntrance(settings: GameSettings): void {
+    this.playSample('cards/blessing2.ogg', settings, 0.72, 0.02);
+  }
+
+  /**
+   * Ominous dark curse omen played on entering an Elite or Boss battle.
+   */
+  public playEliteBossEntrance(settings: GameSettings): void {
+    this.playSample('cards/curse.ogg', settings, 0.75, 0.03);
+  }
+
+  /**
+   * Transaction coin clink played when gaining or spending gold at the Merchant.
+   */
+  public playCoinClink(settings: GameSettings): void {
+    this.playSample('cards/chain_01.ogg', settings, 0.65, 0.08);
+  }
+
+  /**
+   * Heavy boulder explosive shatter played when high-tier rock enemies are defeated.
+   */
+  public playRockBossDefeat(settings: GameSettings): void {
+    this.playSample('cards/explode1.ogg', settings, 0.85, 0.04);
+  }
+
+  /**
+   * Resonant steel draw played when upgrading a Strike card.
+   */
+  public playStrikeUpgrade(settings: GameSettings): void {
+    this.playSample('cards/sword_unsheathe.wav', settings, 0.8, 0.04);
   }
 
   /**
@@ -291,154 +418,54 @@ class SoundEngine {
     return this.ctx;
   }
 
+  /**
+   * Authentic tactile typing sound execution using multi-sampled acoustic audio files.
+   * Completely replaces 8-bit synthetic oscillators with realistic typewriter and keyboard clicks!
+   */
   public playKeystroke(settings: GameSettings): void {
     if (settings.muted || settings.volume <= 0) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
 
-    const now = ctx.currentTime;
-    const gain = ctx.createGain();
-    gain.connect(ctx.destination);
-
-    const vol = Math.min(1, Math.max(0, settings.volume)) * 0.25;
     const profile: SoundProfile = settings.typingSound;
+    let pool: string[];
+    let volMult = 0.52;
 
     if (profile === 'mechanical_typewriter') {
-      // Crisp metallic striker click + short low thud
-      const osc = ctx.createOscillator();
-      osc.type = 'triangle';
-      const pitchJitter = 750 + Math.random() * 180;
-      osc.frequency.setValueAtTime(pitchJitter, now);
-      osc.frequency.exponentialRampToValueAtTime(110, now + 0.045);
-
-      gain.gain.setValueAtTime(vol, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
-
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.05);
+      pool = this.typewriterSamples;
+      volMult = 0.54;
     } else if (profile === 'vintage_telegraph') {
-      const osc = ctx.createOscillator();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(520 + Math.random() * 60, now);
-      osc.frequency.exponentialRampToValueAtTime(220, now + 0.035);
-
-      gain.gain.setValueAtTime(vol * 0.7, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.04);
+      pool = this.keyboardSamples;
+      volMult = 0.52;
     } else if (profile === 'arcane_quill') {
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(980 + Math.random() * 240, now);
-      osc.frequency.exponentialRampToValueAtTime(1400, now + 0.04);
-
-      gain.gain.setValueAtTime(vol * 0.5, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.045);
+      pool = this.quillSamples;
+      volMult = 0.48;
     } else {
-      // soft_chalk
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(340 + Math.random() * 70, now);
-      osc.frequency.exponentialRampToValueAtTime(180, now + 0.03);
-
-      gain.gain.setValueAtTime(vol * 0.6, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.035);
+      pool = this.chalkSamples;
+      volMult = 0.46;
     }
+
+    const sample = pool[Math.floor(Math.random() * pool.length)];
+    this.playSample(sample, settings, volMult, 0.08);
   }
 
   public playBackspace(settings: GameSettings): void {
     if (settings.muted || settings.volume <= 0) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
-
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(260, now);
-    osc.frequency.exponentialRampToValueAtTime(120, now + 0.05);
-
-    gain.gain.setValueAtTime(settings.volume * 0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.055);
+    // Tactile reverse mechanical key click
+    this.playSample('typing/keyboard_3.wav', settings, 0.42, 0.12);
   }
 
   public playConfirm(settings: GameSettings): void {
     if (settings.muted || settings.volume <= 0) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
-
-    const now = ctx.currentTime;
-    const vol = Math.min(1, Math.max(0, settings.volume)) * 0.35;
     const profile: ConfirmSoundProfile = settings.confirmSound;
 
     if (profile === 'carriage_bell') {
-      // Classic bright typewriter carriage return bell ("ding!")
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc1.type = 'sine';
-      osc2.type = 'triangle';
-      osc1.frequency.setValueAtTime(1760, now); // A6
-      osc2.frequency.setValueAtTime(3520, now); // Harmonic
-
-      gain.gain.setValueAtTime(vol, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
-
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc1.start(now);
-      osc2.start(now);
-      osc1.stop(now + 0.4);
-      osc2.stop(now + 0.4);
+      // Classic typewriter carriage return bell ding & slide
+      this.playSample('typing/carriage_bell.wav', settings, 0.72, 0.03);
     } else if (profile === 'spell_chime') {
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
-      notes.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        const start = now + idx * 0.045;
-        osc.frequency.setValueAtTime(freq, start);
-        gain.gain.setValueAtTime(vol * 0.6, start);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(start);
-        osc.stop(start + 0.26);
-      });
+      // Resonant harmonic enchantment chime
+      this.playSample('cards/enchant.ogg', settings, 0.68, 0.04);
     } else {
-      // heavy_stamp
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.exponentialRampToValueAtTime(55, now + 0.14);
-
-      gain.gain.setValueAtTime(vol, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.16);
+      // Heavy wax seal book thud
+      this.playSample('cards/doorClose_1.wav', settings, 0.75, 0.05);
     }
   }
 
@@ -452,10 +479,11 @@ class SoundEngine {
     const gain = ctx.createGain();
 
     osc.type = 'sawtooth';
+    const vol = Math.min(1, Math.max(0, settings.volume)) * 0.22;
     osc.frequency.setValueAtTime(160, now);
     osc.frequency.setValueAtTime(135, now + 0.08);
 
-    gain.gain.setValueAtTime(settings.volume * 0.25, now);
+    gain.gain.setValueAtTime(vol, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
     osc.connect(gain);

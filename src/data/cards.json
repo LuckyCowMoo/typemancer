@@ -41,7 +41,7 @@
         }
       ]
     },
-    "sfx": "cards/blade_01.ogg"
+    "sfx": "cards/blade_01.wav"
   },
   {
     "id": "page_ward",
@@ -137,7 +137,7 @@
         }
       ]
     },
-    "sfx": "cards/stones_01.ogg"
+    "sfx": "cards/boulder_smash.wav"
   },
   {
     "id": "blotting_cloud",
@@ -189,7 +189,7 @@
         }
       ]
     },
-    "sfx": "cards/magicerase.ogg"
+    "sfx": "spell_cast.ogg"
   },
   {
     "id": "fire_breathing",
@@ -288,7 +288,7 @@
       ],
       "burnDraft": true
     },
-    "sfx": "cards/metal_01.ogg",
+    "sfx": "cards/metal_01.wav",
     "burnDraft": true
   },
   {
@@ -914,7 +914,7 @@
       ],
       "burnDraft": true
     },
-    "sfx": "cards/magicshield.ogg",
+    "sfx": "cards/magicshield.wav",
     "burnDraft": true
   },
   {
@@ -968,7 +968,7 @@
       ],
       "burnDraft": true
     },
-    "sfx": "cards/item_wood_01.ogg",
+    "sfx": "cards/item_wood_01.wav",
     "burnDraft": true
   },
   {
@@ -1022,7 +1022,7 @@
       ],
       "burnDraft": true
     },
-    "sfx": "cards/wind.ogg",
+    "sfx": "cards/wind_trimmed.wav",
     "burnDraft": true
   },
   {
@@ -1323,7 +1323,7 @@
         }
       ]
     },
-    "sfx": "cards/doorClose_1.ogg"
+    "sfx": "cards/doorClose_1.wav"
   },
   {
     "id": "vampiric_bite",
@@ -1376,7 +1376,7 @@
         }
       ]
     },
-    "sfx": "cards/curse2.ogg"
+    "sfx": "cards/curse2.wav"
   },
   {
     "id": "barricade",
@@ -1623,7 +1623,7 @@
         }
       ]
     },
-    "sfx": "cards/chain_01.ogg"
+    "sfx": "cards/chainmail1.wav"
   },
   {
     "id": "expose_weakness",
@@ -1675,7 +1675,7 @@
         }
       ]
     },
-    "sfx": "cards/knifeSlice.ogg"
+    "sfx": "cards/knifeSlice.wav"
   },
   {
     "id": "shadow_strike",
@@ -1882,7 +1882,7 @@
         }
       ]
     },
-    "sfx": "cards/knifeSlice2.ogg"
+    "sfx": "cards/knifeSlice2.wav"
   },
   {
     "id": "execute",
@@ -1929,7 +1929,7 @@
         }
       ]
     },
-    "sfx": "cards/blade_02.ogg"
+    "sfx": "cards/blade_guillotine.wav"
   },
   {
     "id": "blur",
@@ -1981,7 +1981,7 @@
         }
       ]
     },
-    "sfx": "cards/wind2.ogg"
+    "sfx": "cards/pencil_speedwrite.wav"
   },
   {
     "id": "defend",
@@ -2025,7 +2025,7 @@
         }
       ]
     },
-    "sfx": "cards/blade_03.ogg"
+    "sfx": "cards/blade_03.wav"
   },
   {
     "id": "backflip",
@@ -2294,7 +2294,7 @@
         }
       ]
     },
-    "sfx": "cards/shot.ogg"
+    "sfx": "cards/shot.wav"
   },
   {
     "id": "cleave",
@@ -2489,7 +2489,7 @@
         }
       ]
     },
-    "sfx": "cards/drawKnife1.ogg"
+    "sfx": "cards/quick_slash.wav"
   },
   {
     "id": "outmaneuver",
@@ -2702,7 +2702,7 @@
         }
       ]
     },
-    "sfx": "cards/zap.ogg"
+    "sfx": "cards/zap.wav"
   },
   {
     "id": "concentrate",
@@ -2904,7 +2904,7 @@
         }
       ]
     },
-    "sfx": "cards/knifeSlice.ogg"
+    "sfx": "cards/knifeSlice.wav"
   },
   {
     "id": "ink_spill",
@@ -3153,7 +3153,7 @@
         }
       ]
     },
-    "sfx": "cards/cloth4.ogg"
+    "sfx": "cards/paper_tear.wav"
   },
   {
     "id": "smoke_bomb",
@@ -3209,7 +3209,7 @@
         }
       ]
     },
-    "sfx": "cards/magicdrop.ogg"
+    "sfx": "cards/magicdrop.wav"
   },
   {
     "id": "tactics",
@@ -3312,7 +3312,7 @@
         }
       ]
     },
-    "sfx": "cards/chain_02.ogg"
+    "sfx": "cards/bookClose.ogg"
   },
   {
     "id": "catalyst",
@@ -3406,7 +3406,7 @@
         }
       ]
     },
-    "sfx": "cards/blessing.ogg"
+    "sfx": "cards/enchant.ogg"
   },
   {
     "id": "bandaging",
@@ -3451,7 +3451,7 @@
         }
       ]
     },
-    "sfx": "cards/heal.ogg"
+    "sfx": "cards/heal.wav"
   },
   {
     "id": "meditate",
@@ -3762,7 +3762,7 @@
         }
       ]
     },
-    "sfx": "cards/wind.ogg"
+    "sfx": "cards/wind_trimmed.wav"
   },
   {
     "id": "final_draft",
@@ -3862,7 +3862,7 @@
         }
       ]
     },
-    "sfx": "cards/blessing3.ogg"
+    "sfx": "cards/blessing3.wav"
   },
   {
     "id": "bookmark",
@@ -4022,7 +4022,7 @@
       ],
       "burnDraft": true
     },
-    "sfx": "cards/cardTakeOutPackage1.ogg"
+    "sfx": "cards/bookFlip1.ogg"
   },
   {
     "id": "fold_tiger",
