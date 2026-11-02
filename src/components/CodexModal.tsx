@@ -573,30 +573,9 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           overflow: hidden;
         }
 
-        /* Left Inspector Panel (Fully visible without scrolling) */
-        .codex-inspector-pane {
-          flex: 0 0 320px;
-          width: 320px;
-          background: #faf4e6;
-          padding: 12px 14px;
-          overflow-y: auto;
-          box-sizing: border-box;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          border-right: 2px solid #2b1e16;
-          transition: width 0.2s ease, flex 0.2s ease;
-        }
-
-        .codex-inspector-pane.compact-inspector {
-          flex: 0 0 280px;
-          width: 280px;
-          padding: 10px 12px;
-        }
-
-        /* Right / Main Grid (All discovered & undiscovered entries) */
+        /* Left / Main Grid (All discovered & undiscovered entries) */
         .codex-grid-pane {
-          flex: 1 1 0;
+          flex: 1 1 58%;
           min-width: 0;
           overflow-y: auto;
           padding: 14px 16px 0 16px;
@@ -604,11 +583,33 @@ export const CodexModal: React.FC<CodexModalProps> = ({
           display: flex;
           flex-direction: column;
           position: relative;
+          border-right: 2px solid #2b1e16;
         }
 
         .codex-grid-pane.compact-grid {
-          flex: 1 1 32%;
+          flex: 1 1 35%;
           min-width: 220px;
+        }
+
+        /* Right Inspector Panel (Fully visible without scrolling) */
+        .codex-inspector-pane {
+          flex: 0 0 330px;
+          width: 330px;
+          background: #faf4e6;
+          padding: 12px 14px;
+          overflow-y: auto;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          transition: width 0.2s ease, flex 0.2s ease;
+        }
+
+        .codex-inspector-pane.compact-inspector {
+          flex: 0 0 280px;
+          width: 280px;
+          padding: 10px 12px;
+          border-right: 2px solid #2b1e16;
         }
 
         .codex-entry-grid {
@@ -1052,220 +1053,7 @@ export const CodexModal: React.FC<CodexModalProps> = ({
 
           {/* Two/Three-Pane Body */}
           <div className="codex-main-body">
-            {/* Left Inspector Panel (Fully visible without scrolling) */}
-            <div className={`codex-inspector-pane ${showEnemyStatusSidePanel ? 'compact-inspector' : ''}`}>
-              {!currentInspectItem ? (
-                <div className="inspector-empty-state">
-                  <span>✨</span>
-                  <p>No discovered entries in this compendium yet. Explore more floors to unlock!</p>
-                </div>
-              ) : !isCurrentItemDiscovered ? (
-                <div className="inspector-content-box inspector-undiscovered-box">
-                  <div className="inspector-art-spotlight undiscovered-spotlight">
-                    <div className="inspector-undiscovered-icon-frame">
-                      <span className="inspector-undiscovered-glyph">?</span>
-                    </div>
-                    <div className="inspector-title" style={{ color: '#7c674d', letterSpacing: '0.12em' }}>
-                      ???
-                    </div>
-                    <div className="inspector-meta-row">
-                      <span
-                        className="inspector-meta-pill"
-                        style={{
-                          fontStyle: 'italic',
-                          background: '#ece3d4',
-                          color: '#7c674d',
-                          borderColor: '#c4b5a0',
-                        }}
-                      >
-                        Uncharted Knowledge
-                      </span>
-                      <span
-                        className="inspector-meta-pill"
-                        style={{
-                          background: '#ece3d4',
-                          color: '#7c674d',
-                          borderColor: '#c4b5a0',
-                        }}
-                      >
-                        Locked
-                      </span>
-                    </div>
-                  </div>
-
-                  <div
-                    className="inspector-description-box"
-                    style={{
-                      borderColor: '#c4b5a0',
-                      background: 'rgba(234, 223, 206, 0.4)',
-                    }}
-                  >
-                    <div className="inspector-description-label" style={{ color: '#8c7b6c' }}>
-                      Compendium Record
-                    </div>
-                    <div style={{ color: '#574837', fontStyle: 'italic', lineHeight: 1.45, fontSize: '0.82rem' }}>
-                      This subject has not yet been discovered on your journeys. Continue venturing through the dungeon floors to reveal its identity, lore, and combat stats.
-                    </div>
-                  </div>
-                </div>
-              ) : activeTab === 'monsters' ? (
-                (() => {
-                  const en = currentInspectItem as EnemyDefinition;
-                  const primaryName = en.namePools[phraseDiff]?.[0] || en.namePools.easy[0];
-                  const avgHp = Math.round((en.minHp + en.maxHp) / 2);
-                  const isEliteEnemy = en.role === 'elite';
-                  const scaleFactor = calculateEnemySpriteScale(avgHp, isEliteEnemy);
-                  const spriteW = Math.round(96 * scaleFactor);
-                  const spriteH = Math.round(96 * scaleFactor);
-                  return (
-                    <div className="inspector-content-box">
-                      <div className="inspector-art-spotlight">
-                        <span className="inspector-tier-corner-badge">Tier {en.tier}</span>
-                        {isEliteEnemy && <span className="inspector-elite-corner-badge">💀 Elite</span>}
-
-                        <img
-                          src={en.art.spriteUrl || './assets/entities/goblin_skirmisher.png'}
-                          alt={primaryName}
-                          className="inspector-large-sprite"
-                          style={{
-                            width: spriteW,
-                            height: spriteH,
-                            maxWidth: 104,
-                            maxHeight: 104,
-                            transition: 'width 0.2s ease, height 0.2s ease',
-                          }}
-                        />
-                        <div className="inspector-title">{primaryName}</div>
-                        <div className="inspector-meta-row">
-                          <span className="inspector-meta-pill">
-                            Faction: {formatFaction(en.faction)}
-                          </span>
-                          <span className="inspector-meta-pill">
-                            HP: {en.minHp} – {en.maxHp}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Combat Specialty</div>
-                        <div>{en.description || 'A fearsome adversary lurking in the dungeon depths.'}</div>
-                      </div>
-
-                      <div className="inspector-names-pool-box">
-                        <div className="inspector-names-heading">
-                          Names:
-                        </div>
-                        <div className="inspector-names-chips">
-                          {en.namePools[phraseDiff]?.map((name) => (
-                            <span key={name} className="inspector-name-chip">
-                              {name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : activeTab === 'cards' ? (
-                (() => {
-                  const c = currentInspectItem as CardDefinition;
-                  const cardInstance: CardInstance = {
-                    instanceId: `codex_preview_${c.id}`,
-                    cardId: c.id,
-                    upgraded: false,
-                  };
-                  return (
-                    <div className="inspector-content-box">
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <span className={`inspector-meta-pill rarity-${c.rarity}`}>
-                          {c.rarity.toUpperCase()}
-                        </span>
-                      </div>
-
-                      <div style={{ transform: 'scale(0.96)', transformOrigin: 'top center' }}>
-                        <CardBanner instance={cardInstance} phraseDiff={phraseDiff} />
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Card Details</div>
-                        <div style={{ marginBottom: 4 }}>
-                          <strong>Cost:</strong> {c.xCost ? 'X (All remaining Energy)' : `${c.cost} Energy (⚡)`}
-                        </div>
-                        <div style={{ marginBottom: 4 }}>
-                          <strong>Type:</strong> {c.type.toUpperCase()}
-                        </div>
-                        <div>
-                          <strong>Target:</strong> {c.target.replace(/_/g, ' ')}
-                        </div>
-                      </div>
-
-                      {c.upgrade && (
-                        <div className="inspector-description-box">
-                          <div className="inspector-description-label">Upgraded Form (+)</div>
-                          <div>{renderHighlightedCardText(c.upgrade.description)}</div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()
-              ) : activeTab === 'environments' ? (
-                (() => {
-                  const env = currentInspectItem as BattleEnvironmentDefinition;
-                  return (
-                    <div className="inspector-content-box">
-                      <div className="inspector-art-spotlight">
-                        <span className="inspector-tier-corner-badge">Floors {env.minFloor ?? 1}–{env.maxFloor ?? 26}</span>
-                        <img
-                          src={env.art.spriteUrl || './assets/sprite-library/ravenmore/Map.png'}
-                          alt={env.name}
-                          className="inspector-large-sprite"
-                          style={{ maxWidth: 104, maxHeight: 104 }}
-                        />
-                        <div className="inspector-title">{env.name}</div>
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Strengthened Rules</div>
-                        <div>{env.description}</div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : activeTab === 'relics' ? (
-                (() => {
-                  const r = currentInspectItem as RelicDefinition;
-                  const relicName = r.names[phraseDiff] || r.names.easy;
-                  return (
-                    <div className="inspector-content-box">
-                      <div className="inspector-art-spotlight">
-                        <span className={`inspector-tier-corner-badge rarity-${r.rarity}`}>
-                          {r.rarity.toUpperCase()}
-                        </span>
-                        <img
-                          src={r.art.spriteUrl || './assets/relics/Ac_Medal01.png'}
-                          alt={relicName}
-                          className="inspector-large-sprite"
-                          style={{ maxWidth: 104, maxHeight: 104 }}
-                        />
-                        <div className="inspector-title">{relicName}</div>
-                        <div className="inspector-meta-row">
-                          <span className="inspector-meta-pill">
-                            Trigger: {r.trigger.replace(/_/g, ' ')}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="inspector-description-box">
-                        <div className="inspector-description-label">Relic Blessing</div>
-                        <div>{r.description}</div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : null}
-            </div>
-
-            {/* Right/Main Grid: All Discovered & Undiscovered Entries */}
+            {/* Left/Main Grid: All Discovered & Undiscovered Entries */}
             <div
               className={`codex-grid-pane ${showEnemyStatusSidePanel ? 'compact-grid' : ''}`}
               ref={gridContainerRef}
@@ -1476,6 +1264,219 @@ export const CodexModal: React.FC<CodexModalProps> = ({
                   {renderTypingInputWithCaret()}
                 </div>
               </div>
+            </div>
+
+            {/* Right Inspector Panel (Fully visible without scrolling) */}
+            <div className={`codex-inspector-pane ${showEnemyStatusSidePanel ? 'compact-inspector' : ''}`}>
+              {!currentInspectItem ? (
+                <div className="inspector-empty-state">
+                  <span>✨</span>
+                  <p>No discovered entries in this compendium yet. Explore more floors to unlock!</p>
+                </div>
+              ) : !isCurrentItemDiscovered ? (
+                <div className="inspector-content-box inspector-undiscovered-box">
+                  <div className="inspector-art-spotlight undiscovered-spotlight">
+                    <div className="inspector-undiscovered-icon-frame">
+                      <span className="inspector-undiscovered-glyph">?</span>
+                    </div>
+                    <div className="inspector-title" style={{ color: '#7c674d', letterSpacing: '0.12em' }}>
+                      ???
+                    </div>
+                    <div className="inspector-meta-row">
+                      <span
+                        className="inspector-meta-pill"
+                        style={{
+                          fontStyle: 'italic',
+                          background: '#ece3d4',
+                          color: '#7c674d',
+                          borderColor: '#c4b5a0',
+                        }}
+                      >
+                        Uncharted Knowledge
+                      </span>
+                      <span
+                        className="inspector-meta-pill"
+                        style={{
+                          background: '#ece3d4',
+                          color: '#7c674d',
+                          borderColor: '#c4b5a0',
+                        }}
+                      >
+                        Locked
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    className="inspector-description-box"
+                    style={{
+                      borderColor: '#c4b5a0',
+                      background: 'rgba(234, 223, 206, 0.4)',
+                    }}
+                  >
+                    <div className="inspector-description-label" style={{ color: '#8c7b6c' }}>
+                      Compendium Record
+                    </div>
+                    <div style={{ color: '#574837', fontStyle: 'italic', lineHeight: 1.45, fontSize: '0.82rem' }}>
+                      This subject has not yet been discovered on your journeys. Continue venturing through the dungeon floors to reveal its identity, lore, and combat stats.
+                    </div>
+                  </div>
+                </div>
+              ) : activeTab === 'monsters' ? (
+                (() => {
+                  const en = currentInspectItem as EnemyDefinition;
+                  const primaryName = en.namePools[phraseDiff]?.[0] || en.namePools.easy[0];
+                  const avgHp = Math.round((en.minHp + en.maxHp) / 2);
+                  const isEliteEnemy = en.role === 'elite';
+                  const scaleFactor = calculateEnemySpriteScale(avgHp, isEliteEnemy);
+                  const spriteW = Math.round(96 * scaleFactor);
+                  const spriteH = Math.round(96 * scaleFactor);
+                  return (
+                    <div className="inspector-content-box">
+                      <div className="inspector-art-spotlight">
+                        <span className="inspector-tier-corner-badge">Tier {en.tier}</span>
+                        {isEliteEnemy && <span className="inspector-elite-corner-badge">💀 Elite</span>}
+
+                        <img
+                          src={en.art.spriteUrl || './assets/entities/goblin_skirmisher.png'}
+                          alt={primaryName}
+                          className="inspector-large-sprite"
+                          style={{
+                            width: spriteW,
+                            height: spriteH,
+                            maxWidth: 104,
+                            maxHeight: 104,
+                            transition: 'width 0.2s ease, height 0.2s ease',
+                          }}
+                        />
+                        <div className="inspector-title">{primaryName}</div>
+                        <div className="inspector-meta-row">
+                          <span className="inspector-meta-pill">
+                            Faction: {formatFaction(en.faction)}
+                          </span>
+                          <span className="inspector-meta-pill">
+                            HP: {en.minHp} – {en.maxHp}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Combat Specialty</div>
+                        <div>{en.description || 'A fearsome adversary lurking in the dungeon depths.'}</div>
+                      </div>
+
+                      <div className="inspector-names-pool-box">
+                        <div className="inspector-names-heading">
+                          Names:
+                        </div>
+                        <div className="inspector-names-chips">
+                          {en.namePools[phraseDiff]?.map((name) => (
+                            <span key={name} className="inspector-name-chip">
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : activeTab === 'cards' ? (
+                (() => {
+                  const c = currentInspectItem as CardDefinition;
+                  const cardInstance: CardInstance = {
+                    instanceId: `codex_preview_${c.id}`,
+                    cardId: c.id,
+                    upgraded: false,
+                  };
+                  return (
+                    <div className="inspector-content-box">
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <span className={`inspector-meta-pill rarity-${c.rarity}`}>
+                          {c.rarity.toUpperCase()}
+                        </span>
+                      </div>
+
+                      <div style={{ transform: 'scale(0.96)', transformOrigin: 'top center' }}>
+                        <CardBanner instance={cardInstance} phraseDiff={phraseDiff} />
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Card Details</div>
+                        <div style={{ marginBottom: 4 }}>
+                          <strong>Cost:</strong> {c.xCost ? 'X (All remaining Energy)' : `${c.cost} Energy (⚡)`}
+                        </div>
+                        <div style={{ marginBottom: 4 }}>
+                          <strong>Type:</strong> {c.type.toUpperCase()}
+                        </div>
+                        <div>
+                          <strong>Target:</strong> {c.target.replace(/_/g, ' ')}
+                        </div>
+                      </div>
+
+                      {c.upgrade && (
+                        <div className="inspector-description-box">
+                          <div className="inspector-description-label">Upgraded Form (+)</div>
+                          <div>{renderHighlightedCardText(c.upgrade.description)}</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
+              ) : activeTab === 'environments' ? (
+                (() => {
+                  const env = currentInspectItem as BattleEnvironmentDefinition;
+                  return (
+                    <div className="inspector-content-box">
+                      <div className="inspector-art-spotlight">
+                        <span className="inspector-tier-corner-badge">Floors {env.minFloor ?? 1}–{env.maxFloor ?? 26}</span>
+                        <img
+                          src={env.art.spriteUrl || './assets/sprite-library/ravenmore/Map.png'}
+                          alt={env.name}
+                          className="inspector-large-sprite"
+                          style={{ maxWidth: 104, maxHeight: 104 }}
+                        />
+                        <div className="inspector-title">{env.name}</div>
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Strengthened Rules</div>
+                        <div>{env.description}</div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : activeTab === 'relics' ? (
+                (() => {
+                  const r = currentInspectItem as RelicDefinition;
+                  const relicName = r.names[phraseDiff] || r.names.easy;
+                  return (
+                    <div className="inspector-content-box">
+                      <div className="inspector-art-spotlight">
+                        <span className={`inspector-tier-corner-badge rarity-${r.rarity}`}>
+                          {r.rarity.toUpperCase()}
+                        </span>
+                        <img
+                          src={r.art.spriteUrl || './assets/relics/Ac_Medal01.png'}
+                          alt={relicName}
+                          className="inspector-large-sprite"
+                          style={{ maxWidth: 104, maxHeight: 104 }}
+                        />
+                        <div className="inspector-title">{relicName}</div>
+                        <div className="inspector-meta-row">
+                          <span className="inspector-meta-pill">
+                            Trigger: {r.trigger.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="inspector-description-box">
+                        <div className="inspector-description-label">Relic Blessing</div>
+                        <div>{r.description}</div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : null}
             </div>
 
             {/* Right Combat Status Side Panel (when inspecting active enemy in battle) */}
