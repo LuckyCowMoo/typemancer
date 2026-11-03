@@ -24,7 +24,7 @@ import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
 import { cleanCardDescriptionForPlay } from './textHighlight';
 
-const CATALOG_SESSION_VERSION = 'v3_cost_sort_and_tiles';
+const CATALOG_SESSION_VERSION = 'v5_events_expansion';
 
 /**
  * Loads a catalog from sessionStorage if present (retaining user edits during the current browser session),
@@ -43,6 +43,20 @@ function loadCatalogFromSession<T>(key: string, fallback: T): T {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(fallback) && Array.isArray(parsed) && parsed.length > 0) {
+        // If fallback contains items with an 'id' that are not in parsed, merge them in
+        const parsedIds = new Set(
+          parsed
+            .map((item: any) => (item && typeof item === 'object' && 'id' in item ? item.id : null))
+            .filter(Boolean)
+        );
+        const missingFromFallback = (fallback as any[]).filter(
+          (item: any) => item && typeof item === 'object' && 'id' in item && !parsedIds.has(item.id)
+        );
+        if (missingFromFallback.length > 0) {
+          const merged = [...parsed, ...missingFromFallback];
+          saveCatalogToSession(key, merged);
+          return merged as unknown as T;
+        }
         return parsed as T;
       }
       if (!Array.isArray(fallback) && parsed && typeof parsed === 'object') {

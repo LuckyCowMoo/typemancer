@@ -444,21 +444,36 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
   }, [activeTab]);
 
   // Editable state copies of all 6 JSON files
-  const [enemiesList, setEnemiesList] = useState<EnemyDefinition[]>(() =>
-    JSON.parse(JSON.stringify(ENEMIES_CATALOG))
-  );
-  const [cardsList, setCardsList] = useState<CardDefinition[]>(() =>
-    JSON.parse(JSON.stringify(CARDS_CATALOG))
-  );
-  const [relicsList, setRelicsList] = useState<RelicDefinition[]>(() =>
-    JSON.parse(JSON.stringify(RELICS_CATALOG))
-  );
-  const [environmentsList, setEnvironmentsList] = useState<BattleEnvironmentDefinition[]>(() =>
-    JSON.parse(JSON.stringify(ENVIRONMENTS_CATALOG))
-  );
-  const [eventsList, setEventsList] = useState<MysteryEventDefinition[]>(() =>
-    JSON.parse(JSON.stringify(EVENTS_CATALOG))
-  );
+  const [enemiesList, setEnemiesList] = useState<EnemyDefinition[]>(() => {
+    const catalog = JSON.parse(JSON.stringify(ENEMIES_CATALOG)) as EnemyDefinition[];
+    const existingIds = new Set(catalog.map((e) => e.id));
+    const missing = (enemiesRaw as unknown as EnemyDefinition[]).filter((e) => !existingIds.has(e.id));
+    return missing.length > 0 ? [...catalog, ...missing] : catalog;
+  });
+  const [cardsList, setCardsList] = useState<CardDefinition[]>(() => {
+    const catalog = JSON.parse(JSON.stringify(CARDS_CATALOG)) as CardDefinition[];
+    const existingIds = new Set(catalog.map((c) => c.id));
+    const missing = (cardsRaw as unknown as CardDefinition[]).filter((c) => !existingIds.has(c.id));
+    return missing.length > 0 ? [...catalog, ...missing] : catalog;
+  });
+  const [relicsList, setRelicsList] = useState<RelicDefinition[]>(() => {
+    const catalog = JSON.parse(JSON.stringify(RELICS_CATALOG)) as RelicDefinition[];
+    const existingIds = new Set(catalog.map((r) => r.id));
+    const missing = (relicsRaw as unknown as RelicDefinition[]).filter((r) => !existingIds.has(r.id));
+    return missing.length > 0 ? [...catalog, ...missing] : catalog;
+  });
+  const [environmentsList, setEnvironmentsList] = useState<BattleEnvironmentDefinition[]>(() => {
+    const catalog = JSON.parse(JSON.stringify(ENVIRONMENTS_CATALOG)) as BattleEnvironmentDefinition[];
+    const existingIds = new Set(catalog.map((e) => e.id));
+    const missing = (environmentsRaw as unknown as BattleEnvironmentDefinition[]).filter((e) => !existingIds.has(e.id));
+    return missing.length > 0 ? [...catalog, ...missing] : catalog;
+  });
+  const [eventsList, setEventsList] = useState<MysteryEventDefinition[]>(() => {
+    const catalog = JSON.parse(JSON.stringify(EVENTS_CATALOG)) as MysteryEventDefinition[];
+    const existingIds = new Set(catalog.map((e) => e.id));
+    const missing = (eventsRaw as unknown as MysteryEventDefinition[]).filter((e) => !existingIds.has(e.id));
+    return missing.length > 0 ? [...catalog, ...missing] : catalog;
+  });
   const [mapPhrases, setMapPhrases] = useState<MapPhrasesCatalog>(() =>
     JSON.parse(JSON.stringify(MAP_PHRASES))
   );
@@ -3810,6 +3825,13 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
         <div className="dev-editor-body">
           <aside className="dev-sidebar">
             <div className="dev-sidebar-top">
+              <input
+                type="text"
+                className="dev-search-input"
+                placeholder="Search events by title, id, narrative..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
               <button
                 type="button"
                 className="dev-btn dev-btn-add"
@@ -3819,35 +3841,46 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
               </button>
             </div>
             <div className="dev-item-list">
-              {eventsList.map((ev, idx) => (
-                <button
-                  key={`${ev.id}_${idx}`}
-                  type="button"
-                  className={`dev-list-item ${
-                    idx === selectedEventIdx ? 'dev-list-item-active' : ''
-                  }`}
-                  onClick={() => setSelectedEventIdx(idx)}
-                >
-                  <div className="dev-list-meta">
-                    <div className="dev-list-title">
-                      {ev.title}
-                      <span
-                        style={{
-                          fontSize: '0.74rem',
-                          opacity: 0.65,
-                          fontWeight: 600,
-                          marginLeft: '6px',
-                        }}
-                      >
-                        ({ev.choices.length} choices)
-                      </span>
+              {eventsList.map((ev, idx) => {
+                const q = searchQuery.toLowerCase().trim();
+                if (
+                  q &&
+                  !ev.id.toLowerCase().includes(q) &&
+                  !ev.title.toLowerCase().includes(q) &&
+                  !ev.narrative.toLowerCase().includes(q)
+                ) {
+                  return null;
+                }
+                return (
+                  <button
+                    key={`${ev.id}_${idx}`}
+                    type="button"
+                    className={`dev-list-item ${
+                      idx === selectedEventIdx ? 'dev-list-item-active' : ''
+                    }`}
+                    onClick={() => setSelectedEventIdx(idx)}
+                  >
+                    <div className="dev-list-meta">
+                      <div className="dev-list-title">
+                        {ev.title}
+                        <span
+                          style={{
+                            fontSize: '0.74rem',
+                            opacity: 0.65,
+                            fontWeight: 600,
+                            marginLeft: '6px',
+                          }}
+                        >
+                          ({ev.choices.length} choices)
+                        </span>
+                      </div>
+                      <div className="dev-list-sub">
+                        {ev.narrative || `${ev.id} · ${ev.choices.length} choices`}
+                      </div>
                     </div>
-                    <div className="dev-list-sub">
-                      {ev.narrative || `${ev.id} · ${ev.choices.length} choices`}
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </aside>
 
@@ -4040,7 +4073,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
 
                   <div className="dev-fields-grid" style={{ marginTop: 8 }}>
                     <label className="dev-field">
-                      <span>Success Chance % (100 = Guaranteed)</span>
+                      <span>Success Chance %</span>
                       <input
                         type="number"
                         min={1}
@@ -4208,7 +4241,9 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                             fontWeight: 700,
                                           }}
                                         >
-                                          ✓ Active / Guaranteed
+                                          {typeof ch.chance === 'number' && ch.chance < 100
+                                            ? '✓ Active on Success'
+                                            : '✓ Active'}
                                         </span>
                                       </div>
                                     )}
