@@ -4203,14 +4203,9 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                   </div>
 
                                   <div className="dev-effect-tile-fields">
-                                    <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginBottom: 2 }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginBottom: 6 }}>
                                       {meta.label}
                                     </div>
-                                    {meta.hint && (
-                                      <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: 6 }}>
-                                        {meta.hint}
-                                      </div>
-                                    )}
 
                                     {meta.type === 'number' && (
                                       <label className="dev-field">
@@ -4227,25 +4222,6 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                           }}
                                         />
                                       </label>
-                                    )}
-
-                                    {meta.type === 'boolean' && (
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
-                                        <span
-                                          style={{
-                                            background: meta.color,
-                                            color: '#fff',
-                                            padding: '2px 8px',
-                                            borderRadius: 4,
-                                            fontSize: '0.76rem',
-                                            fontWeight: 700,
-                                          }}
-                                        >
-                                          {typeof ch.chance === 'number' && ch.chance < 100
-                                            ? '✓ Active on Success'
-                                            : '✓ Active'}
-                                        </span>
-                                      </div>
                                     )}
 
                                     {meta.type === 'string' && (
@@ -4431,14 +4407,9 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                       </div>
 
                                       <div className="dev-effect-tile-fields">
-                                        <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginBottom: 2 }}>
+                                        <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginBottom: 6 }}>
                                           {meta.label}
                                         </div>
-                                        {meta.hint && (
-                                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: 6 }}>
-                                            {meta.hint}
-                                          </div>
-                                        )}
 
                                         {meta.type === 'number' && (
                                           <label className="dev-field">
@@ -4455,23 +4426,6 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                               }}
                                             />
                                           </label>
-                                        )}
-
-                                        {meta.type === 'boolean' && (
-                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
-                                            <span
-                                              style={{
-                                                background: '#dc2626',
-                                                color: '#fff',
-                                                padding: '2px 8px',
-                                                borderRadius: 4,
-                                                fontSize: '0.76rem',
-                                                fontWeight: 700,
-                                              }}
-                                            >
-                                              ✓ Active on Failure
-                                            </span>
-                                          </div>
                                         )}
 
                                         {meta.type === 'string' && (
