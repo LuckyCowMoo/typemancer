@@ -312,6 +312,13 @@ export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
         hint: 'Opens card selection to invert effects & targets',
       },
       {
+        key: 'chooseCardBeforeRoll',
+        label: '✨ Offer Card Before Gamble (Consecrate / Flaw on Spin)',
+        type: 'boolean',
+        default: true,
+        hint: 'Player selects a card before spin; wheel adds unique positive or negative modifier',
+      },
+      {
         key: 'gainCurseCard',
         label: '📜 Gain Specific Curse Card',
         type: 'string',

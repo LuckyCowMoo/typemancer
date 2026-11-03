@@ -249,6 +249,112 @@ export function generateInvertedDescription(effects: CardEffect[]): string {
   return parts.length > 0 ? parts.join(' ') : 'Inverted mirror script magic.';
 }
 
+export function describeCardEffects(effects: CardEffect[]): string {
+  const parts: string[] = [];
+  for (const eff of effects) {
+    const hitsText = eff.hits && eff.hits > 1 ? ` ${eff.hits} times` : '';
+    switch (eff.type) {
+      case 'damage':
+        parts.push(
+          eff.target === 'all_enemies'
+            ? `Deal ${eff.amount}${hitsText} Damage to ALL enemies.`
+            : `Deal ${eff.amount}${hitsText} Damage.`
+        );
+        break;
+      case 'self_damage':
+        parts.push(`Take ${eff.amount} Damage.`);
+        break;
+      case 'ward':
+        parts.push(
+          eff.target === 'enemy'
+            ? `Give target enemy ${eff.amount} Ward.`
+            : `Gain ${eff.amount} Ward.`
+        );
+        break;
+      case 'bold':
+        parts.push(`Gain ${eff.amount} Bold.`);
+        break;
+      case 'faded':
+        parts.push(
+          eff.target === 'player' || eff.target === 'self'
+            ? `Apply ${eff.amount} Faded to self.`
+            : `Apply ${eff.amount} Faded.`
+        );
+        break;
+      case 'exposed':
+        parts.push(
+          eff.target === 'player' || eff.target === 'self'
+            ? `Apply ${eff.amount} Exposed to self.`
+            : `Apply ${eff.amount} Exposed.`
+        );
+        break;
+      case 'plated_armor':
+        parts.push(`Gain ${eff.amount} Plated Armor.`);
+        break;
+      case 'thorns':
+        parts.push(
+          eff.target === 'all_enemies'
+            ? `Give ALL enemies ${eff.amount} Thorns.`
+            : `Gain ${eff.amount} Thorns.`
+        );
+        break;
+      case 'ink_burn':
+        parts.push(
+          eff.target === 'all_enemies'
+            ? `Apply ${eff.amount} Ink Burn to ALL enemies.`
+            : `Apply ${eff.amount} Ink Burn.`
+        );
+        break;
+      case 'draw':
+        parts.push(`Draw ${eff.amount} card${eff.amount > 1 ? 's' : ''}.`);
+        break;
+      case 'energy':
+        parts.push(`Gain ${eff.amount} Energy.`);
+        break;
+      default:
+        break;
+    }
+  }
+  return parts.join(' ');
+}
+
+/**
+ * Generates an additional positive or negative modifier for a card (e.g. at the Weeping Apostrophe).
+ * Guaranteed not to duplicate an effect type the card already possesses.
+ */
+export function generateConsecratedEffect(
+  existingEffects: CardEffect[],
+  isSuccess: boolean
+): CardEffect {
+  const existingTypes = new Set(existingEffects.map((e) => e.type));
+
+  if (isSuccess) {
+    const positivePool: CardEffect[] = [
+      { type: 'damage', amount: 5, target: 'enemy' },
+      { type: 'ward', amount: 8, target: 'self' },
+      { type: 'exposed', amount: 3, target: 'enemy' },
+      { type: 'bold', amount: 2, target: 'self' },
+      { type: 'ink_burn', amount: 3, target: 'enemy' },
+      { type: 'plated_armor', amount: 2, target: 'self' },
+      { type: 'thorns', amount: 2, target: 'self' },
+      { type: 'draw', amount: 1, target: 'self' },
+      { type: 'energy', amount: 1, target: 'self' },
+    ];
+    const eligible = positivePool.filter((p) => !existingTypes.has(p.type));
+    return pickRandom(eligible.length > 0 ? eligible : positivePool);
+  } else {
+    const negativePool: CardEffect[] = [
+      { type: 'self_damage', amount: 3, target: 'self' },
+      { type: 'exposed', amount: 2, target: 'self' },
+      { type: 'faded', amount: 2, target: 'self' },
+      { type: 'thorns', amount: 1, target: 'all_enemies' },
+      { type: 'ward', amount: 5, target: 'enemy' },
+    ];
+    const eligible = negativePool.filter((n) => !existingTypes.has(n.type));
+    return pickRandom(eligible.length > 0 ? eligible : negativePool);
+  }
+}
+
 /**
  * Resolves a CardInstance into its active stats (accounting for whether it is upgraded or inverted).
  */
@@ -290,6 +396,11 @@ export function resolveCardInstance(
     baseEffects = invertCardEffects(baseEffects);
   }
 
+  let allEffects = [...baseEffects];
+  if (instance.additionalEffects && instance.additionalEffects.length > 0) {
+    allEffects = [...allEffects, ...instance.additionalEffects];
+  }
+
   const baseName =
     instance.upgraded && def.upgrade
       ? def.upgrade.names[phraseDiff] || def.names[phraseDiff]
@@ -300,14 +411,20 @@ export function resolveCardInstance(
     instance.upgraded && def.upgrade
       ? def.upgrade.description || def.description
       : cleanCardDescriptionForPlay(def.description);
-  const finalDesc = isInverted ? generateInvertedDescription(baseEffects) : baseDesc;
+  let finalDesc = isInverted ? generateInvertedDescription(baseEffects) : baseDesc;
+  if (instance.additionalEffects && instance.additionalEffects.length > 0) {
+    const extraDesc = describeCardEffects(instance.additionalEffects);
+    if (extraDesc) {
+      finalDesc = `${finalDesc} ${extraDesc}`;
+    }
+  }
 
   const baseTarget = isInverted
-    ? baseEffects.some((e) => e.target === 'enemy' || e.target === 'all_enemies')
+    ? allEffects.some((e) => e.target === 'enemy' || e.target === 'all_enemies')
       ? 'enemy'
       : 'self'
     : def.target;
-  const finalTarget = deriveEffectiveTarget(baseTarget, baseEffects);
+  const finalTarget = deriveEffectiveTarget(baseTarget, allEffects);
 
   const finalCost = isXCost
     ? -1
@@ -343,7 +460,7 @@ export function resolveCardInstance(
     rarity: def.rarity,
     target: finalTarget,
     description: finalDesc,
-    effects: baseEffects,
+    effects: allEffects,
     burnDraft: finalBurn,
     art: def.art,
     sfx: def.sfx,

@@ -39,10 +39,12 @@ import {
   resolveEnemyBehavior,
   createStarterDeck,
   createSummonInstance,
+  describeCardEffects,
   ENEMIES_CATALOG,
   ENVIRONMENTS_CATALOG,
   EVENTS_CATALOG,
   generateCardRewards,
+  generateConsecratedEffect,
   generateCustomEncounter,
   generateEncounter,
   generateProceduralMap,
@@ -286,8 +288,15 @@ export function App() {
   const [eventOutcomeSummary, setEventOutcomeSummary] = useState<string[]>([]);
   const [eventRollSucceeded, setEventRollSucceeded] = useState<boolean | null>(null);
   const [pendingChanceChoice, setPendingChanceChoice] = useState<MysteryChoice | null>(null);
+  const [pendingConsecrateChoice, setPendingConsecrateChoice] = useState<MysteryChoice | null>(null);
+  const [consecratedResultCard, setConsecratedResultCard] = useState<CardInstance | null>(null);
   const [mysterySubMode, setMysterySubMode] = useState<
-    'event' | 'select_card_to_upgrade' | 'confirm_card_upgrade' | 'select_card_to_invert' | 'confirm_card_invert'
+    | 'event'
+    | 'select_card_to_upgrade'
+    | 'confirm_card_upgrade'
+    | 'select_card_to_invert'
+    | 'confirm_card_invert'
+    | 'select_card_to_consecrate'
   >('event');
   const [mysterySelectedCard, setMysterySelectedCard] = useState<CardInstance | null>(null);
 
@@ -987,6 +996,12 @@ export function App() {
             break;
           }
           case 'ward': {
+            if ((effTarget === 'enemy' || eff.target === 'enemy') && targetEnemy) {
+              const gained = eff.amount * xMultiplier;
+              targetEnemy.ward += gained;
+              spawnPopup(targetEnemy.instanceId, `+${gained} Ward`, '#1d6fa5');
+              break;
+            }
             const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.wardBonus ?? 0));
             nextWard += gained;
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
@@ -1018,18 +1033,28 @@ export function App() {
           }
           case 'faded': {
             const amt = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.statusBonus ?? 0));
-            targetList.forEach((en) => {
-              en.statuses.faded += amt;
-              spawnPopup(en.instanceId, `+${amt} Faded`, '#64748b');
-            });
+            if (eff.target === 'self' || eff.target === 'player' || effTarget === 'self' || effTarget === 'player') {
+              nextPlayerStatuses.faded += amt;
+              spawnPopup('player', `+${amt} Faded`, '#64748b');
+            } else {
+              targetList.forEach((en) => {
+                en.statuses.faded += amt;
+                spawnPopup(en.instanceId, `+${amt} Faded`, '#64748b');
+              });
+            }
             break;
           }
           case 'exposed': {
             const amt = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.statusBonus ?? 0));
-            targetList.forEach((en) => {
-              en.statuses.exposed += amt;
-              spawnPopup(en.instanceId, `+${amt} Exposed`, '#be123c');
-            });
+            if (eff.target === 'self' || eff.target === 'player' || effTarget === 'self' || effTarget === 'player') {
+              nextPlayerStatuses.exposed += amt;
+              spawnPopup('player', `+${amt} Exposed`, '#be123c');
+            } else {
+              targetList.forEach((en) => {
+                en.statuses.exposed += amt;
+                spawnPopup(en.instanceId, `+${amt} Exposed`, '#be123c');
+              });
+            }
             break;
           }
           case 'ink_burn': {
@@ -1116,7 +1141,12 @@ export function App() {
           }
           case 'thorns': {
             const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier));
-            if (effTarget === 'enemy' && targetEnemy) {
+            if (eff.target === 'all_enemies' || effTarget === 'all_enemies') {
+              nextEnemies.forEach((en) => {
+                en.statuses.thorns += gained;
+                spawnPopup(en.instanceId, `+${gained} Thorns`, '#059669');
+              });
+            } else if ((effTarget === 'enemy' || eff.target === 'enemy') && targetEnemy) {
               targetEnemy.statuses.thorns += gained;
               spawnPopup(targetEnemy.instanceId, `+${gained} Thorns`, '#059669');
             } else {
@@ -2365,6 +2395,8 @@ export function App() {
         setActiveEvent(ev);
         setMysterySubMode('event');
         setMysterySelectedCard(null);
+        setConsecratedResultCard(null);
+        setPendingConsecrateChoice(null);
         setEventOutcomeText(null);
         setEventOutcomeSummary([]);
         setEventRollSucceeded(null);
@@ -2763,6 +2795,24 @@ export function App() {
         });
         summaryItems.push("✨ Scraping the ink revealed an unredacted secret leyline on the map!");
       }
+      if (eff.chooseCardBeforeRoll && mysterySelectedCard) {
+        const existingResolved = resolveCardInstance(mysterySelectedCard, phraseDiff);
+        const newEffect = generateConsecratedEffect(existingResolved.effects, succeeded);
+        const updatedCard: CardInstance = {
+          ...mysterySelectedCard,
+          additionalEffects: [...(mysterySelectedCard.additionalEffects || []), newEffect],
+        };
+        setDeck((prev) =>
+          prev.map((c) => (c.instanceId === mysterySelectedCard.instanceId ? updatedCard : c))
+        );
+        setConsecratedResultCard(updatedCard);
+        const effectSummary = describeCardEffects([newEffect]);
+        if (succeeded) {
+          summaryItems.push(`✨ Consecrated "${existingResolved.name}": Added [${effectSummary}]!`);
+        } else {
+          summaryItems.push(`⚡ Corrupted "${existingResolved.name}": Inflicted [${effectSummary}]!`);
+        }
+      }
       if (eff.chooseCardToUpgrade) {
         setMysterySubMode('select_card_to_upgrade');
         setMysterySelectedCard(null);
@@ -2785,7 +2835,15 @@ export function App() {
         summaryItems.push('No stat changes — continued safely.');
       }
 
-      if (eff.revealSecretPath) {
+      if (eff.chooseCardBeforeRoll) {
+        if (succeeded) {
+          soundEngine.playCardCast(settings);
+          triggerElementParticles(undefined, ['#10b981', '#38bdf8', '#ffd166'], 60, 70);
+        } else {
+          soundEngine.playHit(settings);
+          triggerElementParticles(undefined, ['#ef4444', '#7c3aed', '#64748b'], 60, 70);
+        }
+      } else if (eff.revealSecretPath) {
         soundEngine.playSample('cards/book_01.ogg', settings);
       } else if (eff.gainCurseCard) {
         soundEngine.playBurnCard(settings);
@@ -2813,7 +2871,19 @@ export function App() {
       setPendingChanceChoice(null);
       resetTypingBuffer(true);
     },
-    [currentFloor, currentNodeId, deck, maxHp, phraseDiff, relicIds, resetTypingBuffer, settings, startBattle]
+    [
+      currentFloor,
+      currentNodeId,
+      deck,
+      maxHp,
+      mysterySelectedCard,
+      phraseDiff,
+      relicIds,
+      resetTypingBuffer,
+      settings,
+      startBattle,
+      triggerElementParticles,
+    ]
   );
 
   const handleEnterSubmit = useCallback(() => {
@@ -4278,6 +4348,39 @@ export function App() {
         return;
       }
 
+      if (mysterySubMode === 'select_card_to_consecrate') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'leave'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setMysterySubMode('event');
+          setMysterySelectedCard(null);
+          setPendingConsecrateChoice(null);
+          resetTypingBuffer(true);
+          return;
+        }
+        const nonCurse = deck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse');
+        const consecrateCandidates = sortCardsByCategoryAndRarity(
+          nonCurse.length > 0 ? nonCurse : deck,
+          (c) => c,
+          phraseDiff
+        );
+        const evalCons = evaluateCandidates(
+          raw,
+          consecrateCandidates.map((c) => ({ item: c, phrase: resolveCardInstance(c, phraseDiff).name })),
+          difficulty
+        );
+        if (evalCons[0] && evalCons[0].isValidConfirm && pendingConsecrateChoice) {
+          soundEngine.playPageTurn(settings);
+          setMysterySelectedCard(evalCons[0].item);
+          setMysterySubMode('event');
+          setPendingChanceChoice(pendingConsecrateChoice);
+          setPendingConsecrateChoice(null);
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
       if (pendingChanceChoice && eventOutcomeText === null) {
         // Wheel of Fate is actively spinning
         return;
@@ -4288,6 +4391,7 @@ export function App() {
           soundEngine.playConfirm(settings);
           triggerElementParticles('.prompt-panel', ['#1b6488', '#137547', '#ffd166'], 50, 72);
           setPendingChanceChoice(null);
+          setConsecratedResultCard(null);
           setEventOutcomeText(null);
           setEventOutcomeSummary([]);
           setEventRollSucceeded(null);
@@ -4308,6 +4412,14 @@ export function App() {
 
         // If the choice involves risk / % chance, trigger the Wheel of Fate!
         if (typeof choice.chance === 'number') {
+          if (choice.effects.chooseCardBeforeRoll) {
+            soundEngine.playPageTurn(settings);
+            setPendingConsecrateChoice(choice);
+            setMysterySubMode('select_card_to_consecrate');
+            setMysterySelectedCard(null);
+            resetTypingBuffer(true);
+            return;
+          }
           soundEngine.playPageTurn(settings);
           setPendingChanceChoice(choice);
           resetTypingBuffer(true);
@@ -4364,6 +4476,7 @@ export function App() {
     mysterySubMode,
     overlay,
     pendingChanceChoice,
+    pendingConsecrateChoice,
     pendingDiscardCount,
     pendingFollowUpDraw,
     pendingKeepCount,
@@ -4678,6 +4791,11 @@ export function App() {
           pool.push('back');
         } else if (mysterySubMode === 'confirm_card_invert') {
           pool.push('confirm', 'back');
+        } else if (mysterySubMode === 'select_card_to_consecrate') {
+          deck
+            .filter((c) => getCardDefinition(c.cardId)?.type !== 'curse')
+            .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('back');
         } else if (pendingChanceChoice && eventOutcomeText === null) {
           // Wheel is actively spinning
         } else if (eventOutcomeText === null) {
@@ -6282,6 +6400,50 @@ export function App() {
                       </div>
                     </div>
                   </div>
+                ) : mysterySubMode === 'select_card_to_consecrate' ? (
+                  <div className="story-card">
+                    <h2 className="story-title">
+                      {activeEvent.title} — Select a Card to Offer to the Weeping Monolith (or type "back")
+                    </h2>
+                    <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '1rem', fontStyle: 'italic' }}>
+                      Choose which draft in your deck to present before casting your fate. A success will bestow an additional positive boon; a failure will brand it with a flaw.
+                    </p>
+                    <div className="deck-banner-grid">
+                      {sortCardsByCategoryAndRarity(
+                        deck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse'),
+                        (c) => c,
+                        phraseDiff
+                      ).map((inst, idx) => {
+                        const baseRes = resolveCardInstance(inst, phraseDiff);
+                        const st = getPhraseHighlightState(baseRes.name, difficulty);
+                        return (
+                          <div
+                            key={inst.instanceId}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              if (pendingConsecrateChoice) {
+                                soundEngine.playPageTurn(settings);
+                                setMysterySelectedCard(inst);
+                                setMysterySubMode('event');
+                                setPendingChanceChoice(pendingConsecrateChoice);
+                                setPendingConsecrateChoice(null);
+                                resetTypingBuffer(true);
+                              }
+                            }}
+                          >
+                            <CardBanner
+                              instance={inst}
+                              phraseDiff={phraseDiff}
+                              index={idx}
+                              isHighlighted={st.isHighlighted}
+                              isEnterCandidate={st.isEnterReady}
+                              showUpgradeDelta={false}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : (
                   <div className="story-card">
                     <h2 className="story-title">{activeEvent.title}</h2>
@@ -6334,6 +6496,40 @@ export function App() {
                             </div>
                           )}
                         </div>
+                        {consecratedResultCard && (
+                          <div
+                            className="mystery-outcome-card-preview"
+                            style={{
+                              marginTop: '1.25rem',
+                              marginBottom: '0.5rem',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: '0.88rem',
+                                fontWeight: 700,
+                                color: eventRollSucceeded === false ? '#be123c' : '#059669',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
+                              }}
+                            >
+                              {eventRollSucceeded === false
+                                ? '⚡ Inscribed With Flaw (Inspecting Updated Card)'
+                                : '✨ Consecrated Boon Inscribed (Inspecting Updated Card)'}
+                            </div>
+                            <div style={{ maxWidth: '440px', width: '100%' }}>
+                              <CardBanner
+                                instance={consecratedResultCard}
+                                phraseDiff={phraseDiff}
+                                showUpgradeDelta={false}
+                              />
+                            </div>
+                          </div>
+                        )}
                         <div className="phrase-to-type">continue</div>
                       </div>
                     )}

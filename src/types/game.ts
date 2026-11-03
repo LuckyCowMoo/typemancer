@@ -114,6 +114,7 @@ export interface CardInstance {
   cardId: string;
   upgraded: boolean;
   inverted?: boolean;
+  additionalEffects?: CardEffect[];
 }
 
 export type EnemyFaction = 'goblins' | 'rock_monsters' | 'evil_plants' | 'boss' | 'origami' | 'wizards_guard';
@@ -266,6 +267,8 @@ export interface MysteryEffects {
   chooseCardToInvert?: boolean;
   /** Adds a specified curse/unplayable card ID to the player's deck. */
   gainCurseCard?: string;
+  /** Triggers interactive card selection BEFORE rolling the Wheel of Fate, modifying the chosen card on outcome. */
+  chooseCardBeforeRoll?: boolean;
   /** Starts an immediate combat encounter with specific enemy IDs (e.g. ['vowel_tax_collector', 'ink_hound', 'ink_hound']). */
   startBattleEnemies?: string[];
 }

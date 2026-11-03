@@ -1160,5 +1160,202 @@
         }
       }
     ]
+  },
+  {
+    "id": "gilded_palimpsest",
+    "title": "The Gilded Palimpsest",
+    "narrative": "A heavy calfskin codex rests on a brass lectern. Over centuries, scribes repeatedly scraped away old layers of text to write new ones: a monastic prayer, an alchemical recipe, and an ancient warlord's battle hymn.",
+    "choices": [
+      {
+        "id": "decipher_prayer",
+        "phrases": {
+          "easy": "read prayer",
+          "medium": "read monastic hymn",
+          "hard": "transcribe the ancient prayer of preservation"
+        },
+        "outcomeText": "The ancient prayer soothes your spirit and restores your resolve (+18 HP, Upgraded a card).",
+        "effects": {
+          "hpChange": 18,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "scrape_warlord_hymn",
+        "phrases": {
+          "easy": "scrape vellum",
+          "medium": "reveal warlord hymn",
+          "hard": "scrape away modern layers to uncover ancient battle runes"
+        },
+        "outcomeText": "Razor-sharp vellum edges bite your fingertips as martial fury fills your drafts (-8 HP, Gained Rare Card).",
+        "effects": {
+          "hpChange": -8,
+          "gainRareCard": true
+        }
+      },
+      {
+        "id": "extract_gilding",
+        "phrases": {
+          "easy": "scrape gold",
+          "medium": "melt the golden ink",
+          "hard": "carefully harvest the alchemical gold leaf script"
+        },
+        "chance": 55,
+        "outcomeText": "Pure typographic bullion! You harvest lustrous alchemical gold and a preserved relic (+110 Gold, Gained Relic)!",
+        "effects": {
+          "goldChange": 110,
+          "gainRandomRelic": true
+        },
+        "failText": "Toxic arsenic and cinnabar pigments scorch your hands and lungs as the brittle foil disintegrates (-12 HP).",
+        "failEffects": {
+          "hpChange": -12
+        }
+      }
+    ]
+  },
+  {
+    "id": "iron_bookbinder",
+    "title": "The Iron Bookbinder's Vise",
+    "narrative": "An abandoned artisan's shop dominated by a cast-iron screw press. Heavy wooden boards and steel clamps lie ready to compress sprawling folios into tight, durable volumes.",
+    "choices": [
+      {
+        "id": "clamp_satchel",
+        "phrases": {
+          "easy": "tighten vise",
+          "medium": "compress your deck",
+          "hard": "crank the iron wheel to bind your loose pages tight"
+        },
+        "outcomeText": "Strenuous cranking trims the ragged excess and reinforces your finest volume (-7 HP, Removed a Card, Upgraded a Card).",
+        "effects": {
+          "hpChange": -7,
+          "removeRandomCard": true,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "strip_calfskin",
+        "phrases": {
+          "easy": "take leather",
+          "medium": "salvage fine leather",
+          "hard": "strip the antique leather bindings to sell for coin"
+        },
+        "outcomeText": "You salvage pristine gilded calfskin covers to barter with traveling merchants (+65 Gold).",
+        "effects": {
+          "goldChange": 65
+        }
+      },
+      {
+        "id": "rest_on_trimmings",
+        "phrases": {
+          "easy": "sleep here",
+          "medium": "rest on leather pile",
+          "hard": "rest comfortably among the fragrant bookbinding scraps"
+        },
+        "outcomeText": "You curl up in the fragrant leather shavings and rest undisturbed (+15 HP).",
+        "effects": {
+          "hpChange": 15
+        }
+      }
+    ]
+  },
+  {
+    "id": "weeping_apostrophe",
+    "title": "The Weeping Apostrophe",
+    "narrative": "A colossal, moss-covered monolith shaped like a curved punctuation mark looms at a crossroads. Legend says it was carved to commemorate all omitted words and forgotten contractions.",
+    "choices": [
+      {
+        "id": "offer_memory",
+        "phrases": {
+          "easy": "leave memory",
+          "medium": "sacrifice a page",
+          "hard": "place an unwanted draft upon the weeping stone altar"
+        },
+        "outcomeText": "The weeping stone drinks the ink from your unwanted page, dissolving it into peaceful mist (+10 HP, Removed a Card).",
+        "effects": {
+          "hpChange": 10,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "chisel_flecks",
+        "phrases": {
+          "easy": "chisel rock",
+          "medium": "pry loose stones",
+          "hard": "chisel decorative stone punctuation for market trade"
+        },
+        "outcomeText": "You pry loose flecks of glistening carved stone to sell at the nearest settlement (+55 Gold).",
+        "effects": {
+          "goldChange": 55
+        }
+      },
+      {
+        "id": "pray_lost_eloquence",
+        "phrases": {
+          "easy": "pray shrine",
+          "medium": "pray for lost words",
+          "hard": "whisper a plea into the hollow curve of the apostrophe"
+        },
+        "chance": 60,
+        "outcomeText": "The monolith resonates with primordial eloquence! An empowering blessing has been permanently inscribed upon your draft.",
+        "effects": {
+          "chooseCardBeforeRoll": true
+        },
+        "failText": "The crushing weight of collective sorrow fractures the stone, branding your draft with a punishing flaw.",
+        "failEffects": {
+          "chooseCardBeforeRoll": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "carrier_pigeon_loft",
+    "title": "The Carrier Pigeon Loft",
+    "narrative": "In the rafters of a crumbling watchtower, dozens of brass-clockwork pigeons preen their gears. Small cylinders containing secret rebel dispatches are strapped to their talons.",
+    "choices": [
+      {
+        "id": "intercept_dispatch",
+        "phrases": {
+          "easy": "snatch scroll",
+          "medium": "intercept message",
+          "hard": "intercept a courier cylinder carrying royal military orders"
+        },
+        "outcomeText": "You trade feed and coin for the courier cylinder, retrieving a rare military folio (-20 Gold, Gained Rare Card).",
+        "effects": {
+          "goldChange": -20,
+          "gainRareCard": true
+        }
+      },
+      {
+        "id": "repair_courier",
+        "phrases": {
+          "easy": "fix pigeon",
+          "medium": "repair brass gears",
+          "hard": "replace the broken clockwork spring of an injured bird"
+        },
+        "outcomeText": "You mend the delicate clockwork spring. In gratitude, the mechanical bird drops an ancient brass relic into your hand before taking flight (-5 HP, Gained Relic).",
+        "effects": {
+          "hpChange": -5,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "send_supply_request",
+        "phrases": {
+          "easy": "send pigeon",
+          "medium": "dispatch call for aid",
+          "hard": "release a pigeon with an urgent plea to the resistance cell"
+        },
+        "chance": 70,
+        "outcomeText": "The mechanical pigeon returns bearing a pouch of rebel funds and a fresh combat draft (+80 Gold, Gained Card)!",
+        "effects": {
+          "goldChange": 80,
+          "gainRandomCard": true
+        },
+        "failText": "The pigeon trips an Imperial alarm flare that scorches the loft and knocks your purse of gold into the canyon ravine (-11 HP, -35 Gold)!",
+        "failEffects": {
+          "hpChange": -11,
+          "goldChange": -35
+        }
+      }
+    ]
   }
 ]
