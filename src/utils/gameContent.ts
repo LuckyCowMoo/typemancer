@@ -380,6 +380,8 @@ export function resolveCardInstance(
   cardId: string;
   upgraded: boolean;
   inverted?: boolean;
+  consecrated?: boolean;
+  corrupted?: boolean;
   unplayable?: boolean;
   name: string;
   connector: string;
@@ -419,7 +421,17 @@ export function resolveCardInstance(
     instance.upgraded && def.upgrade
       ? def.upgrade.names[phraseDiff] || def.names[phraseDiff]
       : def.names[phraseDiff];
-  const finalName = isInverted ? `🪞 Inverted ${baseName}` : baseName;
+  let finalName = baseName;
+  if (isInverted) {
+    finalName = baseName.split('').reverse().join('');
+  } else if (
+    instance.consecrated ||
+    (instance.additionalEffects && instance.additionalEffects.length > 0 && !instance.corrupted)
+  ) {
+    finalName = `Consecrated ${baseName}`;
+  } else if (instance.corrupted) {
+    finalName = `Corrupted ${baseName}`;
+  }
 
   const baseDesc =
     instance.upgraded && def.upgrade
@@ -465,6 +477,8 @@ export function resolveCardInstance(
     cardId: def.id,
     upgraded: Boolean(instance.upgraded),
     inverted: isInverted,
+    consecrated: Boolean(instance.consecrated),
+    corrupted: Boolean(instance.corrupted),
     unplayable: isUnplayable,
     name: finalName,
     connector: finalConnector,

@@ -248,15 +248,17 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   const isInverted = Boolean(instance.inverted || (resolved as any).inverted);
   const isUnplayable = Boolean(def.unplayable || def.type === 'curse' || (resolved as any).unplayable);
 
-  let rarityText: string = resolved.rarity;
-  if (resolved.type === 'power') {
-    rarityText = `${resolved.rarity} · 1/combat`;
-  }
-  if (isUpgraded) {
-    rarityText += ' · +';
-  }
+  let rarityText: string;
   if (isInverted) {
-    rarityText += ' · 🪞 INVERTED';
+    rarityText = 'inverted' + (isUpgraded ? ' · +' : '');
+  } else {
+    rarityText = resolved.rarity;
+    if (resolved.type === 'power') {
+      rarityText = `${resolved.rarity} · 1/combat`;
+    }
+    if (isUpgraded) {
+      rarityText += ' · +';
+    }
   }
 
   // Dynamic font size and line height for title to allow comfortable wrapping with extra line space
@@ -274,11 +276,13 @@ export const CardBanner: React.FC<CardBannerProps> = ({
   // Description dynamic font size if long description or campfire subtitle override
   const descText =
     subtitleOverride ??
-    formatCardDescription(def, {
-      showUpgradeDelta,
-      environmentModifiers,
-      isAlreadyUpgraded: instance.upgraded,
-    });
+    (isInverted || (instance.additionalEffects && instance.additionalEffects.length > 0)
+      ? resolved.description
+      : formatCardDescription(def, {
+          showUpgradeDelta,
+          environmentModifiers,
+          isAlreadyUpgraded: instance.upgraded,
+        }));
   const descFontSize = descText.length > 85 ? '0.70rem' : '0.74rem';
 
   return (
@@ -315,6 +319,10 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             ? '2.5px solid #a855f7'
             : isUnplayable
             ? '2.5px solid #991b1b'
+            : Boolean(instance.consecrated)
+            ? '2.5px solid #10b981'
+            : Boolean(instance.corrupted)
+            ? '2.5px solid #f43f5e'
             : '2.5px solid #0d1b22',
         boxSizing: 'border-box',
         position: 'relative',
@@ -433,34 +441,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         </span>
       )}
 
-      {/* Top-Left: Inverted Badge */}
-      {isInverted && !isKept && !isDiscardCandidate && !isPowerAlreadyActive && !combatStatusGlow && (
-        <span
-          className="card-inverted-badge"
-          style={{
-            position: 'absolute',
-            top: 4,
-            left: 4,
-            background: 'linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%)',
-            color: '#ffffff',
-            border: '1.5px solid #c084fc',
-            borderRadius: 7,
-            padding: '2px 7px',
-            fontSize: '0.64rem',
-            fontWeight: 900,
-            lineHeight: 1.2,
-            letterSpacing: '0.04em',
-            zIndex: 8,
-            boxShadow: '0 2px 8px rgba(124, 58, 237, 0.45)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 3,
-          }}
-          title="Inverted by the Mirror-Script Wall: effects and targets are reversed"
-        >
-          🪞 INVERTED
-        </span>
-      )}
+
 
       {/* Top-Left: Unplayable Curse Badge */}
       {isUnplayable && !isKept && !isDiscardCandidate && !isPowerAlreadyActive && !combatStatusGlow && !isInverted && (
@@ -701,9 +682,9 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             height: 19,
             boxSizing: 'border-box',
             borderRadius: 6,
-            border: '1.5px solid #0d1b22',
-            background: theme.pillBg,
-            color: theme.textColor,
+            border: isInverted ? '1.5px solid #a855f7' : '1.5px solid #0d1b22',
+            background: isInverted ? '#2e1065' : theme.pillBg,
+            color: isInverted ? '#f3e8ff' : theme.textColor,
             textAlign: 'center',
             padding: '0 4px',
             fontSize: resolved.type === 'power' ? '0.61rem' : '0.67rem',
@@ -758,7 +739,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
               lineHeight: titleLineHeight,
               textAlign: 'left',
               wordBreak: 'break-word',
-              color: theme.textColor,
+              color: isInverted ? '#ffffff' : theme.textColor,
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
@@ -780,7 +761,7 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             marginBottom: 0,
             flex: 1,
             wordBreak: 'break-word',
-            color: theme.descColor,
+            color: isInverted ? '#f1f5f9' : theme.descColor,
             opacity: 0.95,
             display: '-webkit-box',
             WebkitLineClamp: 5,

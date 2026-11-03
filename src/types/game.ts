@@ -114,6 +114,8 @@ export interface CardInstance {
   cardId: string;
   upgraded: boolean;
   inverted?: boolean;
+  consecrated?: boolean;
+  corrupted?: boolean;
   additionalEffects?: CardEffect[];
 }
 

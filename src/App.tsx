@@ -3029,6 +3029,8 @@ export function App() {
         const newEffect = generateConsecratedEffect(existingResolved.effects, succeeded);
         const updatedCard: CardInstance = {
           ...mysterySelectedCard,
+          consecrated: succeeded,
+          corrupted: !succeeded,
           additionalEffects: [...(mysterySelectedCard.additionalEffects || []), newEffect],
         };
         setDeck((prev) =>
@@ -5279,7 +5281,10 @@ export function App() {
     isNegative?: boolean;
   }
 
-  const formatEffectsTokens = (eff?: MysteryEffects): MysteryEffectToken[] => {
+  const formatEffectsTokens = (
+    eff?: MysteryEffects,
+    isFailureContext: boolean = false
+  ): MysteryEffectToken[] => {
     if (!eff) return [];
     const tokens: MysteryEffectToken[] = [];
     if (eff.maxHpChange) {
@@ -5311,7 +5316,13 @@ export function App() {
     if (eff.gainCurseCard) tokens.push({ text: 'Gain Curse', isNegative: true });
     if (eff.chooseCardToInvert) tokens.push({ text: 'Invert a Card' });
     if (eff.chooseCardToUpgrade) tokens.push({ text: 'Choose Card to Upgrade', isPositive: true });
-    if (eff.chooseCardBeforeRoll) tokens.push({ text: 'Consecrate/Flaw Card' });
+    if (eff.chooseCardBeforeRoll) {
+      if (isFailureContext) {
+        tokens.push({ text: 'add a random negative flaw to a card', isNegative: true });
+      } else {
+        tokens.push({ text: 'add a random positive power to a card', isPositive: true });
+      }
+    }
     if (eff.revealSecretPath) tokens.push({ text: '✨ Secret Leyline', isPositive: true });
     if (eff.startBattleEnemies && eff.startBattleEnemies.length > 0)
       tokens.push({ text: '⚔️ Battle', isNegative: true });
@@ -5337,8 +5348,8 @@ export function App() {
   );
 
   const renderMysteryChoiceOdds = (ch: MysteryChoice) => {
-    const winTokens = formatEffectsTokens(ch.effects);
-    const failTokens = formatEffectsTokens(ch.failEffects);
+    const winTokens = formatEffectsTokens(ch.effects, false);
+    const failTokens = formatEffectsTokens(ch.failEffects, true);
     if (typeof ch.chance === 'number') {
       return (
         <div className="mystery-choice-odds-row">
@@ -6748,7 +6759,7 @@ export function App() {
                       {activeEvent.title} — Select a Card to Offer to the Weeping Monolith (or type "back")
                     </h2>
                     <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '1rem', fontStyle: 'italic' }}>
-                      Choose which draft in your deck to present before casting your fate. A success will bestow an additional positive boon; a failure will brand it with a flaw.
+                      Choose which draft in your deck to present before casting your fate. Success: add a random positive power to a card. Failure: add a random negative flaw to a card.
                     </p>
                     <div className="deck-banner-grid">
                       {sortCardsByCategoryAndRarity(

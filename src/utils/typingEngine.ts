@@ -8,6 +8,7 @@ export function normalizeText(input: string): string {
   return input
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\bconcecated\b/g, 'consecrated')
     .replace(/\s+/g, ' ')
     .trim();
 }

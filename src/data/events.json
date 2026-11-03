@@ -1295,11 +1295,11 @@
           "hard": "whisper a plea into the hollow curve of the apostrophe"
         },
         "chance": 60,
-        "outcomeText": "The monolith resonates with primordial eloquence! An empowering blessing has been permanently inscribed upon your draft.",
+        "outcomeText": "The monolith resonates with primordial eloquence! Inscribed a random positive power onto your draft.",
         "effects": {
           "chooseCardBeforeRoll": true
         },
-        "failText": "The crushing weight of collective sorrow fractures the stone, branding your draft with a punishing flaw.",
+        "failText": "The crushing weight of collective sorrow fractures the stone, inscribing a random negative flaw onto your draft.",
         "failEffects": {
           "chooseCardBeforeRoll": true
         }
