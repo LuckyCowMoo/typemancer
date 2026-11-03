@@ -5373,27 +5373,95 @@
   },
   {
     "id": "thesaurus_wyrm",
-    "name": "Thesaurus Wyrm",
     "faction": "wizards_guard",
     "role": "balanced",
     "tier": 2,
     "minHp": 42,
     "maxHp": 48,
+    "namePools": {
+      "easy": [
+        "thesaurus wyrm",
+        "lexical wyrm",
+        "spine serpent"
+      ],
+      "medium": [
+        "articulated thesaurus wyrm",
+        "ancient lexical wyrm",
+        "leather spine serpent"
+      ],
+      "hard": [
+        "the undulating thesaurus wyrm",
+        "the primordial lexical serpent",
+        "the slithering book spine wyrm"
+      ]
+    },
     "art": {
       "primaryColor": "#b45309",
       "secondaryColor": "#fde68a",
       "shape": "capsule"
     },
-    "names": {
-      "easy": "thesaurus wyrm",
-      "medium": "lexical spine serpent",
-      "hard": "slithering serpent of bound leather dictionaries"
-    },
-    "phases": [
+    "description": "A serpentine construct bound from heavy dictionary spines and shifting synonyms that lashes out with razor leather pages.",
+    "moves": [
       {
-        "id": "default",
-        "name": "Default Phase",
-        "condition": "default",
+        "id": "synonym_coil",
+        "name": "Synonym Coil",
+        "intent": "attack_debuff",
+        "weight": 40,
+        "damage": 9,
+        "effects": [
+          {
+            "type": "damage",
+            "amount": 9,
+            "target": "player",
+            "hits": 1
+          },
+          {
+            "type": "exposed",
+            "amount": 2,
+            "target": "player"
+          }
+        ]
+      },
+      {
+        "id": "lexical_ward",
+        "name": "Lexical Ward",
+        "intent": "defend",
+        "weight": 35,
+        "ward": 12,
+        "effects": [
+          {
+            "type": "ward",
+            "amount": 12,
+            "target": "self"
+          },
+          {
+            "type": "thorns",
+            "amount": 2,
+            "target": "self"
+          }
+        ]
+      },
+      {
+        "id": "dictionary_slam",
+        "name": "Dictionary Slam",
+        "intent": "attack",
+        "weight": 25,
+        "damage": 13,
+        "effects": [
+          {
+            "type": "damage",
+            "amount": 13,
+            "target": "player",
+            "hits": 1
+          }
+        ]
+      }
+    ],
+    "behaviors": [
+      {
+        "id": "normal",
+        "name": "Normal Behaviour",
+        "condition": "normal",
         "moves": [
           {
             "id": "synonym_coil",
@@ -5451,7 +5519,6 @@
           }
         ]
       }
-    ],
-    "description": "A serpentine construct bound from heavy dictionary spines and shifting synonyms that lashes out with razor leather pages."
+    ]
   }
 ]

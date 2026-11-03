@@ -587,7 +587,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
       if (e.art.spriteUrl) {
         map.set(e.art.spriteUrl, {
           id: e.id,
-          name: `${e.id} (${e.namePools.easy[0] || ''})`,
+          name: `${e.id} (${e.namePools?.easy?.[0] || ''})`,
           pack: 'Current Entities',
           url: e.art.spriteUrl,
         });
@@ -1453,8 +1453,8 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
                   !q ||
                   en.id.toLowerCase().includes(q) ||
                   en.faction.toLowerCase().includes(q) ||
-                  en.namePools.easy.some((n) => n.toLowerCase().includes(q)) ||
-                  en.namePools.medium.some((n) => n.toLowerCase().includes(q));
+                  (en.namePools?.easy || []).some((n) => n.toLowerCase().includes(q)) ||
+                  (en.namePools?.medium || []).some((n) => n.toLowerCase().includes(q));
                 if (!matches) return null;
                 return (
                   <button
@@ -1477,7 +1477,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
                     )}
                     <div className="dev-list-meta">
                       <div className="dev-list-title">
-                        {en.namePools.easy[0] || en.id}
+                        {en.namePools?.easy?.[0] || en.id}
                         <span
                           style={{
                             fontSize: '0.74rem',
@@ -1491,7 +1491,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
                       </div>
                       <div className="dev-list-sub">
                         {en.description ||
-                          `${en.faction} · Tier ${en.tier} ${en.role} (${en.minHp}-${en.maxHp} HP) · ${en.moves.length} moves`}
+                          `${en.faction} · Tier ${en.tier} ${en.role} (${en.minHp}-${en.maxHp} HP) · ${(en.moves || []).length} moves`}
                       </div>
                     </div>
                   </button>
@@ -1505,7 +1505,7 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
               <h2>
                 ✏️ Editing Enemy #{selectedEnemyIdx + 1} of {enemiesList.length}:{' '}
                 <span style={{ color: '#bc5215' }}>
-                  {activeEnemy.namePools.easy[0] || activeEnemy.id}
+                  {activeEnemy?.namePools?.easy?.[0] || activeEnemy?.id}
                 </span>
               </h2>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -1752,35 +1752,35 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
                         + Add Name
                       </button>
                     </div>
-                    {activeEnemy.namePools[diffKey].map((nameStr, nIdx) => (
+                    {(activeEnemy?.namePools?.[diffKey] || []).map((nameStr, nIdx) => (
                       <div key={nIdx} className="dev-pool-input-row">
                         <input
                           type="text"
                           value={nameStr}
                           onChange={(e) => {
-                            const updated = [...activeEnemy.namePools[diffKey]];
+                            const updated = [...(activeEnemy.namePools?.[diffKey] || [])];
                             updated[nIdx] = e.target.value;
                             updateActiveEnemy((en) => ({
                               ...en,
                               namePools: {
-                                ...en.namePools,
+                                ...(en.namePools || { easy: [], medium: [], hard: [] }),
                                 [diffKey]: updated,
                               },
                             }));
                           }}
                         />
-                        {activeEnemy.namePools[diffKey].length > 1 && (
+                        {(activeEnemy.namePools?.[diffKey] || []).length > 1 && (
                           <button
                             type="button"
                             className="dev-btn-icon-del"
                             onClick={() => {
-                              const updated = activeEnemy.namePools[diffKey].filter(
+                              const updated = (activeEnemy.namePools?.[diffKey] || []).filter(
                                 (_, i) => i !== nIdx
                               );
                               updateActiveEnemy((en) => ({
                                 ...en,
                                 namePools: {
-                                  ...en.namePools,
+                                  ...(en.namePools || { easy: [], medium: [], hard: [] }),
                                   [diffKey]: updated,
                                 },
                               }));
