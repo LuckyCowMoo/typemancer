@@ -588,6 +588,9 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                 const toPos = nodePositions.get(nextId);
                 if (!toPos) return null;
 
+                const isSecretEdge = Boolean(
+                  toPos.node.isSecretNode || node.isSecretNode || toPos.node.isSecretPath
+                );
                 const isTakenEdge = node.completed && toPos.node.completed;
                 const isActiveChoiceEdge =
                   node.id === currentNodeId && availableIdSet.has(nextId);
@@ -620,6 +623,8 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                           ? '#137547'
                           : isHighlighted
                           ? '#d97706'
+                          : isSecretEdge
+                          ? '#f59e0b'
                           : isActiveChoiceEdge
                           ? '#8c3b14'
                           : isTakenEdge
@@ -628,9 +633,11 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                       }
                       strokeWidth={
                         isEnterReady
-                          ? 5.2
+                          ? 5.4
                           : isHighlighted
-                          ? 4.4
+                          ? 4.8
+                          : isSecretEdge
+                          ? 4.6
                           : isActiveChoiceEdge
                           ? 3.4
                           : isTakenEdge
@@ -638,7 +645,13 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                           : 2.1
                       }
                       strokeDasharray={
-                        isTakenEdge || isActiveChoiceEdge ? 'none' : '7 8'
+                        isSecretEdge
+                          ? isTakenEdge || isActiveChoiceEdge
+                            ? 'none'
+                            : '5 4'
+                          : isTakenEdge || isActiveChoiceEdge
+                          ? 'none'
+                          : '7 8'
                       }
                       strokeLinecap="round"
                       filter="url(#ink-roughness)"
@@ -653,6 +666,8 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                               ? 'map-text-enter-ready'
                               : isHighlighted
                               ? 'map-text-highlighted'
+                              : isSecretEdge
+                              ? 'map-text-secret'
                               : ''
                           }`}
                         >
@@ -661,7 +676,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                             startOffset={startOffsetPct}
                             textAnchor="middle"
                           >
-                            {topLine}
+                            {isSecretEdge ? `✨ ${topLine} ✨` : topLine}
                           </textPath>
                         </text>
                         {bottomLine && (
@@ -672,6 +687,8 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                                 ? 'map-text-enter-ready'
                                 : isHighlighted
                                 ? 'map-text-highlighted'
+                                : isSecretEdge
+                                ? 'map-text-secret'
                                 : ''
                             }`}
                           >
@@ -743,7 +760,7 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                   isEnterReady ? 'map-symbol-enter-ready' : ''
                 } ${isCompleted ? 'map-symbol-completed' : ''} ${
                   isCurrent ? 'map-symbol-current' : ''
-                }`}
+                } ${node.isSecretNode ? 'map-symbol-secret' : ''}`}
                 style={{
                   left: `${pos.x}px`,
                   top: `${pos.y}px`,
@@ -751,9 +768,16 @@ export const ScrollableMap: React.FC<ScrollableMapProps> = ({
                     ? '#137547'
                     : isHighlighted
                     ? '#d97706'
+                    : node.isSecretNode
+                    ? '#d97706'
                     : styleMeta.color,
                 }}
               >
+                {node.isSecretNode && (
+                  <div className="map-secret-node-badge">
+                    ✨ SECRET LEYLINE
+                  </div>
+                )}
                 <svg
                   width={node.type === 'boss' ? 58 : 38}
                   height={node.type === 'boss' ? 58 : 38}

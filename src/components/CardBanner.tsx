@@ -93,30 +93,35 @@ export const CARD_COLOR_THEMES: Record<CardVisualCategory, Record<CardRarity, Ca
     common: { bg: '#c24d2c', pillBg: '#a63c1e', textColor: '#fff9f5', descColor: '#fde8e0' },
     uncommon: { bg: '#9e3219', pillBg: '#7f2410', textColor: '#fff9f5', descColor: '#fbd5c8' },
     rare: { bg: '#6e1b0b', pillBg: '#521105', textColor: '#ffd166', descColor: '#fae0d8' },
+    curse: { bg: '#2b211e', pillBg: '#1c1412', textColor: '#fca5a5', descColor: '#fecaca' },
   },
   defence: {
     starter: { bg: '#16698a', pillBg: '#125672', textColor: '#ffffff', descColor: '#e0f2fe' },
     common: { bg: '#105470', pillBg: '#0c4158', textColor: '#ffffff', descColor: '#dbeafe' },
     uncommon: { bg: '#0b3d54', pillBg: '#082c3d', textColor: '#ffffff', descColor: '#bae6fd' },
     rare: { bg: '#062636', pillBg: '#041824', textColor: '#ffd166', descColor: '#e0f2fe' },
+    curse: { bg: '#1a2228', pillBg: '#10171c', textColor: '#fca5a5', descColor: '#e0f2fe' },
   },
   skill: {
     starter: { bg: '#2d8a61', pillBg: '#236e4d', textColor: '#ffffff', descColor: '#dcfce7' },
     common: { bg: '#21704d', pillBg: '#18573b', textColor: '#ffffff', descColor: '#d1fae5' },
     uncommon: { bg: '#165338', pillBg: '#0f3d28', textColor: '#ffffff', descColor: '#a7f3d0' },
     rare: { bg: '#0c3623', pillBg: '#072216', textColor: '#ffd166', descColor: '#d1fae5' },
+    curse: { bg: '#1b2621', pillBg: '#111a15', textColor: '#fca5a5', descColor: '#d1fae5' },
   },
   debuff: {
     starter: { bg: '#7e489c', pillBg: '#663780', textColor: '#ffffff', descColor: '#f3e8ff' },
     common: { bg: '#683587', pillBg: '#52276b', textColor: '#ffffff', descColor: '#f3e8ff' },
     uncommon: { bg: '#4e2269', pillBg: '#3b1752', textColor: '#ffffff', descColor: '#e9d5ff' },
     rare: { bg: '#34124a', pillBg: '#230a33', textColor: '#ffd166', descColor: '#f3e8ff' },
+    curse: { bg: '#281c2e', pillBg: '#1a1020', textColor: '#fca5a5', descColor: '#f3e8ff' },
   },
   power: {
     starter: { bg: '#b87d19', pillBg: '#966411', textColor: '#ffffff', descColor: '#fef3c7' },
     common: { bg: '#9c660f', pillBg: '#7d5009', textColor: '#ffffff', descColor: '#fef3c7' },
     uncommon: { bg: '#7a4d08', pillBg: '#5e3a04', textColor: '#ffffff', descColor: '#fde68a' },
     rare: { bg: '#543203', pillBg: '#3b2201', textColor: '#ffd166', descColor: '#fef3c7' },
+    curse: { bg: '#292113', pillBg: '#1a140a', textColor: '#fca5a5', descColor: '#fef3c7' },
   },
 };
 
@@ -157,6 +162,7 @@ const RARITY_ORDER: Record<CardRarity, number> = {
   common: 1,
   uncommon: 2,
   rare: 3,
+  curse: 4,
 };
 
 /**
@@ -239,12 +245,18 @@ export const CardBanner: React.FC<CardBannerProps> = ({
 
   // Build bottom pill rarity text: starter, common, uncommon, rare + ' · +'
   const isUpgraded = instance.upgraded || resolved.upgraded;
+  const isInverted = Boolean(instance.inverted || (resolved as any).inverted);
+  const isUnplayable = Boolean(def.unplayable || def.type === 'curse' || (resolved as any).unplayable);
+
   let rarityText: string = resolved.rarity;
   if (resolved.type === 'power') {
     rarityText = `${resolved.rarity} · 1/combat`;
   }
   if (isUpgraded) {
     rarityText += ' · +';
+  }
+  if (isInverted) {
+    rarityText += ' · 🪞 INVERTED';
   }
 
   // Dynamic font size and line height for title to allow comfortable wrapping with extra line space
@@ -299,6 +311,10 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             ? '2.5px solid #34d399'
             : combatStatusGlow === 'yellow'
             ? '2.5px solid #fde047'
+            : isInverted
+            ? '2.5px solid #a855f7'
+            : isUnplayable
+            ? '2.5px solid #991b1b'
             : '2.5px solid #0d1b22',
         boxSizing: 'border-box',
         position: 'relative',
@@ -306,8 +322,12 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         alignItems: 'center',
         gap: 8,
         padding: '7px 9px 7px 8px',
-        backgroundColor: isUnaffordable ? toSlightlyGrayerColor(theme.bg, 0.45) : theme.bg,
-        color: theme.textColor,
+        backgroundColor: isInverted
+          ? '#15102a'
+          : isUnaffordable
+          ? toSlightlyGrayerColor(theme.bg, 0.45)
+          : theme.bg,
+        color: isInverted ? '#e9d5ff' : theme.textColor,
         transition:
           'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, margin 0.18s ease, background-color 0.18s ease',
         boxShadow:
@@ -319,6 +339,8 @@ export const CardBanner: React.FC<CardBannerProps> = ({
             ? '0 0 0 2px #10b981, 0 0 16px rgba(16, 185, 129, 0.75), 0 0 26px rgba(16, 185, 129, 0.4)'
             : combatStatusGlow === 'yellow'
             ? '0 0 0 2px #eab308, 0 0 16px rgba(234, 179, 8, 0.75), 0 0 26px rgba(234, 179, 8, 0.4)'
+            : isInverted
+            ? '0 0 14px rgba(168, 85, 247, 0.38), 2px 3px 8px rgba(13, 27, 34, 0.3)'
             : '2px 3px 8px rgba(13, 27, 34, 0.22)',
         animationDelay: `${(index % 7) * 0.22}s`,
         ...style,
@@ -408,6 +430,64 @@ export const CardBanner: React.FC<CardBannerProps> = ({
           title="This power is already active this combat (usable once per combat)"
         >
           ⚡ ACTIVE (1/COMBAT)
+        </span>
+      )}
+
+      {/* Top-Left: Inverted Badge */}
+      {isInverted && !isKept && !isDiscardCandidate && !isPowerAlreadyActive && !combatStatusGlow && (
+        <span
+          className="card-inverted-badge"
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 4,
+            background: 'linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%)',
+            color: '#ffffff',
+            border: '1.5px solid #c084fc',
+            borderRadius: 7,
+            padding: '2px 7px',
+            fontSize: '0.64rem',
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: '0.04em',
+            zIndex: 8,
+            boxShadow: '0 2px 8px rgba(124, 58, 237, 0.45)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+          title="Inverted by the Mirror-Script Wall: effects and targets are reversed"
+        >
+          🪞 INVERTED
+        </span>
+      )}
+
+      {/* Top-Left: Unplayable Curse Badge */}
+      {isUnplayable && !isKept && !isDiscardCandidate && !isPowerAlreadyActive && !combatStatusGlow && !isInverted && (
+        <span
+          className="card-unplayable-badge"
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 4,
+            background: '#991b1b',
+            color: '#fef2f2',
+            border: '1.5px solid #dc2626',
+            borderRadius: 7,
+            padding: '2px 7px',
+            fontSize: '0.64rem',
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: '0.04em',
+            zIndex: 8,
+            boxShadow: '0 2px 6px rgba(153, 27, 27, 0.4)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+          title="This card cannot be played"
+        >
+          🚫 UNPLAYABLE
         </span>
       )}
 
@@ -537,7 +617,9 @@ export const CardBanner: React.FC<CardBannerProps> = ({
         }}
         title="Energy Cost"
       >
-        {resolved.cost === -1 || (resolved as any).xCost ? (
+        {isUnplayable ? (
+          <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>✕</span>
+        ) : resolved.cost === -1 || (resolved as any).xCost ? (
           'X'
         ) : showUpgradeDelta &&
           def.upgrade &&

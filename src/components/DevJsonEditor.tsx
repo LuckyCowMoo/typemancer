@@ -14,6 +14,7 @@ import type {
   MapNodeType,
   MapPhrasesCatalog,
   MysteryChoice,
+  MysteryEffects,
   MysteryEventDefinition,
   RelicDefinition,
   RelicTrigger,
@@ -242,6 +243,168 @@ const ensureUpgrade = (card: CardDefinition): CardUpgradeData => {
       effects: [...card.effects],
     }
   );
+};
+
+export interface MysteryEffectOption {
+  key: keyof MysteryEffects;
+  label: string;
+  type: 'number' | 'boolean' | 'string' | 'string_array';
+  default: any;
+  hint?: string;
+}
+
+export interface MysteryEffectCategoryGroup {
+  category: string;
+  colorName: string;
+  color: string;
+  bg: string;
+  items: MysteryEffectOption[];
+}
+
+export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
+  {
+    category: 'Stats & Vitals',
+    colorName: 'Rose Red',
+    color: '#ef4444',
+    bg: '#fef2f2',
+    items: [
+      {
+        key: 'hpChange',
+        label: '❤️ HP Change (+/- Heal or Damage)',
+        type: 'number',
+        default: -6,
+        hint: 'Negative deals damage, positive heals',
+      },
+      {
+        key: 'maxHpChange',
+        label: '💖 Max HP Change (+/-)',
+        type: 'number',
+        default: 5,
+        hint: 'Permanent increase or decrease to Max HP',
+      },
+      {
+        key: 'goldChange',
+        label: '🪙 Gold Change (+/- Gain or Cost)',
+        type: 'number',
+        default: -60,
+        hint: 'Negative spends gold, positive grants gold',
+      },
+    ],
+  },
+  {
+    category: 'Cards & Deck',
+    colorName: 'Sapphire',
+    color: '#3b82f6',
+    bg: '#eff6ff',
+    items: [
+      {
+        key: 'chooseCardToUpgrade',
+        label: '✨ Player Chooses Card to Upgrade (Campfire UI)',
+        type: 'boolean',
+        default: true,
+        hint: 'Opens Campfire-style card selection & revision preview',
+      },
+      {
+        key: 'chooseCardToInvert',
+        label: '🪞 Player Chooses Card to Invert (Mirror Wall UI)',
+        type: 'boolean',
+        default: true,
+        hint: 'Opens card selection to invert effects & targets',
+      },
+      {
+        key: 'gainCurseCard',
+        label: '📜 Gain Specific Curse Card',
+        type: 'string',
+        default: 'vowel_tax_receipt',
+        hint: 'Card ID from catalog (e.g. vowel_tax_receipt)',
+      },
+      {
+        key: 'gainRareCard',
+        label: '🌟 Gain Random Rare Card',
+        type: 'boolean',
+        default: true,
+        hint: 'Adds a rare card to deck',
+      },
+      {
+        key: 'gainRandomCard',
+        label: '🃏 Gain Random Card',
+        type: 'boolean',
+        default: true,
+        hint: 'Adds a common/uncommon card to deck',
+      },
+      {
+        key: 'upgradeRandomCard',
+        label: '⚡ Upgrade A Random Card in Deck',
+        type: 'boolean',
+        default: true,
+        hint: 'Upgrades an un-upgraded card at random',
+      },
+      {
+        key: 'removeRandomCard',
+        label: '🔥 Remove A Random Card from Deck',
+        type: 'boolean',
+        default: true,
+        hint: 'Burns a random card from the deck',
+      },
+    ],
+  },
+  {
+    category: 'Relics & Artifacts',
+    colorName: 'Amber',
+    color: '#d97706',
+    bg: '#fffbeb',
+    items: [
+      {
+        key: 'gainRandomRelic',
+        label: '🏆 Gain Random Relic',
+        type: 'boolean',
+        default: true,
+        hint: 'Grants an unowned relic from catalog',
+      },
+    ],
+  },
+  {
+    category: 'World & Combat',
+    colorName: 'Arcane Purple',
+    color: '#8b5cf6',
+    bg: '#faf5ff',
+    items: [
+      {
+        key: 'revealSecretPath',
+        label: '🗺️ Reveal Secret Leyline Path on Map',
+        type: 'boolean',
+        default: true,
+        hint: 'Unlocks a hidden golden path and node connected to all next floor nodes',
+      },
+      {
+        key: 'startBattleEnemies',
+        label: '⚔️ Enter Battle with Specific Enemies (CSV)',
+        type: 'string_array',
+        default: ['vowel_tax_collector', 'ink_hound', 'ink_hound'],
+        hint: 'Comma-separated enemy IDs to spawn in combat',
+      },
+    ],
+  },
+];
+
+export const getMysteryEffectMeta = (
+  key: string
+): MysteryEffectOption & { category: string; color: string; bg: string } => {
+  for (const cat of MYSTERY_EFFECT_GROUPS) {
+    const item = cat.items.find((it) => it.key === key);
+    if (item) {
+      return { ...item, category: cat.category, color: cat.color, bg: cat.bg };
+    }
+  }
+  return {
+    key: key as keyof MysteryEffects,
+    label: key,
+    type: 'string',
+    default: '',
+    category: 'Custom',
+    color: '#64748b',
+    bg: '#f8fafc',
+  };
 };
 
 export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings }) => {
@@ -3710,6 +3873,22 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                     }
                   />
                 </label>
+                <label className="dev-field">
+                  <span>Minimum Floor Requirement (1 for any floor)</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={24}
+                    value={activeEvent.minFloor ?? 1}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      updateActiveEvent((ev) => ({
+                        ...ev,
+                        minFloor: val > 1 ? val : undefined,
+                      }));
+                    }}
+                  />
+                </label>
               </div>
               <label className="dev-field" style={{ marginTop: 10 }}>
                 <span>Narrative Text</span>
@@ -3721,12 +3900,117 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                   }
                 />
               </label>
+              <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-danger dev-btn-mini"
+                  disabled={eventsList.length <= 1}
+                  onClick={() => {
+                    if (window.confirm(`Delete mystery event "${activeEvent.title}"?`)) {
+                      setEventsList((prev) => prev.filter((_, idx) => idx !== selectedEventIdx));
+                      setSelectedEventIdx((prev) => Math.max(0, prev - 1));
+                    }
+                  }}
+                >
+                  ✕ Delete Mystery Event
+                </button>
+              </div>
             </section>
 
             <section className="dev-section-card">
-              <h3>Event Choices ({activeEvent.choices.length})</h3>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 12,
+                }}
+              >
+                <h3 style={{ margin: 0 }}>Event Choices ({activeEvent.choices.length})</h3>
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-add dev-btn-mini"
+                  onClick={() => {
+                    const newChoice: MysteryChoice = {
+                      id: `choice_${activeEvent.choices.length + 1}`,
+                      phrases: {
+                        easy: 'take action',
+                        medium: 'step forward bravely',
+                        hard: 'carefully weigh the arcane balance of options',
+                      },
+                      outcomeText: 'You take decisive action and step onward.',
+                      effects: { hpChange: 6 },
+                    };
+                    updateActiveEvent((ev) => ({
+                      ...ev,
+                      choices: [...ev.choices, newChoice],
+                    }));
+                  }}
+                >
+                  + Add Choice
+                </button>
+              </div>
+
               {activeEvent.choices.map((ch: MysteryChoice, cIdx: number) => (
-                <div key={cIdx} className="dev-subcard">
+                <div
+                  key={cIdx}
+                  className="dev-subcard"
+                  style={{
+                    border: '1.5px solid #d5c3a5',
+                    borderRadius: 8,
+                    padding: 14,
+                    marginBottom: 16,
+                    background: '#fcfaf6',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      borderBottom: '1px solid #e7dac7',
+                      paddingBottom: 6,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span
+                        style={{
+                          fontWeight: 800,
+                          fontSize: '0.88rem',
+                          color: '#8c3b14',
+                        }}
+                      >
+                        Choice #{cIdx + 1}
+                      </span>
+                      <label className="dev-field" style={{ flexDirection: 'row', alignItems: 'center', gap: 6, margin: 0 }}>
+                        <span style={{ fontSize: '0.74rem' }}>ID:</span>
+                        <input
+                          type="text"
+                          value={ch.id}
+                          style={{ padding: '2px 6px', fontSize: '0.8rem', width: 140 }}
+                          onChange={(e) => {
+                            const next = [...activeEvent.choices];
+                            next[cIdx] = { ...ch, id: e.target.value };
+                            updateActiveEvent((ev) => ({ ...ev, choices: next }));
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="dev-btn dev-btn-danger dev-btn-mini"
+                      disabled={activeEvent.choices.length <= 1}
+                      onClick={() => {
+                        const next = activeEvent.choices.filter((_, i) => i !== cIdx);
+                        updateActiveEvent((ev) => ({ ...ev, choices: next }));
+                      }}
+                    >
+                      ✕ Delete Choice
+                    </button>
+                  </div>
+
                   <div className="dev-three-col">
                     {(['easy', 'medium', 'hard'] as const).map((diff) => (
                       <label key={diff} className="dev-field">
@@ -3746,9 +4030,10 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                       </label>
                     ))}
                   </div>
+
                   <div className="dev-fields-grid" style={{ marginTop: 8 }}>
                     <label className="dev-field">
-                      <span>Success Chance % (Leave 100 for guaranteed)</span>
+                      <span>Success Chance % (100 = Guaranteed)</span>
                       <input
                         type="number"
                         min={1}
@@ -3765,57 +4050,434 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                         }}
                       />
                     </label>
-                    <label className="dev-field">
-                      <span>HP Change</span>
+                    <label className="dev-field" style={{ gridColumn: 'span 2' }}>
+                      <span>Success Outcome Text</span>
                       <input
-                        type="number"
-                        value={ch.effects.hpChange ?? 0}
+                        type="text"
+                        value={ch.outcomeText}
                         onChange={(e) => {
-                          const val = Number(e.target.value);
                           const next = [...activeEvent.choices];
-                          next[cIdx] = {
-                            ...ch,
-                            effects: {
-                              ...ch.effects,
-                              hpChange: val !== 0 ? val : undefined,
-                            },
-                          };
-                          updateActiveEvent((ev) => ({ ...ev, choices: next }));
-                        }}
-                      />
-                    </label>
-                    <label className="dev-field">
-                      <span>Gold Change</span>
-                      <input
-                        type="number"
-                        value={ch.effects.goldChange ?? 0}
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          const next = [...activeEvent.choices];
-                          next[cIdx] = {
-                            ...ch,
-                            effects: {
-                              ...ch.effects,
-                              goldChange: val !== 0 ? val : undefined,
-                            },
-                          };
+                          next[cIdx] = { ...ch, outcomeText: e.target.value };
                           updateActiveEvent((ev) => ({ ...ev, choices: next }));
                         }}
                       />
                     </label>
                   </div>
-                  <label className="dev-field" style={{ marginTop: 8 }}>
-                    <span>Outcome Text</span>
-                    <input
-                      type="text"
-                      value={ch.outcomeText}
-                      onChange={(e) => {
-                        const next = [...activeEvent.choices];
-                        next[cIdx] = { ...ch, outcomeText: e.target.value };
-                        updateActiveEvent((ev) => ({ ...ev, choices: next }));
+
+                  {/* Success Effects Grid */}
+                  {(() => {
+                    const activeEntries = (Object.entries(ch.effects || {}) as [string, any][]).filter(
+                      ([, val]) => val !== undefined && val !== null
+                    );
+
+                    return (
+                      <div style={{ marginTop: 12 }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: 8,
+                            gap: 12,
+                            flexWrap: 'wrap',
+                          }}
+                        >
+                          <span style={{ fontWeight: 800, fontSize: '0.86rem', color: '#047857' }}>
+                            ✨ Success Effects ({activeEntries.length})
+                          </span>
+                          <select
+                            value=""
+                            className="dev-effect-select"
+                            style={{ width: 'auto', minWidth: 260 }}
+                            onChange={(e) => {
+                              const chosenKey = e.target.value;
+                              const meta = getMysteryEffectMeta(chosenKey);
+                              const nextEffects = { ...(ch.effects || {}), [chosenKey]: meta.default };
+                              const nextChoices = [...activeEvent.choices];
+                              nextChoices[cIdx] = { ...ch, effects: nextEffects };
+                              updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                            }}
+                          >
+                            <option value="" disabled>
+                              ➕ Add Success Effect...
+                            </option>
+                            {MYSTERY_EFFECT_GROUPS.map((g) => (
+                              <optgroup key={g.category} label={`━━━ ${g.category} (${g.colorName}) ━━━`}>
+                                {g.items.map((item) => (
+                                  <option key={String(item.key)} value={String(item.key)}>
+                                    {item.label}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))}
+                          </select>
+                        </div>
+
+                        {activeEntries.length === 0 ? (
+                          <div
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '0.8rem',
+                              color: '#64748b',
+                              background: 'rgba(0,0,0,0.03)',
+                              borderRadius: 6,
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            No success effects configured. Select an effect from the dropdown above to add one.
+                          </div>
+                        ) : (
+                          <div className="dev-effects-grid-3col">
+                            {activeEntries.map(([key, val], eIdx) => {
+                              const meta = getMysteryEffectMeta(key);
+                              return (
+                                <div key={key} className="dev-effect-tile" style={{ background: meta.bg }}>
+                                  <div className="dev-effect-tile-header" style={{ borderBottomColor: meta.color }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                      <span
+                                        style={{
+                                          display: 'inline-block',
+                                          width: 10,
+                                          height: 10,
+                                          borderRadius: '50%',
+                                          backgroundColor: meta.color,
+                                        }}
+                                      />
+                                      <span className="dev-effect-tile-badge" style={{ color: meta.color }}>
+                                        #{eIdx + 1} · {meta.category}
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="dev-btn dev-btn-danger dev-btn-mini"
+                                      onClick={() => {
+                                        const nextEffects = { ...ch.effects };
+                                        delete (nextEffects as any)[key];
+                                        const nextChoices = [...activeEvent.choices];
+                                        nextChoices[cIdx] = { ...ch, effects: nextEffects };
+                                        updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                      }}
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+
+                                  <div className="dev-effect-tile-fields">
+                                    <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginBottom: 2 }}>
+                                      {meta.label}
+                                    </div>
+                                    {meta.hint && (
+                                      <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: 6 }}>
+                                        {meta.hint}
+                                      </div>
+                                    )}
+
+                                    {meta.type === 'number' && (
+                                      <label className="dev-field">
+                                        <span>Amount</span>
+                                        <input
+                                          type="number"
+                                          value={val}
+                                          onChange={(e) => {
+                                            const num = Number(e.target.value);
+                                            const nextEffects = { ...ch.effects, [key]: num };
+                                            const nextChoices = [...activeEvent.choices];
+                                            nextChoices[cIdx] = { ...ch, effects: nextEffects };
+                                            updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                          }}
+                                        />
+                                      </label>
+                                    )}
+
+                                    {meta.type === 'boolean' && (
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+                                        <span
+                                          style={{
+                                            background: meta.color,
+                                            color: '#fff',
+                                            padding: '2px 8px',
+                                            borderRadius: 4,
+                                            fontSize: '0.76rem',
+                                            fontWeight: 700,
+                                          }}
+                                        >
+                                          ✓ Active / Guaranteed
+                                        </span>
+                                      </div>
+                                    )}
+
+                                    {meta.type === 'string' && (
+                                      <label className="dev-field">
+                                        <span>Card ID</span>
+                                        <input
+                                          type="text"
+                                          value={val || ''}
+                                          onChange={(e) => {
+                                            const nextEffects = { ...ch.effects, [key]: e.target.value };
+                                            const nextChoices = [...activeEvent.choices];
+                                            nextChoices[cIdx] = { ...ch, effects: nextEffects };
+                                            updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                          }}
+                                        />
+                                      </label>
+                                    )}
+
+                                    {meta.type === 'string_array' && (
+                                      <label className="dev-field">
+                                        <span>Enemy IDs (Comma separated)</span>
+                                        <input
+                                          type="text"
+                                          value={Array.isArray(val) ? val.join(', ') : ''}
+                                          onChange={(e) => {
+                                            const parsed = e.target.value
+                                              .split(',')
+                                              .map((s) => s.trim())
+                                              .filter(Boolean);
+                                            const nextEffects = { ...ch.effects, [key]: parsed };
+                                            const nextChoices = [...activeEvent.choices];
+                                            nextChoices[cIdx] = { ...ch, effects: nextEffects };
+                                            updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                          }}
+                                        />
+                                      </label>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Failure Outcome Section (When chance < 100) */}
+                  {typeof ch.chance === 'number' && ch.chance < 100 && (
+                    <div
+                      style={{
+                        marginTop: 14,
+                        padding: 12,
+                        border: '2px dashed #ef4444',
+                        borderRadius: 8,
+                        background: 'rgba(239, 68, 68, 0.04)',
                       }}
-                    />
-                  </label>
+                    >
+                      <div style={{ marginBottom: 8 }}>
+                        <span
+                          style={{
+                            fontWeight: 800,
+                            fontSize: '0.88rem',
+                            color: '#dc2626',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                          }}
+                        >
+                          ⚠️ Failure Outcome (Triggers if the {100 - ch.chance}% risk roll fails)
+                        </span>
+                      </div>
+
+                      <label className="dev-field">
+                        <span>Failure Outcome Text</span>
+                        <input
+                          type="text"
+                          placeholder="Narrative when player fails the roll..."
+                          value={ch.failText || ''}
+                          onChange={(e) => {
+                            const next = [...activeEvent.choices];
+                            next[cIdx] = { ...ch, failText: e.target.value };
+                            updateActiveEvent((ev) => ({ ...ev, choices: next }));
+                          }}
+                        />
+                      </label>
+
+                      {(() => {
+                        const failEntries = (Object.entries(ch.failEffects || {}) as [string, any][]).filter(
+                          ([, val]) => val !== undefined && val !== null
+                        );
+
+                        return (
+                          <div style={{ marginTop: 10 }}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: 8,
+                                gap: 12,
+                                flexWrap: 'wrap',
+                              }}
+                            >
+                              <span style={{ fontWeight: 800, fontSize: '0.84rem', color: '#dc2626' }}>
+                                💥 Failure Penalty Effects ({failEntries.length})
+                              </span>
+                              <select
+                                value=""
+                                className="dev-effect-select"
+                                style={{ width: 'auto', minWidth: 260 }}
+                                onChange={(e) => {
+                                  const chosenKey = e.target.value;
+                                  const meta = getMysteryEffectMeta(chosenKey);
+                                  const nextFailEffects = { ...(ch.failEffects || {}), [chosenKey]: meta.default };
+                                  const nextChoices = [...activeEvent.choices];
+                                  nextChoices[cIdx] = { ...ch, failEffects: nextFailEffects };
+                                  updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                }}
+                              >
+                                <option value="" disabled>
+                                  ➕ Add Failure Penalty Effect...
+                                </option>
+                                {MYSTERY_EFFECT_GROUPS.map((g) => (
+                                  <optgroup key={g.category} label={`━━━ ${g.category} (${g.colorName}) ━━━`}>
+                                    {g.items.map((item) => (
+                                      <option key={String(item.key)} value={String(item.key)}>
+                                        {item.label}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                ))}
+                              </select>
+                            </div>
+
+                            {failEntries.length === 0 ? (
+                              <div
+                                style={{
+                                  padding: '8px 12px',
+                                  fontSize: '0.8rem',
+                                  color: '#991b1b',
+                                  background: 'rgba(239, 68, 68, 0.08)',
+                                  borderRadius: 6,
+                                  fontStyle: 'italic',
+                                }}
+                              >
+                                No failure penalty effects configured. Select an effect from the dropdown to configure consequences of failure.
+                              </div>
+                            ) : (
+                              <div className="dev-effects-grid-3col">
+                                {failEntries.map(([key, val], eIdx) => {
+                                  const meta = getMysteryEffectMeta(key);
+                                  return (
+                                    <div key={key} className="dev-effect-tile" style={{ background: '#fff5f5' }}>
+                                      <div className="dev-effect-tile-header" style={{ borderBottomColor: '#dc2626' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                          <span
+                                            style={{
+                                              display: 'inline-block',
+                                              width: 10,
+                                              height: 10,
+                                              borderRadius: '50%',
+                                              backgroundColor: '#dc2626',
+                                            }}
+                                          />
+                                          <span className="dev-effect-tile-badge" style={{ color: '#dc2626' }}>
+                                            Failure #{eIdx + 1}
+                                          </span>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          className="dev-btn dev-btn-danger dev-btn-mini"
+                                          onClick={() => {
+                                            const nextFailEffects = { ...ch.failEffects };
+                                            delete (nextFailEffects as any)[key];
+                                            const nextChoices = [...activeEvent.choices];
+                                            nextChoices[cIdx] = { ...ch, failEffects: nextFailEffects };
+                                            updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                          }}
+                                        >
+                                          Remove
+                                        </button>
+                                      </div>
+
+                                      <div className="dev-effect-tile-fields">
+                                        <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginBottom: 2 }}>
+                                          {meta.label}
+                                        </div>
+                                        {meta.hint && (
+                                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: 6 }}>
+                                            {meta.hint}
+                                          </div>
+                                        )}
+
+                                        {meta.type === 'number' && (
+                                          <label className="dev-field">
+                                            <span>Amount</span>
+                                            <input
+                                              type="number"
+                                              value={val}
+                                              onChange={(e) => {
+                                                const num = Number(e.target.value);
+                                                const nextFailEffects = { ...ch.failEffects, [key]: num };
+                                                const nextChoices = [...activeEvent.choices];
+                                                nextChoices[cIdx] = { ...ch, failEffects: nextFailEffects };
+                                                updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                              }}
+                                            />
+                                          </label>
+                                        )}
+
+                                        {meta.type === 'boolean' && (
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+                                            <span
+                                              style={{
+                                                background: '#dc2626',
+                                                color: '#fff',
+                                                padding: '2px 8px',
+                                                borderRadius: 4,
+                                                fontSize: '0.76rem',
+                                                fontWeight: 700,
+                                              }}
+                                            >
+                                              ✓ Active on Failure
+                                            </span>
+                                          </div>
+                                        )}
+
+                                        {meta.type === 'string' && (
+                                          <label className="dev-field">
+                                            <span>Card ID</span>
+                                            <input
+                                              type="text"
+                                              value={val || ''}
+                                              onChange={(e) => {
+                                                const nextFailEffects = { ...ch.failEffects, [key]: e.target.value };
+                                                const nextChoices = [...activeEvent.choices];
+                                                nextChoices[cIdx] = { ...ch, failEffects: nextFailEffects };
+                                                updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                              }}
+                                            />
+                                          </label>
+                                        )}
+
+                                        {meta.type === 'string_array' && (
+                                          <label className="dev-field">
+                                            <span>Enemy IDs (Comma separated)</span>
+                                            <input
+                                              type="text"
+                                              value={Array.isArray(val) ? val.join(', ') : ''}
+                                              onChange={(e) => {
+                                                const parsed = e.target.value
+                                                  .split(',')
+                                                  .map((s) => s.trim())
+                                                  .filter(Boolean);
+                                                const nextFailEffects = { ...ch.failEffects, [key]: parsed };
+                                                const nextChoices = [...activeEvent.choices];
+                                                nextChoices[cIdx] = { ...ch, failEffects: nextFailEffects };
+                                                updateActiveEvent((ev) => ({ ...ev, choices: nextChoices }));
+                                              }}
+                                            />
+                                          </label>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
               ))}
             </section>

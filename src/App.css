@@ -1604,6 +1604,50 @@ body,
   stroke-width: 5px;
 }
 
+.map-text-secret {
+  fill: #92400e !important;
+  stroke: #fef08a !important;
+  stroke-width: 5px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.map-secret-node-badge {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #78350f;
+  background: linear-gradient(135deg, #fef08a, #fcd34d);
+  border: 1.5px solid #d97706;
+  border-radius: 9999px;
+  padding: 1px 8px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  pointer-events: none;
+  animation: pulseSecretBadge 2.2s infinite ease-in-out;
+  z-index: 10;
+}
+
+@keyframes pulseSecretBadge {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.06);
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.65);
+  }
+}
+
+.map-symbol-secret {
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.75));
+}
+
 /* Pure Colored Symbol Nodes — Centered strictly on (pos.x, pos.y) via translate(-50%, -50%)! */
 .map-symbol-only {
   position: absolute;

@@ -43,6 +43,7 @@ import {
   ENVIRONMENTS_CATALOG,
   EVENTS_CATALOG,
   generateCardRewards,
+  generateCustomEncounter,
   generateEncounter,
   generateProceduralMap,
   generateRelicRewards,
@@ -285,6 +286,10 @@ export function App() {
   const [eventOutcomeSummary, setEventOutcomeSummary] = useState<string[]>([]);
   const [eventRollSucceeded, setEventRollSucceeded] = useState<boolean | null>(null);
   const [pendingChanceChoice, setPendingChanceChoice] = useState<MysteryChoice | null>(null);
+  const [mysterySubMode, setMysterySubMode] = useState<
+    'event' | 'select_card_to_upgrade' | 'confirm_card_upgrade' | 'select_card_to_invert' | 'confirm_card_invert'
+  >('event');
+  const [mysterySelectedCard, setMysterySelectedCard] = useState<CardInstance | null>(null);
 
   const [typedInput, setTypedInput] = useState<string>('');
   const [actionStartTime, setActionStartTime] = useState<number | null>(null);
@@ -601,14 +606,23 @@ export function App() {
   }, []);
 
   const startBattle = useCallback(
-    (floorNum: number, nodeType: 'battle' | 'elite' | 'boss', currentDeck: CardInstance[], currentRelics: string[]) => {
+    (
+      floorNum: number,
+      nodeType: 'battle' | 'elite' | 'boss',
+      currentDeck: CardInstance[],
+      currentRelics: string[],
+      customEnemies?: ActiveEnemy[]
+    ) => {
       setActiveNodeType(nodeType);
       if (nodeType === 'elite' || nodeType === 'boss') {
         soundEngine.playEliteBossEntrance(settings);
       } else {
         soundEngine.playBattleEntrance(settings);
       }
-      const spawnedEnemies = generateEncounter(floorNum, nodeType, phraseDiff);
+      const spawnedEnemies =
+        customEnemies && customEnemies.length > 0
+          ? customEnemies
+          : generateEncounter(floorNum, nodeType, phraseDiff);
 
       let startWard = 0;
       let startBold = 0;
@@ -2344,8 +2358,13 @@ export function App() {
 
       if (node.type === 'mystery') {
         soundEngine.playSample('cards/book_01.ogg', settings);
-        const ev = pickRandom(EVENTS_CATALOG);
+        const eligibleEvents = EVENTS_CATALOG.filter(
+          (e) => !e.minFloor || node.floor >= e.minFloor
+        );
+        const ev = pickRandom(eligibleEvents.length > 0 ? eligibleEvents : EVENTS_CATALOG);
         setActiveEvent(ev);
+        setMysterySubMode('event');
+        setMysterySelectedCard(null);
         setEventOutcomeText(null);
         setEventOutcomeSummary([]);
         setEventRollSucceeded(null);
@@ -2695,12 +2714,82 @@ export function App() {
         setDeck((prev) => prev.filter((c) => c.instanceId !== pick.instanceId));
         summaryItems.push(`Removed Card from Deck: "${remName}"`);
       }
+      if (eff.gainCurseCard) {
+        const curseDef = getCardDefinition(eff.gainCurseCard);
+        if (curseDef) {
+          const curseInst: CardInstance = {
+            instanceId: `curse_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            cardId: curseDef.id,
+            upgraded: false,
+          };
+          setDeck((d) => [...d, curseInst]);
+          summaryItems.push(`Gained Curse Card: "${curseDef.names[phraseDiff]}"`);
+        }
+      }
+      if (eff.revealSecretPath) {
+        setMapFloors((prev) => {
+          const next = prev.map((row) => row.map((n) => ({ ...n })));
+          const currFloorIdx = currentFloor - 1;
+          const nextFloorIdx = currentFloor;
+          const nextNextFloorIdx = currentFloor + 1;
+          if (next[currFloorIdx]) {
+            const currNode = next[currFloorIdx].find((n) => n.id === currentNodeId);
+            if (currNode && nextFloorIdx < next.length) {
+              const secretId = `secret_${currentFloor + 1}_${Date.now()}`;
+              const nextFloorAfterSecret = nextNextFloorIdx < next.length ? next[nextNextFloorIdx] : [];
+              const secretNode: MapNode = {
+                id: secretId,
+                floor: currentFloor + 1,
+                column: next[nextFloorIdx].length,
+                type: 'treasure',
+                xRatio: Math.min(0.92, Math.max(0.08, (currNode.xRatio ?? 0.5) + 0.28)),
+                yOffset: -6,
+                nextNodeIds: nextFloorAfterSecret.map((n) => n.id),
+                completed: false,
+                phrases: {
+                  easy: 'secret cache',
+                  medium: 'unredacted leyline',
+                  hard: 'unredacted cartographer leyline',
+                },
+                isSecretNode: true,
+              };
+              next[nextFloorIdx].push(secretNode);
+              if (!currNode.nextNodeIds.includes(secretId)) {
+                currNode.nextNodeIds.push(secretId);
+              }
+            }
+          }
+          return next;
+        });
+        summaryItems.push("✨ Scraping the ink revealed an unredacted secret leyline on the map!");
+      }
+      if (eff.chooseCardToUpgrade) {
+        setMysterySubMode('select_card_to_upgrade');
+        setMysterySelectedCard(null);
+        resetTypingBuffer(true);
+        return;
+      }
+      if (eff.chooseCardToInvert) {
+        setMysterySubMode('select_card_to_invert');
+        setMysterySelectedCard(null);
+        resetTypingBuffer(true);
+        return;
+      }
+      if (eff.startBattleEnemies && eff.startBattleEnemies.length > 0) {
+        const customEnemies = generateCustomEncounter(eff.startBattleEnemies, currentFloor, phraseDiff);
+        startBattle(currentFloor, 'elite', deck, relicIds, customEnemies);
+        return;
+      }
 
       if (summaryItems.length === 0) {
         summaryItems.push('No stat changes — continued safely.');
       }
 
-      if (eff.gainRandomRelic) {
+      if (eff.revealSecretPath) {
+        soundEngine.playSample('cards/book_01.ogg', settings);
+      } else if (eff.gainCurseCard) {
+        soundEngine.playBurnCard(settings);
+      } else if (eff.gainRandomRelic) {
         soundEngine.playRelicGain(settings);
       } else if (eff.gainRareCard || eff.gainRandomCard) {
         soundEngine.playDrawCard(settings);
@@ -2724,7 +2813,7 @@ export function App() {
       setPendingChanceChoice(null);
       resetTypingBuffer(true);
     },
-    [deck, maxHp, phraseDiff, relicIds, resetTypingBuffer, settings]
+    [currentFloor, currentNodeId, deck, maxHp, phraseDiff, relicIds, resetTypingBuffer, settings, startBattle]
   );
 
   const handleEnterSubmit = useCallback(() => {
@@ -3550,6 +3639,13 @@ export function App() {
           const chosenInst = bestCard.item.item;
           const resolved = bestCard.item.resolved;
 
+          if (resolved.unplayable) {
+            soundEngine.playError(settings);
+            spawnPopup('player', 'This card is unplayable!', '#ef4444');
+            resetTypingBuffer(true);
+            return;
+          }
+
           if (resolved.type === 'power' && usedPowerCardIdsThisCombat.has(chosenInst.cardId)) {
             soundEngine.playError(settings);
             spawnPopup('player', 'Power already active this combat!', '#ef4444');
@@ -4070,6 +4166,118 @@ export function App() {
 
     // 12. MYSTERY ENCOUNTER
     if (screen === 'mystery' && activeEvent) {
+      if (mysterySubMode === 'select_card_to_upgrade') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'leave', 'skip'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setMysterySubMode('event');
+          setMysterySelectedCard(null);
+          advanceToMapNextFloor();
+          return;
+        }
+        const upgradable = sortCardsByCategoryAndRarity(
+          deck.filter((c) => !c.upgraded),
+          (c) => c,
+          phraseDiff
+        );
+        const evalUp = evaluateCandidates(
+          raw,
+          upgradable.map((c) => ({ item: c, phrase: resolveCardInstance(c, phraseDiff).name })),
+          difficulty
+        );
+        if (evalUp[0] && evalUp[0].isValidConfirm) {
+          soundEngine.playPageTurn(settings);
+          setMysterySelectedCard(evalUp[0].item);
+          setMysterySubMode('confirm_card_upgrade');
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (mysterySubMode === 'confirm_card_upgrade') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'no'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setMysterySubMode('select_card_to_upgrade');
+          setMysterySelectedCard(null);
+          resetTypingBuffer(true);
+          return;
+        }
+        if (matchCommand(raw, ['confirm', 'upgrade', 'revise', 'yes'], difficulty)) {
+          if (mysterySelectedCard) {
+            setDeck((prev) =>
+              prev.map((c) =>
+                c.instanceId === mysterySelectedCard.instanceId ? { ...c, upgraded: true } : c
+              )
+            );
+            soundEngine.playCardCast(settings);
+            triggerElementParticles(undefined, ['#3b82f6', '#ffd166', '#10b981'], 50, 60);
+          }
+          setMysterySubMode('event');
+          setMysterySelectedCard(null);
+          advanceToMapNextFloor();
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (mysterySubMode === 'select_card_to_invert') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'leave', 'skip'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setMysterySubMode('event');
+          setMysterySelectedCard(null);
+          advanceToMapNextFloor();
+          return;
+        }
+        const invertCandidates = sortCardsByCategoryAndRarity(
+          deck.filter((c) => !c.inverted && getCardDefinition(c.cardId)?.type !== 'curse'),
+          (c) => c,
+          phraseDiff
+        );
+        const evalInv = evaluateCandidates(
+          raw,
+          invertCandidates.map((c) => ({ item: c, phrase: resolveCardInstance(c, phraseDiff).name })),
+          difficulty
+        );
+        if (evalInv[0] && evalInv[0].isValidConfirm) {
+          soundEngine.playPageTurn(settings);
+          setMysterySelectedCard(evalInv[0].item);
+          setMysterySubMode('confirm_card_invert');
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (mysterySubMode === 'confirm_card_invert') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'no'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setMysterySubMode('select_card_to_invert');
+          setMysterySelectedCard(null);
+          resetTypingBuffer(true);
+          return;
+        }
+        if (matchCommand(raw, ['confirm', 'invert', 'mirror', 'yes'], difficulty)) {
+          if (mysterySelectedCard) {
+            setDeck((prev) =>
+              prev.map((c) =>
+                c.instanceId === mysterySelectedCard.instanceId ? { ...c, inverted: true } : c
+              )
+            );
+            soundEngine.playCardCast(settings);
+            triggerElementParticles(undefined, ['#a855f7', '#6366f1', '#38bdf8', '#ffd166'], 60, 65);
+          }
+          setMysterySubMode('event');
+          setMysterySelectedCard(null);
+          advanceToMapNextFloor();
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
       if (pendingChanceChoice && eventOutcomeText === null) {
         // Wheel of Fate is actively spinning
         return;
@@ -4152,6 +4360,8 @@ export function App() {
     introStep,
     isAnimatingTurn,
     maxHp,
+    mysterySelectedCard,
+    mysterySubMode,
     overlay,
     pendingChanceChoice,
     pendingDiscardCount,
@@ -4454,7 +4664,21 @@ export function App() {
         rewardRelics.forEach((r) => pool.push(r.names[phraseDiff]));
         pool.push('skip');
       } else if (screen === 'mystery' && activeEvent) {
-        if (pendingChanceChoice && eventOutcomeText === null) {
+        if (mysterySubMode === 'select_card_to_upgrade') {
+          deck
+            .filter((c) => !c.upgraded)
+            .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('back');
+        } else if (mysterySubMode === 'confirm_card_upgrade') {
+          pool.push('confirm', 'back');
+        } else if (mysterySubMode === 'select_card_to_invert') {
+          deck
+            .filter((c) => !c.inverted && getCardDefinition(c.cardId)?.type !== 'curse')
+            .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('back');
+        } else if (mysterySubMode === 'confirm_card_invert') {
+          pool.push('confirm', 'back');
+        } else if (pendingChanceChoice && eventOutcomeText === null) {
           // Wheel is actively spinning
         } else if (eventOutcomeText === null) {
           activeEvent.choices.forEach((ch) => pool.push(ch.phrases[phraseDiff]));
@@ -4503,6 +4727,7 @@ export function App() {
     handCandidates,
     introStep,
     isCardPlayAwaitingDiscard,
+    mysterySubMode,
     overlay,
     pendingChanceChoice,
     phraseDiff,
@@ -5884,61 +6109,236 @@ export function App() {
             {/* 7. MYSTERY ENCOUNTER */}
             {screen === 'mystery' && activeEvent && (
               <div className="cabinet-story-frame paper-sheet-float">
-                <div className="story-card">
-                  <h2 className="story-title">{activeEvent.title}</h2>
-                  <p className="story-paragraph">{activeEvent.narrative}</p>
-                  {pendingChanceChoice ? (
-                    <MysteryChanceWheel
-                      chance={pendingChanceChoice.chance!}
-                      choiceText={pendingChanceChoice.phrases[phraseDiff]}
-                      settings={settings}
-                      onSpinComplete={(succeeded) => {
-                        executeMysteryChoiceEffects(pendingChanceChoice, succeeded);
-                      }}
-                      triggerParticles={triggerElementParticles}
-                    />
-                  ) : eventOutcomeText === null ? (
-                    <div className="choice-list">
-                      {activeEvent.choices.map((ch) => {
-                        const phrase = ch.phrases[phraseDiff];
-                        const st = getPhraseHighlightState(phrase, difficulty);
+                {mysterySubMode === 'select_card_to_upgrade' ? (
+                  <div className="story-card">
+                    <h2 className="story-title">
+                      {activeEvent.title} — Select a Card to Revise (or type "back")
+                    </h2>
+                    <div className="deck-banner-grid">
+                      {sortCardsByCategoryAndRarity(
+                        deck.filter((c) => !c.upgraded),
+                        (c) => c,
+                        phraseDiff
+                      ).map((inst, idx) => {
+                        const baseRes = resolveCardInstance(inst, phraseDiff);
+                        const st = getPhraseHighlightState(baseRes.name, difficulty);
                         return (
-                          <div
-                            key={ch.id}
-                            className={`choice-item mystery-choice-card ${
-                              st.isHighlighted ? 'option-highlighted' : ''
-                            } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
-                          >
-                            <div className="phrase-to-type">{phrase}</div>
-                            {renderMysteryChoiceOdds(ch)}
-                          </div>
+                          <CardBanner
+                            key={inst.instanceId}
+                            instance={inst}
+                            phraseDiff={phraseDiff}
+                            index={idx}
+                            isHighlighted={st.isHighlighted}
+                            isEnterCandidate={st.isEnterReady}
+                            showUpgradeDelta={true}
+                          />
                         );
                       })}
                     </div>
-                  ) : (
-                    <div className="prompt-panel mystery-outcome-panel">
-                      <div
-                        className={`mystery-outcome-summary-box ${
-                          eventRollSucceeded === false ? 'outcome-box-failed' : 'outcome-box-success'
-                        }`}
-                      >
-                        <div className="mystery-outcome-header">
-                          {eventOutcomeText}
+                  </div>
+                ) : mysterySubMode === 'confirm_card_upgrade' && mysterySelectedCard ? (
+                  <div className="story-card">
+                    <h2 className="story-title">
+                      {activeEvent.title} — Confirm Card Revision
+                    </h2>
+                    <div className="campfire-upgrade-comparison">
+                      <div className="campfire-confirm-cards-row">
+                        <div className="campfire-card-preview-box">
+                          <div className="campfire-card-preview-tag base-tag">Current Version</div>
+                          <CardBanner
+                            instance={{ ...mysterySelectedCard, upgraded: false }}
+                            phraseDiff={phraseDiff}
+                            showUpgradeDelta={false}
+                          />
                         </div>
-                        {eventOutcomeSummary.length > 0 && (
-                          <div className="mystery-outcome-badges">
-                            {eventOutcomeSummary.map((line, idx) => (
-                              <span key={idx} className="mystery-outcome-chip">
-                                {line}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        <div className="campfire-preview-arrow-box">
+                          <div className="campfire-arrow-icon">➔</div>
+                          <div className="campfire-arrow-text">Upgrades To</div>
+                        </div>
+                        <div className="campfire-card-preview-box">
+                          <div className="campfire-card-preview-tag upgraded-tag">Upgraded Version (+)</div>
+                          <CardBanner
+                            instance={{ ...mysterySelectedCard, upgraded: true }}
+                            phraseDiff={phraseDiff}
+                            showUpgradeDelta={true}
+                          />
+                        </div>
                       </div>
-                      <div className="phrase-to-type">continue</div>
+
+                      <div className="campfire-confirm-prompt-panel">
+                        <p className="campfire-confirm-prompt-title">
+                          Confirm upgrading <strong>{resolveCardInstance(mysterySelectedCard, phraseDiff).name}</strong>?
+                        </p>
+                        <div className="choice-list campfire-confirm-choice-list">
+                          {[
+                            { cmd: 'confirm', desc: 'Permanently upgrade & proceed to next floor' },
+                            { cmd: 'back', desc: 'Choose a different card from your deck' },
+                          ].map((item) => {
+                            const st = getPhraseHighlightState(item.cmd, difficulty);
+                            return (
+                              <div
+                                key={item.cmd}
+                                className={`choice-item ${
+                                  st.isHighlighted ? 'option-highlighted' : ''
+                                } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                              >
+                                <div className="phrase-to-type">{item.cmd}</div>
+                                <div>{item.desc}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : mysterySubMode === 'select_card_to_invert' ? (
+                  <div className="story-card">
+                    <h2 className="story-title">
+                      {activeEvent.title} — Select a Card to Invert in the Mirror Script (or type "back")
+                    </h2>
+                    <div className="deck-banner-grid">
+                      {sortCardsByCategoryAndRarity(
+                        deck.filter((c) => !c.inverted && getCardDefinition(c.cardId)?.type !== 'curse'),
+                        (c) => c,
+                        phraseDiff
+                      ).map((inst, idx) => {
+                        const baseRes = resolveCardInstance(inst, phraseDiff);
+                        const st = getPhraseHighlightState(baseRes.name, difficulty);
+                        return (
+                          <CardBanner
+                            key={inst.instanceId}
+                            instance={inst}
+                            phraseDiff={phraseDiff}
+                            index={idx}
+                            isHighlighted={st.isHighlighted}
+                            isEnterCandidate={st.isEnterReady}
+                            showUpgradeDelta={false}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : mysterySubMode === 'confirm_card_invert' && mysterySelectedCard ? (
+                  <div className="story-card">
+                    <h2 className="story-title">
+                      {activeEvent.title} — Confirm Card Inversion
+                    </h2>
+                    <div className="campfire-upgrade-comparison">
+                      <div className="campfire-confirm-cards-row">
+                        <div className="campfire-card-preview-box">
+                          <div className="campfire-card-preview-tag base-tag">Original Form</div>
+                          <CardBanner
+                            instance={{ ...mysterySelectedCard, inverted: false }}
+                            phraseDiff={phraseDiff}
+                            showUpgradeDelta={false}
+                          />
+                        </div>
+                        <div className="campfire-preview-arrow-box">
+                          <div className="campfire-arrow-icon">🪞</div>
+                          <div className="campfire-arrow-text">Inverts Magic Into</div>
+                        </div>
+                        <div className="campfire-card-preview-box">
+                          <div
+                            className="campfire-card-preview-tag"
+                            style={{ background: '#7e22ce', color: '#f3e8ff' }}
+                          >
+                            🪞 Inverted Form
+                          </div>
+                          <CardBanner
+                            instance={{ ...mysterySelectedCard, inverted: true }}
+                            phraseDiff={phraseDiff}
+                            showUpgradeDelta={false}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="campfire-confirm-prompt-panel">
+                        <p className="campfire-confirm-prompt-title">
+                          Confirm inverting <strong>{resolveCardInstance(mysterySelectedCard, phraseDiff).name}</strong>?
+                          <br />
+                          <span style={{ fontSize: '0.84rem', color: '#a855f7', fontWeight: 600 }}>
+                            (Damage ↔ Ward, Bold ↔ Faded, Exposed ↔ Plated, Ink Burn ↔ Thorns, Targets Inverted)
+                          </span>
+                        </p>
+                        <div className="choice-list campfire-confirm-choice-list">
+                          {[
+                            { cmd: 'confirm', desc: 'Permanently invert this card and proceed to next floor' },
+                            { cmd: 'back', desc: 'Choose a different card from your deck' },
+                          ].map((item) => {
+                            const st = getPhraseHighlightState(item.cmd, difficulty);
+                            return (
+                              <div
+                                key={item.cmd}
+                                className={`choice-item ${
+                                  st.isHighlighted ? 'option-highlighted' : ''
+                                } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                              >
+                                <div className="phrase-to-type">{item.cmd}</div>
+                                <div>{item.desc}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="story-card">
+                    <h2 className="story-title">{activeEvent.title}</h2>
+                    <p className="story-paragraph">{activeEvent.narrative}</p>
+                    {pendingChanceChoice ? (
+                      <MysteryChanceWheel
+                        chance={pendingChanceChoice.chance!}
+                        choiceText={pendingChanceChoice.phrases[phraseDiff]}
+                        settings={settings}
+                        onSpinComplete={(succeeded) => {
+                          executeMysteryChoiceEffects(pendingChanceChoice, succeeded);
+                        }}
+                        triggerParticles={triggerElementParticles}
+                      />
+                    ) : eventOutcomeText === null ? (
+                      <div className="choice-list">
+                        {activeEvent.choices.map((ch) => {
+                          const phrase = ch.phrases[phraseDiff];
+                          const st = getPhraseHighlightState(phrase, difficulty);
+                          return (
+                            <div
+                              key={ch.id}
+                              className={`choice-item mystery-choice-card ${
+                                st.isHighlighted ? 'option-highlighted' : ''
+                              } ${st.isEnterReady ? 'option-enter-ready' : ''}`}
+                            >
+                              <div className="phrase-to-type">{phrase}</div>
+                              {renderMysteryChoiceOdds(ch)}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="prompt-panel mystery-outcome-panel">
+                        <div
+                          className={`mystery-outcome-summary-box ${
+                            eventRollSucceeded === false ? 'outcome-box-failed' : 'outcome-box-success'
+                          }`}
+                        >
+                          <div className="mystery-outcome-header">
+                            {eventOutcomeText}
+                          </div>
+                          {eventOutcomeSummary.length > 0 && (
+                            <div className="mystery-outcome-badges">
+                              {eventOutcomeSummary.map((line, idx) => (
+                                <span key={idx} className="mystery-outcome-chip">
+                                  {line}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="phrase-to-type">continue</div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

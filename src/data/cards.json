@@ -4077,5 +4077,40 @@
       "burnDraft": true
     },
     "sfx": "cards/bookFlip3.ogg"
+  },
+  {
+    "id": "vowel_tax_receipt",
+    "rarity": "curse",
+    "type": "curse",
+    "unplayable": true,
+    "cost": 99,
+    "target": "self",
+    "names": {
+      "easy": "tax receipt",
+      "medium": "vowel tax receipt",
+      "hard": "bureaucratic vowel tax assessment receipt"
+    },
+    "connectors": {
+      "easy": "is filed",
+      "medium": "clutters your satchel",
+      "hard": "weighs down your hand with imperial tax stamp"
+    },
+    "description": "Unplayable. A useless imperial receipt stamped with the Wizard's seal that takes up space in your hand.",
+    "effects": [],
+    "art": {
+      "primaryColor": "#64748b",
+      "secondaryColor": "#475569",
+      "shape": "parchment",
+      "spriteUrl": "./assets/sprite-library/ravenmore/Paper.png"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "tax receipt",
+        "medium": "vowel tax receipt",
+        "hard": "bureaucratic vowel tax assessment receipt"
+      },
+      "description": "Unplayable. A useless imperial receipt.",
+      "effects": []
+    }
   }
 ]

@@ -13,8 +13,8 @@ export interface DifficultyStringPools {
   hard: string[];
 }
 
-export type CardRarity = 'starter' | 'common' | 'uncommon' | 'rare';
-export type CardType = 'attack' | 'skill' | 'power';
+export type CardRarity = 'starter' | 'common' | 'uncommon' | 'rare' | 'curse';
+export type CardType = 'attack' | 'skill' | 'power' | 'curse';
 export type CardTarget = 'enemy' | 'all_enemies' | 'self';
 
 export type EffectType =
@@ -97,6 +97,7 @@ export interface CardDefinition {
   type: CardType;
   cost: number;
   xCost?: boolean;
+  unplayable?: boolean;
   target: CardTarget;
   names: DifficultyStrings;
   connectors: DifficultyStrings;
@@ -112,9 +113,10 @@ export interface CardInstance {
   instanceId: string;
   cardId: string;
   upgraded: boolean;
+  inverted?: boolean;
 }
 
-export type EnemyFaction = 'goblins' | 'rock_monsters' | 'evil_plants' | 'boss' | 'origami';
+export type EnemyFaction = 'goblins' | 'rock_monsters' | 'evil_plants' | 'boss' | 'origami' | 'wizards_guard';
 export type EnemyRole = 'tank' | 'glass_cannon' | 'support' | 'balanced' | 'elite' | 'boss';
 
 export type EnemyIntentType =
@@ -241,6 +243,8 @@ export interface MapNode {
   nextNodeIds: string[];
   completed: boolean;
   phrases: DifficultyStrings; // Assigned from map_phrases.json so player types e.g. "take the left path towards the warm campsite"
+  isSecretNode?: boolean;
+  isSecretPath?: boolean;
 }
 
 export interface MysteryEffects {
@@ -254,6 +258,16 @@ export interface MysteryEffects {
   removeRandomCard?: boolean;
   /** Start a battle against an ordinary encounter for the current floor after the event. */
   startBattle?: boolean;
+  /** Spawns a secret unredacted detour node on the map connecting to all next floor encounters. */
+  revealSecretPath?: boolean;
+  /** Triggers interactive campfire-style card selection to upgrade any card in deck. */
+  chooseCardToUpgrade?: boolean;
+  /** Triggers interactive campfire-style card selection to invert a card in deck. */
+  chooseCardToInvert?: boolean;
+  /** Adds a specified curse/unplayable card ID to the player's deck. */
+  gainCurseCard?: string;
+  /** Starts an immediate combat encounter with specific enemy IDs (e.g. ['vowel_tax_collector', 'ink_hound', 'ink_hound']). */
+  startBattleEnemies?: string[];
 }
 
 export interface MysteryChoice {
@@ -274,6 +288,8 @@ export interface MysteryEventDefinition {
   title: string;
   narrative: string;
   choices: MysteryChoice[];
+  /** Minimum floor required before this event can appear in mystery encounters (e.g. 5 for elite encounters). */
+  minFloor?: number;
 }
 
 export interface MapPhrasesCatalog {

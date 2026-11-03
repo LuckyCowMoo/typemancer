@@ -162,7 +162,95 @@ export function deriveEffectiveTarget(
 }
 
 /**
- * Resolves a CardInstance into its active stats (accounting for whether it is upgraded).
+ * Inverts card effects according to the Mirror-Script Wall magic:
+ * - damage <-> ward
+ * - bold <-> faded
+ * - exposed <-> plated_armor
+ * - ink_burn <-> thorns
+ * - targets are inverted: player/self <-> enemy
+ * - numbers/hits remain identical
+ */
+export function invertCardEffects(effects: CardEffect[]): CardEffect[] {
+  return effects.map((eff) => {
+    let nextType = eff.type;
+    if (eff.type === 'damage') nextType = 'ward';
+    else if (eff.type === 'ward') nextType = 'damage';
+    else if (eff.type === 'bold') nextType = 'faded';
+    else if (eff.type === 'faded') nextType = 'bold';
+    else if (eff.type === 'exposed') nextType = 'plated_armor';
+    else if (eff.type === 'plated_armor') nextType = 'exposed';
+    else if (eff.type === 'ink_burn') nextType = 'thorns';
+    else if (eff.type === 'thorns') nextType = 'ink_burn';
+
+    let nextTarget = eff.target;
+    if (eff.target === 'player' || eff.target === 'self') {
+      nextTarget = 'enemy';
+    } else if (eff.target === 'enemy' || eff.target === 'all_enemies') {
+      nextTarget = 'self';
+    }
+
+    return {
+      ...eff,
+      type: nextType,
+      target: nextTarget,
+    };
+  });
+}
+
+export function generateInvertedDescription(effects: CardEffect[]): string {
+  const parts: string[] = [];
+  for (const eff of effects) {
+    const hitsText = eff.hits && eff.hits > 1 ? ` ${eff.hits} times` : '';
+    const toText =
+      eff.target === 'player' || eff.target === 'self'
+        ? ''
+        : eff.target === 'all_enemies'
+        ? ' to ALL enemies'
+        : ' to an enemy';
+
+    switch (eff.type) {
+      case 'damage':
+        parts.push(`Deal ${eff.amount}${hitsText} Damage${toText}.`);
+        break;
+      case 'ward':
+        parts.push(`Gain ${eff.amount} Ward.`);
+        break;
+      case 'bold':
+        parts.push(`Gain ${eff.amount} Bold.`);
+        break;
+      case 'faded':
+        parts.push(`Apply ${eff.amount} Faded${toText}.`);
+        break;
+      case 'plated_armor':
+        parts.push(`Gain ${eff.amount} Plated Armor.`);
+        break;
+      case 'exposed':
+        parts.push(`Apply ${eff.amount} Exposed${toText}.`);
+        break;
+      case 'thorns':
+        parts.push(`Gain ${eff.amount} Thorns.`);
+        break;
+      case 'ink_burn':
+        parts.push(`Apply ${eff.amount} Ink Burn${toText}.`);
+        break;
+      case 'draw':
+        parts.push(`Draw ${eff.amount} card${eff.amount > 1 ? 's' : ''}.`);
+        break;
+      case 'energy':
+        parts.push(`Gain ${eff.amount} Energy.`);
+        break;
+      case 'heal':
+        parts.push(`Heal ${eff.amount} HP.`);
+        break;
+      default:
+        break;
+    }
+  }
+  return parts.length > 0 ? parts.join(' ') : 'Inverted mirror script magic.';
+}
+
+/**
+ * Resolves a CardInstance into its active stats (accounting for whether it is upgraded or inverted).
  */
 export function resolveCardInstance(
   instance: CardInstance,
@@ -171,6 +259,8 @@ export function resolveCardInstance(
   instanceId: string;
   cardId: string;
   upgraded: boolean;
+  inverted?: boolean;
+  unplayable?: boolean;
   name: string;
   connector: string;
   cost: number;
@@ -189,53 +279,72 @@ export function resolveCardInstance(
     instance.upgraded && def.upgrade && def.upgrade.xCost !== undefined
       ? def.upgrade.xCost
       : Boolean(def.xCost);
+  const isInverted = Boolean(instance.inverted);
+  const isUnplayable = Boolean(def.unplayable || def.type === 'curse');
 
-  if (instance.upgraded && def.upgrade) {
-    const upEffects = def.upgrade.effects || def.effects;
-    return {
-      instanceId: instance.instanceId,
-      cardId: def.id,
-      upgraded: true,
-      name: def.upgrade.names[phraseDiff] || def.names[phraseDiff],
-      connector:
-        (def.upgrade.connectors && def.upgrade.connectors[phraseDiff]) ||
-        def.connectors[phraseDiff],
-      cost: isXCost
-        ? -1
-        : def.upgrade.cost !== undefined
-        ? def.upgrade.cost
-        : def.cost,
-      xCost: isXCost,
-      type: def.type,
-      rarity: def.rarity,
-      target: deriveEffectiveTarget(def.target, upEffects),
-      description: def.upgrade.description || def.description,
-      effects: upEffects,
-      burnDraft:
-        def.type === 'power'
-          ? true
-          : def.upgrade.burnDraft !== undefined
-          ? def.upgrade.burnDraft
-          : Boolean(def.burnDraft),
-      art: def.art,
-      sfx: def.sfx,
-    };
+  let baseEffects =
+    instance.upgraded && def.upgrade
+      ? def.upgrade.effects || def.effects
+      : def.effects;
+  if (isInverted) {
+    baseEffects = invertCardEffects(baseEffects);
   }
+
+  const baseName =
+    instance.upgraded && def.upgrade
+      ? def.upgrade.names[phraseDiff] || def.names[phraseDiff]
+      : def.names[phraseDiff];
+  const finalName = isInverted ? `🪞 Inverted ${baseName}` : baseName;
+
+  const baseDesc =
+    instance.upgraded && def.upgrade
+      ? def.upgrade.description || def.description
+      : cleanCardDescriptionForPlay(def.description);
+  const finalDesc = isInverted ? generateInvertedDescription(baseEffects) : baseDesc;
+
+  const baseTarget = isInverted
+    ? baseEffects.some((e) => e.target === 'enemy' || e.target === 'all_enemies')
+      ? 'enemy'
+      : 'self'
+    : def.target;
+  const finalTarget = deriveEffectiveTarget(baseTarget, baseEffects);
+
+  const finalCost = isXCost
+    ? -1
+    : instance.upgraded && def.upgrade && def.upgrade.cost !== undefined
+    ? def.upgrade.cost
+    : def.cost;
+
+  const finalBurn =
+    def.type === 'power'
+      ? true
+      : instance.upgraded && def.upgrade && def.upgrade.burnDraft !== undefined
+      ? def.upgrade.burnDraft
+      : Boolean(def.burnDraft);
+
+  const finalConnector =
+    (instance.upgraded &&
+      def.upgrade &&
+      def.upgrade.connectors &&
+      def.upgrade.connectors[phraseDiff]) ||
+    def.connectors[phraseDiff];
 
   return {
     instanceId: instance.instanceId,
     cardId: def.id,
-    upgraded: false,
-    name: def.names[phraseDiff],
-    connector: def.connectors[phraseDiff],
-    cost: isXCost ? -1 : def.cost,
+    upgraded: Boolean(instance.upgraded),
+    inverted: isInverted,
+    unplayable: isUnplayable,
+    name: finalName,
+    connector: finalConnector,
+    cost: finalCost,
     xCost: isXCost,
     type: def.type,
     rarity: def.rarity,
-    target: deriveEffectiveTarget(def.target, def.effects),
-    description: cleanCardDescriptionForPlay(def.description),
-    effects: def.effects,
-    burnDraft: def.type === 'power' ? true : Boolean(def.burnDraft),
+    target: finalTarget,
+    description: finalDesc,
+    effects: baseEffects,
+    burnDraft: finalBurn,
     art: def.art,
     sfx: def.sfx,
   };
@@ -607,8 +716,8 @@ export function generateEncounter(
     return finalizeEncounter([instantiateEnemy(fallback, 2.8)]);
   }
 
-  // Pick one of the 3 factions with equal 1/3 probability
-  const factions: EnemyFaction[] = ['goblins', 'rock_monsters', 'evil_plants'];
+  // Pick one of the factions with equal probability
+  const factions: EnemyFaction[] = ['goblins', 'rock_monsters', 'evil_plants', 'wizards_guard'];
   const availableFactions = factions.filter((f) =>
     ENEMIES_CATALOG.some((e) => e.faction === f)
   );
@@ -658,6 +767,69 @@ export function generateEncounter(
   }
 
   return finalizeEncounter(spawned);
+}
+
+/**
+ * Spawns a custom encounter with specific enemy IDs (e.g. for event combats like Vowel Tax Collector).
+ */
+export function generateCustomEncounter(
+  enemyIds: string[],
+  floor: number,
+  phraseDiff: PhraseDifficulty
+): ActiveEnemy[] {
+  const usedNames = new Set<string>();
+
+  const list = enemyIds.map((id) => {
+    const def = ENEMIES_CATALOG.find((e) => e.id === id) || ENEMIES_CATALOG[0];
+    const pool = def.namePools[phraseDiff] || def.namePools.easy;
+    const availableNames = pool.filter((n) => !usedNames.has(n.toLowerCase()));
+    let chosenName = availableNames.length > 0 ? pickRandom(availableNames) : pickRandom(pool);
+
+    if (usedNames.has(chosenName.toLowerCase())) {
+      const suffixes = ['alpha', 'beta', 'gamma', 'prime', 'elder'];
+      for (const suf of suffixes) {
+        const candidate = `${chosenName} ${suf}`;
+        if (!usedNames.has(candidate.toLowerCase())) {
+          chosenName = candidate;
+          break;
+        }
+      }
+    }
+    usedNames.add(chosenName.toLowerCase());
+
+    const baseHp = def.minHp + Math.floor(Math.random() * Math.max(1, def.maxHp - def.minHp + 1));
+    const hpScale = 1 + floor * 0.035;
+    const scaledHp = Math.max(10, Math.round(baseHp * hpScale));
+    const { move, behavior } = chooseEnemyMoveForContext(def, scaledHp, scaledHp, 1);
+    const isElite = def.role === 'elite' || def.tier === 3;
+
+    return {
+      instanceId: nextUid('enemy'),
+      enemyId: def.id,
+      displayName: chosenName,
+      faction: def.faction,
+      role: def.role,
+      isElite,
+      team: 'enemy' as const,
+      hp: scaledHp,
+      maxHp: scaledHp,
+      ward: 0,
+      statuses: {
+        bold: 0,
+        faded: 0,
+        exposed: 0,
+        ink_burn: 0,
+        plated_armor: 0,
+        thorns: 0,
+      },
+      currentMove: move,
+      currentBehavior: behavior,
+      art: def.art,
+      description: def.description,
+    };
+  });
+
+  return list;
 }
 
 /**
@@ -989,7 +1161,7 @@ export function getCardEffectiveDropRarity(def: CardDefinition): EffectiveDropRa
     if (def.rarity === 'uncommon') return 'rare';
     return 'ultra_rare';
   }
-  return def.rarity === 'starter' ? 'common' : def.rarity;
+  return def.rarity === 'starter' || def.rarity === 'curse' ? 'common' : def.rarity;
 }
 
 /**

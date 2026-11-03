@@ -1032,5 +1032,133 @@
         }
       }
     ]
+  },
+  {
+    "id": "censored_cartographer",
+    "title": "The Censored Cartographer",
+    "narrative": "A blindfolded royal mapmaker sits atop a milestone, his compass needles carved from fountain pen nibs. His sprawling parchment maps have every landmark, river, and road blacked out with thick censor ink bars.",
+    "choices": [
+      {
+        "id": "scrape_censorship",
+        "phrases": {
+          "easy": "scrape ink",
+          "medium": "scrape away redactions",
+          "hard": "carefully scrape censor ink from the parchment"
+        },
+        "outcomeText": "As you scrape away the thick black ink, a luminous secret trail reveals itself across the map, opening a hidden passage to the next floor!",
+        "effects": {
+          "hpChange": -6,
+          "revealSecretPath": true
+        }
+      },
+      {
+        "id": "buy_astrolabe",
+        "phrases": {
+          "easy": "buy compass",
+          "medium": "buy brass astrolabe",
+          "hard": "purchase the cartographer enchanted brass astrolabe"
+        },
+        "outcomeText": "You purchase the cartographer's finely tuned brass astrolabe, adding an ancient relic to your collection.",
+        "effects": {
+          "goldChange": -45,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "gamble_guess_city",
+        "phrases": {
+          "easy": "guess name",
+          "medium": "decipher hidden location",
+          "hard": "boldly name the forgotten capital beneath the ink"
+        },
+        "chance": 65,
+        "outcomeText": "Your linguistic deduction strikes gold! You discover a rare manuscript and expand your stamina.",
+        "effects": {
+          "maxHpChange": 6,
+          "gainRareCard": true
+        },
+        "failText": "A censor ward flares from the page, searing your fingertips!",
+        "failEffects": {
+          "hpChange": -11
+        }
+      }
+    ]
+  },
+  {
+    "id": "vowel_tax_collector",
+    "title": "The Vowel Tax Collector",
+    "minFloor": 5,
+    "narrative": "A stern magistrate bearing the Evil Wizard's imperial crest blocks the road, flanked by snarling ink hounds. He unfurls an edict: 'BY ORDER OF THE WIZARD: A TAX OF 60 GOLD IS LEVIED ON ALL COMMERCE OF VOWELS. COMPLY OR FACE ERASURE.'",
+    "choices": [
+      {
+        "id": "pay_vowel_tax",
+        "phrases": {
+          "easy": "pay tax",
+          "medium": "pay the vowel tax",
+          "hard": "hand over sixty gold to pay the wizard vowel tax"
+        },
+        "outcomeText": "You hand over sixty gold. The collector sneers and stamps an unplayable, bureaucratic tax assessment into your satchel that clutters your hand.",
+        "effects": {
+          "goldChange": -60,
+          "gainCurseCard": "vowel_tax_receipt"
+        }
+      },
+      {
+        "id": "refuse_vowel_tax",
+        "phrases": {
+          "easy": "refuse tax",
+          "medium": "refuse to pay the tax",
+          "hard": "draw your quill and defy the wizard vowel tax"
+        },
+        "outcomeText": "'Tax evasion is high treason against the Wizard!' the collector bellows, commanding his hounds to tear you apart!",
+        "effects": {
+          "startBattleEnemies": ["vowel_tax_collector", "ink_hound", "ink_hound"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "mirror_script_wall",
+    "title": "The Mirror-Script Wall",
+    "narrative": "A towering wall of polished obsidian rises before you, inscribed with glowing silver runes that run backwards. As you approach, the pages in your deck shimmer with an inverted reflection.",
+    "choices": [
+      {
+        "id": "study_reflections",
+        "phrases": {
+          "easy": "study wall",
+          "medium": "study mirror script",
+          "hard": "quietly study the backwards silver runes on the wall"
+        },
+        "outcomeText": "Meditating on the backwards silver runes soothes your mind and expands your life force.",
+        "effects": {
+          "hpChange": 14,
+          "maxHpChange": 4
+        }
+      },
+      {
+        "id": "invert_card",
+        "phrases": {
+          "easy": "invert card",
+          "medium": "invert chosen card",
+          "hard": "press a card against the mirror wall to invert its magic"
+        },
+        "outcomeText": "The obsidian wall flashes with inverted light! Choose a card from your deck to invert its essence.",
+        "effects": {
+          "chooseCardToInvert": true
+        }
+      },
+      {
+        "id": "upgrade_card",
+        "phrases": {
+          "easy": "refine card",
+          "medium": "upgrade chosen card",
+          "hard": "align a card with the mirror silver runes to revise it"
+        },
+        "outcomeText": "Silver light traces the seams of your chosen draft, elevating it to its revised form.",
+        "effects": {
+          "chooseCardToUpgrade": true
+        }
+      }
+    ]
   }
 ]
