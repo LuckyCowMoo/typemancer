@@ -9,6 +9,9 @@ export function normalizeText(input: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\bconcecated\b/g, 'consecrated')
+    .replace(/\bdetrevni\s+inverted\b/g, 'detrevni')
+    .replace(/\binverted\s+detrevni\b/g, 'detrevni')
+    .replace(/\binverted\b/g, 'detrevni')
     .replace(/\s+/g, ' ')
     .trim();
 }

@@ -422,15 +422,16 @@ export function resolveCardInstance(
       ? def.upgrade.names[phraseDiff] || def.names[phraseDiff]
       : def.names[phraseDiff];
   let finalName = baseName;
-  if (isInverted) {
-    finalName = baseName.split('').reverse().join('');
-  } else if (
+  if (
     instance.consecrated ||
     (instance.additionalEffects && instance.additionalEffects.length > 0 && !instance.corrupted)
   ) {
     finalName = `Consecrated ${baseName}`;
   } else if (instance.corrupted) {
     finalName = `Corrupted ${baseName}`;
+  }
+  if (isInverted) {
+    finalName = `detrevnI ${finalName}`;
   }
 
   const baseDesc =
