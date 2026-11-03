@@ -2378,6 +2378,66 @@ body,
   50% { opacity: 1; }
 }
 
+/* ==================== TEMPORARY PLAYTEST FLOATING BANNER ==================== */
+.playtest-floating-banner {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1a110b;
+  color: #fdf8ef;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 2px solid #ffd166;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  font-family: inherit;
+  animation: scaleInBadge 0.25s ease-out;
+}
+
+.playtest-pill-badge {
+  background: #ffd166;
+  color: #1a110b;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.playtest-banner-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.playtest-banner-hint {
+  font-size: 0.76rem;
+  color: #d1d5db;
+  font-style: italic;
+}
+
+.playtest-exit-btn {
+  background: #dc2626;
+  color: #fff;
+  border: 1px solid #ef4444;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.playtest-exit-btn:hover {
+  background: #b91c1c;
+  transform: scale(1.03);
+}
+
 .phrase-to-type {
   font-size: 1.08rem;
   font-weight: 800;

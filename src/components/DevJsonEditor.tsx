@@ -68,6 +68,7 @@ type EditorTab =
 interface DevJsonEditorProps {
   onClose: () => void;
   settings?: GameSettings;
+  onPlaytestEvent?: (event: MysteryEventDefinition) => void;
 }
 
 export interface EffectGroupDef {
@@ -264,15 +265,15 @@ export interface MysteryEffectCategoryGroup {
 export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
   {
     category: 'Stats & Vitals',
-    colorName: 'Rose Red',
-    color: '#ef4444',
-    bg: '#fef2f2',
+    colorName: 'Emerald / Crimson',
+    color: '#059669',
+    bg: '#ecfdf5',
     items: [
       {
         key: 'hpChange',
         label: '❤️ HP Change (+/- Heal or Damage)',
         type: 'number',
-        default: -6,
+        default: 12,
         hint: 'Negative deals damage, positive heals',
       },
       {
@@ -286,7 +287,7 @@ export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
         key: 'goldChange',
         label: '🪙 Gold Change (+/- Gain or Cost)',
         type: 'number',
-        default: -60,
+        default: 45,
         hint: 'Negative spends gold, positive grants gold',
       },
     ],
@@ -395,12 +396,30 @@ export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
 ];
 
 export const getMysteryEffectMeta = (
-  key: string
+  key: string,
+  val?: unknown
 ): MysteryEffectOption & { category: string; color: string; bg: string } => {
   for (const cat of MYSTERY_EFFECT_GROUPS) {
     const item = cat.items.find((it) => it.key === key);
     if (item) {
-      return { ...item, category: cat.category, color: cat.color, bg: cat.bg };
+      let color = cat.color;
+      let bg = cat.bg;
+      if (key === 'hpChange' || key === 'maxHpChange' || key === 'goldChange') {
+        const num = typeof val === 'number' ? val : item.default;
+        if (typeof num === 'number') {
+          if (num > 0) {
+            color = '#059669'; // Emerald green
+            bg = '#ecfdf5';
+          } else if (num < 0) {
+            color = '#dc2626'; // Crimson red
+            bg = '#fef2f2';
+          } else {
+            color = '#64748b'; // Neutral slate
+            bg = '#f8fafc';
+          }
+        }
+      }
+      return { ...item, category: cat.category, color, bg };
     }
   }
   return {
@@ -414,7 +433,11 @@ export const getMysteryEffectMeta = (
   };
 };
 
-export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings }) => {
+export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
+  onClose,
+  settings,
+  onPlaytestEvent,
+}) => {
   const [editorMuted, setEditorMuted] = useState<boolean>(true);
 
   const effectiveSettings: GameSettings = useMemo(() => ({
@@ -3885,11 +3908,39 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
           </aside>
 
           <main className="dev-detail-pane" ref={detailPaneRef}>
-            <div className="dev-section-header">
+            <div
+              className="dev-section-header"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 12,
+              }}
+            >
               <h2>
                 ✏️ Editing Mystery Event #{selectedEventIdx + 1} of {eventsList.length}:{' '}
                 <span style={{ color: '#bc5215' }}>{activeEvent.title}</span>
               </h2>
+              {onPlaytestEvent && (
+                <button
+                  type="button"
+                  className="dev-btn dev-btn-success"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '6px 14px',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => onPlaytestEvent(activeEvent)}
+                  title="Temporarily play this encounter now in the game. Your existing run is saved and will not be affected at all."
+                >
+                  ▶ Playtest This Encounter
+                </button>
+              )}
             </div>
             <section className="dev-section-card">
               <div className="dev-fields-grid">
@@ -4169,9 +4220,9 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                         ) : (
                           <div className="dev-effects-grid-3col">
                             {activeEntries.map(([key, val], eIdx) => {
-                              const meta = getMysteryEffectMeta(key);
+                              const meta = getMysteryEffectMeta(key, val);
                               return (
-                                <div key={key} className="dev-effect-tile" style={{ background: meta.bg }}>
+                                <div key={key} className="dev-effect-tile" style={{ background: meta.bg, borderColor: meta.color }}>
                                   <div className="dev-effect-tile-header" style={{ borderBottomColor: meta.color }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                       <span
@@ -4213,6 +4264,15 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                         <input
                                           type="number"
                                           value={val}
+                                          style={{
+                                            fontWeight: 700,
+                                            color:
+                                              typeof val === 'number' && val > 0
+                                                ? '#059669'
+                                                : typeof val === 'number' && val < 0
+                                                ? '#dc2626'
+                                                : undefined,
+                                          }}
                                           onChange={(e) => {
                                             const num = Number(e.target.value);
                                             const nextEffects = { ...ch.effects, [key]: num };
@@ -4373,10 +4433,12 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                             ) : (
                               <div className="dev-effects-grid-3col">
                                 {failEntries.map(([key, val], eIdx) => {
-                                  const meta = getMysteryEffectMeta(key);
+                                  const meta = getMysteryEffectMeta(key, val);
+                                  const tileColor = meta.color || '#dc2626';
+                                  const tileBg = meta.bg || '#fff5f5';
                                   return (
-                                    <div key={key} className="dev-effect-tile" style={{ background: '#fff5f5' }}>
-                                      <div className="dev-effect-tile-header" style={{ borderBottomColor: '#dc2626' }}>
+                                    <div key={key} className="dev-effect-tile" style={{ background: tileBg, borderColor: tileColor }}>
+                                      <div className="dev-effect-tile-header" style={{ borderBottomColor: tileColor }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                           <span
                                             style={{
@@ -4384,10 +4446,10 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                               width: 10,
                                               height: 10,
                                               borderRadius: '50%',
-                                              backgroundColor: '#dc2626',
+                                              backgroundColor: tileColor,
                                             }}
                                           />
-                                          <span className="dev-effect-tile-badge" style={{ color: '#dc2626' }}>
+                                          <span className="dev-effect-tile-badge" style={{ color: tileColor }}>
                                             Failure #{eIdx + 1}
                                           </span>
                                         </div>
@@ -4417,6 +4479,15 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({ onClose, settings 
                                             <input
                                               type="number"
                                               value={val}
+                                              style={{
+                                                fontWeight: 700,
+                                                color:
+                                                  typeof val === 'number' && val > 0
+                                                    ? '#059669'
+                                                    : typeof val === 'number' && val < 0
+                                                    ? '#dc2626'
+                                                    : undefined,
+                                              }}
                                               onChange={(e) => {
                                                 const num = Number(e.target.value);
                                                 const nextFailEffects = { ...ch.failEffects, [key]: num };

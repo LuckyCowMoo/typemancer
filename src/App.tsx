@@ -300,6 +300,58 @@ export function App() {
   >('event');
   const [mysterySelectedCard, setMysterySelectedCard] = useState<CardInstance | null>(null);
 
+  // Temporary encounter playtest state & run snapshot backup
+  const [playtestBackup, setPlaytestBackup] = useState<{
+    screen: GameScreen;
+    hp: number;
+    maxHp: number;
+    gold: number;
+    deck: CardInstance[];
+    relicIds: string[];
+    metrics: RunMetrics;
+    mapFloors: MapNode[][];
+    currentFloor: number;
+    currentNodeId: string | null;
+    activeNodeType: 'battle' | 'elite' | 'boss';
+    mapScrollOffset: number;
+    activeEnvironment: BattleEnvironmentDefinition;
+    activeEvent: MysteryEventDefinition | null;
+    eventOutcomeText: string | null;
+    eventOutcomeSummary: string[];
+    eventRollSucceeded: boolean | null;
+    pendingChanceChoice: MysteryChoice | null;
+    pendingConsecrateChoice: MysteryChoice | null;
+    consecratedResultCard: CardInstance | null;
+    mysterySubMode:
+      | 'event'
+      | 'select_card_to_upgrade'
+      | 'confirm_card_upgrade'
+      | 'select_card_to_invert'
+      | 'confirm_card_invert'
+      | 'select_card_to_consecrate';
+    mysterySelectedCard: CardInstance | null;
+    energy: number;
+    maxEnergy: number;
+    playerWard: number;
+    playerStatuses: StatusState;
+    hand: CardInstance[];
+    drawPile: CardInstance[];
+    discardPile: CardInstance[];
+    burnDraftPile: CardInstance[];
+    enemies: ActiveEnemy[];
+    allies: ActiveEnemy[];
+    activePowers: ActivePower[];
+    rewardCards: CardInstance[];
+    rewardRelics: RelicDefinition[];
+    rewardGoldClaimed: number;
+    rewardStep: 'card' | 'relic';
+    shopInventory: ShopInventory | null;
+    shopSubMode: 'browse' | 'remove_select';
+    campfireSubMode: 'choose' | 'revise_select' | 'revise_confirm';
+    campfireSelectedCard: CardInstance | null;
+  } | null>(null);
+  const [isPlaytestingEncounter, setIsPlaytestingEncounter] = useState<boolean>(false);
+
   const [typedInput, setTypedInput] = useState<string>('');
   const [actionStartTime, setActionStartTime] = useState<number | null>(null);
   const [actionCharAccum, setActionCharAccum] = useState<number>(0);
@@ -2429,6 +2481,183 @@ export function App() {
     setScreen('map');
   }, [currentFloor, mapFloors.length, resetTypingBuffer, settings]);
 
+  const startPlaytestEncounter = useCallback(
+    (event: MysteryEventDefinition) => {
+      // 1. Snapshot entire live run state safely
+      setPlaytestBackup({
+        screen,
+        hp,
+        maxHp,
+        gold,
+        deck: JSON.parse(JSON.stringify(deck)),
+        relicIds: [...relicIds],
+        metrics: { ...metrics },
+        mapFloors: JSON.parse(JSON.stringify(mapFloors)),
+        currentFloor,
+        currentNodeId,
+        activeNodeType,
+        mapScrollOffset,
+        activeEnvironment,
+        activeEvent,
+        eventOutcomeText,
+        eventOutcomeSummary: [...eventOutcomeSummary],
+        eventRollSucceeded,
+        pendingChanceChoice,
+        pendingConsecrateChoice,
+        consecratedResultCard,
+        mysterySubMode,
+        mysterySelectedCard,
+        energy,
+        maxEnergy,
+        playerWard,
+        playerStatuses: { ...playerStatuses },
+        hand: [...hand],
+        drawPile: [...drawPile],
+        discardPile: [...discardPile],
+        burnDraftPile: [...burnDraftPile],
+        enemies: JSON.parse(JSON.stringify(enemies)),
+        allies: JSON.parse(JSON.stringify(allies)),
+        activePowers: [...activePowers],
+        rewardCards: [...rewardCards],
+        rewardRelics: [...rewardRelics],
+        rewardGoldClaimed,
+        rewardStep,
+        shopInventory,
+        shopSubMode,
+        campfireSubMode,
+        campfireSelectedCard,
+      });
+
+      setIsPlaytestingEncounter(true);
+      setDevEditorOpen(false);
+
+      // Provide temporary combat assets if not currently in a deck-based run
+      if (deck.length === 0) {
+        setDeck(createStarterDeck());
+      }
+      if (hp <= 0) {
+        setHp(maxHp || 75);
+      }
+
+      // 2. Initialize temporary mystery encounter
+      soundEngine.playSample('cards/book_01.ogg', settings);
+      setActiveEvent(event);
+      setMysterySubMode('event');
+      setMysterySelectedCard(null);
+      setConsecratedResultCard(null);
+      setPendingConsecrateChoice(null);
+      setEventOutcomeText(null);
+      setEventOutcomeSummary([]);
+      setEventRollSucceeded(null);
+      setPendingChanceChoice(null);
+      resetTypingBuffer(true);
+      setScreen('mystery');
+    },
+    [
+      screen,
+      hp,
+      maxHp,
+      gold,
+      deck,
+      relicIds,
+      metrics,
+      mapFloors,
+      currentFloor,
+      currentNodeId,
+      activeNodeType,
+      mapScrollOffset,
+      activeEnvironment,
+      activeEvent,
+      eventOutcomeText,
+      eventOutcomeSummary,
+      eventRollSucceeded,
+      pendingChanceChoice,
+      pendingConsecrateChoice,
+      consecratedResultCard,
+      mysterySubMode,
+      mysterySelectedCard,
+      energy,
+      maxEnergy,
+      playerWard,
+      playerStatuses,
+      hand,
+      drawPile,
+      discardPile,
+      burnDraftPile,
+      enemies,
+      allies,
+      activePowers,
+      rewardCards,
+      rewardRelics,
+      rewardGoldClaimed,
+      rewardStep,
+      shopInventory,
+      shopSubMode,
+      campfireSubMode,
+      campfireSelectedCard,
+      resetTypingBuffer,
+      settings,
+    ]
+  );
+
+  const exitPlaytestEncounter = useCallback(() => {
+    if (!playtestBackup) {
+      setIsPlaytestingEncounter(false);
+      setScreen('main_menu');
+      setDevEditorOpen(true);
+      return;
+    }
+
+    // Restore pre-playtest snapshot untouched
+    setScreen(playtestBackup.screen);
+    setHp(playtestBackup.hp);
+    setMaxHp(playtestBackup.maxHp);
+    setGold(playtestBackup.gold);
+    setDeck(playtestBackup.deck);
+    setRelicIds(playtestBackup.relicIds);
+    setMetrics(playtestBackup.metrics);
+    setMapFloors(playtestBackup.mapFloors);
+    setCurrentFloor(playtestBackup.currentFloor);
+    setCurrentNodeId(playtestBackup.currentNodeId);
+    setActiveNodeType(playtestBackup.activeNodeType);
+    setMapScrollOffset(playtestBackup.mapScrollOffset);
+    setActiveEnvironment(playtestBackup.activeEnvironment);
+    setActiveEvent(playtestBackup.activeEvent);
+    setEventOutcomeText(playtestBackup.eventOutcomeText);
+    setEventOutcomeSummary(playtestBackup.eventOutcomeSummary);
+    setEventRollSucceeded(playtestBackup.eventRollSucceeded);
+    setPendingChanceChoice(playtestBackup.pendingChanceChoice);
+    setPendingConsecrateChoice(playtestBackup.pendingConsecrateChoice);
+    setConsecratedResultCard(playtestBackup.consecratedResultCard);
+    setMysterySubMode(playtestBackup.mysterySubMode);
+    setMysterySelectedCard(playtestBackup.mysterySelectedCard);
+    setEnergy(playtestBackup.energy);
+    setMaxEnergy(playtestBackup.maxEnergy);
+    setPlayerWard(playtestBackup.playerWard);
+    setPlayerStatuses(playtestBackup.playerStatuses);
+    setHand(playtestBackup.hand);
+    setDrawPile(playtestBackup.drawPile);
+    setDiscardPile(playtestBackup.discardPile);
+    setBurnDraftPile(playtestBackup.burnDraftPile);
+    setEnemies(playtestBackup.enemies);
+    setAllies(playtestBackup.allies);
+    setActivePowers(playtestBackup.activePowers);
+    setRewardCards(playtestBackup.rewardCards);
+    setRewardRelics(playtestBackup.rewardRelics);
+    setRewardGoldClaimed(playtestBackup.rewardGoldClaimed);
+    setRewardStep(playtestBackup.rewardStep);
+    setShopInventory(playtestBackup.shopInventory);
+    setShopSubMode(playtestBackup.shopSubMode);
+    setCampfireSubMode(playtestBackup.campfireSubMode);
+    setCampfireSelectedCard(playtestBackup.campfireSelectedCard);
+
+    setPlaytestBackup(null);
+    setIsPlaytestingEncounter(false);
+    resetTypingBuffer(true);
+    soundEngine.playConfirm(settings);
+    setDevEditorOpen(true);
+  }, [playtestBackup, resetTypingBuffer, settings]);
+
   const availableMapNodes = useMemo(() => {
     const floorRow = mapFloors[currentFloor - 1] || [];
     if (currentFloor === 1 || !currentNodeId) return floorRow;
@@ -4236,11 +4465,24 @@ export function App() {
 
     // 12. MYSTERY ENCOUNTER
     if (screen === 'mystery' && activeEvent) {
+      if (
+        isPlaytestingEncounter &&
+        matchCommand(raw, ['exit', 'quit', 'stop', 'leave test', 'end test', 'cancel'], 'easy')
+      ) {
+        soundEngine.playConfirm(settings);
+        exitPlaytestEncounter();
+        return;
+      }
+
       if (mysterySubMode === 'select_card_to_upgrade') {
         if (matchCommand(raw, ['back', 'return', 'cancel', 'leave', 'skip'], 'easy')) {
           soundEngine.playPageTurn(settings);
           setMysterySubMode('event');
           setMysterySelectedCard(null);
+          if (isPlaytestingEncounter) {
+            exitPlaytestEncounter();
+            return;
+          }
           advanceToMapNextFloor();
           return;
         }
@@ -4285,6 +4527,10 @@ export function App() {
           }
           setMysterySubMode('event');
           setMysterySelectedCard(null);
+          if (isPlaytestingEncounter) {
+            exitPlaytestEncounter();
+            return;
+          }
           advanceToMapNextFloor();
           return;
         }
@@ -4297,6 +4543,10 @@ export function App() {
           soundEngine.playPageTurn(settings);
           setMysterySubMode('event');
           setMysterySelectedCard(null);
+          if (isPlaytestingEncounter) {
+            exitPlaytestEncounter();
+            return;
+          }
           advanceToMapNextFloor();
           return;
         }
@@ -4341,6 +4591,10 @@ export function App() {
           }
           setMysterySubMode('event');
           setMysterySelectedCard(null);
+          if (isPlaytestingEncounter) {
+            exitPlaytestEncounter();
+            return;
+          }
           advanceToMapNextFloor();
           return;
         }
@@ -4395,6 +4649,10 @@ export function App() {
           setEventOutcomeText(null);
           setEventOutcomeSummary([]);
           setEventRollSucceeded(null);
+          if (isPlaytestingEncounter) {
+            exitPlaytestEncounter();
+            return;
+          }
           advanceToMapNextFloor();
           return;
         }
@@ -4439,6 +4697,11 @@ export function App() {
 
     // 13. GAME OVER / VICTORY REPORT CARD
     if (screen === 'game_over' || screen === 'victory') {
+      if (isPlaytestingEncounter) {
+        soundEngine.playConfirm(settings);
+        exitPlaytestEncounter();
+        return;
+      }
       if (matchCommand(raw, ['new run', 'restart', 'play again', 'again', 'start', 'menu'], 'easy')) {
         soundEngine.playPageTurn(settings);
         triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 75);
@@ -4467,10 +4730,12 @@ export function App() {
     executeCardPlay,
     executeEndTurn,
     executeMysteryChoiceEffects,
+    exitPlaytestEncounter,
     extraHardAvailable,
     gold,
     introStep,
     isAnimatingTurn,
+    isPlaytestingEncounter,
     maxHp,
     mysterySelectedCard,
     mysterySubMode,
@@ -4800,8 +5065,14 @@ export function App() {
           // Wheel is actively spinning
         } else if (eventOutcomeText === null) {
           activeEvent.choices.forEach((ch) => pool.push(ch.phrases[phraseDiff]));
+          if (isPlaytestingEncounter) {
+            pool.push('exit');
+          }
         } else {
           pool.push('continue');
+          if (isPlaytestingEncounter) {
+            pool.push('exit');
+          }
         }
       } else if (screen === 'game_over' || screen === 'victory') {
         pool.push('new run');
@@ -4845,6 +5116,7 @@ export function App() {
     handCandidates,
     introStep,
     isCardPlayAwaitingDiscard,
+    isPlaytestingEncounter,
     mysterySubMode,
     overlay,
     pendingChanceChoice,
@@ -5001,25 +5273,68 @@ export function App() {
     />
   );
 
-  const formatEffectsTokens = (eff?: MysteryEffects): string[] => {
+  interface MysteryEffectToken {
+    text: string;
+    isPositive?: boolean;
+    isNegative?: boolean;
+  }
+
+  const formatEffectsTokens = (eff?: MysteryEffects): MysteryEffectToken[] => {
     if (!eff) return [];
-    const tokens: string[] = [];
+    const tokens: MysteryEffectToken[] = [];
     if (eff.maxHpChange) {
-      tokens.push(`${eff.maxHpChange > 0 ? '+' : ''}${eff.maxHpChange} Max HP`);
+      tokens.push({
+        text: `${eff.maxHpChange > 0 ? '+' : ''}${eff.maxHpChange} Max HP`,
+        isPositive: eff.maxHpChange > 0,
+        isNegative: eff.maxHpChange < 0,
+      });
     }
     if (eff.hpChange) {
-      tokens.push(`${eff.hpChange > 0 ? '+' : ''}${eff.hpChange} HP`);
+      tokens.push({
+        text: `${eff.hpChange > 0 ? '+' : ''}${eff.hpChange} HP`,
+        isPositive: eff.hpChange > 0,
+        isNegative: eff.hpChange < 0,
+      });
     }
     if (eff.goldChange) {
-      tokens.push(`${eff.goldChange > 0 ? '+' : ''}${eff.goldChange} Gold`);
+      tokens.push({
+        text: `${eff.goldChange > 0 ? '+' : ''}${eff.goldChange} Gold`,
+        isPositive: eff.goldChange > 0,
+        isNegative: eff.goldChange < 0,
+      });
     }
-    if (eff.gainRareCard) tokens.push('+1 Rare Card');
-    if (eff.gainRandomCard) tokens.push('+1 Card');
-    if (eff.upgradeRandomCard) tokens.push('Upgrade a Card');
-    if (eff.gainRandomRelic) tokens.push('+1 Relic');
-    if (eff.removeRandomCard) tokens.push('Remove a Card');
+    if (eff.gainRareCard) tokens.push({ text: '+1 Rare Card', isPositive: true });
+    if (eff.gainRandomCard) tokens.push({ text: '+1 Card', isPositive: true });
+    if (eff.upgradeRandomCard) tokens.push({ text: 'Upgrade a Card', isPositive: true });
+    if (eff.gainRandomRelic) tokens.push({ text: '+1 Relic', isPositive: true });
+    if (eff.removeRandomCard) tokens.push({ text: 'Remove a Card' });
+    if (eff.gainCurseCard) tokens.push({ text: 'Gain Curse', isNegative: true });
+    if (eff.chooseCardToInvert) tokens.push({ text: 'Invert a Card' });
+    if (eff.chooseCardToUpgrade) tokens.push({ text: 'Choose Card to Upgrade', isPositive: true });
+    if (eff.chooseCardBeforeRoll) tokens.push({ text: 'Consecrate/Flaw Card' });
+    if (eff.revealSecretPath) tokens.push({ text: '✨ Secret Leyline', isPositive: true });
+    if (eff.startBattleEnemies && eff.startBattleEnemies.length > 0)
+      tokens.push({ text: '⚔️ Battle', isNegative: true });
     return tokens;
   };
+
+  const renderEffectTokenSpan = (
+    t: MysteryEffectToken,
+    idx: number,
+    total: number
+  ) => (
+    <span key={idx}>
+      <span
+        style={{
+          color: t.isPositive ? '#059669' : t.isNegative ? '#dc2626' : 'inherit',
+          fontWeight: 700,
+        }}
+      >
+        {t.text}
+      </span>
+      {idx < total - 1 ? ', ' : ''}
+    </span>
+  );
 
   const renderMysteryChoiceOdds = (ch: MysteryChoice) => {
     const winTokens = formatEffectsTokens(ch.effects);
@@ -5028,10 +5343,16 @@ export function App() {
       return (
         <div className="mystery-choice-odds-row">
           <span className="mystery-odds-badge odds-gamble">
-            🎲 {ch.chance}% Success: {winTokens.join(', ') || 'No Change'}
+            🎲 {ch.chance}% Success:{' '}
+            {winTokens.length > 0
+              ? winTokens.map((t, i) => renderEffectTokenSpan(t, i, winTokens.length))
+              : 'No Change'}
           </span>
           <span className="mystery-odds-badge odds-fail">
-            {100 - ch.chance}% Fail: {failTokens.join(', ') || 'Nothing'}
+            {100 - ch.chance}% Fail:{' '}
+            {failTokens.length > 0
+              ? failTokens.map((t, i) => renderEffectTokenSpan(t, i, failTokens.length))
+              : 'Nothing'}
           </span>
         </div>
       );
@@ -5039,7 +5360,9 @@ export function App() {
     return (
       <div className="mystery-choice-odds-row">
         <span className="mystery-odds-badge odds-certain">
-          {winTokens.length > 0 ? winTokens.join(' · ') : 'Safe — Leave Unharmed'}
+          {winTokens.length > 0
+            ? winTokens.map((t, i) => renderEffectTokenSpan(t, i, winTokens.length))
+            : 'Safe — Leave Unharmed'}
         </span>
       </div>
     );
@@ -5082,6 +5405,25 @@ export function App() {
           </div>
         ))}
       </div>
+
+      {/* TEMPORARY ENCOUNTER PLAYTEST BANNER */}
+      {isPlaytestingEncounter && (
+        <div className="playtest-floating-banner">
+          <span className="playtest-pill-badge">🧪 Temporary Playtest</span>
+          <span className="playtest-banner-title">
+            Testing: <strong>{activeEvent?.title}</strong>
+          </span>
+          <span className="playtest-banner-hint">(Run preserved safely & unaffected)</span>
+          <button
+            type="button"
+            className="playtest-exit-btn"
+            onClick={exitPlaytestEncounter}
+            title="Stop playtest and restore your actual run untouched"
+          >
+            ✕ Exit Playtest & Restore Run
+          </button>
+        </div>
+      )}
 
       {/* ==================== BATTLE SCENE ==================== */}
       {screen === 'battle' && (
@@ -6488,11 +6830,35 @@ export function App() {
                           </div>
                           {eventOutcomeSummary.length > 0 && (
                             <div className="mystery-outcome-badges">
-                              {eventOutcomeSummary.map((line, idx) => (
-                                <span key={idx} className="mystery-outcome-chip">
-                                  {line}
-                                </span>
-                              ))}
+                              {eventOutcomeSummary.map((line, idx) => {
+                                const isPos =
+                                  line.startsWith('+') ||
+                                  line.includes('Gained') ||
+                                  line.includes('Upgraded') ||
+                                  line.includes('✨') ||
+                                  line.includes('Consecrated');
+                                const isNeg =
+                                  line.startsWith('-') ||
+                                  line.includes('Lost') ||
+                                  line.includes('Removed') ||
+                                  line.includes('Corrupted') ||
+                                  line.includes('Inflicted') ||
+                                  line.includes('Curse');
+                                return (
+                                  <span
+                                    key={idx}
+                                    className="mystery-outcome-chip"
+                                    style={{
+                                      background: isPos ? '#ecfdf5' : isNeg ? '#fef2f2' : '#fdf8ef',
+                                      color: isPos ? '#065f46' : isNeg ? '#991b1b' : '#102a3a',
+                                      borderColor: isPos ? '#059669' : isNeg ? '#dc2626' : '#2b1e16',
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    {line}
+                                  </span>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
@@ -7031,6 +7397,7 @@ export function App() {
             setDevEditorOpen(false);
           }}
           settings={settings}
+          onPlaytestEvent={startPlaytestEncounter}
         />
       )}
     </div>
