@@ -277,6 +277,7 @@ export function App() {
   const [rewardRelics, setRewardRelics] = useState<RelicDefinition[]>([]);
   const [rewardGoldClaimed, setRewardGoldClaimed] = useState<number>(0);
   const [rewardStep, setRewardStep] = useState<'card' | 'relic'>('card');
+  const [skipCardRewardOnBattleWin, setSkipCardRewardOnBattleWin] = useState<boolean>(false);
   const [campfireSubMode, setCampfireSubMode] = useState<
     'choose' | 'revise_select' | 'revise_confirm'
   >('choose');
@@ -345,6 +346,7 @@ export function App() {
     rewardRelics: RelicDefinition[];
     rewardGoldClaimed: number;
     rewardStep: 'card' | 'relic';
+    skipCardRewardOnBattleWin: boolean;
     shopInventory: ShopInventory | null;
     shopSubMode: 'browse' | 'remove_select';
     campfireSubMode: 'choose' | 'revise_select' | 'revise_confirm';
@@ -672,8 +674,10 @@ export function App() {
       nodeType: 'battle' | 'elite' | 'boss',
       currentDeck: CardInstance[],
       currentRelics: string[],
-      customEnemies?: ActiveEnemy[]
+      customEnemies?: ActiveEnemy[],
+      noCardReward: boolean = false
     ) => {
+      setSkipCardRewardOnBattleWin(noCardReward);
       setActiveNodeType(nodeType);
       if (nodeType === 'elite' || nodeType === 'boss') {
         soundEngine.playEliteBossEntrance(settings);
@@ -830,9 +834,20 @@ export function App() {
         soundEngine.playCoinClink(settings);
       }
 
-      setRewardCards(generateCardRewards(4, activeNodeType === 'elite'));
-      setRewardRelics(activeNodeType === 'elite' ? generateRelicRewards(relicIds, 3) : []);
-      setRewardStep('card');
+      if (skipCardRewardOnBattleWin) {
+        setRewardCards([]);
+        if (activeNodeType === 'elite') {
+          setRewardRelics(generateRelicRewards(relicIds, 3));
+          setRewardStep('relic');
+        } else {
+          setRewardRelics([]);
+        }
+      } else {
+        setRewardCards(generateCardRewards(4, activeNodeType === 'elite'));
+        setRewardRelics(activeNodeType === 'elite' ? generateRelicRewards(relicIds, 3) : []);
+        setRewardStep('card');
+      }
+      setSkipCardRewardOnBattleWin(false);
 
       setMetrics((prev) => ({
         ...prev,
@@ -2522,6 +2537,7 @@ export function App() {
         rewardRelics: [...rewardRelics],
         rewardGoldClaimed,
         rewardStep,
+        skipCardRewardOnBattleWin,
         shopInventory,
         shopSubMode,
         campfireSubMode,
@@ -2591,6 +2607,7 @@ export function App() {
       rewardRelics,
       rewardGoldClaimed,
       rewardStep,
+      skipCardRewardOnBattleWin,
       shopInventory,
       shopSubMode,
       campfireSubMode,
@@ -2646,6 +2663,7 @@ export function App() {
     setRewardRelics(playtestBackup.rewardRelics);
     setRewardGoldClaimed(playtestBackup.rewardGoldClaimed);
     setRewardStep(playtestBackup.rewardStep);
+    setSkipCardRewardOnBattleWin(playtestBackup.skipCardRewardOnBattleWin);
     setShopInventory(playtestBackup.shopInventory);
     setShopSubMode(playtestBackup.shopSubMode);
     setCampfireSubMode(playtestBackup.campfireSubMode);
@@ -2969,8 +2987,35 @@ export function App() {
           summaryItems.push(`Gained Relic: "${newRel.names[phraseDiff]}"`);
         }
       }
-      if (eff.removeRandomCard && deck.length > 5) {
-        const pick = pickRandom(deck);
+      if (eff.gainSpecificCardId) {
+        const specDef = getCardDefinition(eff.gainSpecificCardId);
+        if (specDef) {
+          const newCard: CardInstance = {
+            instanceId: `card_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            cardId: specDef.id,
+            upgraded: false,
+          };
+          setDeck((d) => [...d, newCard]);
+          const cName = resolveCardInstance(newCard, phraseDiff).name;
+          summaryItems.push(`Gained Card: "${cName}"`);
+        }
+      }
+      if (eff.removeRandomCardsCount && eff.removeRandomCardsCount > 1) {
+        let currentDeck = [...deck];
+        const toRemove = Math.min(eff.removeRandomCardsCount, Math.max(0, currentDeck.length - 1));
+        for (let i = 0; i < toRemove; i++) {
+          const nonCurse = currentDeck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse');
+          const pool = nonCurse.length > 0 ? nonCurse : currentDeck;
+          const pick = pickRandom(pool);
+          currentDeck = currentDeck.filter((c) => c.instanceId !== pick.instanceId);
+          const remName = resolveCardInstance(pick, phraseDiff).name;
+          summaryItems.push(`Lost Card: "${remName}"`);
+        }
+        setDeck(currentDeck);
+      } else if (eff.removeRandomCard && deck.length > 1) {
+        const nonCurse = deck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse');
+        const pool = nonCurse.length > 0 ? nonCurse : deck;
+        const pick = pickRandom(pool);
         const remName = resolveCardInstance(pick, phraseDiff).name;
         setDeck((prev) => prev.filter((c) => c.instanceId !== pick.instanceId));
         summaryItems.push(`Removed Card from Deck: "${remName}"`);
@@ -3058,7 +3103,7 @@ export function App() {
       }
       if (eff.startBattleEnemies && eff.startBattleEnemies.length > 0) {
         const customEnemies = generateCustomEncounter(eff.startBattleEnemies, currentFloor, phraseDiff);
-        startBattle(currentFloor, 'elite', deck, relicIds, customEnemies);
+        startBattle(currentFloor, 'elite', deck, relicIds, customEnemies, Boolean(eff.battleNoCardReward));
         return;
       }
 
@@ -5312,7 +5357,18 @@ export function App() {
     if (eff.gainRandomCard) tokens.push({ text: '+1 Card', isPositive: true });
     if (eff.upgradeRandomCard) tokens.push({ text: 'Upgrade a Card', isPositive: true });
     if (eff.gainRandomRelic) tokens.push({ text: '+1 Relic', isPositive: true });
-    if (eff.removeRandomCard) tokens.push({ text: 'Remove a Card' });
+    if (eff.gainSpecificCardId) {
+      const specDef = getCardDefinition(eff.gainSpecificCardId);
+      tokens.push({
+        text: `+1 '${specDef ? specDef.names[phraseDiff] || specDef.names.easy : eff.gainSpecificCardId}' Card`,
+        isPositive: true,
+      });
+    }
+    if (eff.removeRandomCardsCount && eff.removeRandomCardsCount > 1) {
+      tokens.push({ text: `Lost ${eff.removeRandomCardsCount} Cards`, isNegative: true });
+    } else if (eff.removeRandomCard) {
+      tokens.push({ text: 'Remove a Card' });
+    }
     if (eff.gainCurseCard) tokens.push({ text: 'Gain Curse', isNegative: true });
     if (eff.chooseCardToInvert) tokens.push({ text: 'Invert a Card' });
     if (eff.chooseCardToUpgrade) tokens.push({ text: 'Choose Card to Upgrade', isPositive: true });
@@ -5324,8 +5380,12 @@ export function App() {
       }
     }
     if (eff.revealSecretPath) tokens.push({ text: '✨ Secret Leyline', isPositive: true });
-    if (eff.startBattleEnemies && eff.startBattleEnemies.length > 0)
-      tokens.push({ text: '⚔️ Battle', isNegative: true });
+    if (eff.startBattleEnemies && eff.startBattleEnemies.length > 0) {
+      tokens.push({
+        text: eff.battleNoCardReward ? '⚔️ Battle (No Card Reward)' : '⚔️ Battle',
+        isNegative: true,
+      });
+    }
     return tokens;
   };
 
@@ -6278,27 +6338,44 @@ export function App() {
                 <div className="story-card">
                   {rewardStep === 'card' ? (
                     <>
-                      <h2 className="story-title">
-                        {activeNodeType === 'elite'
-                          ? `Elite Victory — Choose a Card (+${rewardGoldClaimed} Gold) — or type (skip)`
-                          : `Rewards (+${rewardGoldClaimed} Gold) — or type (skip)`}
-                      </h2>
-                      {rewardCards.length > 0 && (
-                        <div className="deck-banner-grid">
-                          {rewardCards.map((inst, idx) => {
-                            const res = resolveCardInstance(inst, phraseDiff);
-                            const st = getPhraseHighlightState(res.name, difficulty);
-                            return (
-                              <CardBanner
-                                key={inst.instanceId}
-                                instance={inst}
-                                phraseDiff={phraseDiff}
-                                index={idx}
-                                isHighlighted={st.isHighlighted}
-                                isEnterCandidate={st.isEnterReady}
-                              />
-                            );
-                          })}
+                      {rewardCards.length > 0 ? (
+                        <>
+                          <h2 className="story-title">
+                            {activeNodeType === 'elite'
+                              ? `Elite Victory — Choose a Card (+${rewardGoldClaimed} Gold) — or type (skip)`
+                              : `Rewards (+${rewardGoldClaimed} Gold) — or type (skip)`}
+                          </h2>
+                          <div className="deck-banner-grid">
+                            {rewardCards.map((inst, idx) => {
+                              const res = resolveCardInstance(inst, phraseDiff);
+                              const st = getPhraseHighlightState(res.name, difficulty);
+                              return (
+                                <CardBanner
+                                  key={inst.instanceId}
+                                  instance={inst}
+                                  phraseDiff={phraseDiff}
+                                  index={idx}
+                                  isHighlighted={st.isHighlighted}
+                                  isEnterCandidate={st.isEnterReady}
+                                />
+                              );
+                            })}
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                          <h2 className="story-title">Victory (+{rewardGoldClaimed} Gold)</h2>
+                          <p
+                            style={{
+                              color: '#64748b',
+                              fontSize: '0.96rem',
+                              margin: '1.25rem 0',
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            The beast was vanquished, but no card drafts could be salvaged from this encounter.
+                          </p>
+                          <div className="phrase-to-type">continue</div>
                         </div>
                       )}
                       {activeNodeType === 'elite' && rewardRelics.length > 0 && (

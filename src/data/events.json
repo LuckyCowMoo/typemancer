@@ -1357,5 +1357,342 @@
         }
       }
     ]
+  },
+  {
+    "id": "blindfolded_scrivener",
+    "title": "The Blindfolded Scrivener",
+    "narrative": "A monk sits in silence by a guttering candle, a thick cloth tied over his eyes so he cannot be swayed by the Wizard's hypnotic glyphs. His fingers trace raised paper with breathtaking precision.",
+    "choices": [
+      {
+        "id": "embossed_ward",
+        "phrases": {
+          "easy": "buy seal",
+          "medium": "purchase raised ward",
+          "hard": "commission a tactile warding seal upon your satchel"
+        },
+        "outcomeText": "The monk impresses a hardened wax seal onto your satchel, granting a treasured warding relic (-45 Gold, Gained Relic).",
+        "effects": {
+          "goldChange": -45,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "guide_hand",
+        "phrases": {
+          "easy": "guide pen",
+          "medium": "assist the scribe",
+          "hard": "guide his calloused fingers across your favorite draft"
+        },
+        "outcomeText": "Guiding his nib across your parchment refines your drafts and produces a fresh manuscript (Upgraded a Card, +1 Card).",
+        "effects": {
+          "upgradeRandomCard": true,
+          "gainRandomCard": true
+        }
+      },
+      {
+        "id": "unspoken_omen",
+        "phrases": {
+          "easy": "listen close",
+          "medium": "transcribe dark omen",
+          "hard": "press your ear close as he speaks forbidden future verses"
+        },
+        "chance": 65,
+        "outcomeText": "Prophetic whispers expand your mind, revealing an ancient rare folio (+6 Max HP, Gained Rare Card)!",
+        "effects": {
+          "maxHpChange": 6,
+          "gainRareCard": true
+        },
+        "failText": "The psychic reverberation of his forbidden future vision ruptures your blood vessels (-12 HP).",
+        "failEffects": {
+          "hpChange": -12
+        }
+      }
+    ]
+  },
+  {
+    "id": "suffix_bazaar",
+    "title": "The Suffix Bazaar",
+    "narrative": "Under a tattered awning, an outcast etymologist sells bubbling glass tubes labeled with grammatical affixes: '-tion', '-ing', '-able', and '-ment', glowing with structural magic.",
+    "choices": [
+      {
+        "id": "action_suffix",
+        "phrases": {
+          "easy": "fuse suffix",
+          "medium": "graft active suffix",
+          "hard": "infuse your drafts with vibrant active grammatical endings"
+        },
+        "outcomeText": "The chemical grafting burns your fingers, but energizes your ink and produces valuable scrap trade (-6 HP, Upgraded a Card, +40 Gold).",
+        "effects": {
+          "hpChange": -6,
+          "upgradeRandomCard": true,
+          "goldChange": 40
+        }
+      },
+      {
+        "id": "master_prefix",
+        "phrases": {
+          "easy": "buy prefix",
+          "medium": "purchase rare affix",
+          "hard": "spend hard coin on an ancient pre-Imperial prefix talisman"
+        },
+        "outcomeText": "You purchase a rare pre-Imperial affix vial that stabilizes your journey (-50 Gold, Gained Relic).",
+        "effects": {
+          "goldChange": -50,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "rummage_discard",
+        "phrases": {
+          "easy": "search trash",
+          "medium": "rummage scrap bin",
+          "hard": "sift through discarded syllables and bruised vowels"
+        },
+        "outcomeText": "You sift through bruised syllables and discarded punctuation, rescuing a usable draft (+1 Card).",
+        "effects": {
+          "gainRandomCard": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "petrified_reading_room",
+    "title": "The Library of Dust",
+    "narrative": "A cathedral-like reading hall where basilisk breath once washed through the arches. Both the open scrolls and the scholars studying them have been turned into solid limestone.",
+    "choices": [
+      {
+        "id": "chisel_chapter",
+        "phrases": {
+          "easy": "chisel book",
+          "medium": "extract stone scroll",
+          "hard": "carefully chisel an unbroken limestone scroll from a desk"
+        },
+        "outcomeText": "Exhausting hammer work chips away stone to reveal an intact enchanted relic embedded in the core (-8 HP, Gained Relic).",
+        "effects": {
+          "hpChange": -8,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "meditate_silence",
+        "phrases": {
+          "easy": "rest quietly",
+          "medium": "meditate in silence",
+          "hard": "sit quietly amidst the petrified scholars in peaceful study"
+        },
+        "outcomeText": "The serene stillness washes away fatigue, cleansing your spirit and bolstering your resolve (+14 HP, +4 Max HP).",
+        "effects": {
+          "hpChange": 14,
+          "maxHpChange": 4
+        }
+      },
+      {
+        "id": "pry_coinbag",
+        "phrases": {
+          "easy": "loot statue",
+          "medium": "pry heavy stone purse",
+          "hard": "hammer open the petrified purse of an imperial chancellor"
+        },
+        "chance": 65,
+        "outcomeText": "The limestone sack cracks open, showering gold coins and an ancient preserved draft (+95 Gold, +1 Card)!",
+        "effects": {
+          "goldChange": 95,
+          "gainRandomCard": true
+        },
+        "failText": "The brittle statue collapses, crushing you under heavy stone debris (-13 HP).",
+        "failEffects": {
+          "hpChange": -13
+        }
+      }
+    ]
+  },
+  {
+    "id": "thesaurus_wyrm",
+    "title": "The Thesaurus Wyrm",
+    "narrative": "Tangled in barbed hunting snares is a snakelike construct woven entirely from interlocking leather dictionary spines. When it breathes, shifting synonyms ripple down its articulated scales.",
+    "choices": [
+      {
+        "id": "siphon_fumes",
+        "phrases": {
+          "easy": "inhale fumes",
+          "medium": "breathe synonym mist",
+          "hard": "inhale the shimmering cloud of shifting synonyms"
+        },
+        "outcomeText": "The lexical vapors scorch your throat but expand your linguistic insight (-7 HP, Gained Rare Card, Upgraded a Card).",
+        "effects": {
+          "hpChange": -7,
+          "gainRareCard": true,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "cut_snares",
+        "phrases": {
+          "easy": "free beast",
+          "medium": "sever iron snares",
+          "hard": "use your quill knife to gently untangle the wyrm leather coils"
+        },
+        "outcomeText": "You free the thrashing beast. In gratitude, it sheds a hardened dictionary spine scale (-4 HP, Gained Relic).",
+        "effects": {
+          "hpChange": -4,
+          "gainRandomRelic": true
+        }
+      },
+      {
+        "id": "tame_wyrm",
+        "phrases": {
+          "easy": "tame wyrm",
+          "medium": "master the creature",
+          "hard": "recite rhyming stanzas to calm the thrashing lexical serpent"
+        },
+        "chance": 60,
+        "outcomeText": "The calmed wyrm curls into your satchel as an ally, granting the 'Call Wyrm' once-per-combat summon card (+1 Summon Card)!",
+        "effects": {
+          "gainSpecificCardId": "summon_thesaurus_wyrm"
+        },
+        "failText": "The enraged wyrm snaps its iron snares and lunges to attack! (Battle Initiated — No Card Rewards Upon Victory)",
+        "failEffects": {
+          "startBattleEnemies": ["thesaurus_wyrm"],
+          "battleNoCardReward": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "sunken_scriptorium",
+    "title": "The Sunken Scriptorium",
+    "narrative": "A flooded monastery cellar where waist-deep teal water laps against stone pillars. Waterproof wax-sealed manuscript cases float among water lilies and drifting parchment.",
+    "choices": [
+      {
+        "id": "fish_scrolls",
+        "phrases": {
+          "easy": "grab float",
+          "medium": "fish out sealed tube",
+          "hard": "use a reed pole to retrieve floating waterproof scroll cases"
+        },
+        "outcomeText": "Calm salvaging yields crisp, undamaged prose from a buoyant wax tube (+12 HP, +1 Card).",
+        "effects": {
+          "hpChange": 12,
+          "gainRandomCard": true
+        }
+      },
+      {
+        "id": "scrape_sealant",
+        "phrases": {
+          "easy": "scrape wax",
+          "medium": "harvest sealant wax",
+          "hard": "scrape precious waterproof seal wax to trade to couriers"
+        },
+        "outcomeText": "You collect blocks of rare waterproof wax to sell to traveling messengers (+60 Gold).",
+        "effects": {
+          "goldChange": 60
+        }
+      },
+      {
+        "id": "dive_vault",
+        "phrases": {
+          "easy": "dive deep",
+          "medium": "dive to sunken altar",
+          "hard": "plunge into the icy deep water to reach the iron vault"
+        },
+        "chance": 65,
+        "outcomeText": "You breach the submerged vault, bringing up an ancient sealed reliquary and rare folio (Gained Relic, Gained Rare Card)!",
+        "effects": {
+          "gainRandomRelic": true,
+          "gainRareCard": true
+        },
+        "failText": "Swirling subterranean currents drag you under and rip your satchel open, washing 2 cards away into the deep (-5 HP, Lost 2 Cards).",
+        "failEffects": {
+          "hpChange": -5,
+          "removeRandomCardsCount": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "ink_bleach_vat",
+    "title": "The Ink Bleach Vat",
+    "narrative": "A bubbling iron vat of milky, pungent lye solution tended by underground rebels. It is used to dissolve Imperial tracking ink and erase dangerous names from confiscated identity papers.",
+    "choices": [
+      {
+        "id": "cleanse_draft",
+        "phrases": {
+          "easy": "bleach page",
+          "medium": "dissolve dark draft",
+          "hard": "submerge an unwanted card to dissolve its ink completely"
+        },
+        "outcomeText": "Caustic fumes sting your lungs, but the unwanted page is thoroughly purged from your deck (-5 HP, Removed a Card).",
+        "effects": {
+          "hpChange": -5,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "bleach_reinscribe",
+        "phrases": {
+          "easy": "rinse draft",
+          "medium": "purify and rewrite",
+          "hard": "bleach away marginal flaws and write fresh prose"
+        },
+        "outcomeText": "You rinse away errant ink and inscribe improved verses onto pristine parchment (Upgraded a Card).",
+        "effects": {
+          "upgradeRandomCard": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "tree_of_confession",
+    "title": "The Tree of Confession",
+    "narrative": "Deep in an overgrown clearing stands a colossal weeping oak tree with an antique carved confessional booth embedded directly into its hollow trunk. As you approach, the autumn leaves and creaking branches rustle with a quiet voice: 'Confess the word that weighs heaviest upon your soul.'",
+    "choices": [
+      {
+        "id": "confess_falsehood",
+        "phrases": {
+          "easy": "confess lie",
+          "medium": "confess guilt",
+          "hard": "speak the shameful secret that has burdened your conscience"
+        },
+        "outcomeText": "Unburdening your darkest secret purges an unwanted draft and fortifies your spirit (+4 Max HP, Removed a Card).",
+        "effects": {
+          "maxHpChange": 4,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "listen_echoes",
+        "phrases": {
+          "easy": "listen close",
+          "medium": "listen to echoes",
+          "hard": "press your ear to the wooden lattice to hear prior confessions"
+        },
+        "chance": 65,
+        "outcomeText": "Ancient whispering memories echo through the wood, teaching you refined writing mastery (Upgraded a Card)!",
+        "effects": {
+          "upgradeRandomCard": true
+        },
+        "failText": "Writhing root tendrils suddenly shoot from the trunk, snatching a random draft from your satchel and dragging it into the bark! (Tree Stole a Card)",
+        "failEffects": {
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "loot_root_hollow",
+        "phrases": {
+          "easy": "snatch gold",
+          "medium": "plunder hollow roots",
+          "hard": "reach into the deep root cavity to grab the tithe coffer"
+        },
+        "chance": 60,
+        "outcomeText": "You pull a heavy iron coffer from beneath the roots, bursting with forgotten pilgrim coins (+150 Gold)!",
+        "effects": {
+          "goldChange": 150
+        },
+        "failText": "Thorny wooden boughs lash across your arms as you reach into the cavity (-11 HP).",
+        "failEffects": {
+          "hpChange": -11
+        }
+      }
+    ]
   }
 ]

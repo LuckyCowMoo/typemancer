@@ -4112,5 +4112,58 @@
       "description": "Unplayable. A useless imperial receipt.",
       "effects": []
     }
+  },
+  {
+    "id": "summon_thesaurus_wyrm",
+    "rarity": "rare",
+    "type": "skill",
+    "cost": 1,
+    "target": "self",
+    "names": {
+      "easy": "call wyrm",
+      "medium": "summon thesaurus wyrm",
+      "hard": "awaken the articulated leather thesaurus wyrm"
+    },
+    "connectors": {
+      "easy": "to summon",
+      "medium": "to fight beside you",
+      "hard": "to strike from lexical coils"
+    },
+    "description": "Summon the Thesaurus Wyrm (28 HP) to fight beside you. Takes action before your turn. Once per combat.",
+    "effects": [
+      {
+        "type": "summon",
+        "amount": 1,
+        "summonId": "thesaurus_wyrm",
+        "team": "player"
+      }
+    ],
+    "burnDraft": true,
+    "art": {
+      "primaryColor": "#b45309",
+      "secondaryColor": "#fde68a",
+      "shape": "capsule"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "call wyrm+",
+        "medium": "summon prime wyrm",
+        "hard": "awaken the fortified leather thesaurus wyrm+"
+      },
+      "description": "Summon the Thesaurus Wyrm (36 HP) with 6 Ward to fight beside you. Takes action before your turn. Once per combat.",
+      "cost": 1,
+      "effects": [
+        {
+          "type": "summon",
+          "amount": 1,
+          "summonId": "thesaurus_wyrm",
+          "team": "player",
+          "hpBonus": 8,
+          "wardBonus": 6
+        }
+      ],
+      "burnDraft": true
+    },
+    "sfx": "cards/bookFlip2.ogg"
   }
 ]

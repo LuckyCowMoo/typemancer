@@ -273,6 +273,12 @@ export interface MysteryEffects {
   chooseCardBeforeRoll?: boolean;
   /** Starts an immediate combat encounter with specific enemy IDs (e.g. ['vowel_tax_collector', 'ink_hound', 'ink_hound']). */
   startBattleEnemies?: string[];
+  /** Adds a specific card ID from cards.json to the player's deck (e.g. summon_thesaurus_wyrm). */
+  gainSpecificCardId?: string;
+  /** Number of random cards to remove from the player's deck. */
+  removeRandomCardsCount?: number;
+  /** If a battle is started from this effect, prevents cards from being awarded upon victory. */
+  battleNoCardReward?: boolean;
 }
 
 export interface MysteryChoice {

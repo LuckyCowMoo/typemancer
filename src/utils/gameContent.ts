@@ -24,7 +24,7 @@ import environmentsRaw from '../data/environments.json';
 import mapPhrasesRaw from '../data/map_phrases.json';
 import { cleanCardDescriptionForPlay } from './textHighlight';
 
-const CATALOG_SESSION_VERSION = 'v5_events_expansion';
+const CATALOG_SESSION_VERSION = 'v6_events_expansion_batch2';
 
 /**
  * Loads a catalog from sessionStorage if present (retaining user edits during the current browser session),
