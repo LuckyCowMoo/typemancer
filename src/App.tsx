@@ -3244,7 +3244,7 @@ export function App() {
           return;
         }
         if (matchCommand(raw, ['next', 'continue', 'forward'], 'easy')) {
-          if (combatTutorialStep !== null && combatTutorialStep < 10) {
+          if (combatTutorialStep !== null && combatTutorialStep < 11) {
             soundEngine.playPageTurn(settings);
             triggerElementParticles(undefined, ['#137547', '#ffd166'], 40, 50);
             setCombatTutorialStep((s) => (s !== null ? s + 1 : 7));
@@ -3814,7 +3814,7 @@ export function App() {
           resetTypingBuffer(true);
           return;
         }
-        if (tutorialStep < 14) {
+        if (tutorialStep < 15) {
           soundEngine.playPageTurn(settings);
           triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 50);
           setTutorialStep((s) => s + 1);
@@ -5192,14 +5192,14 @@ export function App() {
         pool.push('new run', 'tutorial', 'load', 'options', 'editor', 'help');
       } else if (screen === 'tutorial') {
         pool.push('back', 'menu');
-        if (tutorialStep !== 1 && tutorialStep !== 14) {
+        if (tutorialStep !== 1 && tutorialStep !== 15) {
           pool.push('next');
         }
         if (tutorialStep === 1) pool.push('practice practice practice');
         if (tutorialStep === 5) {
           tutorialMapOptions.forEach((opt) => pool.push(opt.name));
         }
-        if (tutorialStep === 14) pool.push('start run', 'review');
+        if (tutorialStep === 15) pool.push('start run', 'review');
       } else if (screen === 'peasant_intro') {
         if (introStep === 'ask_difficulty') {
           pool.push(

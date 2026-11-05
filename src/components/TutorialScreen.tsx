@@ -32,7 +32,7 @@ export interface TutorialScreenProps {
   renderTypingInputWithCaret?: () => React.ReactNode;
 }
 
-const TOTAL_TUTORIAL_STEPS = 15;
+const TOTAL_TUTORIAL_STEPS = 16;
 
 const STEP_TITLES = [
   'Only Your Keyboard',
@@ -46,6 +46,7 @@ const STEP_TITLES = [
   'Energy Powers Your Cards',
   'How to Use Cards in Battle',
   'See Enemy Moves Ahead',
+  'Status Effects & Looking Things Up',
   'Enemy Factions',
   'Health Does Not Heal!',
   'Saving Your Adventure Anywhere',
@@ -88,7 +89,7 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({
           <div className="student-step-indicator">
             <span className="step-count">
               {isBattlePopup
-                ? `COMBAT GUIDE: ${step - 6} OF 4`
+                ? `COMBAT GUIDE: ${step - 6} OF 5`
                 : `STEP ${step + 1} OF ${TOTAL_TUTORIAL_STEPS}`}
             </span>
             <span className="step-name">{currentTitle}</span>
@@ -580,9 +581,30 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({
           )}
 
           {/* =========================================================================
-              STEP 11: ENEMY FACTIONS
+              STEP 11: STATUS EFFECTS & LOOKING THINGS UP
              ========================================================================= */}
           {step === 11 && (
+            <div className="student-slide">
+              <h1 className="student-title">Status Effects & Looking Things Up</h1>
+              <p className="student-paragraph">
+                Cards and monsters apply <strong>status effects</strong> that alter battle:
+              </p>
+              <div className="student-rules-summary" style={{ textAlign: 'left', maxWidth: '640px' }}>
+                <div>• <strong style={{ color: '#1d6fa5' }}>Ward:</strong> Shields you from damage until your next turn.</div>
+                <div>• <strong style={{ color: '#d97706' }}>Bold:</strong> Increases all attack damage you deal.</div>
+                <div>• <strong style={{ color: '#be123c' }}>Exposed:</strong> Increases incoming attack damage by 50%!</div>
+                <div>• <strong style={{ color: '#6d28d9' }}>Ink Burn:</strong> Deals damage at the end of each turn.</div>
+              </div>
+              <p className="student-paragraph" style={{ marginTop: '10px' }}>
+                <strong>Tip:</strong> You can type any <strong>status effect</strong> (e.g. <code>ward</code>), <strong>relic name</strong>, or <strong>enemy name</strong> at any time to find out what it does!
+              </p>
+            </div>
+          )}
+
+          {/* =========================================================================
+              STEP 12: ENEMY FACTIONS
+             ========================================================================= */}
+          {step === 12 && (
             <div className="student-slide">
               <h1 className="student-title">Enemy Factions</h1>
               <p className="student-paragraph">
@@ -609,9 +631,9 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({
           )}
 
           {/* =========================================================================
-              STEP 12: HEALTH DOES NOT HEAL (PRIORITISE SURVIVAL)
+              STEP 13: HEALTH DOES NOT HEAL (PRIORITISE SURVIVAL)
              ========================================================================= */}
-          {step === 12 && (
+          {step === 13 && (
             <div className="student-slide">
               <h1 className="student-title">Health Does Not Heal After Battles</h1>
               <p className="student-paragraph">
@@ -627,9 +649,9 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({
           )}
 
           {/* =========================================================================
-              STEP 13: HOW SAVING WORKS
+              STEP 14: HOW SAVING WORKS
              ========================================================================= */}
-          {step === 13 && (
+          {step === 14 && (
             <div className="student-slide">
               <h1 className="student-title">Saving Your Adventure Anywhere</h1>
               <p className="student-paragraph">
@@ -653,9 +675,9 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({
           )}
 
           {/* =========================================================================
-              STEP 14: READY TO PLAY!
+              STEP 15: READY TO PLAY!
              ========================================================================= */}
-          {step === 14 && (
+          {step === 15 && (
             <div className="student-slide">
               <h1 className="student-title">You Are Ready to Play!</h1>
               <p className="student-paragraph">
@@ -771,6 +793,12 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({
                     </>
                   )}
                   {step === 14 && (
+                    <>
+                      {renderChoicePill('next')}
+                      {renderChoicePill('back')}
+                    </>
+                  )}
+                  {step === 15 && (
                     <>
                       {renderChoicePill('start run')}
                       {renderChoicePill('review')}
