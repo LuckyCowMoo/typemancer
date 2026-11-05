@@ -97,33 +97,58 @@ class SoundEngine {
   constructor() {
     if (typeof window !== 'undefined') {
       const resumeAudio = () => {
-        if (this.ctx && this.ctx.state === 'suspended') {
-          this.ctx.resume().catch(() => {});
+        const ctx = this.getContext();
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
         }
-        // Preload seamless ambiance loop buffers when user interacts
+        this.preloadTypingSounds();
         this.loadAudioBuffer('ambiance/campfire_loop.ogg').catch(() => {});
         this.loadAudioBuffer('ambiance/river_stony.ogg').catch(() => {});
       };
       window.addEventListener('pointerdown', resumeAudio, { passive: true });
       window.addEventListener('keydown', resumeAudio, { passive: true });
+      // Preload typing audio buffers immediately so they are hot in memory
+      this.preloadTypingSounds();
     }
   }
 
   /**
-   * Asynchronously load and cache a Web Audio AudioBuffer for seamless looping ambiances.
+   * Preload all acoustic keystroke, backspace, and confirm audio files into Web Audio RAM buffers.
+   */
+  public preloadTypingSounds(): void {
+    const list = [
+      ...this.typewriterSamples,
+      ...this.keyboardSamples,
+      ...this.quillSamples,
+      ...this.chalkSamples,
+      'typing/carriage_bell.wav',
+      'cards/enchant.ogg',
+      'cards/doorClose_1.wav',
+      'typing/keyboard_3.wav',
+      'draw.wav',
+      'play_card.wav',
+      'shuffle.wav',
+    ];
+    for (const item of list) {
+      this.loadAudioBuffer(item).catch(() => {});
+    }
+  }
+
+  /**
+   * Asynchronously load and cache a Web Audio AudioBuffer for seamless looping ambiances and zero-latency SFX.
    */
   public async loadAudioBuffer(path: string): Promise<AudioBuffer | null> {
-    const cached = this.loopBufferCache.get(path);
+    const cleanPath = path.replace(/^\.?\/?(assets\/sfx\/)?/, '');
+    const cached = this.loopBufferCache.get(cleanPath) || this.loopBufferCache.get(path);
     if (cached) return cached;
 
-    const existing = this.loopBufferLoading.get(path);
+    const existing = this.loopBufferLoading.get(cleanPath) || this.loopBufferLoading.get(path);
     if (existing) return existing;
 
     const loadPromise = (async () => {
       const ctx = this.getContext();
       if (!ctx) return null;
       try {
-        const cleanPath = path.replace(/^\.?\/?(assets\/sfx\/)?/, '');
         const base = typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : '/';
         const src = `${base.replace(/\/$/, '')}/assets/sfx/${cleanPath}`;
         const resp = await fetch(src);
@@ -133,17 +158,51 @@ class SoundEngine {
         const arrayBuf = await resp.arrayBuffer();
         const audioBuf = await ctx.decodeAudioData(arrayBuf);
         this.loopBufferCache.set(path, audioBuf);
+        this.loopBufferCache.set(cleanPath, audioBuf);
         return audioBuf;
       } catch (err) {
-        console.warn(`[SoundEngine] Failed to load loop buffer: ${path}`, err);
+        console.warn(`[SoundEngine] Failed to load audio buffer: ${path}`, err);
         return null;
       } finally {
         this.loopBufferLoading.delete(path);
+        this.loopBufferLoading.delete(cleanPath);
       }
     })();
 
     this.loopBufferLoading.set(path, loadPromise);
+    this.loopBufferLoading.set(cleanPath, loadPromise);
     return loadPromise;
+  }
+
+  /**
+   * Play an AudioBuffer via the Web Audio API.
+   * Has true 0ms latency, zero HTMLMediaElement overhead, and no browser concurrency limits.
+   */
+  public playBuffer(
+    buffer: AudioBuffer,
+    settings: GameSettings,
+    volumeMultiplier = 0.65,
+    rateJitter = 0.06
+  ): boolean {
+    if (settings.muted || settings.volume <= 0) return false;
+    const ctx = this.getContext();
+    if (!ctx) return false;
+    try {
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      if (rateJitter > 0) {
+        source.playbackRate.value = Math.max(0.6, 1 + (Math.random() * 2 - 1) * rateJitter);
+      }
+      const gain = ctx.createGain();
+      const vol = Math.min(1, Math.max(0, settings.volume * volumeMultiplier));
+      gain.gain.setValueAtTime(vol, ctx.currentTime);
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start();
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -226,6 +285,18 @@ class SoundEngine {
     if (typeof window === 'undefined' || settings.muted || settings.volume <= 0) return;
     try {
       const cleanPath = filename.replace(/^\.?\/?(assets\/sfx\/)?/, '');
+
+      // 1. If buffer is cached in Web Audio RAM, play with 0ms latency and zero DOM overhead
+      const cachedBuffer = this.loopBufferCache.get(cleanPath) || this.loopBufferCache.get(filename);
+      if (cachedBuffer) {
+        this.playBuffer(cachedBuffer, settings, volumeMultiplier, rateJitter);
+        return;
+      }
+
+      // 2. Queue asynchronous decoding into Web Audio API cache for future plays
+      this.loadAudioBuffer(cleanPath).catch(() => {});
+
+      // 3. Fallback: HTMLAudioElement playback (reusing finished elements where possible)
       const base = typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : '/';
       const src = `${base.replace(/\/$/, '')}/assets/sfx/${cleanPath}`;
       let baseAudio = this.sampleCache.get(src);
@@ -233,6 +304,15 @@ class SoundEngine {
         baseAudio = new Audio(src);
         baseAudio.preload = 'auto';
         this.sampleCache.set(src, baseAudio);
+      }
+      if (baseAudio.paused || baseAudio.ended) {
+        baseAudio.currentTime = 0;
+        baseAudio.volume = Math.min(1, Math.max(0, settings.volume * volumeMultiplier));
+        if (rateJitter > 0) {
+          baseAudio.playbackRate = Math.max(0.6, 1 + (Math.random() * 2 - 1) * rateJitter);
+        }
+        baseAudio.play().catch(() => {});
+        return;
       }
       const instance = baseAudio.cloneNode(true) as HTMLAudioElement;
       instance.volume = Math.min(1, Math.max(0, settings.volume * volumeMultiplier));
@@ -600,19 +680,19 @@ class SoundEngine {
   }
 
   /**
-   * Authentic tactile typing sound execution using multi-sampled acoustic audio files.
-   * Completely replaces 8-bit synthetic oscillators with realistic typewriter and keyboard clicks!
+   * Authentic tactile typing sound execution using multi-sampled acoustic audio files
+   * with zero-latency Web Audio buffers and instantaneous synthesized fallbacks.
    */
   public playKeystroke(settings: GameSettings): void {
     if (settings.muted || settings.volume <= 0) return;
 
     const profile: SoundProfile = settings.typingSound;
     let pool: string[];
-    let volMult = 0.52;
+    let volMult = 0.54;
 
     if (profile === 'mechanical_typewriter') {
       pool = this.typewriterSamples;
-      volMult = 0.54;
+      volMult = 0.56;
     } else if (profile === 'vintage_telegraph') {
       pool = this.keyboardSamples;
       volMult = 0.52;
@@ -625,28 +705,205 @@ class SoundEngine {
     }
 
     const sample = pool[Math.floor(Math.random() * pool.length)];
-    this.playSample(sample, settings, volMult, 0.08);
+    const cleanPath = sample.replace(/^\.?\/?(assets\/sfx\/)?/, '');
+    const buffer = this.loopBufferCache.get(cleanPath) || this.loopBufferCache.get(sample);
+
+    if (buffer) {
+      this.playBuffer(buffer, settings, volMult, 0.08);
+      return;
+    }
+
+    // Queue buffer load in background
+    this.loadAudioBuffer(cleanPath).catch(() => {});
+
+    // Immediate synthesized click fallback so keystroke is NEVER dropped or silent
+    this.playSynthesizedKeystroke(profile, settings, volMult);
   }
 
   public playBackspace(settings: GameSettings): void {
     if (settings.muted || settings.volume <= 0) return;
-    // Tactile reverse mechanical key click
-    this.playSample('typing/keyboard_3.wav', settings, 0.42, 0.12);
+    const cleanPath = 'typing/keyboard_3.wav';
+    const buffer = this.loopBufferCache.get(cleanPath) || this.loopBufferCache.get('assets/sfx/' + cleanPath);
+    if (buffer) {
+      this.playBuffer(buffer, settings, 0.45, 0.12);
+      return;
+    }
+    this.loadAudioBuffer(cleanPath).catch(() => {});
+
+    // Immediate synthesized reverse key click
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(280, now);
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.045);
+    gain.gain.setValueAtTime(settings.volume * 0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.05);
   }
 
   public playConfirm(settings: GameSettings): void {
     if (settings.muted || settings.volume <= 0) return;
     const profile: ConfirmSoundProfile = settings.confirmSound;
 
-    if (profile === 'carriage_bell') {
-      // Classic typewriter carriage return bell ding & slide
-      this.playSample('typing/carriage_bell.wav', settings, 0.72, 0.03);
-    } else if (profile === 'spell_chime') {
-      // Resonant harmonic enchantment chime
-      this.playSample('cards/enchant.ogg', settings, 0.68, 0.04);
+    let samplePath = 'typing/carriage_bell.wav';
+    let vol = 0.72;
+    if (profile === 'spell_chime') {
+      samplePath = 'cards/enchant.ogg';
+      vol = 0.68;
+    } else if (profile === 'heavy_stamp') {
+      samplePath = 'cards/doorClose_1.wav';
+      vol = 0.75;
+    }
+
+    const cleanPath = samplePath.replace(/^\.?\/?(assets\/sfx\/)?/, '');
+    const buffer = this.loopBufferCache.get(cleanPath) || this.loopBufferCache.get(samplePath);
+    if (buffer) {
+      this.playBuffer(buffer, settings, vol, 0.03);
+      return;
+    }
+    this.loadAudioBuffer(cleanPath).catch(() => {});
+    this.playSynthesizedConfirm(profile, settings);
+  }
+
+  private playSynthesizedKeystroke(profile: SoundProfile, settings: GameSettings, volMult = 0.52): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const vol = Math.min(1, Math.max(0, settings.volume * volMult));
+
+    if (profile === 'mechanical_typewriter') {
+      // 1. High-frequency metallic typebar slap (bandpass filtered noise burst)
+      const sampleRate = ctx.sampleRate;
+      const numSamples = Math.floor(sampleRate * 0.02);
+      const noiseBuf = ctx.createBuffer(1, numSamples, sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < numSamples; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / numSamples);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.setValueAtTime(2800 + Math.random() * 400, now);
+      bp.Q.setValueAtTime(3.5, now);
+      const nGain = ctx.createGain();
+      nGain.gain.setValueAtTime(vol * 0.45, now);
+      nGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.016);
+      noise.connect(bp);
+      bp.connect(nGain);
+      nGain.connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + 0.02);
+
+      // 2. Heavy mechanical key chassis strike
+      const osc = ctx.createOscillator();
+      const oGain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1200 + Math.random() * 200, now);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.024);
+      oGain.gain.setValueAtTime(vol * 0.35, now);
+      oGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.024);
+      osc.connect(oGain);
+      oGain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.026);
+    } else if (profile === 'vintage_telegraph') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(950 + Math.random() * 150, now);
+      osc.frequency.exponentialRampToValueAtTime(280, now + 0.018);
+      gain.gain.setValueAtTime(vol * 0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.022);
+    } else if (profile === 'arcane_quill') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(980 + Math.random() * 240, now);
+      osc.frequency.exponentialRampToValueAtTime(1400, now + 0.035);
+      gain.gain.setValueAtTime(vol * 0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.04);
     } else {
-      // Heavy wax seal book thud
-      this.playSample('cards/doorClose_1.wav', settings, 0.75, 0.05);
+      // Soft chalk scrape
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(360 + Math.random() * 80, now);
+      osc.frequency.exponentialRampToValueAtTime(170, now + 0.028);
+      gain.gain.setValueAtTime(vol * 0.38, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.032);
+    }
+  }
+
+  private playSynthesizedConfirm(profile: ConfirmSoundProfile, settings: GameSettings): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const vol = Math.min(1, Math.max(0, settings.volume)) * 0.35;
+
+    if (profile === 'carriage_bell') {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      osc1.frequency.setValueAtTime(1760, now);
+      osc2.frequency.setValueAtTime(3520, now);
+      gain.gain.setValueAtTime(vol * 0.8, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.45);
+      osc2.stop(now + 0.45);
+    } else if (profile === 'spell_chime') {
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        const start = now + idx * 0.045;
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(vol * 0.5, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.3);
+      });
+    } else {
+      // heavy_stamp
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(55, now + 0.14);
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.16);
     }
   }
 

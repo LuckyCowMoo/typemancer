@@ -14,6 +14,7 @@ import { DevJsonEditor } from './components/DevJsonEditor';
 import { EntitySprite, IntentBadge } from './components/EntitySprite';
 import { MAP_NODE_STYLES, ScrollableMap } from './components/ScrollableMap';
 import { MysteryChanceWheel } from './components/MysteryChanceWheel';
+import { TutorialScreen, type TutorialMapNode } from './components/TutorialScreen';
 import { TypingConsoleDisplay } from './components/TypingConsoleDisplay';
 import type {
   ActiveEnemy,
@@ -26,6 +27,7 @@ import type {
   MysteryChoice,
   MysteryEffects,
   MysteryEventDefinition,
+  PhraseDifficulty,
   PowerEffectType,
   RelicDefinition,
   RunMetrics,
@@ -118,7 +120,8 @@ type ModalOverlay =
   | 'status_effects'
   | 'entity_inspect'
   | 'dictionary'
-  | 'codex';
+  | 'codex'
+  | 'combat_tutorial';
 
 interface ShopInventory {
   cards: { instance: CardInstance; price: number; sold: boolean }[];
@@ -189,6 +192,24 @@ const INITIAL_METRICS = (): RunMetrics => ({
   elapsedSeconds: 0,
 });
 
+const TUTORIAL_MAP_CHOICES_POOL: TutorialMapNode[] = [
+  { type: 'battle', name: 'monster patrol' },
+  { type: 'battle', name: 'enemy ambush' },
+  { type: 'battle', name: 'hostile clearing' },
+  { type: 'battle', name: 'combat zone' },
+  { type: 'merchant', name: 'wandering merchant' },
+  { type: 'merchant', name: 'arcane bookshop' },
+  { type: 'merchant', name: 'scribes market' },
+  { type: 'campfire', name: 'quiet bonfire' },
+  { type: 'campfire', name: 'warm campsite' },
+  { type: 'campfire', name: 'safe hearth' },
+  { type: 'mystery', name: 'mysterious shrine' },
+  { type: 'mystery', name: 'whispering fog' },
+  { type: 'mystery', name: 'strange crossroads' },
+  { type: 'elite', name: 'deadly champion' },
+  { type: 'elite', name: 'fierce warlord' },
+];
+
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export function App() {
@@ -198,6 +219,21 @@ export function App() {
 
   const [screen, setScreen] = useState<GameScreen>('main_menu');
   const [tutorialStep, setTutorialStep] = useState<number>(0);
+  const [combatTutorialStep, setCombatTutorialStep] = useState<number | null>(null);
+  const [hasShownCombatTutorialThisRun, setHasShownCombatTutorialThisRun] = useState<boolean>(false);
+  const [tutorialDiffPreview, setTutorialDiffPreview] = useState<PhraseDifficulty>('easy');
+  const [tutorialFeedback, setTutorialFeedback] = useState<string | null>(null);
+  const [tutorialMapLevel, setTutorialMapLevel] = useState<number>(1);
+  const [tutorialMapCurrent, setTutorialMapCurrent] = useState<TutorialMapNode>({
+    type: 'campfire',
+    name: 'quiet bonfire',
+  });
+  const [tutorialMapOptions, setTutorialMapOptions] = useState<TutorialMapNode[]>([
+    { type: 'battle', name: 'monster patrol' },
+    { type: 'merchant', name: 'wandering merchant' },
+    { type: 'mystery', name: 'mysterious shrine' },
+  ]);
+  const [tutorialMapScroll, setTutorialMapScroll] = useState<number>(0);
   const [introStep, setIntroStep] = useState<IntroStep>('ask_name');
 
   const [inspectedEntity, setInspectedEntity] = useState<ActiveEnemy | 'player' | null>(null);
@@ -793,8 +829,14 @@ export function App() {
       setScreen('battle');
       setHandAnimState('drawing');
       window.setTimeout(() => setHandAnimState('idle'), 420);
+
+      if (!hasShownCombatTutorialThisRun) {
+        setHasShownCombatTutorialThisRun(true);
+        setCombatTutorialStep(7);
+        setOverlay('combat_tutorial');
+      }
     },
-    [drawCards, phraseDiff, resetTypingBuffer, settings]
+    [drawCards, hasShownCombatTutorialThisRun, phraseDiff, resetTypingBuffer, settings]
   );
 
   const handleCombatVictory = useCallback(
@@ -2887,6 +2929,8 @@ export function App() {
       setMapFloors(freshMap);
       setCurrentFloor(1);
       setCurrentNodeId(null);
+      setHasShownCombatTutorialThisRun(false);
+      setCombatTutorialStep(null);
       resetTypingBuffer(true);
       setScreen('map');
     },
@@ -2916,6 +2960,8 @@ export function App() {
       setRelicIds(payload.relics.length > 0 ? payload.relics : ['magical_typewriter']);
       setMapFloors(generateProceduralMap());
       setCurrentNodeId(null);
+      setHasShownCombatTutorialThisRun(payload.floor > 1);
+      setCombatTutorialStep(null);
       resetTypingBuffer(true);
       setOverlay('none');
       setScreen('map');
@@ -3188,6 +3234,43 @@ export function App() {
 
     // 1. Modal Overlay Commands
     if (overlay !== 'none') {
+      if (overlay === 'combat_tutorial') {
+        if (matchCommand(raw, ['skip', 'close', 'exit', 'dismiss'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles(undefined, ['#137547', '#ffd166'], 40, 50);
+          setOverlay('none');
+          setCombatTutorialStep(null);
+          resetTypingBuffer(true);
+          return;
+        }
+        if (matchCommand(raw, ['next', 'continue', 'forward'], 'easy')) {
+          if (combatTutorialStep !== null && combatTutorialStep < 10) {
+            soundEngine.playPageTurn(settings);
+            triggerElementParticles(undefined, ['#137547', '#ffd166'], 40, 50);
+            setCombatTutorialStep((s) => (s !== null ? s + 1 : 7));
+          } else {
+            soundEngine.playConfirm(settings);
+            triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 60);
+            setOverlay('none');
+            setCombatTutorialStep(null);
+          }
+          resetTypingBuffer(true);
+          return;
+        }
+        if (matchCommand(raw, ['back', 'prev', 'previous'], 'easy')) {
+          if (combatTutorialStep !== null && combatTutorialStep > 7) {
+            soundEngine.playPageTurn(settings);
+            setCombatTutorialStep((s) => (s !== null ? s - 1 : 7));
+          } else {
+            soundEngine.playError(settings);
+          }
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
       if (
         !raw ||
         matchCommand(raw, ['back', 'return', 'close', 'exit', 'cancel', 'resume', 'done'], 'easy')
@@ -3656,6 +3739,16 @@ export function App() {
         soundEngine.playPageTurn(settings);
         triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 58);
         setTutorialStep(0);
+        setTutorialFeedback(null);
+        setTutorialDiffPreview('easy');
+        setTutorialMapLevel(1);
+        setTutorialMapCurrent({ type: 'campfire', name: 'quiet bonfire' });
+        setTutorialMapOptions([
+          { type: 'battle', name: 'monster patrol' },
+          { type: 'merchant', name: 'wandering merchant' },
+          { type: 'mystery', name: 'mysterious shrine' },
+        ]);
+        setTutorialMapScroll(0);
         setScreen('tutorial');
         resetTypingBuffer(true);
         return;
@@ -3683,37 +3776,115 @@ export function App() {
       return;
     }
 
-    // 4. TUTORIAL
+    // 4. STUDENT-FRIENDLY SPACED-OUT TUTORIAL (13 STEPS, ZERO MOUSE)
     if (screen === 'tutorial') {
-      if (matchCommand(raw, ['back', 'exit', 'menu', 'skip'], 'easy')) {
+      // Exit or Menu
+      if (matchCommand(raw, ['exit', 'menu', 'quit'], 'easy')) {
         soundEngine.playPageTurn(settings);
         triggerElementParticles(undefined, ['#102a3a', '#d97706'], 50, 80);
         setScreen('main_menu');
         resetTypingBuffer(true);
         return;
       }
-      if (tutorialStep === 0 && matchCommand(raw, ['strike'], 'easy')) {
-        soundEngine.playCardSound('ink_strike', settings);
-        triggerElementParticles(undefined, ['#b84a14', '#137547', '#ffd166'], 50, 65);
-        setTutorialStep(1);
-        resetTypingBuffer(true);
-        return;
-      }
-      if (tutorialStep === 1 && matchCommand(raw, ['goblin scout', 'goblin'], 'easy')) {
-        soundEngine.playHit(settings);
-        triggerElementParticles(undefined, ['#9e2a2b', '#d97706', '#ffd166'], 50, 65);
-        setTutorialStep(2);
-        resetTypingBuffer(true);
-        return;
-      }
-      if (tutorialStep === 2 && (!norm || matchCommand(raw, ['new run', 'start', 'menu', 'done'], 'easy'))) {
-        soundEngine.playPageTurn(settings);
+
+      // Start run command
+      if (matchCommand(raw, ['start run', 'new run', 'start', 'begin', 'play'], 'easy')) {
+        soundEngine.playConfirm(settings);
         triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 65);
         setIntroStep('ask_name');
         setScreen('peasant_intro');
         resetTypingBuffer(true);
         return;
       }
+
+      // Review command (revisit from beginning)
+      if (matchCommand(raw, ['review', 'restart tutorial', 'from start'], 'easy')) {
+        soundEngine.playPageTurn(settings);
+        setTutorialStep(0);
+        setTutorialFeedback(null);
+        resetTypingBuffer(true);
+        return;
+      }
+
+      // Universal Next / Continue
+      if (matchCommand(raw, ['next', 'continue', 'forward'], 'easy')) {
+        if (tutorialStep === 1) {
+          soundEngine.playError(settings);
+          setTutorialFeedback("Type 'practice practice practice' and press Enter to practice!");
+          resetTypingBuffer(true);
+          return;
+        }
+        if (tutorialStep < 14) {
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 50);
+          setTutorialStep((s) => s + 1);
+          setTutorialFeedback(null);
+        } else {
+          soundEngine.playConfirm(settings);
+          triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 65);
+          setIntroStep('ask_name');
+          setScreen('peasant_intro');
+        }
+        resetTypingBuffer(true);
+        return;
+      }
+
+      // Universal Back / Prev (or skip -> back)
+      if (matchCommand(raw, ['back', 'prev', 'previous', 'skip'], 'easy')) {
+        if (tutorialStep > 0) {
+          soundEngine.playPageTurn(settings);
+          setTutorialStep((s) => s - 1);
+          setTutorialFeedback(null);
+        } else {
+          soundEngine.playPageTurn(settings);
+          setScreen('main_menu');
+        }
+        resetTypingBuffer(true);
+        return;
+      }
+
+      // Step 1: Practice typing "practice practice practice"
+      if (tutorialStep === 1) {
+        if (matchCommand(raw, ['practice practice practice', 'practice practice', 'practice'], 'easy')) {
+          soundEngine.playHit(settings);
+          triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 60);
+          setTutorialStep(2);
+          setTutorialFeedback(null);
+          resetTypingBuffer(true);
+          return;
+        }
+      }
+
+      // Step 2: Goal: Climb & Collect -> typing "cards" triggers next!
+      if (tutorialStep === 2) {
+        if (matchCommand(raw, ['cards', 'card'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          triggerElementParticles(undefined, ['#137547', '#ffd166'], 50, 50);
+          setTutorialStep(3);
+          setTutorialFeedback(null);
+          resetTypingBuffer(true);
+          return;
+        }
+      }
+
+      // Step 5: Moving on Map (Interactive Example)
+      if (tutorialStep === 5) {
+        const matched = tutorialMapOptions.find((opt) => matchCommand(raw, [opt.name], 'medium'));
+        if (matched) {
+          soundEngine.playChooseRoad(settings);
+          triggerElementParticles(undefined, ['#137547', '#ffd166'], 40, 50);
+          setTutorialMapCurrent(matched);
+          setTutorialMapLevel((lvl) => lvl + 1);
+          // Pick 3 new distinct options from pool
+          const nextPool = TUTORIAL_MAP_CHOICES_POOL.filter((c) => c.name !== matched.name);
+          const shuffled = shuffleArray(nextPool).slice(0, 3);
+          setTutorialMapOptions(shuffled);
+          setTutorialFeedback(null);
+          resetTypingBuffer(true);
+          return;
+        }
+      }
+
       soundEngine.playError(settings);
       return;
     }
@@ -4861,6 +5032,21 @@ export function App() {
         }
       }
 
+      if (screen === 'tutorial' && tutorialStep === 5) {
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setTutorialMapScroll((prev) => Math.min(45, prev + 25));
+          soundEngine.playWheelTick(settings);
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setTutorialMapScroll((prev) => Math.max(-45, prev - 25));
+          soundEngine.playWheelTick(settings);
+          return;
+        }
+      }
+
       if (e.key === 'Enter') {
         e.preventDefault();
         handleEnterRef.current();
@@ -4901,6 +5087,7 @@ export function App() {
         if (overlay !== 'none') {
           soundEngine.playPageTurn(settings);
           setOverlay('none');
+          setCombatTutorialStep(null);
           return;
         }
         soundEngine.playBackspace(settings);
@@ -4955,7 +5142,14 @@ export function App() {
     const pool: string[] = [];
 
     if (overlay !== 'none') {
-      pool.push('back', 'return', 'close');
+      if (overlay === 'combat_tutorial') {
+        pool.push('next', 'skip');
+        if (combatTutorialStep !== null && combatTutorialStep > 7) {
+          pool.push('back');
+        }
+      } else {
+        pool.push('back', 'return', 'close');
+      }
       if (overlay === 'options') {
         pool.push(
           'deck',
@@ -4997,10 +5191,15 @@ export function App() {
       if (screen === 'main_menu') {
         pool.push('new run', 'tutorial', 'load', 'options', 'editor', 'help');
       } else if (screen === 'tutorial') {
-        if (tutorialStep === 0) pool.push('strike');
-        if (tutorialStep === 1) pool.push('goblin scout');
-        if (tutorialStep === 2) pool.push('new run');
-        pool.push('back');
+        pool.push('back', 'menu');
+        if (tutorialStep !== 1 && tutorialStep !== 14) {
+          pool.push('next');
+        }
+        if (tutorialStep === 1) pool.push('practice practice practice');
+        if (tutorialStep === 5) {
+          tutorialMapOptions.forEach((opt) => pool.push(opt.name));
+        }
+        if (tutorialStep === 14) pool.push('start run', 'review');
       } else if (screen === 'peasant_intro') {
         if (introStep === 'ask_difficulty') {
           pool.push(
@@ -5176,6 +5375,7 @@ export function App() {
     selectedCardResolved,
     shopInventory,
     shopSubMode,
+    combatTutorialStep,
     tutorialStep,
     typedInput,
   ]);
@@ -6182,78 +6382,21 @@ export function App() {
               </div>
             )}
 
-            {/* 0.5 SHORT INTERACTIVE TUTORIAL */}
+            {/* 0.5 VASTLY IMPROVED INTERACTIVE TUTORIAL (STRICT NO-MOUSE) */}
             {screen === 'tutorial' && (
-              <div className="cabinet-story-frame paper-sheet-float">
-                <div className="story-card">
-                  <h1 className="story-title">How to Play Typemancer</h1>
-                  {tutorialStep === 0 && (
-                    <div className="prompt-panel">
-                      <h2>Step 1 of 3 — Casting a Card</h2>
-                      <p>
-                        In Typemancer, your keyboard controls everything. Notice how options glow warm amber as you start typing, then turn <strong>emerald green and enlarge</strong> when pressing <code>Enter</code> will select them!
-                      </p>
-                      <p>Try selecting the basic attack card now by typing:</p>
-                      {(() => {
-                        const st = getPhraseHighlightState('strike', 'easy');
-                        return (
-                          <div
-                            className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
-                              st.isEnterReady ? 'option-enter-ready' : ''
-                            }`}
-                          >
-                            <div className="phrase-to-type">strike</div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  )}
-                  {tutorialStep === 1 && (
-                    <div className="prompt-panel">
-                      <h2>Step 2 of 3 — Targeting an Enemy</h2>
-                      <p>
-                        Once a card is selected, the game fills in the middle connector of the sentence:
-                        <em> "strike" -at- ...</em>
-                      </p>
-                      <p>Finish the sentence by typing the target enemy's name:</p>
-                      {(() => {
-                        const st = getPhraseHighlightState('goblin scout', 'easy');
-                        return (
-                          <div
-                            className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
-                              st.isEnterReady ? 'option-enter-ready' : ''
-                            }`}
-                          >
-                            <div className="phrase-to-type">goblin scout</div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  )}
-                  {tutorialStep === 2 && (
-                    <div className="prompt-panel">
-                      <h2>Step 3 of 3 — Helpful Tips</h2>
-                      <ul className="modal-list">
-                        <li>Type <code>back</code> or <code>cancel</code> anytime to deselect a card.</li>
-                        <li>Type an enemy's name or status effect name (like <code>ward</code> or <code>ink burn</code>) to inspect what it does.</li>
-                        <li>Unsure what an English word means? Type the word followed by <code>?</code> (for example <code>pavilion?</code>) to look up its definition!</li>
-                      </ul>
-                      {(() => {
-                        const st = getPhraseHighlightState('new run', 'easy');
-                        return (
-                          <div
-                            className={`choice-item ${st.isHighlighted ? 'option-highlighted' : ''} ${
-                              st.isEnterReady ? 'option-enter-ready' : ''
-                            }`}
-                          >
-                            <div className="phrase-to-type">new run</div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <TutorialScreen
+                step={tutorialStep}
+                typedInput={typedInput}
+                difficulty={difficulty}
+                phraseDiff={phraseDiff}
+                diffPreview={tutorialDiffPreview}
+                feedbackText={tutorialFeedback}
+                interactiveMapCurrent={tutorialMapCurrent}
+                interactiveMapOptions={tutorialMapOptions}
+                interactiveMapLevel={tutorialMapLevel}
+                interactiveMapScroll={tutorialMapScroll}
+                getPhraseHighlightState={getPhraseHighlightState}
+              />
             )}
 
             {/* 1. OPENING SEQUENCE: THE PEASANT & THE TYPEWRITER */}
@@ -7080,6 +7223,22 @@ export function App() {
                 setInspectedEntity(null);
                 soundEngine.playCodexNav(settings);
               }}
+            />
+          ) : overlay === 'combat_tutorial' ? (
+            <TutorialScreen
+              step={combatTutorialStep ?? 7}
+              typedInput={typedInput}
+              difficulty={difficulty}
+              phraseDiff={phraseDiff}
+              diffPreview="easy"
+              feedbackText={null}
+              interactiveMapCurrent={tutorialMapCurrent}
+              interactiveMapOptions={tutorialMapOptions}
+              interactiveMapLevel={tutorialMapLevel}
+              interactiveMapScroll={0}
+              getPhraseHighlightState={getPhraseHighlightState}
+              isBattlePopup={true}
+              renderTypingInputWithCaret={renderTypingInputWithCaret}
             />
           ) : (
             <div className={`cabinet-modal-wrapper ${screen === 'battle' && overlay === 'deck' ? 'with-combat-key' : ''}`}>

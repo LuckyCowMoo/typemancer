@@ -4354,7 +4354,525 @@ body,
   text-shadow: 0 0 6px rgba(251, 146, 60, 0.5);
 }
 
+/* =========================================================================
+   STUDENT-FRIENDLY SPACED-OUT TUTORIAL (STRICT NO-MOUSE INPUT SYSTEM)
+   ========================================================================= */
 
+.student-tutorial-container,
+.student-tutorial-container * {
+  cursor: default !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
 
+/* Absolute prohibition on mouse hover styling in tutorial */
+.student-tutorial-container button:hover,
+.student-tutorial-container div:hover:not(.option-highlighted):not(.option-enter-ready),
+.student-tutorial-container span:hover:not(.option-highlighted):not(.option-enter-ready) {
+  transform: none;
+  filter: none;
+}
+
+.student-tutorial-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 4px 10px;
+  box-sizing: border-box;
+}
+
+.student-tutorial-popup-container {
+  z-index: 105;
+  max-width: 800px;
+  width: 100%;
+  animation: modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.student-frame {
+  max-width: 860px;
+  width: 100%;
+  max-height: calc(100vh - 120px);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-card {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 12px;
+  padding: 18px 24px;
+  min-height: 420px;
+}
+
+/* Header */
+.student-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 2px dashed #d5c8b5;
+}
+
+.student-step-indicator .step-count {
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #b45309;
+  background: #fef08a;
+  padding: 2px 10px;
+  border-radius: 4px;
+  border: 1px solid #ca8a04;
+}
+
+.student-step-indicator .step-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #2b1e16;
+}
+
+/* Slide Content */
+.student-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 8px 10px;
+  flex: 1;
+  justify-content: center;
+}
+
+.student-icon-hero {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.student-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #1a110b;
+}
+
+.student-paragraph {
+  margin: 0;
+  font-size: 1.18rem;
+  line-height: 1.5;
+  color: #2b1e16;
+  max-width: 680px;
+}
+
+.student-paragraph strong {
+  color: #92400e;
+}
+
+/* How Typing Works Demo Boxes (Step 1) */
+.student-demo-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 540px;
+  margin-top: 6px;
+  text-align: left;
+}
+
+.demo-step-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ede4d4;
+  border: 1.5px solid #baa993;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 1.05rem;
+  color: #2b1e16;
+}
+
+.demo-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #2b1e16;
+  color: #fdf8ef;
+  font-size: 0.85rem;
+  font-weight: 900;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Difficulty Pill Cards (Step 3) */
+.student-diff-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 620px;
+  margin-top: 8px;
+}
+
+.diff-pill-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  background: #ede4d4;
+  border: 2px solid #baa993;
+  border-radius: 8px;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.diff-pill-card.active {
+  background: #fef08a;
+  border-color: #b45309;
+  transform: scale(1.04);
+}
+
+.diff-pill-card .diff-tag {
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.diff-pill-card .diff-tag.easy {
+  background: #bbf7d0;
+  color: #14532d;
+}
+
+.diff-pill-card .diff-tag.normal {
+  background: #fed7aa;
+  color: #7c2d12;
+}
+
+.diff-pill-card .diff-tag.hard {
+  background: #fecdd3;
+  color: #881337;
+}
+
+.diff-pill-card .diff-word {
+  font-family: monospace;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #162229;
+}
+
+.diff-pill-card .diff-sub {
+  font-size: 0.76rem;
+  color: #5c4738;
+}
+
+/* Rooms Grid (Step 4) */
+.student-rooms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+  margin-top: 6px;
+}
+
+.room-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ede4d4;
+  border: 1.5px solid #baa993;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  color: #2b1e16;
+}
+
+.room-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Callout Highlights */
+.student-highlight-callout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+  width: 100%;
+  max-width: 620px;
+}
+
+.alert-green {
+  background: #dcfce7;
+  border: 2px solid #16a34a;
+  color: #14532d;
+}
+
+.alert-red {
+  background: #fee2e2;
+  border: 2.5px solid #dc2626;
+  color: #7f1d1d;
+}
+
+.callout-icon {
+  font-size: 1.4rem;
+}
+
+/* Energy Crystals (Step 8) */
+.energy-crystals-hero {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  font-size: 2.5rem;
+  margin-bottom: 4px;
+}
+
+/* Intents Row (Step 10) */
+.student-intents-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 520px;
+  text-align: left;
+  margin-top: 4px;
+}
+
+.intent-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ede4d4;
+  border: 1.5px solid #baa993;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  color: #2b1e16;
+}
+
+/* Factions Grid (Step 11) */
+.student-factions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 620px;
+  margin-top: 6px;
+}
+
+.faction-mini-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ede4d4;
+  border: 1.5px solid #baa993;
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+  gap: 2px;
+  transition: all 0.2s ease;
+}
+
+.faction-mini-card.active-faction {
+  background: #fef08a;
+  border-color: #b45309;
+  border-width: 2.5px;
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(180, 83, 9, 0.2);
+}
+
+.mini-sprite {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.faction-mini-card strong {
+  font-size: 0.88rem;
+  color: #2b1e16;
+}
+
+.faction-mini-card span {
+  font-size: 0.74rem;
+  color: #5c4738;
+  line-height: 1.25;
+}
+
+/* Rules Summary (Step 14) */
+.student-rules-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 520px;
+  text-align: left;
+  background: #ede4d4;
+  border: 1.5px solid #baa993;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  color: #2b1e16;
+}
+
+/* Student Typing Panel (Interactive Action) */
+.student-typing-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding: 10px 14px;
+  background: #e2d7c5;
+  border: 2px solid #3c2a1e;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.student-typing-header {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #5c4738;
+}
+
+.student-choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.student-choice-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  background: #ffffff;
+  border: 2px solid #2b1e16;
+  border-radius: 8px;
+  min-width: 100px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(43, 30, 22, 0.1);
+  transition: transform 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.student-choice-pill .pill-phrase {
+  font-family: monospace;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #bc5215;
+}
+
+.student-feedback-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  background: #d1fae5;
+  border: 1.5px solid #059669;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #065f46;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Authentic Parchment Mini-Map for Tutorial (Step 5) */
+.tutorial-interactive-map-wrapper {
+  width: 100%;
+  max-width: 640px;
+  height: 310px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 2.5px solid #2b1e16;
+  background: radial-gradient(circle at 50% 35%, #fefcf7 0%, #f7f1e5 55%, #ece1ce 100%);
+  box-shadow: inset 0 2px 10px rgba(43, 30, 22, 0.12), 0 4px 14px rgba(43, 30, 22, 0.1);
+  margin-top: 6px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.tutorial-interactive-map-canvas {
+  width: 100%;
+  height: 350px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: transform 0.22s ease-out;
+  pointer-events: none;
+}
+
+.tutorial-map-inky-svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tutorial-map-node-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 2px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.tutorial-map-current-badge {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 3px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #16a34a;
+  border-radius: 4px;
+  padding: 1px 7px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tutorial-map-scroll-tip {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #78350f;
+  background: rgba(254, 243, 199, 0.85);
+  border: 1px solid #d97706;
+  border-radius: 6px;
+  padding: 2px 7px;
+  pointer-events: none;
+  z-index: 10;
+}
 
 
