@@ -36,9 +36,7 @@ import type {
 import {
   CARDS_CATALOG,
   chooseBattleEnvironment,
-  chooseEnemyMove,
   chooseEnemyMoveForContext,
-  resolveEnemyBehavior,
   createStarterDeck,
   createSummonInstance,
   describeCardEffects,
@@ -116,6 +114,7 @@ type ModalOverlay =
   | 'discard'
   | 'burn_draft'
   | 'relics'
+  | 'gold'
   | 'save'
   | 'status_effects'
   | 'entity_inspect'
@@ -1434,45 +1433,8 @@ export function App() {
       setDiscardPile(drawnResult.nextDiscard);
       setBurnDraftPile(nextBurn);
 
-      // Check for dynamic behavior phase shifts (e.g. below 1/2 HP, last standing)
-      aliveEnemies.forEach((en) => {
-        const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
-        if (def && def.behaviors && def.behaviors.length > 0) {
-          const resolved = resolveEnemyBehavior(def, en.hp, en.maxHp, aliveEnemies.length);
-          if (en.currentBehavior?.condition !== resolved.condition) {
-            en.currentBehavior = { condition: resolved.condition, name: resolved.name };
-            en.currentMove = chooseEnemyMove(
-              resolved.moves.length > 0 ? resolved.moves : def.moves
-            );
-            if (resolved.condition === 'below_half_hp') {
-              spawnPopup(en.instanceId, `⚡ ${resolved.name}!`, '#ef4444');
-            } else if (resolved.condition === 'last_standing') {
-              spawnPopup(en.instanceId, `🐺 ${resolved.name}!`, '#f59e0b');
-            }
-          }
-        }
-      });
-
-      nextAllies.forEach((ally) => {
-        if (ally.hp <= 0) return;
-        const aDef = ENEMIES_CATALOG.find((d) => d.id === ally.enemyId);
-        if (aDef && aDef.behaviors && aDef.behaviors.length > 0) {
-          const livingAlliesCount = nextAllies.filter((a) => a.hp > 0).length;
-          const resolved = resolveEnemyBehavior(aDef, ally.hp, ally.maxHp, livingAlliesCount);
-          if (ally.currentBehavior?.condition !== resolved.condition) {
-            ally.currentBehavior = { condition: resolved.condition, name: resolved.name };
-            ally.currentMove = chooseEnemyMove(
-              resolved.moves.length > 0 ? resolved.moves : aDef.moves
-            );
-            if (resolved.condition === 'below_half_hp') {
-              spawnPopup(ally.instanceId, `⚡ ${resolved.name}!`, '#10b981');
-            } else if (resolved.condition === 'last_standing') {
-              spawnPopup(ally.instanceId, `🐺 ${resolved.name}!`, '#10b981');
-            }
-          }
-        }
-      });
-
+      // Health thresholds and "last standing" do not rewrite a move that is already
+      // telegraphed. The next intent is chosen after that move resolves.
       setEnemies(aliveEnemies);
       setAllies(nextAllies.filter((a) => a.hp > 0));
 
@@ -2045,9 +2007,17 @@ export function App() {
       const def = ENEMIES_CATALOG.find((d) => d.id === en.enemyId);
       if (def) {
         const aliveCount = workingEnemies.filter((x) => x.hp > 0).length;
+        const previousCondition = en.currentBehavior?.condition;
         const { move, behavior } = chooseEnemyMoveForContext(def, en.hp, en.maxHp, aliveCount);
         en.currentMove = move;
         en.currentBehavior = behavior;
+        if (previousCondition !== behavior.condition) {
+          if (behavior.condition === 'below_half_hp') {
+            spawnPopup(en.instanceId, `⚡ ${behavior.name}!`, '#ef4444');
+          } else if (behavior.condition === 'last_standing') {
+            spawnPopup(en.instanceId, `🐺 ${behavior.name}!`, '#f59e0b');
+          }
+        }
       }
 
       setPlayerStatuses({ ...nextPlayerStats });
@@ -2258,9 +2228,17 @@ export function App() {
       const aDef = ENEMIES_CATALOG.find((d) => d.id === ally.enemyId);
       if (aDef) {
         const aliveAlliesCount = workingAllies.filter((x) => x.hp > 0).length;
+        const previousCondition = ally.currentBehavior?.condition;
         const { move, behavior } = chooseEnemyMoveForContext(aDef, ally.hp, ally.maxHp, aliveAlliesCount);
         ally.currentMove = move;
         ally.currentBehavior = behavior;
+        if (previousCondition !== behavior.condition) {
+          if (behavior.condition === 'below_half_hp') {
+            spawnPopup(ally.instanceId, `⚡ ${behavior.name}!`, '#10b981');
+          } else if (behavior.condition === 'last_standing') {
+            spawnPopup(ally.instanceId, `🐺 ${behavior.name}!`, '#10b981');
+          }
+        }
       }
 
       setAllies([...workingAllies.filter((x) => x.hp > 0)]);
@@ -3230,6 +3208,22 @@ export function App() {
         });
         return;
       }
+    }
+
+    // Gold can be inspected from any screen, including while another popup is open.
+    // Exact match so it does not steal nearby words such as the Bold status.
+    const goldIsTravelChoice =
+      screen === 'map' &&
+      overlay === 'none' &&
+      availableMapNodes.some((n) => normalizeText(n.phrases[phraseDiff]) === 'gold');
+    const goldBlockedByNameEntry =
+      screen === 'peasant_intro' && (introStep === 'ask_name' || introStep === 'load_save');
+    if (norm === 'gold' && !goldIsTravelChoice && !goldBlockedByNameEntry) {
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles(undefined, ['#e3b341', '#f5d76e', '#8a6410'], 48, 55);
+      setOverlay('gold');
+      resetTypingBuffer(false);
+      return;
     }
 
     // 1. Modal Overlay Commands
@@ -5143,12 +5137,12 @@ export function App() {
 
     if (overlay !== 'none') {
       if (overlay === 'combat_tutorial') {
-        pool.push('next', 'skip');
+        pool.push('gold', 'next', 'skip');
         if (combatTutorialStep !== null && combatTutorialStep > 7) {
           pool.push('back');
         }
       } else {
-        pool.push('back', 'return', 'close');
+        pool.push('back', 'return', 'close', 'gold');
       }
       if (overlay === 'options') {
         pool.push(
@@ -5325,7 +5319,7 @@ export function App() {
       }
 
       if (!isCardPlayAwaitingDiscard && pendingDiscardCount === 0 && pendingKeepCount === 0) {
-        pool.push('help', 'options', 'save', 'relics', 'view deck', 'status effects', 'editor');
+        pool.push('help', 'options', 'save', 'relics', 'gold', 'view deck', 'status effects', 'editor');
         STATUS_DEFINITIONS.forEach((st) => pool.push(st.name));
       }
     }
@@ -7254,6 +7248,7 @@ export function App() {
                   <li><code>[enemy name]</code> — Type an enemy's name in battle to inspect its intent and statuses</li>
                   <li><code>[word]?</code> — Type any English word ending with <code>?</code> (e.g. <code>pavilion?</code>) to look up its definition</li>
                   <li><code>relics</code> — View names and descriptions of your collected relics</li>
+                  <li><code>gold</code> — See how much gold you are carrying</li>
                   <li><code>view deck</code> / <code>view discard</code> — View cards</li>
                   <li><code>options</code> / <code>save</code> — Audio settings or Save Code</li>
                   <li>Art: Dungeon Crawl Stone Soup 32×32 tileset (OpenGameArt, CC0)</li>
@@ -7559,6 +7554,15 @@ export function App() {
                 <h2>Burned Drafts ({burnDraftPile.length} Cards)</h2>
                 {renderCategorizedCardGrid(burnDraftPile)}
               </>
+            )}
+
+            {overlay === 'gold' && (
+              <div className="gold-popup">
+                <div className="gold-popup-amount">{gold}</div>
+                <p className="gold-popup-note">
+                  You can spend it if you pass through a shop on your travels.
+                </p>
+              </div>
             )}
 
             {overlay === 'relics' && (
