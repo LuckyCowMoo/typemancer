@@ -6886,8 +6886,11 @@ export function App() {
                         <>
                           <h2 className="story-title">
                             {activeNodeType === 'elite'
-                              ? `Elite Victory — Choose a Card (+${rewardGoldClaimed} Gold) — or type (skip)`
-                              : `Rewards (+${rewardGoldClaimed} Gold) — or type (skip)`}
+                              ? 'Elite Victory — Choose a Card'
+                              : 'Rewards'}{' '}
+                            <span style={{ color: '#64748b', fontWeight: 'normal' }}>
+                              (+<span style={{ color: '#d97706', fontWeight: 800 }}>{rewardGoldClaimed} Gold</span>)
+                            </span>
                           </h2>
                           <div className="deck-banner-grid">
                             {rewardCards.map((inst, idx) => {
@@ -6905,10 +6908,59 @@ export function App() {
                               );
                             })}
                           </div>
+                          {(() => {
+                            const skipCardState = getPhraseHighlightState('skip', 'easy');
+                            return (
+                              <div
+                                className="reward-skip-prompt"
+                                style={{
+                                  marginTop: 18,
+                                  textAlign: 'center',
+                                  fontSize: '0.96rem',
+                                  color: '#64748b',
+                                }}
+                              >
+                                or type{' '}
+                                <span
+                                  className={`phrase-to-type ${
+                                    skipCardState.isHighlighted ? 'option-highlighted' : ''
+                                  } ${skipCardState.isEnterReady ? 'option-enter-ready' : ''}`}
+                                  style={{
+                                    display: 'inline-block',
+                                    padding: '2px 8px',
+                                    borderRadius: 6,
+                                    background: skipCardState.isEnterReady ? '#10b981' : '#f1ede4',
+                                    border: '1px solid #dcd3c5',
+                                    color: skipCardState.isEnterReady ? '#ffffff' : '#b45309',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                  }}
+                                  onClick={() => {
+                                    soundEngine.playConfirm(settings);
+                                    triggerElementParticles(undefined, ['#64748b', '#102a3a'], 50, 82);
+                                    setRewardCards([]);
+                                    if (rewardRelics.length > 0) {
+                                      setRewardStep('relic');
+                                      resetTypingBuffer(true);
+                                    } else {
+                                      advanceToMapNextFloor();
+                                    }
+                                  }}
+                                >
+                                  skip
+                                </span>
+                              </div>
+                            );
+                          })()}
                         </>
                       ) : (
                         <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                          <h2 className="story-title">Victory (+{rewardGoldClaimed} Gold)</h2>
+                          <h2 className="story-title">
+                            Victory{' '}
+                            <span style={{ color: '#64748b', fontWeight: 'normal' }}>
+                              (+<span style={{ color: '#d97706', fontWeight: 800 }}>{rewardGoldClaimed} Gold</span>)
+                            </span>
+                          </h2>
                           <p
                             style={{
                               color: '#64748b',
