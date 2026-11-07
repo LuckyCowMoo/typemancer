@@ -5406,6 +5406,26 @@ export function App() {
     };
   }, [actionStartTime, devEditorOpen, overlay, resetTypingBuffer, screen, selectedCard, selectedDiscardInstances, selectedTargetEnemy, settings, typedInput.length]);
 
+  // Warn when refreshing or attempting to leave page during an active game run
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const isRunActive =
+        isPlaytestingEncounter ||
+        (screen !== 'main_menu' && screen !== 'tutorial' && screen !== 'victory' && screen !== 'game_over');
+
+      if (isRunActive) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isPlaytestingEncounter, screen]);
+
   /**
    * Computes the faint ghost autocomplete suffix shown in front of (after) the cursor
    * and the target phrase once the student has typed at least 5 characters of a matching option!
