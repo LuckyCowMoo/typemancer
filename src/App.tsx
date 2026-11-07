@@ -531,7 +531,7 @@ export function App() {
     } else if (screen === 'treasure') {
       soundEngine.startAmbiance('treasure', settings);
     } else if (screen === 'mystery') {
-      soundEngine.startAmbiance('mystery', settings);
+      soundEngine.startAmbiance(activeEvent ? `event:${activeEvent.id}` : 'mystery', settings);
     } else if (screen === 'map') {
       soundEngine.startAmbiance('map', settings);
     } else if (screen === 'main_menu' || screen === 'peasant_intro' || screen === 'tutorial') {
@@ -545,7 +545,7 @@ export function App() {
     } else if (screen === 'victory' || screen === 'game_over') {
       soundEngine.stopAmbiance(1.5);
     }
-  }, [devEditorOpen, screen, activeEnvironment?.id, settings.muted, settings.volume]);
+  }, [devEditorOpen, screen, activeEnvironment?.id, activeEvent?.id, settings.muted, settings.volume]);
 
   useEffect(() => {
     soundEngine.updateAmbianceVolume(settings);

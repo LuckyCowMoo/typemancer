@@ -1,4 +1,5 @@
 import type { ConfirmSoundProfile, GameSettings, SoundProfile } from '../types/game';
+import { buildEventAmbianceGraph } from './eventAmbianceEngine';
 
 export const CARD_SFX_MAP: Record<string, { sfx: string; volume?: number }> = {
   ink_strike: { sfx: 'cards/blade_01.wav', volume: 0.75 },
@@ -480,7 +481,7 @@ class SoundEngine {
       'main_menu',
     ];
 
-    if (AMBIANCE_KEYS.includes(soundId)) {
+    if (AMBIANCE_KEYS.includes(soundId) || soundId.startsWith('event:')) {
       if (this.getCurrentAmbianceKey() === soundId) {
         this.stopAmbiance(0.4);
       } else {
@@ -1193,6 +1194,11 @@ class SoundEngine {
     intervalIds: number[],
     settings: GameSettings
   ): void {
+    const eventId = key.startsWith('event:') ? key.slice('event:'.length) : key;
+    if (buildEventAmbianceGraph(eventId, ctx, masterGain, sources, intervalIds, this.noiseBuffers, settings)) {
+      return;
+    }
+
     const now = ctx.currentTime;
 
     switch (key) {
