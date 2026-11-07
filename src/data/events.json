@@ -31,9 +31,10 @@
           "hpChange": 6,
           "gainRareCard": true
         },
-        "failText": "The unstable ink curdles in your stomach, scorching your throat before fading away.",
+        "failText": "The unstable violet ink curdles in your chest (-8 HP) and permanently stains your satchel with a Smudged Manuscript!",
         "failEffects": {
-          "hpChange": -11
+          "hpChange": -8,
+          "gainCurseCard": "smudged_manuscript"
         }
       },
       {
@@ -571,6 +572,19 @@
         "effects": {
           "hpChange": 15
         }
+      },
+      {
+        "id": "pry_sapphire_eyes",
+        "phrases": {
+          "easy": "pry gems",
+          "medium": "steal weeping jewels",
+          "hard": "chisel out the statue cursed weeping sapphire eyes"
+        },
+        "outcomeText": "You pry out the sparkling gemstones! A torrent of gold spills into your satchel (+130 Gold), but weeping ghostly screams curse your parchment with Haunted Vellum!",
+        "effects": {
+          "goldChange": 130,
+          "gainCurseCard": "haunted_vellum"
+        }
       }
     ]
   },
@@ -605,9 +619,10 @@
           "goldChange": 85,
           "upgradeRandomCard": true
         },
-        "failText": "Something sharp and metallic snaps at your fingers beneath the opaque ink!",
+        "failText": "Something foul snaps at your wrist! Virulent black slime bites into your skin (-7 HP) and infects your satchel with Ink Rot!",
         "failEffects": {
-          "hpChange": -9
+          "hpChange": -7,
+          "gainCurseCard": "ink_rot"
         }
       },
       {
@@ -685,10 +700,10 @@
           "medium": "deface the sign",
           "hard": "boldly strike through the wizard floating decree"
         },
-        "outcomeText": "Your pen clashes with the magic. The edict shatters into gold coins, though the magical explosion hurts.",
+        "outcomeText": "You violently strike through the Wizard's decree! A hidden purse bursts forth (+100 Gold), but imperial inquisitors brand your hand with a Royal Censor Writ!",
         "effects": {
-          "hpChange": -9,
-          "goldChange": 80
+          "goldChange": 100,
+          "gainCurseCard": "royal_censor_writ"
         }
       },
       {
@@ -1112,7 +1127,11 @@
         },
         "outcomeText": "'Tax evasion is high treason against the Wizard!' the collector bellows, commanding his hounds to tear you apart!",
         "effects": {
-          "startBattleEnemies": ["vowel_tax_collector", "ink_hound", "ink_hound"]
+          "startBattleEnemies": [
+            "vowel_tax_collector",
+            "ink_hound",
+            "ink_hound"
+          ]
         }
       }
     ]
@@ -1552,7 +1571,9 @@
         },
         "failText": "The enraged wyrm snaps its iron snares and lunges to attack! (Battle Initiated — No Card Rewards Upon Victory)",
         "failEffects": {
-          "startBattleEnemies": ["thesaurus_wyrm"],
+          "startBattleEnemies": [
+            "thesaurus_wyrm"
+          ],
           "battleNoCardReward": true
         }
       }
@@ -1691,6 +1712,688 @@
         "failText": "Thorny wooden boughs lash across your arms as you reach into the cavity (-11 HP).",
         "failEffects": {
           "hpChange": -11
+        }
+      }
+    ]
+  },
+  {
+    "id": "vowel_black_market",
+    "title": "The Vowel Black Market",
+    "narrative": "A rogue goblin smuggler sitting behind a velvet counter offers to buy or sell the very alphabet you speak.",
+    "choices": [
+      {
+        "id": "sell_letter_u",
+        "phrases": {
+          "easy": "sell letter u",
+          "medium": "trade vowel u",
+          "hard": "sign away imperial rights to the letter u"
+        },
+        "outcomeText": "You sign the illicit vowel contract! Gold and an ancient talisman fill your pockets (+150 Gold, +1 Relic). The vowel U is silenced — whenever you play a card with no U, gain +2 Ward!",
+        "effects": {
+          "goldChange": 150,
+          "gainSpecificRelicId": "vowel_black_market_talisman"
+        }
+      },
+      {
+        "id": "buy_vowel_seal",
+        "phrases": {
+          "easy": "buy seal",
+          "medium": "purchase vowel seal",
+          "hard": "spend coin on an enchanted vowel charm"
+        },
+        "outcomeText": "You purchase the master vowel seal. A rare card joins your satchel and your starter techniques are honed.",
+        "effects": {
+          "goldChange": -60,
+          "gainRareCard": true,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "report_smuggler",
+        "phrases": {
+          "easy": "alert guards",
+          "medium": "report smuggler",
+          "hard": "blow a silver whistle to alert the royal bailiffs"
+        },
+        "outcomeText": "The smuggler flees in panic, dropping a pouch of coins on the cobblestones!",
+        "effects": {
+          "goldChange": 45
+        }
+      }
+    ]
+  },
+  {
+    "id": "living_footnote",
+    "title": "The Living Footnote",
+    "narrative": "Scurrying across a ledger is a tiny animated ink-homunculus shaped like an asterisk (*). When it notices you, it hops onto your satchel, chattering in footnotes.",
+    "choices": [
+      {
+        "id": "adopt_footnote",
+        "phrases": {
+          "easy": "adopt footnote",
+          "medium": "inscribe footnote",
+          "hard": "attach the living asterisk to an existing manuscript"
+        },
+        "outcomeText": "The living footnote bonds to your manuscript! Choose a card in your deck: its energy cost is permanently reduced by 1 (minimum 0).",
+        "effects": {
+          "chooseCardForFootnote": true
+        }
+      },
+      {
+        "id": "study_biology",
+        "phrases": {
+          "easy": "study mark",
+          "medium": "study punctuation",
+          "hard": "carefully observe the erratic hops of the punctuation beast"
+        },
+        "outcomeText": "Studying the creature's lexical physiology invigorates your mind and body (+4 Max HP, Heal +8 HP).",
+        "effects": {
+          "maxHpChange": 4,
+          "hpChange": 8
+        }
+      },
+      {
+        "id": "bottle_footnote",
+        "phrases": {
+          "easy": "bottle ink",
+          "medium": "catch the asterisk",
+          "hard": "slam a glass vial over the skittering asterisk"
+        },
+        "chance": 65,
+        "outcomeText": "You capture the buzzing asterisk in a glass phial. It condenses into a wondrous Relic!",
+        "effects": {
+          "gainRandomRelic": true
+        },
+        "failText": "The footnote explodes in caustic punctuation sparks, singeing your fingers!",
+        "failEffects": {
+          "hpChange": -10
+        }
+      }
+    ]
+  },
+  {
+    "id": "anagram_crucible",
+    "title": "The Anagram Crucible",
+    "narrative": "A molten forge where lead movable-type letters are melted in bubbling iron crucibles and recast into hybrid fonts.",
+    "choices": [
+      {
+        "id": "fuse_two_drafts",
+        "phrases": {
+          "easy": "fuse cards",
+          "medium": "reforge drafts",
+          "hard": "cast two unwanted drafts into the molten font crucible"
+        },
+        "outcomeText": "The molten letters melt and recombine! Choose two cards in your deck to fuse into a single hybrid Anagram card.",
+        "effects": {
+          "chooseCardsToFuse": true
+        }
+      },
+      {
+        "id": "quench_forge",
+        "phrases": {
+          "easy": "quench forge",
+          "medium": "pour coolant ink",
+          "hard": "douse the white hot font blocks with cooling ink"
+        },
+        "outcomeText": "You douse the molten forge with enchanted cooling ink. The billowing steam tempers two cards in your satchel!",
+        "effects": {
+          "hpChange": -5,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "sift_slag",
+        "phrases": {
+          "easy": "sift slag",
+          "medium": "loot lead scraps",
+          "hard": "dig through discarded lead font shavings"
+        },
+        "outcomeText": "You scoop up valuable discarded lead typeface nuggets and pocket the coins.",
+        "effects": {
+          "goldChange": 65
+        }
+      }
+    ]
+  },
+  {
+    "id": "leyline_astrolabe",
+    "title": "The Astrolabe of Leylines",
+    "narrative": "An ancient brass map table mounted on gimbals. By turning its dials, the ink routes painted on the floor shift and rearrange.",
+    "choices": [
+      {
+        "id": "pacify_leyroutes",
+        "phrases": {
+          "easy": "calm map",
+          "medium": "pacify ley routes",
+          "hard": "align the celestial lenses to pacify dangerous routes"
+        },
+        "outcomeText": "Celestial lenses click into place. All ordinary combat encounters on the next floor are transmuted into Mystery encounters!",
+        "effects": {
+          "transmuteNextFloorCombatsToMysteries": true
+        }
+      },
+      {
+        "id": "awaken_elites",
+        "phrases": {
+          "easy": "challenge elites",
+          "medium": "awaken dangerous leylines",
+          "hard": "overcharge the leyline dials to summon formidable adversaries"
+        },
+        "outcomeText": "The leylines glow with fierce crimson lightning. Secret paths are revealed across the map!",
+        "effects": {
+          "revealSecretPath": true,
+          "goldChange": 50
+        }
+      },
+      {
+        "id": "reveal_all",
+        "phrases": {
+          "easy": "reveal all",
+          "medium": "chart every secret",
+          "hard": "unlock the hidden cartographer channels across the floor"
+        },
+        "outcomeText": "Hidden ink channels illuminate across the parchment map!",
+        "effects": {
+          "revealSecretPath": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "stuttering_echo_cavern",
+    "title": "The Echo Cavern",
+    "narrative": "A crystal cave where sound bounces indefinitely in rhythmic waves: 'H-h-hello... l-l-listen... e-e-echo...'",
+    "choices": [
+      {
+        "id": "echo_duplicate",
+        "phrases": {
+          "easy": "echo card",
+          "medium": "duplicate with echo",
+          "hard": "recite a draft into the cavern to crystallize its echo"
+        },
+        "outcomeText": "Your voice crystallizes against the acoustic stalactites! A card is duplicated and upgraded in your deck.",
+        "effects": {
+          "gainRandomCard": true,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "harmonic_singing",
+        "phrases": {
+          "easy": "sing note",
+          "medium": "resonate crystal",
+          "hard": "sing a pure sustained tone to vibrate acoustic crystals"
+        },
+        "outcomeText": "Harmonic resonance cleanses your mind and satchel (+10 HP, purge a card).",
+        "effects": {
+          "hpChange": 10,
+          "removeRandomCard": true
+        }
+      },
+      {
+        "id": "mine_geodes",
+        "phrases": {
+          "easy": "mine crystals",
+          "medium": "pry resonant geodes",
+          "hard": "chisel resonant acoustic crystals from cavern ceiling"
+        },
+        "chance": 65,
+        "outcomeText": "You chisel free a pristine acoustic geode holding an ancient Relic and glittering gold!",
+        "effects": {
+          "gainRandomRelic": true,
+          "goldChange": 50
+        },
+        "failText": "A resonant shockwave shatters overhead crystal stalactites, showering you in razor shards!",
+        "failEffects": {
+          "hpChange": -12
+        }
+      }
+    ]
+  },
+  {
+    "id": "blacklist_bounty_hunter",
+    "title": "The Blacklist Bounty Hunter",
+    "narrative": "A taciturn mercenary wrapped in torn parchment bandages sharpens a steel nib dagger beside a bulletin board of Wanted posters.",
+    "choices": [
+      {
+        "id": "take_contract",
+        "phrases": {
+          "easy": "take contract",
+          "medium": "sign bounty paper",
+          "hard": "sign your name to a high priority imperial bounty contract"
+        },
+        "outcomeText": "You take the Bounty Contract! Elite enemies take +30% damage and award +160 Gold upon defeat.",
+        "effects": {
+          "gainSpecificRelicId": "bounty_contract"
+        }
+      },
+      {
+        "id": "hire_mercenary",
+        "phrases": {
+          "easy": "hire hound",
+          "medium": "pay mercenary fee",
+          "hard": "hire the bounty hunter to secure your next battle"
+        },
+        "outcomeText": "You pay the mercenary fee. He agrees to aid your expedition, sharing valuable combat training (+8 HP, Upgrade a Card)!",
+        "effects": {
+          "goldChange": -45,
+          "upgradeRandomCard": true,
+          "hpChange": 8
+        }
+      },
+      {
+        "id": "attack_hunter",
+        "phrases": {
+          "easy": "attack hunter",
+          "medium": "strike mercenary",
+          "hard": "draw your nib and attack the rogue bounty hunter"
+        },
+        "outcomeText": "The hunter snarls and draws dual steel nib blades!",
+        "effects": {
+          "startBattleEnemies": [
+            "wizards_guard_enforcer",
+            "ink_hound"
+          ],
+          "battleNoCardReward": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "origami_master_workshop",
+    "title": "The Origami Master's Workshop",
+    "narrative": "A quiet artisan with wooden folding bones folds intricate multidimensional animals out of heavy parchment sheets.",
+    "choices": [
+      {
+        "id": "purchase_crane",
+        "phrases": {
+          "easy": "buy crane",
+          "medium": "purchase folded charm",
+          "hard": "buy a delicate folded crane talisman for good fortune"
+        },
+        "outcomeText": "The master gifts you a wondrous Origami Crane! Gain 6 Ward at the start of every combat.",
+        "effects": {
+          "goldChange": -50,
+          "gainSpecificRelicId": "origami_crane"
+        }
+      },
+      {
+        "id": "learn_defense",
+        "phrases": {
+          "easy": "study folds",
+          "medium": "learn folding technique",
+          "hard": "study structural strength of interlocking paper creases"
+        },
+        "outcomeText": "You master geometric folding armor (+5 Max HP, Heal +8 HP).",
+        "effects": {
+          "maxHpChange": 5,
+          "hpChange": 8
+        }
+      },
+      {
+        "id": "fold_paper",
+        "phrases": {
+          "easy": "fold paper",
+          "medium": "crease parchment",
+          "hard": "fold discarded parchment scrap into a sharp origami dart"
+        },
+        "outcomeText": "You fold a discarded parchment scrap into a sharp technique and add it to your deck.",
+        "effects": {
+          "gainRandomCard": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "red_ink_audit",
+    "title": "The Red Ink Audit Bureau",
+    "narrative": "A gaunt bureaucrat with crimson spectacles sits behind an iron desk stacked with confiscated ledgers, holding a glowing red correction pen.",
+    "choices": [
+      {
+        "id": "bribe_auditor",
+        "phrases": {
+          "easy": "bribe auditor",
+          "medium": "pay exemption fee",
+          "hard": "slip a heavy pouch of bribe coin to receive an official exemption stamp"
+        },
+        "outcomeText": "The bureaucrat pockets your coin and stamps your satchel with the Auditor's Seal! You are permanently immune to curse cards.",
+        "effects": {
+          "goldChange": -55,
+          "gainSpecificRelicId": "auditors_seal"
+        }
+      },
+      {
+        "id": "purge_cards",
+        "phrases": {
+          "easy": "purge cards",
+          "medium": "burn audited drafts",
+          "hard": "submit your deck to regulatory incineration"
+        },
+        "outcomeText": "The auditor ruthlessly strikes through two cluttered drafts in your satchel (-40 Gold, remove 2 cards).",
+        "effects": {
+          "goldChange": -40,
+          "removeRandomCardsCount": 2
+        }
+      },
+      {
+        "id": "defy_audit",
+        "phrases": {
+          "easy": "defy auditor",
+          "medium": "smash the desk",
+          "hard": "overturn the imperial audit desk and engage the bailiffs"
+        },
+        "outcomeText": "'Insolent vagrant! Bailiffs, seize this debtor!' Guards rush in!",
+        "effects": {
+          "startBattleEnemies": [
+            "wizards_guard_enforcer",
+            "wizards_guard_soldier"
+          ],
+          "battleNoCardReward": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "clockwork_metronome",
+    "title": "The Clockwork Metronome",
+    "narrative": "A towering brass metronome ticks inside an abandoned musical conservatory. Its ticking synchronizes with your heartbeat.",
+    "choices": [
+      {
+        "id": "sync_cadence",
+        "phrases": {
+          "easy": "sync tempo",
+          "medium": "tune deck cadence",
+          "hard": "calibrate your satchel drafts to the hypnotic ticking tempo"
+        },
+        "outcomeText": "You synchronize your rhythm to the escapement wheel! You obtain the Clockwork Metronome: odd turns deal +4 attack damage; even turns grant +5 skill ward!",
+        "effects": {
+          "gainSpecificRelicId": "clockwork_metronome"
+        }
+      },
+      {
+        "id": "harvest_gears",
+        "phrases": {
+          "easy": "take gears",
+          "medium": "salvage brass gears",
+          "hard": "disassemble the metronome balance wheel with your wrench"
+        },
+        "outcomeText": "Strenuous mechanical salvaging hurts your hands (-7 HP), but yields +85 Gold and refines a card!",
+        "effects": {
+          "hpChange": -7,
+          "goldChange": 85,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "meditate_ticking",
+        "phrases": {
+          "easy": "rest softly",
+          "medium": "meditate to rhythm",
+          "hard": "rest your weary mind to the steady hypnotic ticking"
+        },
+        "outcomeText": "The hypnotic meter lulls you into deep restoration. You heal +16 HP.",
+        "effects": {
+          "hpChange": 16
+        }
+      }
+    ]
+  },
+  {
+    "id": "two_sentries_portal",
+    "title": "The Two Sentry Sphinxes",
+    "hideOutcomeBadges": true,
+    "narrative": "Two towering marble statues with burning sapphire and amber eyes stand before two archways: the Arch of Silver Mist and the Arch of Gilded Light. One sentry only speaks truth; the other only lies.\\n\\nYou ask: 'Which door leads to sanctuary?'\\nSapphire Sentry: 'My amber-eyed brother will tell you that the Gilded Arch is safe.'\\nAmber Sentry: 'I speak the truth, and the Silver Arch leads to peace.'",
+    "choices": [
+      {
+        "id": "step_silver_arch",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "step silver",
+          "medium": "enter silver arch",
+          "hard": "step boldly through the arch of silver mist"
+        },
+        "outcomeText": "Correct deduction! The silver mist parts into a tranquil treasure vault (+1 Relic, Heal +15 HP)!",
+        "effects": {
+          "gainRandomRelic": true,
+          "hpChange": 15
+        }
+      },
+      {
+        "id": "step_gilded_arch",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "step gilded",
+          "medium": "enter gilded arch",
+          "hard": "step boldly through the arch of gilded light"
+        },
+        "outcomeText": "Trap! The gilded arch slams shut, spraying caustic acid (-14 HP) and cursing your satchel with Haunted Vellum!",
+        "effects": {
+          "hpChange": -14,
+          "gainCurseCard": "haunted_vellum"
+        }
+      },
+      {
+        "id": "speak_paradox",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "speak paradox",
+          "medium": "confuse sentries",
+          "hard": "utter a recursive paradox to freeze both sentries"
+        },
+        "outcomeText": "Both statues short-circuit with stone grinding noises! You loot +60 Gold from their bases and slip away.",
+        "effects": {
+          "goldChange": 60
+        }
+      }
+    ]
+  },
+  {
+    "id": "sphinx_silent_vowel",
+    "title": "The Sphinx of the Silent Vowel",
+    "hideOutcomeBadges": true,
+    "narrative": "A winged stone sphinx blocks the ancient scriptorium. Carved across her pedestal is an ancient riddle:\\n\\n'I am never heard when spoken, yet I make the cap a cape, the pan a pane, and the bit a bite. Pronounce my name, traveler, and the treasury shall unlock. Proclaim falsehood, and my granite claws shall feast.'",
+    "choices": [
+      {
+        "id": "pronounce_letter_e",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "speak letter e",
+          "medium": "whisper silent e",
+          "hard": "proclaim the sacred silent letter e"
+        },
+        "outcomeText": "The Sphinx purrs in satisfaction. 'Wisdom graces your tongue.' The scriptorium unlocks (+1 Rare Card, +55 Gold)!",
+        "effects": {
+          "gainRareCard": true,
+          "goldChange": 55
+        }
+      },
+      {
+        "id": "pronounce_letter_i",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "speak letter i",
+          "medium": "pronounce letter i",
+          "hard": "proclaim the vowel letter i"
+        },
+        "outcomeText": "The Sphinx roars! 'Falsehood!' Granite claws rake across your chest (-13 HP) before the beast retreats into shadow.",
+        "effects": {
+          "hpChange": -13
+        }
+      },
+      {
+        "id": "pronounce_silence",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "remain silent",
+          "medium": "keep silent",
+          "hard": "maintain absolute silence and bow your head"
+        },
+        "outcomeText": "The Sphinx glares, then swats you aside disdainfully (-5 HP). You slip past with no treasure.",
+        "effects": {
+          "hpChange": -5
+        }
+      }
+    ]
+  },
+  {
+    "id": "three_alchemist_flasks",
+    "title": "The Three Alchemical Flasks",
+    "hideOutcomeBadges": true,
+    "narrative": "In an apothecary laboratory, three crystal flasks rest upon a brass shelf labeled Amber, Violet, and Cerulean. An open laboratory ledger notes:\\n1. 'The healing draught is never placed on the far right.'\\n2. 'The flask adjacent to the deadly poison glows with violet light.'\\n3. 'The elixir of wealth is placed directly to the left of the healing draught.'",
+    "choices": [
+      {
+        "id": "drink_amber",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "drink amber",
+          "medium": "quaff amber flask",
+          "hard": "drink the glowing amber elixir of wealth"
+        },
+        "outcomeText": "Liquid gold warms your throat! You deduce correctly and gain +125 Gold!",
+        "effects": {
+          "goldChange": 125
+        }
+      },
+      {
+        "id": "drink_violet",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "drink violet",
+          "medium": "quaff violet flask",
+          "hard": "drink the restorative violet healing draught"
+        },
+        "outcomeText": "Rejuvenating ambrosia soothes your wounds and expands your vigor (+20 HP, +5 Max HP)!",
+        "effects": {
+          "hpChange": 20,
+          "maxHpChange": 5
+        }
+      },
+      {
+        "id": "drink_cerulean",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "drink cerulean",
+          "medium": "quaff blue flask",
+          "hard": "recklessly drink from the cerulean flask"
+        },
+        "outcomeText": "Deadly poison burns like liquid fire! You violently choke (-16 HP, lose -25 Gold)!",
+        "effects": {
+          "hpChange": -16,
+          "goldChange": -25
+        }
+      },
+      {
+        "id": "steal_all_flasks",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "take all three",
+          "medium": "pocket all flasks",
+          "hard": "snatch all three flasks from the shelf and sprint"
+        },
+        "outcomeText": "Greed overwhelms you! The vials violently shatter against each other in your satchel (-10 HP, lose 1 random card, lose 30 Gold)!",
+        "effects": {
+          "hpChange": -10,
+          "removeRandomCard": true,
+          "goldChange": -30
+        }
+      }
+    ]
+  },
+  {
+    "id": "palindrome_vault",
+    "title": "The Palindrome Vault Door",
+    "hideOutcomeBadges": true,
+    "narrative": "A circular vault door of interlocking letter tumblers is sealed tight. An inscription on the arch reads:\\n\\n'Enter from the dawn or enter from the dusk, my form remains untouched in the dark. Speak the key whose three words reflect themselves across the mirror of time, or the crushing gears shall grind your bones.'",
+    "choices": [
+      {
+        "id": "turn_palindromes",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "level noon radar",
+          "medium": "speak level noon radar",
+          "hard": "turn tumblers to level noon radar"
+        },
+        "outcomeText": "The letter tumblers align in perfect bilateral symmetry! The vault pops open (+1 Relic, Upgrade a Card)!",
+        "effects": {
+          "gainRandomRelic": true,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "turn_golden_scepter",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "royal scepter",
+          "medium": "royal golden scepter",
+          "hard": "turn tumblers to royal golden scepter"
+        },
+        "outcomeText": "Asymmetrical imperial words jam the tumblers! Heavy iron pistons crush down on you (-14 HP)!",
+        "effects": {
+          "hpChange": -14
+        }
+      },
+      {
+        "id": "turn_forward_onward",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "forward onward",
+          "medium": "forward always onward",
+          "hard": "turn tumblers to forward always onward"
+        },
+        "outcomeText": "Forward words fail to reflect! The vault alarm detonates (-11 HP, -30 Gold)!",
+        "effects": {
+          "hpChange": -11,
+          "goldChange": -30
+        }
+      }
+    ]
+  },
+  {
+    "id": "scales_of_the_censor",
+    "title": "The Weighing of the Sins",
+    "hideOutcomeBadges": true,
+    "narrative": "A blindfolded magistrate sits before a balance scale holding three sealed parchment scrolls: Pride, Greed, and Wrath.\\n\\nHe speaks: 'Two scrolls are written in ordinary ink of equal weight. One scroll is inscribed in cursed lead-ink, heavy with corruption. Choose an innocent scroll, and you shall receive its blessing. Choose the leaden scroll, and its curse shall bind to your hand.'\\n\\nHe allows you to test the balance once:\\n'When Pride and Greed were placed upon the balance, Greed sank down like lead.'",
+    "choices": [
+      {
+        "id": "scroll_pride",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "choose pride",
+          "medium": "select scroll of pride",
+          "hard": "take the innocent sealed scroll of pride"
+        },
+        "outcomeText": "Pure parchment dissolves into radiant wisdom (+45 Gold, Upgrade a Card)!",
+        "effects": {
+          "goldChange": 45,
+          "upgradeRandomCard": true
+        }
+      },
+      {
+        "id": "scroll_wrath",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "choose wrath",
+          "medium": "select scroll of wrath",
+          "hard": "take the innocent sealed scroll of wrath"
+        },
+        "outcomeText": "Righteous fury bolsters your resolve (+1 Rare Card, +5 Max HP)!",
+        "effects": {
+          "gainRareCard": true,
+          "maxHpChange": 5
+        }
+      },
+      {
+        "id": "scroll_greed",
+        "hideOutcomeBadges": true,
+        "phrases": {
+          "easy": "choose greed",
+          "medium": "select scroll of greed",
+          "hard": "take the heavy sealed scroll of greed"
+        },
+        "outcomeText": "The heavy lead scroll bursts into tarry black smoke (-10 HP) and binds a Royal Censor Writ to your hand!",
+        "effects": {
+          "hpChange": -10,
+          "gainCurseCard": "royal_censor_writ"
         }
       }
     ]

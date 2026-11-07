@@ -4165,5 +4165,145 @@
       "burnDraft": true
     },
     "sfx": "cards/bookFlip2.ogg"
+  },
+  {
+    "id": "smudged_manuscript",
+    "rarity": "curse",
+    "type": "curse",
+    "unplayable": true,
+    "cost": 99,
+    "target": "self",
+    "names": {
+      "easy": "smudged manuscript",
+      "medium": "smudged manuscript",
+      "hard": "smudged illegible manuscript"
+    },
+    "connectors": {
+      "easy": "stains your hand",
+      "medium": "seeps into wounds",
+      "hard": "corrupts your hand with caustic black ink"
+    },
+    "description": "Unplayable. At the end of your turn, take 2 damage if held in hand.",
+    "effects": [],
+    "art": {
+      "primaryColor": "#475569",
+      "secondaryColor": "#1e293b",
+      "shape": "parchment",
+      "spriteUrl": "./assets/sprite-library/ravenmore/Paper.png"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "smudged manuscript",
+        "medium": "smudged manuscript",
+        "hard": "smudged illegible manuscript"
+      },
+      "description": "Unplayable. At the end of your turn, take 2 damage if held in hand.",
+      "effects": []
+    }
+  },
+  {
+    "id": "haunted_vellum",
+    "rarity": "curse",
+    "type": "curse",
+    "unplayable": true,
+    "cost": 99,
+    "target": "self",
+    "names": {
+      "easy": "haunted vellum",
+      "medium": "screaming vellum",
+      "hard": "poltergeist parchment"
+    },
+    "connectors": {
+      "easy": "whispers madly",
+      "medium": "howls from the satchel",
+      "hard": "echoes with spectral torment"
+    },
+    "description": "Unplayable. At the end of your turn, gain 1 Faded if held in hand.",
+    "effects": [],
+    "art": {
+      "primaryColor": "#7c3aed",
+      "secondaryColor": "#312e81",
+      "shape": "parchment",
+      "spriteUrl": "./assets/sprite-library/ravenmore/Paper.png"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "haunted vellum",
+        "medium": "screaming vellum",
+        "hard": "poltergeist parchment"
+      },
+      "description": "Unplayable. At the end of your turn, gain 1 Faded if held in hand.",
+      "effects": []
+    }
+  },
+  {
+    "id": "royal_censor_writ",
+    "rarity": "curse",
+    "type": "curse",
+    "unplayable": true,
+    "cost": 99,
+    "target": "self",
+    "names": {
+      "easy": "censor writ",
+      "medium": "royal censor writ",
+      "hard": "high inquisitor censorship decree"
+    },
+    "connectors": {
+      "easy": "restricts speech",
+      "medium": "imposes silence",
+      "hard": "locks down vocal cords under crown penalty"
+    },
+    "description": "Unplayable. A heavy legal injunction that suffocates your satchel and clutters your hand.",
+    "effects": [],
+    "art": {
+      "primaryColor": "#be123c",
+      "secondaryColor": "#4c0519",
+      "shape": "parchment",
+      "spriteUrl": "./assets/sprite-library/ravenmore/Paper.png"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "censor writ",
+        "medium": "royal censor writ",
+        "hard": "high inquisitor censorship decree"
+      },
+      "description": "Unplayable. A heavy legal injunction that suffocates your satchel and clutters your hand.",
+      "effects": []
+    }
+  },
+  {
+    "id": "ink_rot",
+    "rarity": "curse",
+    "type": "curse",
+    "unplayable": true,
+    "cost": 99,
+    "target": "self",
+    "names": {
+      "easy": "ink rot",
+      "medium": "creeping ink rot",
+      "hard": "virulent black ink necrosis"
+    },
+    "connectors": {
+      "easy": "rots the flesh",
+      "medium": "burns your veins",
+      "hard": "spreads corrupt acidic ink across your bones"
+    },
+    "description": "Unplayable. At the end of your turn, gain 2 Ink Burn if held in hand.",
+    "effects": [],
+    "art": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#064e3b",
+      "shape": "parchment",
+      "spriteUrl": "./assets/sprite-library/ravenmore/Paper.png"
+    },
+    "upgrade": {
+      "names": {
+        "easy": "ink rot",
+        "medium": "creeping ink rot",
+        "hard": "virulent black ink necrosis"
+      },
+      "description": "Unplayable. At the end of your turn, gain 2 Ink Burn if held in hand.",
+      "effects": []
+    }
   }
 ]

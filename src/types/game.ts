@@ -116,6 +116,10 @@ export interface CardInstance {
   inverted?: boolean;
   consecrated?: boolean;
   corrupted?: boolean;
+  costModifier?: number;
+  customName?: string;
+  customDescription?: string;
+  customEffects?: CardEffect[];
   additionalEffects?: CardEffect[];
 }
 
@@ -206,7 +210,7 @@ export interface ActiveEnemy {
   art: ArtPlaceholder;
 }
 
-export type RelicRarity = 'starter' | 'common' | 'uncommon' | 'rare' | 'boss' | 'shop';
+export type RelicRarity = 'starter' | 'common' | 'uncommon' | 'rare' | 'boss' | 'shop' | 'event';
 
 export type RelicTrigger =
   | 'combat_start'
@@ -279,6 +283,14 @@ export interface MysteryEffects {
   removeRandomCardsCount?: number;
   /** If a battle is started from this effect, prevents cards from being awarded upon victory. */
   battleNoCardReward?: boolean;
+  /** Grants an exact relic ID from relics.json. */
+  gainSpecificRelicId?: string;
+  /** Triggers interactive card selection to add a Footnote (-1 energy cost). */
+  chooseCardForFootnote?: boolean;
+  /** Triggers interactive selection of two cards to fuse into an Anagram Crucible hybrid. */
+  chooseCardsToFuse?: boolean;
+  /** Transmutes ordinary combat nodes on the next floor into Mystery encounters. */
+  transmuteNextFloorCombatsToMysteries?: boolean;
 }
 
 export interface MysteryChoice {
@@ -292,6 +304,8 @@ export interface MysteryChoice {
   chance?: number;
   failText?: string;
   failEffects?: MysteryEffects;
+  /** Hides positive/negative effect badge preview (e.g. for deductive riddles). */
+  hideOutcomeBadges?: boolean;
 }
 
 export interface MysteryEventDefinition {
@@ -301,6 +315,8 @@ export interface MysteryEventDefinition {
   choices: MysteryChoice[];
   /** Minimum floor required before this event can appear in mystery encounters (e.g. 5 for elite encounters). */
   minFloor?: number;
+  /** Hides choice outcome badges so the player must deduce the right path from clues. */
+  hideOutcomeBadges?: boolean;
 }
 
 export interface MapPhrasesCatalog {

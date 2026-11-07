@@ -362,6 +362,20 @@ export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
         hint: 'Upgrades an un-upgraded card at random',
       },
       {
+        key: 'chooseCardForFootnote',
+        label: '📝 Inscribe Footnote (-1 Energy Cost)',
+        type: 'boolean',
+        default: true,
+        hint: 'Interactive selection: chosen card permanently costs -1 energy (min 0)',
+      },
+      {
+        key: 'chooseCardsToFuse',
+        label: '🔥 Anagram Crucible Fusion',
+        type: 'boolean',
+        default: true,
+        hint: 'Interactive selection: melt two cards into an anagram hybrid',
+      },
+      {
         key: 'removeRandomCard',
         label: '🔥 Remove A Random Card from Deck',
         type: 'boolean',
@@ -383,6 +397,13 @@ export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
         default: true,
         hint: 'Grants an unowned relic from catalog',
       },
+      {
+        key: 'gainSpecificRelicId',
+        label: '🏆 Gain Specific Relic ID',
+        type: 'string',
+        default: 'clockwork_metronome',
+        hint: 'Exact relic ID from catalog (e.g. clockwork_metronome, auditors_seal)',
+      },
     ],
   },
   {
@@ -391,6 +412,13 @@ export const MYSTERY_EFFECT_GROUPS: MysteryEffectCategoryGroup[] = [
     color: '#8b5cf6',
     bg: '#faf5ff',
     items: [
+      {
+        key: 'transmuteNextFloorCombatsToMysteries',
+        label: '✨ Transmute Battles into Mysteries',
+        type: 'boolean',
+        default: true,
+        hint: 'Turns all ordinary combat routes on the next floor into mysteries',
+      },
       {
         key: 'revealSecretPath',
         label: '🗺️ Reveal Secret Leyline Path on Map',
@@ -3420,6 +3448,8 @@ export const DevJsonEditor: React.FC<DevJsonEditorProps> = ({
                     <option value="uncommon">uncommon</option>
                     <option value="rare">rare</option>
                     <option value="boss">boss</option>
+                    <option value="shop">shop</option>
+                    <option value="event">event</option>
                   </select>
                 </label>
                 <label className="dev-field">

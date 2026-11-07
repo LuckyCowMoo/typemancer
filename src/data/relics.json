@@ -598,5 +598,105 @@
       "spriteUrl": "./assets/relics/I_Mirror.png"
     },
     "price": 180
+  },
+  {
+    "id": "clockwork_metronome",
+    "rarity": "event",
+    "names": {
+      "easy": "metronome",
+      "medium": "clockwork metronome",
+      "hard": "synchronous clockwork metronome"
+    },
+    "description": "Event Exclusive. On odd combat turns, all attacks deal +4 Damage. On even combat turns, playing skills grants +5 Ward.",
+    "trigger": "passive",
+    "effectType": "ward",
+    "amount": 5,
+    "art": {
+      "primaryColor": "#d97706",
+      "secondaryColor": "#fef3c7",
+      "shape": "diamond",
+      "spriteUrl": "./assets/relics/Ac_Medal01.png"
+    },
+    "price": 999
+  },
+  {
+    "id": "auditors_seal",
+    "rarity": "event",
+    "names": {
+      "easy": "auditor seal",
+      "medium": "red ink seal",
+      "hard": "bureaucratic auditor stamp of exemption"
+    },
+    "description": "Event Exclusive. Stamped with crimson imperial wax. Grants complete immunity against acquiring curse cards.",
+    "trigger": "passive",
+    "effectType": "gold_bonus",
+    "amount": 0,
+    "art": {
+      "primaryColor": "#dc2626",
+      "secondaryColor": "#fee2e2",
+      "shape": "circle",
+      "spriteUrl": "./assets/relics/Ac_Medal03.png"
+    },
+    "price": 999
+  },
+  {
+    "id": "bounty_contract",
+    "rarity": "event",
+    "names": {
+      "easy": "bounty mark",
+      "medium": "hunter contract",
+      "hard": "imperial bounty warrant"
+    },
+    "description": "Event Exclusive. Elite enemies take +30% damage and award +160 Gold upon defeat.",
+    "trigger": "passive",
+    "effectType": "gold_bonus",
+    "amount": 160,
+    "art": {
+      "primaryColor": "#4f46e5",
+      "secondaryColor": "#e0e7ff",
+      "shape": "parchment",
+      "spriteUrl": "./assets/relics/W_Book06.png"
+    },
+    "price": 999
+  },
+  {
+    "id": "vowel_black_market_talisman",
+    "rarity": "event",
+    "names": {
+      "easy": "vowel talisman",
+      "medium": "smuggler talisman",
+      "hard": "illicit vowel tax talisman"
+    },
+    "description": "Event Exclusive. The vowel U is silenced. Whenever you play a card whose name contains no U, gain +2 Ward.",
+    "trigger": "passive",
+    "effectType": "ward",
+    "amount": 2,
+    "art": {
+      "primaryColor": "#10b981",
+      "secondaryColor": "#d1fae5",
+      "shape": "hexagon",
+      "spriteUrl": "./assets/relics/Ac_Necklace01.png"
+    },
+    "price": 999
+  },
+  {
+    "id": "origami_crane",
+    "rarity": "uncommon",
+    "names": {
+      "easy": "origami crane",
+      "medium": "folded crane charm",
+      "hard": "auspicious folded parchment crane"
+    },
+    "description": "A delicate folded crane. Gain 6 Ward at the start of combat.",
+    "trigger": "combat_start",
+    "effectType": "ward",
+    "amount": 6,
+    "art": {
+      "primaryColor": "#0284c7",
+      "secondaryColor": "#e0f2fe",
+      "shape": "hexagon",
+      "spriteUrl": "./assets/sprite-library/ravenmore/Paper.png"
+    },
+    "price": 140
   }
 ]

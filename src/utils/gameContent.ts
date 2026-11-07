@@ -405,7 +405,9 @@ export function resolveCardInstance(
   const isUnplayable = Boolean(def.unplayable || def.type === 'curse');
 
   let baseEffects =
-    instance.upgraded && def.upgrade
+    instance.customEffects && instance.customEffects.length > 0
+      ? instance.customEffects
+      : instance.upgraded && def.upgrade
       ? def.upgrade.effects || def.effects
       : def.effects;
   if (isInverted) {
@@ -430,6 +432,9 @@ export function resolveCardInstance(
   } else if (instance.corrupted) {
     finalName = `Corrupted ${baseName}`;
   }
+  if (instance.customName) {
+    finalName = instance.customName;
+  }
   if (isInverted) {
     finalName = `detrevnI ${finalName}`;
   }
@@ -438,7 +443,13 @@ export function resolveCardInstance(
     instance.upgraded && def.upgrade
       ? def.upgrade.description || def.description
       : cleanCardDescriptionForPlay(def.description);
-  let finalDesc = isInverted ? generateInvertedDescription(baseEffects) : baseDesc;
+  let finalDesc = instance.customDescription
+    ? instance.customDescription
+    : isInverted
+    ? generateInvertedDescription(baseEffects)
+    : instance.customEffects && instance.customEffects.length > 0
+    ? describeCardEffects(instance.customEffects)
+    : baseDesc;
   if (instance.additionalEffects && instance.additionalEffects.length > 0) {
     const extraDesc = describeCardEffects(instance.additionalEffects);
     if (extraDesc) {
@@ -453,11 +464,12 @@ export function resolveCardInstance(
     : def.target;
   const finalTarget = deriveEffectiveTarget(baseTarget, allEffects);
 
-  const finalCost = isXCost
+  const rawCost = isXCost
     ? -1
     : instance.upgraded && def.upgrade && def.upgrade.cost !== undefined
     ? def.upgrade.cost
     : def.cost;
+  const finalCost = isXCost ? -1 : Math.max(0, rawCost + (instance.costModifier || 0));
 
   const finalBurn =
     def.type === 'power'
@@ -1366,9 +1378,12 @@ export function generateCardRewards(
  */
 export function generateRelicRewards(ownedRelicIds: string[], count: number = 3): RelicDefinition[] {
   const unowned = RELICS_CATALOG.filter(
-    (r) => r.rarity !== 'starter' && !ownedRelicIds.includes(r.id)
+    (r) => r.rarity !== 'starter' && r.rarity !== 'event' && !ownedRelicIds.includes(r.id)
   );
-  const pool = unowned.length > 0 ? unowned : RELICS_CATALOG;
+  const pool =
+    unowned.length > 0
+      ? unowned
+      : RELICS_CATALOG.filter((r) => r.rarity !== 'starter' && r.rarity !== 'event');
   const shuffled = shuffleArray(pool);
   return shuffled.slice(0, Math.min(count, shuffled.length));
 }

@@ -261,6 +261,7 @@ export function App() {
   const [energy, setEnergy] = useState<number>(3);
   const [maxEnergy, setMaxEnergy] = useState<number>(3);
   const [playerWard, setPlayerWard] = useState<number>(0);
+  const [combatTurn, setCombatTurn] = useState<number>(1);
   const [playerStatuses, setPlayerStatuses] = useState<StatusState>({
     bold: 0,
     faded: 0,
@@ -333,7 +334,10 @@ export function App() {
     | 'select_card_to_invert'
     | 'confirm_card_invert'
     | 'select_card_to_consecrate'
+    | 'select_card_for_footnote'
+    | 'select_cards_to_fuse'
   >('event');
+  const [fusionSelectedCards, setFusionSelectedCards] = useState<CardInstance[]>([]);
   const [mysterySelectedCard, setMysterySelectedCard] = useState<CardInstance | null>(null);
 
   // Temporary encounter playtest state & run snapshot backup
@@ -364,7 +368,9 @@ export function App() {
       | 'confirm_card_upgrade'
       | 'select_card_to_invert'
       | 'confirm_card_invert'
-      | 'select_card_to_consecrate';
+      | 'select_card_to_consecrate'
+      | 'select_card_for_footnote'
+      | 'select_cards_to_fuse';
     mysterySelectedCard: CardInstance | null;
     energy: number;
     maxEnergy: number;
@@ -778,6 +784,7 @@ export function App() {
       const baseTurnEnergy = Math.max(1, 3 + bonusEnergy);
       setMaxEnergy(baseTurnEnergy);
       setEnergy(baseTurnEnergy);
+      setCombatTurn(1);
       setPlayerWard(startWard);
       setPlayerStatuses({
         bold: startBold,
@@ -860,6 +867,9 @@ export function App() {
           if (r.effectType === 'gold') bonusGold += r.amount;
         }
       });
+      if (relicIds.includes('bounty_contract') && activeNodeType === 'elite') {
+        bonusGold += 160;
+      }
 
       const finalHp = Math.min(maxHp, survivingHp + healOnWin);
       setHp(finalHp);
@@ -1032,6 +1042,12 @@ export function App() {
 
       const dealHitToEnemy = (enemyObj: ActiveEnemy, baseDamage: number) => {
         let dmg = scaleAmount(baseDamage) + nextPlayerStatuses.bold + (envMod.damageBonus ?? 0);
+        if (relicIds.includes('clockwork_metronome') && combatTurn % 2 === 1 && resolved.type === 'attack') {
+          dmg += 4;
+        }
+        if (relicIds.includes('bounty_contract') && (activeNodeType === 'elite' || enemyObj.role === 'elite' || enemyObj.role === 'boss')) {
+          dmg = Math.floor(dmg * 1.3);
+        }
         if (nextPlayerStatuses.faded > 0) {
           dmg = Math.max(0, dmg - nextPlayerStatuses.faded);
         }
@@ -1352,6 +1368,17 @@ export function App() {
             totalDmgDealtThisCard += rel.amount;
           });
         }
+        if (rId === 'clockwork_metronome' && combatTurn % 2 === 0 && resolved.type === 'skill') {
+          nextWard += 5;
+          spawnPopup('player', '+5 Ward (Metronome)', '#1d6fa5');
+        }
+        if (rId === 'vowel_black_market_talisman') {
+          const cardName = resolved.name.toLowerCase();
+          if (!cardName.includes('u')) {
+            nextWard += 2;
+            spawnPopup('player', '+2 Ward (No "U")', '#1d6fa5');
+          }
+        }
       });
 
       const deadEnemies = nextEnemies.filter((e) => e.hp <= 0);
@@ -1541,6 +1568,20 @@ export function App() {
     let nextPlayerHp = hp;
     let nextPlayerWard = playerWard;
     const nextPlayerStats = { ...playerStatuses };
+
+    // Turn-end Held Curse Card triggers
+    hand.forEach((c) => {
+      if (c.cardId === 'smudged_manuscript') {
+        nextPlayerHp = Math.max(1, nextPlayerHp - 2);
+        spawnPopup('player', '-2 HP (Smudged Manuscript)', '#e63946');
+      } else if (c.cardId === 'haunted_vellum') {
+        nextPlayerStats.faded = (nextPlayerStats.faded || 0) + 1;
+        spawnPopup('player', '+1 Faded (Haunted Vellum)', '#64748b');
+      } else if (c.cardId === 'ink_rot') {
+        nextPlayerStats.ink_burn = (nextPlayerStats.ink_burn || 0) + 2;
+        spawnPopup('player', '+2 Ink Burn (Ink Rot)', '#6d28d9');
+      }
+    });
 
     relicIds.forEach((rId) => {
       const rel = getRelicDefinition(rId);
@@ -2333,6 +2374,17 @@ export function App() {
     setTurnLockedCardIds(new Set());
     setEnemies([...workingEnemies.filter((x) => x.hp > 0)]);
     setAllies([...workingAllies.filter((x) => x.hp > 0)]);
+    setCombatTurn((t) => {
+      const nextT = t + 1;
+      if (relicIds.includes('clockwork_metronome')) {
+        if (nextT % 2 === 1) {
+          spawnPopup('player', `Turn ${nextT}: Odd (Attacks +4 Dmg)`, '#d97706');
+        } else {
+          spawnPopup('player', `Turn ${nextT}: Even (Skills +5 Ward)`, '#1d6fa5');
+        }
+      }
+      return nextT;
+    });
     setHandAnimState('drawing');
     window.setTimeout(() => setHandAnimState('idle'), 420);
     setIsAnimatingTurn(false);
@@ -2926,6 +2978,93 @@ export function App() {
     [resetTypingBuffer, settings, triggerElementParticles]
   );
 
+  const handleApplyFootnote = useCallback(
+    (cardInst: CardInstance) => {
+      const resolved = resolveCardInstance(cardInst, phraseDiff);
+      const updatedDeck = deck.map((c) => {
+        if (c.instanceId === cardInst.instanceId) {
+          const nextCostMod = (c.costModifier || 0) - 1;
+          const footnoteName = c.customName
+            ? c.customName.endsWith(' *')
+              ? c.customName
+              : `${c.customName} *`
+            : `${resolved.name} *`;
+          return {
+            ...c,
+            costModifier: nextCostMod,
+            customName: footnoteName,
+          };
+        }
+        return c;
+      });
+      setDeck(updatedDeck);
+      soundEngine.playCardCast(settings);
+      triggerElementParticles(undefined, ['#38bdf8', '#10b981', '#ffd166'], 60, 70);
+      setMysterySubMode('event');
+      setEventOutcomeText('The Living Footnote bonds to your manuscript!');
+      setEventOutcomeSummary([
+        `Annotated "${resolved.name}": Cost permanently reduced by 1 (New Cost: ${Math.max(
+          0,
+          resolved.cost - 1
+        )}) with Footnote (*)!`,
+      ]);
+      resetTypingBuffer(true);
+    },
+    [deck, phraseDiff, resetTypingBuffer, settings, triggerElementParticles]
+  );
+
+  const handleExecuteFusion = useCallback(
+    (cardA: CardInstance, cardB: CardInstance) => {
+      const resolvedA = resolveCardInstance(cardA, phraseDiff);
+      const resolvedB = resolveCardInstance(cardB, phraseDiff);
+      const defA = getCardDefinition(cardA.cardId);
+
+      const nameA = resolvedA.name;
+      const nameB = resolvedB.name;
+      let hybridName = '';
+      if (nameA.includes(' ') && nameB.includes(' ')) {
+        const firstA = nameA.split(' ')[0];
+        const restB = nameB.split(' ').slice(1).join(' ');
+        hybridName = `${firstA} ${restB}`.trim();
+      } else {
+        const halfA = nameA.slice(0, Math.ceil(nameA.length / 2));
+        const halfB = nameB.slice(Math.floor(nameB.length / 2));
+        hybridName = `${halfA}${halfB}`.trim();
+      }
+
+      const higherCost = Math.max(resolvedA.cost, resolvedB.cost);
+      const combinedEffects = [...resolvedA.effects, ...resolvedB.effects];
+
+      const baseCostA =
+        cardA.upgraded && defA.upgrade?.cost !== undefined ? defA.upgrade.cost : defA.cost;
+      const hybridInstance: CardInstance = {
+        instanceId: `anagram_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        cardId: cardA.cardId,
+        upgraded: cardA.upgraded || cardB.upgraded,
+        costModifier: higherCost - baseCostA,
+        customName: hybridName,
+        customEffects: combinedEffects,
+      };
+
+      const nextDeck = deck.filter(
+        (c) => c.instanceId !== cardA.instanceId && c.instanceId !== cardB.instanceId
+      );
+      setDeck([...nextDeck, hybridInstance]);
+      soundEngine.playCardCast(settings);
+      triggerElementParticles(undefined, ['#f59e0b', '#ef4444', '#ffd166'], 70, 70);
+      setMysterySubMode('event');
+      setFusionSelectedCards([]);
+      setEventOutcomeText('The molten metal cools into a pristine new typeface!');
+      setEventOutcomeSummary([
+        `Forged Hybrid Anagram: "${hybridName}" (Cost: ${higherCost})`,
+        `Combined effects from "${resolvedA.name}" and "${resolvedB.name}" into a single concentrated draft.`,
+        'Deck thinned by 1 card.',
+      ]);
+      resetTypingBuffer(true);
+    },
+    [deck, phraseDiff, resetTypingBuffer, settings, triggerElementParticles]
+  );
+
   const executeMysteryChoiceEffects = useCallback(
     (choice: MysteryChoice, succeeded: boolean) => {
       const eff: MysteryEffects = succeeded
@@ -2989,6 +3128,13 @@ export function App() {
           summaryItems.push(`Gained Relic: "${newRel.names[phraseDiff]}"`);
         }
       }
+      if (eff.gainSpecificRelicId) {
+        const specRel = RELICS_CATALOG.find((r) => r.id === eff.gainSpecificRelicId);
+        if (specRel && !relicIds.includes(specRel.id)) {
+          setRelicIds((ids) => [...ids, specRel.id]);
+          summaryItems.push(`Gained Relic: "${specRel.names[phraseDiff]}"`);
+        }
+      }
       if (eff.gainSpecificCardId) {
         const specDef = getCardDefinition(eff.gainSpecificCardId);
         if (specDef) {
@@ -3023,16 +3169,51 @@ export function App() {
         summaryItems.push(`Removed Card from Deck: "${remName}"`);
       }
       if (eff.gainCurseCard) {
-        const curseDef = getCardDefinition(eff.gainCurseCard);
-        if (curseDef) {
-          const curseInst: CardInstance = {
-            instanceId: `curse_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-            cardId: curseDef.id,
-            upgraded: false,
-          };
-          setDeck((d) => [...d, curseInst]);
-          summaryItems.push(`Gained Curse Card: "${curseDef.names[phraseDiff]}"`);
+        if (relicIds.includes('auditors_seal')) {
+          spawnPopup('player', '🛡️ Curse Blocked by Auditor Seal!', '#38bdf8');
+          summaryItems.push("Curse blocked by Auditor's Seal!");
+        } else {
+          const curseDef = getCardDefinition(eff.gainCurseCard);
+          if (curseDef) {
+            const curseInst: CardInstance = {
+              instanceId: `curse_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+              cardId: curseDef.id,
+              upgraded: false,
+            };
+            setDeck((d) => [...d, curseInst]);
+            summaryItems.push(`Gained Curse Card: "${curseDef.names[phraseDiff]}"`);
+          }
         }
+      }
+      if (eff.transmuteNextFloorCombatsToMysteries) {
+        setMapFloors((prev) => {
+          const next = prev.map((row) => row.map((n) => ({ ...n })));
+          const targetFloorIdx = currentFloor; // next floor index (0-based)
+          if (targetFloorIdx < next.length) {
+            let count = 0;
+            next[targetFloorIdx] = next[targetFloorIdx].map((node) => {
+              if (node.type === 'battle') {
+                count++;
+                return {
+                  ...node,
+                  type: 'mystery',
+                  phrases: {
+                    easy: 'mystic leyline',
+                    medium: 'transmuted mystery',
+                    hard: 'celestial astrolabe mystery',
+                  },
+                };
+              }
+              return node;
+            });
+            if (count > 0) {
+              summaryItems.push(
+                `Astrolabe: Transmuted ${count} combat route${count > 1 ? 's' : ''} on Floor ${currentFloor + 1} into Mysteries!`
+              );
+            }
+          }
+          return next;
+        });
       }
       if (eff.revealSecretPath) {
         setMapFloors((prev) => {
@@ -3100,6 +3281,18 @@ export function App() {
       if (eff.chooseCardToInvert) {
         setMysterySubMode('select_card_to_invert');
         setMysterySelectedCard(null);
+        resetTypingBuffer(true);
+        return;
+      }
+      if (eff.chooseCardForFootnote) {
+        setMysterySubMode('select_card_for_footnote');
+        setMysterySelectedCard(null);
+        resetTypingBuffer(true);
+        return;
+      }
+      if (eff.chooseCardsToFuse) {
+        setMysterySubMode('select_cards_to_fuse');
+        setFusionSelectedCards([]);
         resetTypingBuffer(true);
         return;
       }
@@ -4825,6 +5018,83 @@ export function App() {
         return;
       }
 
+      if (mysterySubMode === 'select_card_for_footnote') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'leave'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setMysterySubMode('event');
+          setMysterySelectedCard(null);
+          resetTypingBuffer(true);
+          return;
+        }
+        const nonCurse = deck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse');
+        const footnoteCandidates = sortCardsByCategoryAndRarity(
+          nonCurse.length > 0 ? nonCurse : deck,
+          (c) => c,
+          phraseDiff
+        );
+        const evalFoot = evaluateCandidates(
+          raw,
+          footnoteCandidates.map((c) => ({
+            item: c,
+            phrase: resolveCardInstance(c, phraseDiff).name,
+          })),
+          difficulty
+        );
+        if (evalFoot[0] && evalFoot[0].isValidConfirm) {
+          handleApplyFootnote(evalFoot[0].item);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
+      if (mysterySubMode === 'select_cards_to_fuse') {
+        if (matchCommand(raw, ['back', 'return', 'cancel', 'leave'], 'easy')) {
+          soundEngine.playPageTurn(settings);
+          setMysterySubMode('event');
+          setFusionSelectedCards([]);
+          resetTypingBuffer(true);
+          return;
+        }
+        if (
+          fusionSelectedCards.length === 2 &&
+          matchCommand(raw, ['fuse', 'forge', 'melt', 'confirm', 'yes'], difficulty)
+        ) {
+          handleExecuteFusion(fusionSelectedCards[0], fusionSelectedCards[1]);
+          return;
+        }
+        const nonCurse = deck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse');
+        const fusionCandidates = sortCardsByCategoryAndRarity(
+          nonCurse.length > 0 ? nonCurse : deck,
+          (c) => c,
+          phraseDiff
+        );
+        const evalFuse = evaluateCandidates(
+          raw,
+          fusionCandidates.map((c) => ({
+            item: c,
+            phrase: resolveCardInstance(c, phraseDiff).name,
+          })),
+          difficulty
+        );
+        if (evalFuse[0] && evalFuse[0].isValidConfirm) {
+          const clicked = evalFuse[0].item;
+          if (fusionSelectedCards.some((c) => c.instanceId === clicked.instanceId)) {
+            setFusionSelectedCards((prev) =>
+              prev.filter((c) => c.instanceId !== clicked.instanceId)
+            );
+            soundEngine.playPageTurn(settings);
+          } else if (fusionSelectedCards.length < 2) {
+            setFusionSelectedCards((prev) => [...prev, clicked]);
+            soundEngine.playPageTurn(settings);
+          }
+          resetTypingBuffer(true);
+          return;
+        }
+        soundEngine.playError(settings);
+        return;
+      }
+
       if (pendingChanceChoice && eventOutcomeText === null) {
         // Wheel of Fate is actively spinning
         return;
@@ -5279,6 +5549,19 @@ export function App() {
             .filter((c) => getCardDefinition(c.cardId)?.type !== 'curse')
             .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
           pool.push('back');
+        } else if (mysterySubMode === 'select_card_for_footnote') {
+          deck
+            .filter((c) => getCardDefinition(c.cardId)?.type !== 'curse')
+            .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          pool.push('back');
+        } else if (mysterySubMode === 'select_cards_to_fuse') {
+          deck
+            .filter((c) => getCardDefinition(c.cardId)?.type !== 'curse')
+            .forEach((c) => pool.push(resolveCardInstance(c, phraseDiff).name));
+          if (fusionSelectedCards.length === 2) {
+            pool.push('fuse', 'forge');
+          }
+          pool.push('back');
         } else if (pendingChanceChoice && eventOutcomeText === null) {
           // Wheel is actively spinning
         } else if (eventOutcomeText === null) {
@@ -5541,7 +5824,29 @@ export function App() {
     } else if (eff.removeRandomCard) {
       tokens.push({ text: 'Remove a Card' });
     }
-    if (eff.gainCurseCard) tokens.push({ text: 'Gain Curse', isNegative: true });
+    if (eff.gainSpecificRelicId) {
+      const specRel = RELICS_CATALOG.find((r) => r.id === eff.gainSpecificRelicId);
+      tokens.push({
+        text: `+1 Relic (${specRel?.names[phraseDiff] || eff.gainSpecificRelicId})`,
+        isPositive: true,
+      });
+    }
+    if (eff.chooseCardForFootnote) {
+      tokens.push({ text: 'Inscribe Footnote (-1 Cost)', isPositive: true });
+    }
+    if (eff.chooseCardsToFuse) {
+      tokens.push({ text: 'Fuse Two Cards into Anagram', isPositive: true });
+    }
+    if (eff.transmuteNextFloorCombatsToMysteries) {
+      tokens.push({ text: 'Transmute Next Battles into Mysteries', isPositive: true });
+    }
+    if (eff.gainCurseCard) {
+      const cDef = getCardDefinition(eff.gainCurseCard);
+      tokens.push({
+        text: `Gain Curse (${cDef?.names[phraseDiff] || eff.gainCurseCard})`,
+        isNegative: true,
+      });
+    }
     if (eff.chooseCardToInvert) tokens.push({ text: 'Invert a Card' });
     if (eff.chooseCardToUpgrade) tokens.push({ text: 'Choose Card to Upgrade', isPositive: true });
     if (eff.chooseCardBeforeRoll) {
@@ -5580,6 +5885,23 @@ export function App() {
   );
 
   const renderMysteryChoiceOdds = (ch: MysteryChoice) => {
+    if (activeEvent?.hideOutcomeBadges || ch.hideOutcomeBadges) {
+      return (
+        <div className="mystery-choice-odds-row">
+          <span
+            className="mystery-odds-badge"
+            style={{
+              background: 'rgba(71, 85, 105, 0.15)',
+              color: '#64748b',
+              border: '1px dashed #94a3b8',
+              fontStyle: 'italic',
+            }}
+          >
+            ❓ Riddle outcome hidden — deduce the truth
+          </span>
+        </div>
+      );
+    }
     const winTokens = formatEffectsTokens(ch.effects, false);
     const failTokens = formatEffectsTokens(ch.failEffects, true);
     if (typeof ch.chance === 'number') {
@@ -6973,6 +7295,115 @@ export function App() {
                                 setPendingChanceChoice(pendingConsecrateChoice);
                                 setPendingConsecrateChoice(null);
                                 resetTypingBuffer(true);
+                              }
+                            }}
+                          >
+                            <CardBanner
+                              instance={inst}
+                              phraseDiff={phraseDiff}
+                              index={idx}
+                              isHighlighted={st.isHighlighted}
+                              isEnterCandidate={st.isEnterReady}
+                              showUpgradeDelta={false}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : mysterySubMode === 'select_card_for_footnote' ? (
+                  <div className="story-card">
+                    <h2 className="story-title">
+                      {activeEvent.title} — Select a Card to Annotate (Permanent -1 Energy Cost, or type "back")
+                    </h2>
+                    <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '1rem', fontStyle: 'italic' }}>
+                      Select any card from your satchel. The skittering asterisk will bond to it, permanently reducing its energy cost by 1 (minimum 0) and annotating it with a footnote mark (*).
+                    </p>
+                    <div className="deck-banner-grid">
+                      {sortCardsByCategoryAndRarity(
+                        deck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse'),
+                        (c) => c,
+                        phraseDiff
+                      ).map((inst, idx) => {
+                        const baseRes = resolveCardInstance(inst, phraseDiff);
+                        const st = getPhraseHighlightState(baseRes.name, difficulty);
+                        return (
+                          <div
+                            key={inst.instanceId}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleApplyFootnote(inst)}
+                          >
+                            <CardBanner
+                              instance={inst}
+                              phraseDiff={phraseDiff}
+                              index={idx}
+                              isHighlighted={st.isHighlighted}
+                              isEnterCandidate={st.isEnterReady}
+                              showUpgradeDelta={false}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : mysterySubMode === 'select_cards_to_fuse' ? (
+                  <div className="story-card">
+                    <h2 className="story-title">
+                      {activeEvent.title} — Anagram Crucible: Select 2 Cards to Fuse ({fusionSelectedCards.length}/2 Selected)
+                    </h2>
+                    <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '1rem', fontStyle: 'italic' }}>
+                      Click or type to select two drafts to melt down in the crucible. Their names will hybridize (splitting across whitespace), their effects will combine into a single card, and the energy cost will equal the more expensive card.
+                    </p>
+                    {fusionSelectedCards.length > 0 && (
+                      <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 600, color: '#b45309' }}>Currently Selected:</span>
+                        {fusionSelectedCards.map((c) => (
+                          <span
+                            key={c.instanceId}
+                            className="mystery-odds-badge"
+                            style={{ background: '#fef3c7', color: '#92400e', borderColor: '#f59e0b', cursor: 'pointer' }}
+                            onClick={() => setFusionSelectedCards((prev) => prev.filter((x) => x.instanceId !== c.instanceId))}
+                          >
+                            {resolveCardInstance(c, phraseDiff).name} ✕
+                          </span>
+                        ))}
+                        {fusionSelectedCards.length === 2 && (
+                          <button
+                            className="action-button primary"
+                            style={{ marginLeft: 'auto', background: '#d97706', borderColor: '#b45309' }}
+                            onClick={() => handleExecuteFusion(fusionSelectedCards[0], fusionSelectedCards[1])}
+                          >
+                            🔥 Melt & Forge Anagram!
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    <div className="deck-banner-grid">
+                      {sortCardsByCategoryAndRarity(
+                        deck.filter((c) => getCardDefinition(c.cardId)?.type !== 'curse'),
+                        (c) => c,
+                        phraseDiff
+                      ).map((inst, idx) => {
+                        const isSelected = fusionSelectedCards.some((c) => c.instanceId === inst.instanceId);
+                        const baseRes = resolveCardInstance(inst, phraseDiff);
+                        const st = getPhraseHighlightState(baseRes.name, difficulty);
+                        return (
+                          <div
+                            key={inst.instanceId}
+                            style={{
+                              cursor: 'pointer',
+                              outline: isSelected ? '3px solid #d97706' : 'none',
+                              borderRadius: '8px',
+                              transform: isSelected ? 'scale(1.02)' : 'none',
+                              transition: 'all 0.15s ease',
+                            }}
+                            onClick={() => {
+                              if (isSelected) {
+                                setFusionSelectedCards((prev) => prev.filter((c) => c.instanceId !== inst.instanceId));
+                                soundEngine.playPageTurn(settings);
+                              } else if (fusionSelectedCards.length < 2) {
+                                setFusionSelectedCards((prev) => [...prev, inst]);
+                                soundEngine.playPageTurn(settings);
                               }
                             }}
                           >
