@@ -1104,12 +1104,6 @@ export function App() {
             break;
           }
           case 'ward': {
-            if ((effTarget === 'enemy' || eff.target === 'enemy') && targetEnemy) {
-              const gained = eff.amount * xMultiplier;
-              targetEnemy.ward += gained;
-              spawnPopup(targetEnemy.instanceId, `+${gained} Ward`, '#1d6fa5');
-              break;
-            }
             const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier) + (envMod.wardBonus ?? 0));
             nextWard += gained;
             spawnPopup('player', `+${gained} Ward`, '#1d6fa5');
@@ -1238,29 +1232,14 @@ export function App() {
           }
           case 'plated_armor': {
             const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier));
-            if (effTarget === 'enemy' && targetEnemy) {
-              targetEnemy.statuses.plated_armor += gained;
-              spawnPopup(targetEnemy.instanceId, `+${gained} Plated Armor`, '#2563eb');
-            } else {
-              nextPlayerStatuses.plated_armor += gained;
-              spawnPopup('player', `+${gained} Plated Armor`, '#2563eb');
-            }
+            nextPlayerStatuses.plated_armor += gained;
+            spawnPopup('player', `+${gained} Plated Armor`, '#2563eb');
             break;
           }
           case 'thorns': {
             const gained = Math.max(0, scaleAmount(eff.amount * xMultiplier));
-            if (eff.target === 'all_enemies' || effTarget === 'all_enemies') {
-              nextEnemies.forEach((en) => {
-                en.statuses.thorns += gained;
-                spawnPopup(en.instanceId, `+${gained} Thorns`, '#059669');
-              });
-            } else if ((effTarget === 'enemy' || eff.target === 'enemy') && targetEnemy) {
-              targetEnemy.statuses.thorns += gained;
-              spawnPopup(targetEnemy.instanceId, `+${gained} Thorns`, '#059669');
-            } else {
-              nextPlayerStatuses.thorns += gained;
-              spawnPopup('player', `+${gained} Thorns`, '#059669');
-            }
+            nextPlayerStatuses.thorns += gained;
+            spawnPopup('player', `+${gained} Thorns`, '#059669');
             break;
           }
           case 'keep_card': {
@@ -1883,11 +1862,10 @@ export function App() {
           soundEngine.playEnemyBuff(settings);
           const stKey: keyof StatusState = eff.type;
           const effAmt = Math.max(1, eff.amount + (envMod.statusBonus ?? 0));
-          const target =
-            eff.target ??
-            (eff.type === 'bold' || eff.type === 'plated_armor' || eff.type === 'thorns'
-              ? 'self'
-              : 'player');
+          const isPositiveBuff = eff.type === 'bold' || eff.type === 'plated_armor' || eff.type === 'thorns';
+          const target = isPositiveBuff
+            ? (eff.target === 'all_allies' ? 'all_allies' : 'self')
+            : (eff.target ?? 'player');
           if (target === 'player' || target === 'enemy') {
             const livingAllies = workingAllies.filter((a) => a.hp > 0);
             if (livingAllies.length > 0 && Math.random() >= 0.5) {

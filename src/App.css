@@ -865,26 +865,33 @@ body,
 
 /* ==================== BATTLE MAIN & ENEMY TWO-TIER HIGHLIGHTING ==================== */
 .battle-main {
+  flex: 1;
+  min-width: 0;
+  width: calc(100vw - 326px);
+  max-width: 100%;
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   gap: 10px;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .arena-stage {
   display: grid;
-  /* Player content on the left, flexible gap in the middle, enemies packed on the right.
-     The enemy column is only as wide as the enemies that actually spawned, so empty
-     slots cannot pull them across the arena toward the player. */
-  grid-template-columns: max-content minmax(72px, 1fr) max-content;
+  /* Player on far left, flexible arena gap across the middle, enemies packed on far right */
+  grid-template-columns: minmax(180px, max-content) 1fr minmax(200px, max-content);
   align-items: center;
   justify-content: space-between;
-  padding: 6px 18px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 6px 28px;
   position: relative;
-  gap: 12px;
+  gap: 16px;
 }
 
 .player-side-formation {
+  grid-column: 1;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -1201,10 +1208,13 @@ body,
 .last-stand-pill { background: linear-gradient(135deg, #b45309, #92400e); color: #fffbeb; border: 1.5px solid #f59e0b; font-weight: 800; animation: pulse 1.8s ease-in-out infinite alternate; }
 
 .arena-center-inspector {
+  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 14px;
+  width: 100%;
+  justify-self: center;
 }
 
 .inspected-card-panel {
@@ -1251,6 +1261,7 @@ body,
 }
 
 .enemies-formation {
+  grid-column: 3;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -1258,6 +1269,7 @@ body,
   gap: 16px;
   height: 100%;
   justify-self: end;
+  margin-left: auto;
   width: max-content;
   max-width: 100%;
 }
@@ -1386,18 +1398,18 @@ body,
   box-sizing: border-box;
   margin: 0 auto 14px auto;
   width: calc(100% - 48px);
-  max-width: 1400px;
 }
 
 .battle-main .typing-console-box {
   margin: 0 24px 14px 24px;
   width: calc(100% - 48px);
+  max-width: none;
 }
 
 .narrative-screen-layout .narrative-console {
   margin: 0 auto 6px auto;
-  width: 100%;
-  max-width: 960px;
+  width: calc(100% - 48px);
+  max-width: none;
 }
 
 .typing-sentence-display {
@@ -1417,13 +1429,13 @@ body,
   -webkit-mask-image: linear-gradient(
     to right,
     rgba(0, 0, 0, 1) 0px,
-    rgba(0, 0, 0, 1) calc(100% - 130px),
+    rgba(0, 0, 0, 1) calc(100% - clamp(48px, 6vw, 150px)),
     rgba(0, 0, 0, 0) 100%
   );
   mask-image: linear-gradient(
     to right,
     rgba(0, 0, 0, 1) 0px,
-    rgba(0, 0, 0, 1) calc(100% - 130px),
+    rgba(0, 0, 0, 1) calc(100% - clamp(48px, 6vw, 150px)),
     rgba(0, 0, 0, 0) 100%
   );
 }
@@ -1434,14 +1446,14 @@ body,
     to right,
     rgba(0, 0, 0, 0) 0px,
     rgba(0, 0, 0, 1) 32px,
-    rgba(0, 0, 0, 1) calc(100% - 130px),
+    rgba(0, 0, 0, 1) calc(100% - clamp(48px, 6vw, 150px)),
     rgba(0, 0, 0, 0) 100%
   );
   mask-image: linear-gradient(
     to right,
     rgba(0, 0, 0, 0) 0px,
     rgba(0, 0, 0, 1) 32px,
-    rgba(0, 0, 0, 1) calc(100% - 130px),
+    rgba(0, 0, 0, 1) calc(100% - clamp(48px, 6vw, 150px)),
     rgba(0, 0, 0, 0) 100%
   );
 }
@@ -1530,7 +1542,7 @@ body,
   bottom: -1px;
 }
 
-/* Faint Ghost Autocomplete Text: gets slowly fainter as it gets further from the cursor */
+/* Faint Ghost Autocomplete Text: gets slowly fainter as it gets further from the cursor, adapting to console width */
 .typing-ghost-autocomplete {
   font-weight: 600;
   font-style: italic;
@@ -1541,11 +1553,11 @@ body,
   background: linear-gradient(
     to right,
     rgba(22, 34, 41, 0.48) 0%,
-    rgba(22, 34, 41, 0.40) 100px,
-    rgba(22, 34, 41, 0.28) 240px,
-    rgba(22, 34, 41, 0.16) 400px,
-    rgba(22, 34, 41, 0.05) 560px,
-    rgba(22, 34, 41, 0) 700px
+    rgba(22, 34, 41, 0.40) calc(var(--ghost-fade-width, 700px) * 0.15),
+    rgba(22, 34, 41, 0.28) calc(var(--ghost-fade-width, 700px) * 0.35),
+    rgba(22, 34, 41, 0.16) calc(var(--ghost-fade-width, 700px) * 0.60),
+    rgba(22, 34, 41, 0.05) calc(var(--ghost-fade-width, 700px) * 0.82),
+    rgba(22, 34, 41, 0) var(--ghost-fade-width, 700px)
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

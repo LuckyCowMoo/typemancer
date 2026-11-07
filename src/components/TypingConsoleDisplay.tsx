@@ -34,6 +34,7 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
 
   const [trackTranslateX, setTrackTranslateX] = useState<number>(0);
   const [hasScrolledLeft, setHasScrolledLeft] = useState<boolean>(false);
+  const [ghostFadeWidth, setGhostFadeWidth] = useState<number>(700);
 
   // Compute character-level correctness tints when a suggestion is active
   const analyzedChars = useMemo(() => {
@@ -51,6 +52,9 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
 
     const containerWidth = container.clientWidth;
     if (containerWidth <= 0) return;
+
+    // Adapt ghost autocomplete fade distance dynamically to container width
+    setGhostFadeWidth(Math.max(480, Math.round(containerWidth * 0.55)));
 
     // Untransformed offset of caret relative to track left edge
     const caretOffset = caret.offsetLeft;
@@ -107,6 +111,9 @@ export const TypingConsoleDisplay: React.FC<TypingConsoleDisplayProps> = ({
     <div
       ref={containerRef}
       className={`typing-sentence-display ${hasScrolledLeft ? 'scrolled-left' : ''} ${className}`.trim()}
+      style={{
+        ['--ghost-fade-width' as any]: `${ghostFadeWidth}px`,
+      }}
     >
       <div
         ref={trackRef}

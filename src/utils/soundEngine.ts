@@ -1430,26 +1430,7 @@ class SoundEngine {
         pink.start();
         sources.push(pink, bp, surfGain);
 
-        // Layer 3: Stochastic water bubbles & droplet ripples (Andy Farnell resonant cavity model)
-        // Frequent natural bubbling plops every 120ms to 360ms
-        this.scheduleRandomEvent(120, 360, intervalIds, ctx, masterGain, () => {
-          const curr = ctx.currentTime;
-          const osc = ctx.createOscillator();
-          const g = ctx.createGain();
-          const baseFreq = 950 + Math.random() * 1250;
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(baseFreq, curr);
-          osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.65, curr + 0.042);
-          g.gain.setValueAtTime(0.001, curr);
-          g.gain.linearRampToValueAtTime(0.022 + Math.random() * 0.012, curr + 0.004);
-          g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.048);
-          osc.connect(g);
-          g.connect(masterGain);
-          osc.start(curr);
-          osc.stop(curr + 0.052);
-        });
-
-        // Layer 4: Occasional clear water eddy splash over mossy river stones (every 3.5-7.5s)
+        // Layer 3: Occasional clear water eddy splash over mossy river stones (every 3.5-7.5s)
         this.scheduleRandomEvent(3500, 7500, intervalIds, ctx, masterGain, () => {
           const curr = ctx.currentTime;
           [0, 0.06].forEach((offset, idx) => {
