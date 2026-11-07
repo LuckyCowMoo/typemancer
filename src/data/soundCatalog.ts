@@ -131,6 +131,7 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
   { id: 'cards/relic_gain.wav', label: 'Ancient Relic Discovery', category: 'UI & Combat Global', description: 'Ascending celestial bell arpeggio upon relic claim' },
   { id: 'cards/mystery_win.wav', label: 'Wheel of Fate Fortune Chime', category: 'UI & Combat Global', description: 'Lively uplifting fortune major triad chime' },
   { id: 'cards/mystery_fail.wav', label: 'Wheel of Fate Dissonant Drop', category: 'UI & Combat Global', description: 'Suspenseful low hollow drop and dark tritone' },
+  { id: 'cards/battle_victory.wav', label: 'Battle Victory Swell', category: 'UI & Combat Global', description: 'Uplifting celestial Eb Major 9 harmonic chime chord that swells gently from 0 volume and gracefully decays to silence' },
   { id: 'cards/victory.wav', label: 'Run Victory Fanfare', category: 'UI & Combat Global', description: 'Triumphant celebratory fanfare chords and high bell' },
   { id: 'cards/game_over.wav', label: 'Defeat Dirge & Bell Toll', category: 'UI & Combat Global', description: 'Deep ominous earthquake sub-bass and funeral bell toll' },
 

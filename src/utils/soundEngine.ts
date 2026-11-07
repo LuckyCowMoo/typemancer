@@ -129,6 +129,7 @@ class SoundEngine {
       'draw.wav',
       'play_card.wav',
       'shuffle.wav',
+      'cards/battle_victory.wav',
     ];
     for (const item of list) {
       this.loadAudioBuffer(item).catch(() => {});
@@ -515,6 +516,10 @@ class SoundEngine {
       case 'heavy_stamp':
         this.playConfirm({ ...fullSettings, confirmSound: 'heavy_stamp' });
         break;
+      case 'battle_victory':
+      case 'cards/battle_victory.wav':
+        this.playBattleVictory(fullSettings);
+        break;
       default:
         this.playSample(soundId, fullSettings, 0.8, 0);
         break;
@@ -602,9 +607,10 @@ class SoundEngine {
 
   /**
    * Rewarding combat victory stinger when clearing a battle encounter.
+   * Swells in gently from 0 volume and gracefully decays to silence over a 5.2s lush tail.
    */
   public playBattleVictory(settings: GameSettings): void {
-    this.playSample('cards/blessing2.ogg', settings, 0.75, 0.02);
+    this.playSample('cards/battle_victory.wav', settings, 0.82, 0);
   }
 
   /**
