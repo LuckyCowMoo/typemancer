@@ -2920,6 +2920,27 @@ export function App() {
     [difficulty, typedInput]
   );
 
+  const hasZeroCostPlayableCard = useMemo(() => {
+    return hand.some((c) => {
+      const resolved = resolveCardInstance(c, phraseDiff);
+      if (resolved.unplayable || resolved.xCost || resolved.cost !== 0) return false;
+      if (resolved.type === 'power' && usedPowerCardIdsThisCombat.has(c.cardId)) return false;
+      return true;
+    });
+  }, [hand, phraseDiff, usedPowerCardIdsThisCombat]);
+
+  const shouldShowEndTurnReminder =
+    screen === 'battle' &&
+    hp > 0 &&
+    enemies.some((e) => e.hp > 0) &&
+    !isAnimatingTurn &&
+    energy <= 0 &&
+    !hasZeroCostPlayableCard &&
+    pendingDiscardCount === 0 &&
+    pendingKeepCount === 0 &&
+    !isCardPlayAwaitingDiscard &&
+    overlay === 'none';
+
   const startNewRun = useCallback(
     (chosenName: string, chosenDiff: Difficulty) => {
       soundEngine.playMapOpen(settings);
@@ -5489,6 +5510,9 @@ export function App() {
             pool.push(activeEnvironment.name);
           }
           if (!selectedCard) {
+            if (shouldShowEndTurnReminder) {
+              pool.push('end turn', 'end');
+            }
             handCandidates.forEach((c) => pool.push(c.phrase));
             enemies.forEach((e) => pool.push(e.displayName));
             pool.push('end turn', 'view discard', 'view deck', 'status effects', 'relics');
@@ -6170,6 +6194,14 @@ export function App() {
                 >
                   📌 KEEP A CARD (type card or 'skip')
                 </div>
+              ) : shouldShowEndTurnReminder ? (
+                <div
+                  className="cards-footer-title"
+                  style={{ color: '#d97706', fontWeight: 900 }}
+                  title="Type 'end turn' to end your turn"
+                >
+                  ⚡ OUT OF ENERGY (type "end turn")
+                </div>
               ) : (
                 <div className="cards-footer-title">type [view deck]</div>
               )}
@@ -6581,6 +6613,41 @@ export function App() {
                 })}
               </div>
             </section>
+
+            {/* End Turn Reminder Popup (shown when 0 energy and no 0-cost cards in hand) */}
+            {shouldShowEndTurnReminder && (() => {
+              const endTurnSt = getPhraseHighlightState('end turn', difficulty);
+              return (
+                <aside
+                  className="end-turn-reminder-popup"
+                  data-cmd="end turn"
+                  onClick={() => {
+                    soundEngine.playConfirm(settings);
+                    executeEndTurn();
+                  }}
+                  title="Type 'end turn' or click to pass to enemy turn"
+                  aria-label="End Turn Reminder"
+                >
+                  <div className="end-turn-reminder-icon" aria-hidden="true">
+                    ⚡
+                  </div>
+                  <div className="end-turn-reminder-body">
+                    <div className="end-turn-reminder-title">Out of Energy</div>
+                    <div className="end-turn-reminder-desc">
+                      No 0-energy cards left. Type <strong className="end-turn-highlight-word">"end turn"</strong> or{' '}
+                      <strong className="end-turn-highlight-word">"end"</strong> to finish turn.
+                    </div>
+                  </div>
+                  <div
+                    className={`end-turn-action-chip ${
+                      endTurnSt.isHighlighted ? 'chip-highlighted' : ''
+                    } ${endTurnSt.isEnterReady ? 'chip-enter-ready' : ''}`}
+                  >
+                    end turn ↵
+                  </div>
+                </aside>
+              );
+            })()}
 
             {/* BOTTOM ROW: Clean Typing Bar */}
             <section className="typing-console-box">
