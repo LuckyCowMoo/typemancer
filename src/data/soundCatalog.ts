@@ -256,13 +256,13 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
     id: 'ambiance:event:cursed_gramophone',
     label: 'Mystery: The Last Gramophone',
     category: 'Ambiance',
-    description: '78 RPM vinyl needle surface noise, periodic rotation bump (0.77s), filtered horn waltz melody.',
+    description: 'Abandoned gothic parlor stillness, hand-wound clockwork cylinder escapement ticking, melancholic acoustic brass horn waltz.',
   },
   {
     id: 'ambiance:event:graffiti_wall',
     label: 'Mystery: The Wall of Defiance',
     category: 'Ambiance',
-    description: 'High-voltage surveillance hum, aerosol canister ball clack, pressurized ink spray hiss.',
+    description: 'Crumbling stone corridor wind, luminous alchemical phosphorus ink drone, dagger carving into brick, wet horsehair ink brush strokes.',
   },
   {
     id: 'ambiance:event:torn_pages_wind',
@@ -310,7 +310,7 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
     id: 'ambiance:event:wizard_proclamation',
     label: 'Mystery: The Floating Edict',
     category: 'Ambiance',
-    description: 'Arcane electrostatic power hum, electrostatic sparks, royal sigil resonance chime.',
+    description: 'Arcane levitation updraft, warm floating vellum fifth-drone, parchment banner flutters, resonant royal wax seal chimes.',
   },
   {
     id: 'ambiance:event:stolen_vocal_cords',
@@ -322,7 +322,7 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
     id: 'ambiance:event:mechanical_typesetter',
     label: 'Mystery: The Clockwork Typesetter',
     category: 'Ambiance',
-    description: 'Steam linotype boiler hum, heavy key lever thuds, brass matrix chute drops.',
+    description: 'Gnomish clockwork foundry hearth, bubbling molten lead font crucible, brass escapement gears meshing, movable-type font blocks sliding.',
   },
   {
     id: 'ambiance:event:phantom_proofreader',
@@ -490,7 +490,7 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
     id: 'ambiance:event:two_sentries_portal',
     label: 'Mystery: The Two Sentry Sphinxes',
     category: 'Ambiance',
-    description: 'Desert portal wind, twin sapphire and amber magical drone, stone eyelid grinding.',
+    description: 'Desert portal wind through stone pylons, amber earth resonance, sapphire astral chime, granite eyelid grinding.',
   },
   {
     id: 'ambiance:event:sphinx_silent_vowel',
@@ -508,7 +508,7 @@ export const SOUND_CATALOG: SoundCatalogItem[] = [
     id: 'ambiance:event:palindrome_vault',
     label: 'Mystery: The Palindrome Vault Door',
     category: 'Ambiance',
-    description: 'Subterranean bank vault hum, bilateral brass tumblers clacking, symmetry chime.',
+    description: 'Ancient subterranean dwarven stone rune-vault draft, concentric granite wheels grinding, heavy brass letter tumblers clicking, symmetry bronze bell chime.',
   },
   {
     id: 'ambiance:event:scales_of_the_censor',

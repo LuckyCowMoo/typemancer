@@ -620,75 +620,68 @@ export function buildEventAmbianceGraph(
       return true;
     }
 
-    // The Last Gramophone: 78 RPM vinyl needle surface noise, periodic rotation bump (0.77s), filtered horn waltz melody
+    // The Last Gramophone: Abandoned gothic parlor stillness, hand-wound clockwork cylinder escapement ticking, melancholic acoustic brass horn waltz
     case 'cursed_gramophone': {
-// Vinyl surface noise & needle drag
-      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'highpass', 1200, 1.0, 0.032, sources, masterGain);
-      EventAmbianceBuilder.addDrone(ctx, 110.0, 'sine', 0.015, sources, masterGain, 0.05, 0.8); // Parlor room air
+      // Dusty gothic parlor room draft through heavy velvet curtains
+      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'bandpass', 320, 1.5, 0.045, sources, masterGain);
+      EventAmbianceBuilder.addDrone(ctx, 98.0, 'sine', 0.016, sources, masterGain, 0.03, 0.8); // G2 floorboard resonance
 
-      // Strict 78 RPM cyclic needle bump (every 770ms)
-      const bumpTimer = window.setInterval(() => {
-        if (ctx.state !== 'running') return;
-        const curr = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(85, curr);
-        osc.frequency.exponentialRampToValueAtTime(35, curr + 0.025);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.026, curr);
-        g.gain.exponentialRampToValueAtTime(0.0001, curr + 0.028);
-        osc.connect(g);
-        g.connect(masterGain);
-        osc.start(curr);
-        osc.stop(curr + 0.035);
-      }, 770);
-      intervalIds.push(bumpTimer);
+      // Highlights: Hand-wound clockwork cylinder escapement ticking (every 1.2s - 2.4s)
+      EventAmbianceBuilder.scheduleRandom(1200, 2400, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.032, 780);
+      });
 
-      // Distorted antique waltz arpeggios through narrow brass horn filter (every 6s - 13s)
-      EventAmbianceBuilder.scheduleRandom(6000, 13000, intervalIds, ctx, masterGain, () => {
+      // Highlights: Melancholic acoustic brass horn waltz tines (every 6.0s - 12.0s)
+      EventAmbianceBuilder.scheduleRandom(6000, 12000, intervalIds, ctx, masterGain, () => {
         const curr = ctx.currentTime;
-        const notes = [293.7, 349.2, 440.0, 523.3, 440.0];
+        const notes = [293.66, 349.23, 440.0, 523.25, 440.0]; // D4, F4, A4, C5 minor
         notes.forEach((f, idx) => {
-          const t = curr + idx * 0.28;
+          const t = curr + idx * 0.32;
           const osc = ctx.createOscillator();
-          osc.type = 'sawtooth';
+          osc.type = 'triangle'; // Warm acoustic horn/tine tone
           osc.frequency.setValueAtTime(f, t);
           const bp = ctx.createBiquadFilter();
           bp.type = 'bandpass';
-          bp.frequency.setValueAtTime(820, t);
-          bp.Q.setValueAtTime(4.0, t);
+          bp.frequency.setValueAtTime(f * 1.5, t);
+          bp.Q.setValueAtTime(3.2, t);
           const g = ctx.createGain();
-          g.gain.setValueAtTime(0.016, t);
-          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.linearRampToValueAtTime(0.018, t + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
           osc.connect(bp);
           bp.connect(g);
           g.connect(masterGain);
           osc.start(t);
-          osc.stop(t + 0.35);
+          osc.stop(t + 0.45);
         });
+      });
+
+      // Highlights: Brittle wax cylinder surface friction (every 4.0s - 8.0s)
+      EventAmbianceBuilder.scheduleRandom(4000, 8000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playParchmentFlutter(ctx, masterGain, noiseBuffers, 0.025);
       });
       return true;
     }
 
-    // The Wall of Defiance: High-voltage surveillance hum, aerosol canister ball clack, pressurized ink spray hiss
+    // The Wall of Defiance: Crumbling stone corridor wind, luminous alchemical phosphorus ink drone, dagger carving into brick, wet horsehair ink brush strokes
     case 'graffiti_wall': {
-// Surveillance hum (50Hz + 150Hz) and brick corridor wind
-      EventAmbianceBuilder.addDrone(ctx, 50.0, 'sawtooth', 0.016, sources, masterGain, 0.06, 1.5);
-      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'bandpass', 520, 1.5, 0.065, sources, masterGain);
+      // Midnight alley breeze whispering through ancient crumbling mortar
+      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'bandpass', 420, 1.8, 0.07, sources, masterGain);
+      // Luminous alchemical ink glow drone (sacred G3 196Hz + D4 293.66Hz fifth harmonic)
+      EventAmbianceBuilder.addDrone(ctx, 196.0, 'sine', 0.018, sources, masterGain, 0.04, 1.2);
+      EventAmbianceBuilder.addDrone(ctx, 293.66, 'triangle', 0.012, sources, masterGain, 0.03, 1.5);
 
-      // Highlights: Aerosol spray paint ball agitation rattle (every 4s - 8s)
-      EventAmbianceBuilder.scheduleRandom(4000, 8000, intervalIds, ctx, masterGain, () => {
-        for (let i = 0; i < 4; i++) {
-          window.setTimeout(() => {
-            if (ctx.state === 'running') {
-              EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.038, 920);
-            }
-          }, i * 65);
-        }
+      // Highlights: Rebel dagger and iron chisel carving forbidden runes into brick (every 2.8s - 6.0s)
+      EventAmbianceBuilder.scheduleRandom(2800, 6000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playQuillScratch(ctx, masterGain, noiseBuffers, 0.045);
       });
-      // Highlights: Pressurized aerosol ink spray hiss (every 5s - 11s)
-      EventAmbianceBuilder.scheduleRandom(5000, 11000, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playSteamPuff(ctx, masterGain, noiseBuffers, 0.048, 0.45);
+      // Highlights: Wet horsehair brush dripping and sloshing glowing alchemical ink on porous stone (every 4.5s - 9.0s)
+      EventAmbianceBuilder.scheduleRandom(4500, 9000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playViscousBubble(ctx, masterGain, noiseBuffers, 0.038, 260);
+      });
+      // Highlights: Distant nocturnal lantern bracket creaking softly in the fog (every 6.5s - 13.0s)
+      EventAmbianceBuilder.scheduleRandom(6500, 13000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 1320, 0.02, 1.2);
       });
       return true;
     }
@@ -897,23 +890,25 @@ export function buildEventAmbianceGraph(
       return true;
     }
 
-    // The Floating Edict: Arcane electrostatic power hum, electrostatic sparks, royal sigil resonance chime
+    // The Floating Edict: Arcane levitation updraft, warm floating vellum fifth-drone, parchment banner flutters, resonant royal wax seal chimes
     case 'wizard_proclamation': {
-// Arcane levitation hum (120Hz sawtooth lowpass) & ozone static bed
-      EventAmbianceBuilder.addDrone(ctx, 120.0, 'sawtooth', 0.018, sources, masterGain, 0.08, 2.2);
-      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'white', 'bandpass', 2400, 3.0, 0.022, sources, masterGain);
+      // Ethereal levitation wind draft holding the giant proclamation aloft
+      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'bandpass', 520, 2.0, 0.065, sources, masterGain);
+      // Warm levitation aura drone (A2 110Hz + E3 164.81Hz harmonic fifth)
+      EventAmbianceBuilder.addDrone(ctx, 110.0, 'sine', 0.022, sources, masterGain, 0.04, 1.0);
+      EventAmbianceBuilder.addDrone(ctx, 164.81, 'triangle', 0.014, sources, masterGain, 0.03, 1.4);
 
-      // Highlights: Electrostatic arc sparks (every 2.8s - 6.2s)
-      EventAmbianceBuilder.scheduleRandom(2800, 6200, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.042, 1850);
+      // Highlights: Massive enchanted vellum banner fluttering in mid-air (every 2.5s - 5.5s)
+      EventAmbianceBuilder.scheduleRandom(2500, 5500, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playParchmentFlutter(ctx, masterGain, noiseBuffers, 0.048);
       });
-      // Highlights: Resonant imperial sigil chime chord (every 6s - 12s)
-      EventAmbianceBuilder.scheduleRandom(6000, 12000, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 1440, 0.032, 1.8);
+      // Highlights: Glowing royal imperial wax seal shimmer (every 5.0s - 10.0s)
+      EventAmbianceBuilder.scheduleRandom(5000, 10000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 1188, 0.035, 2.0);
       });
-      // Highlights: Parchment straining against levitation tether (every 7s - 14s)
+      // Highlights: Arcane warning rune flare chime (every 7.0s - 14.0s)
       EventAmbianceBuilder.scheduleRandom(7000, 14000, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playParchmentFlutter(ctx, masterGain, noiseBuffers, 0.04);
+        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 792, 0.028, 2.5);
       });
       return true;
     }
@@ -955,23 +950,27 @@ export function buildEventAmbianceGraph(
       return true;
     }
 
-    // The Clockwork Typesetter: Steam linotype boiler hum, heavy key lever thuds, brass matrix chute drops
+    // The Clockwork Typesetter: Gnomish clockwork foundry hearth, bubbling molten lead font crucible, brass escapement gears meshing, movable-type font blocks sliding
     case 'mechanical_typesetter': {
-// Boiler rumble and molten lead simmer
-      EventAmbianceBuilder.addDrone(ctx, 60.0, 'triangle', 0.022, sources, masterGain, 0.04, 1.2);
-      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'bandpass', 320, 1.6, 0.065, sources, masterGain);
+      // Coal hearth firebed rumble and copper boiler steam draft
+      EventAmbianceBuilder.addDrone(ctx, 73.42, 'triangle', 0.02, sources, masterGain, 0.04, 1.2);
+      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'brown', 'lowpass', 240, 1.6, 0.065, sources, masterGain);
 
-      // Highlights: Heavy linotype key lever thud (every 1.5s - 3.2s)
-      EventAmbianceBuilder.scheduleRandom(1500, 3200, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.05, 280);
-      });
-      // Highlights: Movable brass type matrix clinking down chute (every 2.5s - 5.5s)
+      // Highlights: Molten lead font crucible bubbling (every 2.5s - 5.5s)
       EventAmbianceBuilder.scheduleRandom(2500, 5500, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playCoinClink(ctx, masterGain, 0.04);
+        EventAmbianceBuilder.playViscousBubble(ctx, masterGain, noiseBuffers, 0.045, 180);
       });
-      // Highlights: High-pressure steam release puff (every 6s - 12s)
-      EventAmbianceBuilder.scheduleRandom(6000, 12000, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playSteamPuff(ctx, masterGain, noiseBuffers, 0.045, 0.5);
+      // Highlights: Intricate brass clockwork escapement gear meshing (every 2.0s - 4.5s)
+      EventAmbianceBuilder.scheduleRandom(2000, 4500, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.042, 620);
+      });
+      // Highlights: Movable-type brass font punches locking into composing stick (every 3.2s - 6.5s)
+      EventAmbianceBuilder.scheduleRandom(3200, 6500, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playCoinClink(ctx, masterGain, 0.038);
+      });
+      // Highlights: Soft copper boiler steam relief hiss (every 5.5s - 11.0s)
+      EventAmbianceBuilder.scheduleRandom(5500, 11000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playSteamPuff(ctx, masterGain, noiseBuffers, 0.042, 0.45);
       });
       return true;
     }
@@ -1576,20 +1575,25 @@ export function buildEventAmbianceGraph(
       return true;
     }
 
-    // The Two Sentry Sphinxes (Riddle 1): Desert portal wind, twin sapphire and amber magical drone, stone eyelid grinding
+    // The Two Sentry Sphinxes (Riddle 1): Desert portal wind through stone pylons, amber earth resonance, sapphire astral chime, granite eyelid grinding
     case 'two_sentries_portal': {
-// Desert portal wind and mystic twin drones (amber fifth + sapphire octave)
-      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'bandpass', 480, 1.6, 0.075, sources, masterGain);
-      EventAmbianceBuilder.addDrone(ctx, 65.41, 'sine', 0.022, sources, masterGain, 0.03, 1.0); // C2 sapphire
-      EventAmbianceBuilder.addDrone(ctx, 98.0, 'sine', 0.018, sources, masterGain, 0.03, 1.2); // G2 amber
+      // Desert portal wind whispering between colossal granite pylons
+      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'bandpass', 440, 1.6, 0.075, sources, masterGain);
+      // Twin elemental magical drones: C2 65.41Hz amber earth + G2 98.0Hz sapphire astral
+      EventAmbianceBuilder.addDrone(ctx, 65.41, 'sine', 0.022, sources, masterGain, 0.03, 1.0);
+      EventAmbianceBuilder.addDrone(ctx, 98.0, 'sine', 0.018, sources, masterGain, 0.03, 1.2);
 
-      // Highlights: Sapphire eye glowing arcane frequency surge (every 3s - 6.5s)
-      EventAmbianceBuilder.scheduleRandom(3000, 6500, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 1680, 0.035, 1.8);
+      // Highlights: Sapphire sentry eye flashing radiant quartz crystal chimes (every 3.5s - 7.5s)
+      EventAmbianceBuilder.scheduleRandom(3500, 7500, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 1318.5, 0.032, 2.0); // E6 sapphire
       });
-      // Highlights: Stone sentry eyelid grinding (every 5s - 10s)
+      // Highlights: Heavy granite eyelids grinding against stone brow (every 5.0s - 10.0s)
       EventAmbianceBuilder.scheduleRandom(5000, 10000, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.042, 280);
+        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.045, 220);
+      });
+      // Highlights: Amber sentry chest warming with deep harmonic resonance (every 6.5s - 13.0s)
+      EventAmbianceBuilder.scheduleRandom(6500, 13000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 587.33, 0.025, 2.4); // D5 amber
       });
       return true;
     }
@@ -1648,29 +1652,29 @@ export function buildEventAmbianceGraph(
       return true;
     }
 
-    // The Palindrome Vault Door (Riddle 4): Subterranean bank vault hum, bilateral brass tumblers clacking, symmetry chime
+    // The Palindrome Vault Door (Riddle 4): Ancient subterranean dwarven stone rune-vault draft, concentric granite wheels grinding, heavy brass letter tumblers clicking, symmetry bronze bell chime
     case 'palindrome_vault': {
-// Subterranean steel and brass vault chamber hum
-      EventAmbianceBuilder.addDrone(ctx, 50.0, 'sine', 0.025, sources, masterGain, 0.03, 1.0);
-      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'lowpass', 320, 1.5, 0.065, sources, masterGain);
+      // Subterranean granite masonry cavern draft and ancient vault resonance
+      EventAmbianceBuilder.addDrone(ctx, 43.65, 'sine', 0.024, sources, masterGain, 0.03, 0.9); // F1 stone foundation
+      EventAmbianceBuilder.addNoiseBed(ctx, noiseBuffers, 'pink', 'lowpass', 280, 1.5, 0.065, sources, masterGain);
 
-      // Highlights: Heavy brass letter tumblers spinning and clicking into alignment (every 2.2s - 4.8s)
+      // Highlights: Heavy brass letter tumblers clicking into alignment (every 2.2s - 4.8s)
       EventAmbianceBuilder.scheduleRandom(2200, 4800, intervalIds, ctx, masterGain, () => {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 3; i++) {
           window.setTimeout(() => {
             if (ctx.state === 'running') {
-              EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.045, 950);
+              EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.045, 820);
             }
-          }, i * 70);
+          }, i * 75);
         }
       });
-      // Highlights: Internal vault counterweights shifting (every 5s - 10s)
-      EventAmbianceBuilder.scheduleRandom(5000, 10000, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.05, 180);
+      // Highlights: Concentric circular granite vault wheels grinding (every 4.5s - 9.0s)
+      EventAmbianceBuilder.scheduleRandom(4500, 9000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playMechanicalClick(ctx, masterGain, noiseBuffers, 0.05, 140);
       });
-      // Highlights: Mirror tumbler symmetry alignment chime (every 7s - 13s)
-      EventAmbianceBuilder.scheduleRandom(7000, 13000, intervalIds, ctx, masterGain, () => {
-        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 1840, 0.03, 1.6);
+      // Highlights: Resonant symmetry bronze bell chime echoing down stone corridors (every 6.5s - 13.0s)
+      EventAmbianceBuilder.scheduleRandom(6500, 13000, intervalIds, ctx, masterGain, () => {
+        EventAmbianceBuilder.playCrystalChime(ctx, masterGain, 1046.5, 0.035, 2.2); // C6 bell
       });
       return true;
     }
