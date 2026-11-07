@@ -3758,6 +3758,13 @@ export function App() {
       resetTypingBuffer(false);
       return;
     }
+    if (matchCommand(raw, ['other projects', 'projects', 'other project'], 'easy')) {
+      soundEngine.playPageTurn(settings);
+      triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 58);
+      window.open('https://luckycowmoo.github.io/simple-page/', '_blank');
+      resetTypingBuffer(false);
+      return;
+    }
     if (matchCommand(raw, ['mute'], 'easy')) {
       setSettings((s) => ({ ...s, muted: true }));
       triggerElementParticles('[data-cmd="options"]', ['#64748b', '#102a3a'], 88, 4);
@@ -3930,6 +3937,13 @@ export function App() {
         triggerElementParticles(undefined, ['#d97706', '#102a3a', '#ffd166'], 50, 64);
         setIntroStep('load_save');
         setScreen('peasant_intro');
+        resetTypingBuffer(true);
+        return;
+      }
+      if (matchCommand(raw, ['other projects', 'projects', 'other project'], 'easy')) {
+        soundEngine.playPageTurn(settings);
+        triggerElementParticles(undefined, ['#1b6488', '#137547', '#ffd166'], 50, 58);
+        window.open('https://luckycowmoo.github.io/simple-page/', '_blank');
         resetTypingBuffer(true);
         return;
       }
@@ -5431,7 +5445,7 @@ export function App() {
       }
     } else {
       if (screen === 'main_menu') {
-        pool.push('new run', 'tutorial', 'load', 'options', 'editor', 'help');
+        pool.push('new run', 'tutorial', 'load', 'codex', 'options', 'editor', 'other projects', 'help');
       } else if (screen === 'tutorial') {
         pool.push('back', 'menu');
         if (tutorialStep !== 1 && tutorialStep !== 15) {
@@ -6656,12 +6670,18 @@ export function App() {
                 <div className="clean-menu-card">
                   <h1 className="clean-menu-title">TYPEMANCER</h1>
                   <div className="clean-menu-options">
-                    {(['new run', 'tutorial', 'load', 'codex', 'options', 'editor'] as const).map((opt, idx) => {
+                    {(['new run', 'tutorial', 'load', 'codex', 'options', 'editor', 'other projects'] as const).map((opt, idx) => {
                       const st = getPhraseHighlightState(opt, 'easy');
                       return (
                         <div
                           key={opt}
-                          onClick={opt === 'editor' ? () => setDevEditorOpen(true) : undefined}
+                          onClick={
+                            opt === 'editor'
+                              ? () => setDevEditorOpen(true)
+                              : opt === 'other projects'
+                              ? () => window.open('https://luckycowmoo.github.io/simple-page/', '_blank')
+                              : undefined
+                          }
                           className={`clean-menu-option ${
                             st.isHighlighted ? 'option-highlighted' : ''
                           } ${st.isEnterReady ? 'option-enter-ready' : ''}`}

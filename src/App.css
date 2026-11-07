@@ -2127,7 +2127,7 @@ body,
 
 .clean-menu-card {
   text-align: center;
-  padding: 32px 48px;
+  padding: 24px 36px;
   background: #fdf8ef;
   border: 2.5px solid #2b1e16;
   border-radius: 14px;
@@ -2137,17 +2137,17 @@ body,
 }
 
 .clean-menu-title {
-  font-size: 3.2rem;
+  font-size: 2.8rem;
   font-weight: 900;
   letter-spacing: 0.14em;
   color: #162229;
-  margin: 0 0 28px 0;
+  margin: 0 0 18px 0;
 }
 
 .clean-menu-options {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -2155,8 +2155,8 @@ body,
   background: #fdf8ef;
   border: 2.5px solid #2b1e16;
   border-radius: 14px;
-  padding: 12px 36px;
-  font-size: 1.35rem;
+  padding: 9px 32px;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #bc5215;
   min-width: 240px;
